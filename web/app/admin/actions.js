@@ -16,7 +16,7 @@ import {
   setLivePlaces,
   setPendingPlaces,
 } from "@/lib/redis";
-import { formatPriceText } from "@/lib/priceFormat";
+import { placeFromFormData } from "@/lib/placeForm";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -24,32 +24,6 @@ async function requireAdmin() {
   if (!verifySessionToken(token)) {
     throw new Error("Chưa đăng nhập hoặc phiên đã hết hạn");
   }
-}
-
-function placeFromFormData(formData) {
-  const toNumberOrNull = (value) => {
-    if (value == null || value === "") return null;
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
-  };
-  const toTextOrNull = (value) => (value && value.trim() !== "" ? value.trim() : null);
-
-  const priceMin = toNumberOrNull(formData.get("priceMin")?.toString());
-  const priceMax = toNumberOrNull(formData.get("priceMax")?.toString());
-  const priceUnit = toTextOrNull(formData.get("priceUnit")?.toString());
-
-  return {
-    name: (formData.get("name") ?? "").toString().trim(),
-    type: formData.get("type") === "an" ? "an" : "ngu",
-    address: (formData.get("address") ?? "").toString().trim(),
-    ward: toTextOrNull(formData.get("ward")?.toString()),
-    priceMin,
-    priceMax,
-    priceUnit,
-    // priceText luôn tự tính từ priceMin/priceMax/priceUnit — không nhận gõ tay, để
-    // tránh lệch định dạng (ví dụ "35000" so với "35.000 đ").
-    priceText: formatPriceText({ priceMin, priceMax, priceUnit }),
-  };
 }
 
 export async function login(formData) {

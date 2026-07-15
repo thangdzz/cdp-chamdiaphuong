@@ -7,7 +7,7 @@ import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getLivePlaces, setLivePlaces } from "@/lib/redis";
 import { getReviewQueue, saveReviewQueue, appendReviewEvent } from "@/lib/ingestion/store";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "@/lib/ingestion/schema";
-import { candidateToLivePlace, applyDiffToLivePlace } from "@/lib/ingestion/toLivePlace";
+import { placeFromFormData } from "@/lib/placeForm";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -19,7 +19,10 @@ async function requireAdmin() {
 
 // Ý nghĩa cụ thể của "duyệt"/"từ chối" tuỳ theo loại review item — xem
 // REVIEW_ACTION_LABELS ở page.js để biết nút bấm hiển thị chữ gì cho từng loại.
-async function applyDecision(id, decision) {
+// Với new_place/changed_place/low_confidence_place, dùng đúng dữ liệu anh đã SỬA trên form
+// (không dùng lại dữ liệu thô AI tìm được) — cho phép chỉnh trước khi duyệt, không cần
+// duyệt xong rồi kéo xuống mục "Đang công khai" sửa lại.
+async function applyDecision(id, decision, formData) {
   await requireAdmin();
 
   const reviewQueue = await getReviewQueue();
@@ -30,13 +33,14 @@ async function applyDecision(id, decision) {
   if (decision === "approve") {
     if (item.type === REVIEW_ITEM_TYPE.NEW_PLACE || item.type === REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE) {
       const livePlaces = await getLivePlaces();
-      livePlaces.push(candidateToLivePlace(item.candidate));
+      livePlaces.push({ id: `live-${crypto.randomUUID()}`, ...placeFromFormData(formData) });
       await setLivePlaces(livePlaces);
       item.status = REVIEW_STATUS.APPROVED;
     } else if (item.type === REVIEW_ITEM_TYPE.CHANGED_PLACE) {
+      const edited = placeFromFormData(formData);
       const livePlaces = await getLivePlaces();
       const next = livePlaces.map((p) =>
-        p.id === item.matchedLivePlaceId ? applyDiffToLivePlace(p, item.diff) : p
+        p.id === item.matchedLivePlaceId ? { ...p, ...edited, id: p.id } : p
       );
       await setLivePlaces(next);
       item.status = REVIEW_STATUS.APPROVED;
@@ -83,11 +87,11 @@ async function applyDecision(id, decision) {
 export async function approveReviewItem(formData) {
   "use server";
   const id = formData.get("id")?.toString();
-  await applyDecision(id, "approve");
+  await applyDecision(id, "approve", formData);
 }
 
 export async function rejectReviewItem(formData) {
   "use server";
   const id = formData.get("id")?.toString();
-  await applyDecision(id, "reject");
+  await applyDecision(id, "reject", formData);
 }

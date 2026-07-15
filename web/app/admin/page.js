@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getLivePlaces, getPendingPlaces } from "@/lib/redis";
-import { formatPriceText } from "@/lib/priceFormat";
+import { formatPriceText, parsePriceRangeText } from "@/lib/priceFormat";
 import { getReviewQueue } from "@/lib/ingestion/store";
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import {
@@ -113,6 +113,17 @@ function PlaceForm({ place, children }) {
 function ReviewItemCard({ item }) {
   const labels = REVIEW_ACTION_LABELS[item.type] ?? { approve: "Duyệt", reject: "Từ chối" };
   const c = item.candidate;
+  const parsedPrice = c ? parsePriceRangeText(c.price_range_text) : null;
+  const editable = {
+    name: c?.name,
+    type: c?.category_primary,
+    address: c?.address_text,
+    ward: c?.area_preset,
+    priceMin: parsedPrice?.priceMin,
+    priceMax: parsedPrice?.priceMax,
+    priceUnit: parsedPrice?.priceUnit,
+  };
+  const preview = c ? formatPriceText(editable) ?? "Chưa có giá" : null;
 
   return (
     <form className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -127,13 +138,30 @@ function ReviewItemCard({ item }) {
       </div>
 
       {c ? (
-        <div className="mt-2 text-sm text-zinc-800">
-          <p className="font-semibold">{c.name}</p>
-          <p className="text-zinc-600">{c.address_text ?? "(chưa có địa chỉ)"}</p>
-          <p className="text-zinc-600">
-            {formatPriceText(c) ?? "Chưa có giá"} · {c.category_primary === "an" ? "Ăn" : "Ngủ"}
+        <>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <Field label="Tên" name="name" defaultValue={editable.name} />
+            <label className="flex flex-col gap-1 text-xs text-zinc-500">
+              Loại hình
+              <select
+                name="type"
+                defaultValue={editable.type}
+                className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
+              >
+                <option value="ngu">Ngủ</option>
+                <option value="an">Ăn</option>
+              </select>
+            </label>
+            <Field label="Địa chỉ" name="address" defaultValue={editable.address} />
+            <Field label="Khu vực (phường)" name="ward" defaultValue={editable.ward} />
+            <Field label="Giá thấp nhất" name="priceMin" type="number" defaultValue={editable.priceMin} />
+            <Field label="Giá cao nhất" name="priceMax" type="number" defaultValue={editable.priceMax} />
+            <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" defaultValue={editable.priceUnit} />
+          </div>
+          <p className="mt-2 text-xs text-zinc-500">
+            Giá sẽ hiển thị cho khách: <span className="font-medium text-zinc-700">{preview}</span>
           </p>
-        </div>
+        </>
       ) : (
         <p className="mt-2 text-sm text-zinc-600">
           Địa điểm đã công khai (id: {item.matchedLivePlaceId}) — không có dữ liệu mới, chỉ
