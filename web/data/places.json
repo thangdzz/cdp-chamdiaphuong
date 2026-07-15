@@ -1,0 +1,202 @@
+[
+  {
+    "id": "ngu-01",
+    "name": "Khách sạn Mường Thanh Grand Tuyên Quang",
+    "type": "ngu",
+    "address": "207 Bình Thuận, Phường Hưng Thành, TP Tuyên Quang",
+    "ward": "Hưng Thành",
+    "priceText": "1.000.000 – 1.100.000 đ/đêm",
+    "priceMin": 1000000,
+    "priceMax": 1100000
+  },
+  {
+    "id": "ngu-02",
+    "name": "Royal Palace Hotel / Royal Tuyên Quang Hotel",
+    "type": "ngu",
+    "address": "176A Bình Thuận, TP Tuyên Quang",
+    "ward": null,
+    "priceText": "380.000 – 670.000 đ/đêm",
+    "priceMin": 380000,
+    "priceMax": 670000
+  },
+  {
+    "id": "ngu-03",
+    "name": "Khách sạn Tân Trang",
+    "type": "ngu",
+    "address": "25 Nguyễn Trãi, Phường Tân Quang, TP Tuyên Quang",
+    "ward": "Tân Quang",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-04",
+    "name": "Khách sạn Hà Tuyên",
+    "type": "ngu",
+    "address": "Tổ 27, Phường Tân Quang, TP Tuyên Quang",
+    "ward": "Tân Quang",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-05",
+    "name": "Khách sạn Vạn Tuế",
+    "type": "ngu",
+    "address": "94 Lê Lợi, Phường Tân Quang, TP Tuyên Quang",
+    "ward": "Tân Quang",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-06",
+    "name": "Khách sạn Hoa Mai",
+    "type": "ngu",
+    "address": "44 Đường 17/8, Phường Minh Xuân, TP Tuyên Quang",
+    "ward": "Minh Xuân",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-07",
+    "name": "Khách sạn Kim Long",
+    "type": "ngu",
+    "address": "500 Đường 17/8, Tổ 23, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-08",
+    "name": "Khách sạn Vân Anh",
+    "type": "ngu",
+    "address": "Tổ 19, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-09",
+    "name": "Khách sạn Nắng Mai",
+    "type": "ngu",
+    "address": "Tổ 36, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "ngu-10",
+    "name": "Nhà nghỉ Minh Thủy",
+    "type": "ngu",
+    "address": "Tổ 23, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-01",
+    "name": "Nướng Than Hoa Tuyên Quang",
+    "type": "an",
+    "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-02",
+    "name": "Dê Phố (Tân Hòa)",
+    "type": "an",
+    "address": "Khu phố cổ, Tổ 16, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-03",
+    "name": "Nhà hàng Dũng Cá",
+    "type": "an",
+    "address": "124 Trần Hưng Đạo, TP Tuyên Quang",
+    "ward": null,
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-04",
+    "name": "Nhà hàng Thành Tín",
+    "type": "an",
+    "address": "Khu ẩm thực Xuân Hòa, Tổ 2, Phường Minh Xuân, TP Tuyên Quang",
+    "ward": "Minh Xuân",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-05",
+    "name": "Nhà hàng Huy Cá",
+    "type": "an",
+    "address": "Tổ 15, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-06",
+    "name": "Quán Bún số 10",
+    "type": "an",
+    "address": "Số 10 Hồng Thái, Tổ 8, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": "20.000 – 30.000 đ/bát",
+    "priceMin": 20000,
+    "priceMax": 30000
+  },
+  {
+    "id": "an-07",
+    "name": "Phở Ngọc",
+    "type": "an",
+    "address": "18 Nguyễn Trãi, Phường Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": "35.000 – 50.000 đ/bát",
+    "priceMin": 35000,
+    "priceMax": 50000
+  },
+  {
+    "id": "an-08",
+    "name": "Phở 82",
+    "type": "an",
+    "address": "67 Đường 17/8, Phường Minh Xuân, TP Tuyên Quang",
+    "ward": "Minh Xuân",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-09",
+    "name": "Bánh cuốn Bà Hương",
+    "type": "an",
+    "address": "164 Quang Trung, TP Tuyên Quang",
+    "ward": null,
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  },
+  {
+    "id": "an-10",
+    "name": "Bánh cuốn Hoài Hương",
+    "type": "an",
+    "address": "2 Phan Thiết, TP Tuyên Quang",
+    "ward": "Phan Thiết",
+    "priceText": null,
+    "priceMin": null,
+    "priceMax": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Phở Ngọc",
+    "category_primary": "an",
+    "address_text": "18 Nguyễn Trãi, Phường Phan Thiết, TP Tuyên Quang",
+    "phone": null,
+    "price_range_text": "40.000 – 55.000 đ/bát"
+  },
+  {
+    "name": "Phở Ngọc 2",
+    "category_primary": "an",
+    "address_text": "Gần 18 Nguyễn Trãi, Phường Phan Thiết",
+    "phone": null,
+    "price_range_text": null
+  },
+  {
+    "name": "Nhà hàng Sông Lô Quán",
+    "category_primary": "an",
+    "address_text": "Đường Chiến thắng Sông Lô, Phường Minh Xuân, TP Tuyên Quang",
+    "phone": "02733999888",
+    "price_range_text": "100.000 – 250.000 đ/phần",
+    "opening_hours_text": "10h00 – 22h00"
+  },
+  {
+    "name": "Nhà nghỉ Bình An"
+  }
+]

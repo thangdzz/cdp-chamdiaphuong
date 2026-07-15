@@ -1,0 +1,311 @@
+import { cookies } from "next/headers";
+import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
+import { getLivePlaces, getPendingPlaces } from "@/lib/redis";
+import { formatPriceText } from "@/lib/priceFormat";
+import { getReviewQueue } from "@/lib/ingestion/store";
+import { REVIEW_STATUS } from "@/lib/ingestion/schema";
+import {
+  login,
+  logout,
+  addPending,
+  approvePending,
+  rejectPending,
+  updateLive,
+  deleteLive,
+} from "./actions";
+import { approveReviewItem, rejectReviewItem } from "./reviewActions";
+
+const REVIEW_TYPE_LABEL = {
+  new_place: "Địa điểm mới",
+  changed_place: "Có thay đổi",
+  conflict_detected: "Mâu thuẫn dữ liệu",
+  duplicate_candidate: "Nghi trùng lặp",
+  stale_place: "Lâu chưa xác nhận",
+  low_confidence_place: "Độ tin cậy thấp",
+};
+
+const REVIEW_ACTION_LABELS = {
+  new_place: { approve: "Duyệt (đăng công khai)", reject: "Từ chối" },
+  low_confidence_place: { approve: "Duyệt (đăng công khai)", reject: "Từ chối" },
+  changed_place: { approve: "Áp dụng thay đổi", reject: "Giữ nguyên, bỏ qua" },
+  duplicate_candidate: { approve: "Đúng là trùng lặp", reject: "Không trùng, bỏ qua" },
+  stale_place: { approve: "Vẫn hoạt động", reject: "Gỡ khỏi công khai" },
+  conflict_detected: { approve: "Đã xử lý xong", reject: "Bỏ qua" },
+};
+
+export const dynamic = "force-dynamic";
+
+function LoginForm({ hasError }) {
+  return (
+    <div className="mx-auto mt-20 max-w-sm px-4">
+      <h1 className="text-xl font-bold text-zinc-900">Đăng nhập quản trị</h1>
+      <p className="mt-1 text-sm text-zinc-500">
+        Chạm Địa Phương — trang duyệt dữ liệu (nội bộ).
+      </p>
+      <form action={login} className="mt-4 flex flex-col gap-3">
+        <input
+          type="password"
+          name="password"
+          placeholder="Mật khẩu"
+          required
+          className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+        />
+        {hasError && (
+          <p className="text-sm text-red-600">Sai mật khẩu, thử lại.</p>
+        )}
+        <button
+          type="submit"
+          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+        >
+          Đăng nhập
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function Field({ label, name, defaultValue, type = "text" }) {
+  return (
+    <label className="flex flex-col gap-1 text-xs text-zinc-500">
+      {label}
+      <input
+        type={type}
+        name={name}
+        defaultValue={defaultValue ?? ""}
+        className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
+      />
+    </label>
+  );
+}
+
+function PlaceForm({ place, children }) {
+  const preview = formatPriceText(place) ?? "Chưa cập nhật giá";
+  return (
+    <form className="rounded-2xl border border-zinc-200 bg-white p-4">
+      <input type="hidden" name="id" value={place.id} />
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <Field label="Tên" name="name" defaultValue={place.name} />
+        <label className="flex flex-col gap-1 text-xs text-zinc-500">
+          Loại hình
+          <select
+            name="type"
+            defaultValue={place.type}
+            className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
+          >
+            <option value="ngu">Ngủ</option>
+            <option value="an">Ăn</option>
+          </select>
+        </label>
+        <Field label="Địa chỉ" name="address" defaultValue={place.address} />
+        <Field label="Khu vực (phường)" name="ward" defaultValue={place.ward} />
+        <Field label="Giá thấp nhất" name="priceMin" type="number" defaultValue={place.priceMin} />
+        <Field label="Giá cao nhất" name="priceMax" type="number" defaultValue={place.priceMax} />
+        <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" defaultValue={place.priceUnit} />
+      </div>
+      <p className="mt-2 text-xs text-zinc-500">
+        Giá sẽ hiển thị cho khách: <span className="font-medium text-zinc-700">{preview}</span>
+      </p>
+      <div className="mt-3 flex gap-2">{children}</div>
+    </form>
+  );
+}
+
+function ReviewItemCard({ item }) {
+  const labels = REVIEW_ACTION_LABELS[item.type] ?? { approve: "Duyệt", reject: "Từ chối" };
+  const c = item.candidate;
+
+  return (
+    <form className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+      <input type="hidden" name="id" value={item.id} />
+      <div className="flex items-start justify-between gap-2">
+        <span className="rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-900">
+          {REVIEW_TYPE_LABEL[item.type] ?? item.type}
+        </span>
+        <span className="text-xs text-zinc-500">
+          Độ tin cậy: {Math.round(item.confidence_score * 100)}%
+        </span>
+      </div>
+
+      {c ? (
+        <div className="mt-2 text-sm text-zinc-800">
+          <p className="font-semibold">{c.name}</p>
+          <p className="text-zinc-600">{c.address_text ?? "(chưa có địa chỉ)"}</p>
+          <p className="text-zinc-600">
+            {formatPriceText(c) ?? "Chưa có giá"} · {c.category_primary === "an" ? "Ăn" : "Ngủ"}
+          </p>
+        </div>
+      ) : (
+        <p className="mt-2 text-sm text-zinc-600">
+          Địa điểm đã công khai (id: {item.matchedLivePlaceId}) — không có dữ liệu mới, chỉ
+          cần xác nhận còn hoạt động hay không.
+        </p>
+      )}
+
+      {item.diff?.length > 0 && (
+        <ul className="mt-2 list-disc pl-5 text-xs text-zinc-600">
+          {item.diff.map((d, idx) => (
+            <li key={idx}>
+              {d.field}: &quot;{d.oldValue ?? "(trống)"}&quot; → &quot;{d.newValue}&quot;
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {item.reasons?.length > 0 && (
+        <ul className="mt-2 list-disc pl-5 text-xs text-zinc-500">
+          {item.reasons.map((r, idx) => (
+            <li key={idx}>{r}</li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-3 flex gap-2">
+        <button
+          formAction={approveReviewItem}
+          className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+        >
+          {labels.approve}
+        </button>
+        <button
+          formAction={rejectReviewItem}
+          className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+        >
+          {labels.reject}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function AdminDashboard({ live, pending, reviewQueue }) {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-6">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-zinc-900">Trang duyệt dữ liệu</h1>
+          <p className="text-sm text-zinc-500">Chạm Địa Phương — nội bộ</p>
+        </div>
+        <form action={logout}>
+          <button className="text-sm text-zinc-500 underline">Đăng xuất</button>
+        </form>
+      </div>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Thêm địa điểm mới (vào hàng chờ duyệt)
+        </h2>
+        <form action={addPending} className="rounded-2xl border border-zinc-200 bg-white p-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <Field label="Tên" name="name" />
+            <label className="flex flex-col gap-1 text-xs text-zinc-500">
+              Loại hình
+              <select
+                name="type"
+                defaultValue="ngu"
+                className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
+              >
+                <option value="ngu">Ngủ</option>
+                <option value="an">Ăn</option>
+              </select>
+            </label>
+            <Field label="Địa chỉ" name="address" />
+            <Field label="Khu vực (phường)" name="ward" />
+            <Field label="Giá thấp nhất" name="priceMin" type="number" />
+            <Field label="Giá cao nhất" name="priceMax" type="number" />
+            <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" />
+          </div>
+          <button
+            type="submit"
+            className="mt-3 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+          >
+            Thêm vào hàng chờ duyệt
+          </button>
+        </form>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Hàng chờ duyệt tự động — AI quét ({reviewQueue.length})
+        </h2>
+        {reviewQueue.length === 0 && (
+          <p className="text-sm text-zinc-500">Chưa có gì từ đợt quét dữ liệu tự động.</p>
+        )}
+        <div className="flex flex-col gap-3">
+          {reviewQueue.map((item) => (
+            <ReviewItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Chờ duyệt ({pending.length})
+        </h2>
+        {pending.length === 0 && (
+          <p className="text-sm text-zinc-500">Không có gì đang chờ duyệt.</p>
+        )}
+        <div className="flex flex-col gap-3">
+          {pending.map((place) => (
+            <PlaceForm key={place.id} place={place}>
+              <button
+                formAction={approvePending}
+                className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+              >
+                Duyệt
+              </button>
+              <button
+                formAction={rejectPending}
+                className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+              >
+                Từ chối
+              </button>
+            </PlaceForm>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Đang công khai ({live.length})
+        </h2>
+        <div className="flex flex-col gap-3">
+          {live.map((place) => (
+            <PlaceForm key={place.id} place={place}>
+              <button
+                formAction={updateLive}
+                className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white"
+              >
+                Lưu
+              </button>
+              <button
+                formAction={deleteLive}
+                className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+              >
+                Xoá
+              </button>
+            </PlaceForm>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default async function AdminPage({ searchParams }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
+  const isAuthed = verifySessionToken(token);
+
+  if (!isAuthed) {
+    const params = await searchParams;
+    return <LoginForm hasError={params?.error === "1"} />;
+  }
+
+  const [live, pending, allReviewItems] = await Promise.all([
+    getLivePlaces(),
+    getPendingPlaces(),
+    getReviewQueue(),
+  ]);
+  const reviewQueue = allReviewItems.filter((i) => i.status === REVIEW_STATUS.PENDING);
+  return <AdminDashboard live={live} pending={pending} reviewQueue={reviewQueue} />;
+}
