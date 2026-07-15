@@ -79,15 +79,17 @@
 - Chủ quán/khách sạn tự cập nhật trạng thái còn chỗ.
 - Mô hình thu phí (gói nổi bật...).
 - Mở rộng ngoài khu vực TP Tuyên Quang (cũ).
-- **AI tự động tìm & cập nhật dữ liệu hằng ngày, mở rộng dần ra toàn TP Tuyên Quang** ✅
-  (khung đã xong, đang bật lịch chạy thật)
+- **AI quét dữ liệu hằng ngày, mở rộng dần ra toàn TP Tuyên Quang** ✅ (bán tự động)
   1. ✅ Trang duyệt (5a) xong trước — dữ liệu AI tìm được luôn vào "hàng chờ duyệt", không
      tự động công khai.
   2. ✅ Dữ liệu ingestion đã ở Upstash Redis (`ingestion:review_queue` +
      `ingestion:source_runs` + `ingestion:place_snapshots`) — xem `lib/ingestion/`.
   3. ✅ Pipeline chuẩn hoá + so khớp/dedupe + hiển thị duyệt trong `/admin` — đã code, test
      kỹ bằng dữ liệu mẫu (xem `data/ingestion-inbox/`).
-  4. 🔲 **Nguồn dữ liệu thật:** anh chọn đặt lịch cho 1 phiên AI tự tìm kiếm web mỗi ngày
-     (không phải job chạy nền miễn phí — tốn hạn mức dùng AI mỗi lần). Đang thiết lập lịch.
-  5. 🔲 Google Places API (trả phí) vẫn là lựa chọn thay thế/bổ sung sau này nếu cần dữ
-     liệu đầy đủ + chính xác hơn (giờ mở cửa, toạ độ...) — chưa cần ngay.
+  4. ✅ **Lịch chạy hằng ngày (claude.ai routine, 8h sáng):** tự tìm kiếm web thật, trả về
+     báo cáo (JSON + tóm tắt) qua chat — **bán tự động**, không tự ghi vào đâu. Anh dán báo
+     cáo vào chat mỗi sáng, xử lý vào hàng chờ duyệt trong ~30 giây (xem DECISIONS.md lý do
+     không làm hoàn toàn tự động được: 3 giới hạn hạ tầng/gói dịch vụ).
+  5. 🔲 Hoàn toàn tự động (routine tự ghi thẳng vào review_queue) — cần 1 trong 2: nâng cấp
+     gói Claude Team/Enterprise (để routine ghi được lên GitHub), hoặc Google Places API
+     (trả phí, gọi trực tiếp từ Vercel Cron đã có sẵn — `app/api/cron/daily-ingest`).

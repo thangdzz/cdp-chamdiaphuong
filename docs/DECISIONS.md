@@ -88,3 +88,23 @@ giá cao nhất, và đơn vị (đêm/bát/ly...) — hệ thống tự tính r
 với các chỗ em nhập tay có định dạng đẹp trước đó — gây hiển thị không nhất quán. Ô gõ tay
 tự do luôn có rủi ro này; tự tính từ số liệu gốc đảm bảo luôn đúng định dạng, không cần nhớ
 gõ dấu chấm/đơn vị mỗi lần.
+
+## 2026-07-15 — AI quét dữ liệu hằng ngày: chuyển sang "bán tự động" thay vì hoàn toàn tự động
+
+**Quyết định:** Lịch chạy AI hằng ngày (claude.ai routine) chỉ **tìm kiếm web + báo cáo**
+(JSON + tóm tắt), KHÔNG tự ghi vào đâu cả. Anh copy báo cáo dán vào chat, em xử lý vào
+hàng chờ duyệt (`scripts/run-daily-ingest.mjs`) trong ~30 giây.
+**Vì sao:** Thử "hoàn toàn tự động" gặp 3 giới hạn liên tiếp, không phải lỗi cấu hình có
+thể sửa:
+1. Môi trường cloud của routine bị chặn gọi thẳng tới Upstash (chính sách mạng).
+2. Thử vòng qua bằng cách commit lên GitHub rồi để Vercel đọc — routine không có quyền
+   ghi (push/API đều bị từ chối).
+3. Cách cấp quyền ghi đúng cách (GitHub App tổ chức) **cần gói Claude Team/Enterprise
+   trả phí**, không phải gói hiện tại.
+Bán tự động vẫn tiết kiệm phần lớn công sức tìm kiếm — chỉ tốn 1 bước dán tay mỗi ngày —
+và không cần nâng cấp gói trả phí chỉ để tự động hoá hoàn toàn bước ghi dữ liệu.
+
+**Đã giữ lại (không xoá) hạ tầng cho tương lai:** `lib/ingestion/sources/githubScanSource.js`
+và `vercel.json` (Vercel Cron `/api/cron/daily-ingest`, 1:30 UTC hằng ngày) — hiện không có
+tác dụng thật (không có file nào để đọc) nhưng vô hại, sẵn sàng dùng lại ngay nếu sau này
+nâng cấp gói hoặc tìm được cách khác để routine tự ghi lên GitHub.
