@@ -72,7 +72,8 @@
       "Bash(python3 -c \"import uuid; print\\(str\\(uuid.uuid4\\(\\)\\)\\)\")",
       "Bash(curl -s -X GET \"https://web-five-xi-28.vercel.app/api/cron/daily-ingest\" -H \"Authorization: Bearer f8ca74d9bf00bff8168c3db18b74920bb81e43d372ba8ff2\")",
       "Bash(git fetch *)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(git rm *)"
     ]
   }
 }

@@ -64,6 +64,23 @@ async function applyDecision(id, decision, formData) {
     const livePlaces = await getLivePlaces();
     await setLivePlaces(livePlaces.filter((p) => p.id !== item.matchedLivePlaceId));
     item.status = REVIEW_STATUS.REJECTED;
+  } else if (item.type === REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE) {
+    // "Không trùng" — KHÔNG được xoá/ẩn dữ liệu chỉ vì nó không phải bản sao. Chuyển
+    // thành "địa điểm mới" (giữ nguyên trong hàng chờ, dùng dữ liệu anh vừa sửa) để
+    // duyệt tiếp như bình thường, thay vì tự ý loại bỏ.
+    const edited = placeFromFormData(formData);
+    item.type = REVIEW_ITEM_TYPE.NEW_PLACE;
+    item.duplicateOfCandidates = [];
+    item.candidate = {
+      ...item.candidate,
+      name: edited.name,
+      category_primary: edited.type,
+      address_text: edited.address,
+      area_preset: edited.ward,
+      price_range_text: edited.priceText,
+    };
+    item.reasons = ["Anh xác nhận không trùng lặp — chuyển thành địa điểm mới chờ duyệt"];
+    // status giữ nguyên "pending", không bị coi là đã xử lý xong.
   } else {
     item.status = REVIEW_STATUS.REJECTED;
   }

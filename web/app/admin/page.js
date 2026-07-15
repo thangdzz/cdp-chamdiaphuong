@@ -28,7 +28,7 @@ const REVIEW_ACTION_LABELS = {
   new_place: { approve: "Duyệt (đăng công khai)", reject: "Từ chối" },
   low_confidence_place: { approve: "Duyệt (đăng công khai)", reject: "Từ chối" },
   changed_place: { approve: "Áp dụng thay đổi", reject: "Giữ nguyên, bỏ qua" },
-  duplicate_candidate: { approve: "Đúng là trùng lặp", reject: "Không trùng, bỏ qua" },
+  duplicate_candidate: { approve: "Đúng là trùng lặp", reject: "Không trùng, sửa thành chỗ mới" },
   stale_place: { approve: "Vẫn hoạt động", reject: "Gỡ khỏi công khai" },
   conflict_detected: { approve: "Đã xử lý xong", reject: "Bỏ qua" },
 };
