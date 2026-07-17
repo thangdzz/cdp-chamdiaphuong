@@ -33,7 +33,7 @@ và **Ngủ**. Chưa làm Chơi, Đi lại.
 | 4 | Bộ lọc tìm kiếm đơn giản | Theo khu vực, loại hình (ăn/ngủ), khoảng giá, giờ mở cửa, tiện ích cơ bản (VD: wifi) |
 | 4b | Ưu tiên hiển thị "Ngủ" trước "Ăn" trong khoảng thời gian cao điểm lễ hội | Theo mốc thời gian cụ thể ở §4 (bật dần theo nhóm khách, không phải một mốc duy nhất). Ngày thường: hai mục ngang nhau. Không cần biết khách là ai — chỉ dựa theo thời gian, vì v1 chưa có tài khoản/đăng nhập |
 | 5 | Dữ liệu nền lấy từ Google Maps + Facebook (công khai) | Gọi điện/thủ công chỉ cho điểm quan trọng hoặc khi dữ liệu mâu thuẫn |
-| 6 | Quy trình duyệt trước khi đăng | Anh + 1-2 người anh tin tưởng duyệt điểm quan trọng/dữ liệu chưa chắc trước khi hiển thị công khai |
+| 6 | Quy trình duyệt | Dữ liệu AI quét được tự động công khai luôn (kể cả tin cậy thấp, hiển thị rõ độ tin cậy). Chỉ giữ lại cho anh + người tin tưởng duyệt khi nghi trùng lặp/mâu thuẫn dữ liệu, hoặc khi gỡ 1 chỗ khỏi công khai. Đổi hướng 2026-07-17, xem DECISIONS.md |
 | 7 | Miễn phí hoàn toàn | Không thu phí quán/khách sạn hay khách xem ở bản đầu |
 | 8 | Banner "Lễ hội Thành Tuyên 2026" ở đầu trang chủ, dẫn tới bài viết chi tiết | Nội dung tổng hợp từ văn bản chính thức (Kế hoạch 246/KH-UBND) — thời gian, địa điểm, lưu ý cho khách. Anh đã duyệt nội dung + cung cấp ảnh cover thật |
 

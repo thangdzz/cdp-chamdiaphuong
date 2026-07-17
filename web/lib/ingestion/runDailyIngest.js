@@ -1,54 +1,31 @@
 import crypto from "crypto";
-import { getLivePlaces, setLivePlaces } from "../redis.js";
+import { getLivePlaces } from "../redis.js";
 import { SOURCES } from "./sources/index.js";
-import { normalizeRecord } from "./normalize.js";
-import { matchAgainstExisting } from "./match.js";
-import { candidateToLivePlace, applyDiffToLivePlace } from "./toLivePlace.js";
-import {
-  getReviewQueue,
-  saveReviewQueue,
-  appendReviewEvent,
-  appendSourceRun,
-  appendPlaceSnapshot,
-} from "./store.js";
+import { ingestBatch } from "./ingestBatch.js";
+import { appendSourceRun, getReviewQueue, saveReviewQueue } from "./store.js";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "./schema.js";
 
-const LOW_CONFIDENCE_THRESHOLD = 0.5;
-const NEEDS_REVIEW_THRESHOLD = 0.6;
 const STALE_DAYS = 90;
-
-// Loại nào vẫn phải qua người duyệt trước khi công khai — chỉ khi hệ thống thấy dữ liệu
-// "trùng nhau"/mâu thuẫn (nghi trùng lặp, hoặc 2 nguồn khác nhau cùng lúc). Các loại còn
-// lại (chỗ mới, có thay đổi, kể cả độ tin cậy thấp) tự động công khai luôn — quyết định
-// 2026-07-15, xem DECISIONS.md.
-const GATED_TYPES = new Set([
-  REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE,
-  REVIEW_ITEM_TYPE.CONFLICT_DETECTED,
-]);
 
 function newId(prefix) {
   return `${prefix}-${crypto.randomUUID()}`;
 }
 
-function isSamePendingCandidate(item, candidate) {
-  return (
-    item.status === REVIEW_STATUS.PENDING &&
-    item.candidate?.normalized_name === candidate.normalized_name &&
-    item.candidate?.category_primary === candidate.category_primary
-  );
+function addSummary(total, part) {
+  for (const key of Object.keys(part)) {
+    total[key] = (total[key] ?? 0) + part[key];
+  }
 }
 
 /**
- * Chạy 1 lần quét toàn bộ nguồn đã cấu hình -> chuẩn hoá -> so khớp -> công khai luôn
- * (trừ khi nghi trùng lặp/mâu thuẫn thì vào review_queue chờ duyệt).
+ * Chạy 1 lần quét toàn bộ nguồn đã cấu hình (SOURCES) -> chuẩn hoá -> so khớp -> công khai
+ * luôn (trừ khi nghi trùng lặp/mâu thuẫn thì vào review_queue chờ duyệt).
+ * Dùng chung logic xử lý bản ghi với route API nộp bài trực tiếp — xem `ingestBatch.js`.
  *
  * @param {{ includeStaleScan?: boolean }} options
  */
 export async function runDailyIngest(options = {}) {
   const runStartedAt = new Date().toISOString();
-  const livePlaces = await getLivePlaces();
-  const reviewQueue = await getReviewQueue();
-  let livePlacesChanged = false;
 
   const summary = {
     sourcesRun: 0,
@@ -70,7 +47,7 @@ export async function runDailyIngest(options = {}) {
       startedAt: new Date().toISOString(),
       finishedAt: null,
       status: "ok",
-      counts: { fetched: 0, new: 0, changed: 0, duplicate: 0, lowConfidence: 0, errors: 0 },
+      counts: {},
       errorMessage: null,
     };
     summary.sourcesRun++;
@@ -89,139 +66,12 @@ export async function runDailyIngest(options = {}) {
 
     for (const batch of batches) {
       if (batch.error) {
-        sourceRun.counts.errors++;
         summary.errors++;
         continue;
       }
-
-      for (const raw of batch.records) {
-        sourceRun.counts.fetched++;
-        summary.recordsFetched++;
-
-        const observedAt = new Date().toISOString();
-        const candidate = normalizeRecord(raw, {
-          sourceId: batch.sourceId,
-          sourceType: batch.sourceType,
-          observedAt,
-        });
-
-        if (candidate.confidence_score < NEEDS_REVIEW_THRESHOLD) {
-          candidate.needs_review = true;
-        }
-
-        await appendPlaceSnapshot({
-          placeKey: candidate.normalized_name,
-          observedAt,
-          sourceId: batch.sourceId,
-          candidate,
-        });
-
-        // 1) Đã có mục CHỜ DUYỆT giống hệt (cùng tên + loại hình) -> cập nhật thay vì
-        // tạo mục mới, tránh spam hàng đợi mỗi ngày với cùng 1 chỗ nghi trùng lặp.
-        const existingPendingIndex = reviewQueue.findIndex((item) =>
-          isSamePendingCandidate(item, candidate)
-        );
-        if (existingPendingIndex !== -1) {
-          const existingItem = reviewQueue[existingPendingIndex];
-          existingItem.candidate = candidate; // dữ liệu mới nhất
-          existingItem.sources = [
-            ...(existingItem.sources ?? []),
-            { sourceId: batch.sourceId, sourceType: batch.sourceType, observedAt },
-          ];
-          existingItem.updatedAt = observedAt;
-          reviewQueue[existingPendingIndex] = existingItem;
-          summary.updatedExistingPending++;
-          continue;
-        }
-
-        // 2) So khớp với dữ liệu đang công khai (livePlaces cập nhật ngay trong vòng lặp
-        // này, để 2 nguồn cùng nhắc 1 chỗ mới trong cùng 1 lần chạy không bị đăng trùng)
-        // + các mục đang chờ duyệt khác.
-        const pendingCandidatesOnly = reviewQueue.filter(
-          (i) => i.status === REVIEW_STATUS.PENDING
-        );
-        const match = matchAgainstExisting(candidate, livePlaces, pendingCandidatesOnly);
-
-        if (match.type === null) {
-          summary.skippedNoChange++;
-          continue;
-        }
-
-        let type = match.type;
-        if (type === REVIEW_ITEM_TYPE.NEW_PLACE && candidate.confidence_score < LOW_CONFIDENCE_THRESHOLD) {
-          type = REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE;
-        }
-
-        const reasons = [...(candidate._reasons ?? []), ...(match.reasons ?? [])];
-        delete candidate._reasons;
-        delete candidate._sourceMeta;
-
-        if (!GATED_TYPES.has(type)) {
-          // Công khai luôn — không qua review_queue.
-          if (type === REVIEW_ITEM_TYPE.CHANGED_PLACE) {
-            const idx = livePlaces.findIndex((p) => p.id === match.matchedLivePlaceId);
-            if (idx !== -1) {
-              livePlaces[idx] = applyDiffToLivePlace(livePlaces[idx], match.diff, { observedAt });
-              livePlacesChanged = true;
-              sourceRun.counts.changed++;
-              summary.changedPlacesApplied++;
-            }
-          } else {
-            // new_place hoặc low_confidence_place — đều công khai luôn theo quyết định
-            // 2026-07-15. Độ tin cậy vẫn hiển thị cho khách thấy (không giấu), không phải
-            // không hiển thị gì.
-            const livePlace = candidateToLivePlace(candidate, { observedAt });
-            livePlaces.push(livePlace);
-            livePlacesChanged = true;
-            if (type === REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE) {
-              sourceRun.counts.lowConfidence++;
-              summary.lowConfidencePublished++;
-            } else {
-              sourceRun.counts.new++;
-              summary.newPlacesPublished++;
-            }
-          }
-
-          await appendReviewEvent({
-            id: newId("event"),
-            itemId: null,
-            action: "auto_published",
-            note: `${candidate.name} (${type}) từ ${batch.sourceId}: ${reasons.join("; ")}`,
-            at: observedAt,
-          });
-          continue;
-        }
-
-        // Còn lại (nghi trùng lặp / mâu thuẫn) — vẫn phải qua review_queue chờ duyệt.
-        const item = {
-          id: newId("review"),
-          type,
-          status: REVIEW_STATUS.PENDING,
-          candidate,
-          matchedLivePlaceId: match.matchedLivePlaceId,
-          duplicateOfCandidates: match.duplicateOfCandidates ?? [],
-          diff: match.diff ?? [],
-          confidence_score: candidate.confidence_score,
-          needs_review: true,
-          reasons,
-          sources: [{ sourceId: batch.sourceId, sourceType: batch.sourceType, observedAt }],
-          sourceRunId: sourceRun.id,
-          createdAt: observedAt,
-          updatedAt: observedAt,
-        };
-
-        reviewQueue.push(item);
-        await appendReviewEvent({
-          id: newId("event"),
-          itemId: item.id,
-          action: "created",
-          note: `Tạo từ ${batch.sourceId}: ${item.reasons.join("; ")}`,
-          at: observedAt,
-        });
-
-        sourceRun.counts.duplicate++;
-        summary.duplicateCandidatesForReview++;
-      }
+      const batchSummary = await ingestBatch(batch);
+      addSummary(summary, batchSummary);
+      addSummary(sourceRun.counts, batchSummary);
     }
 
     sourceRun.finishedAt = new Date().toISOString();
@@ -229,13 +79,7 @@ export async function runDailyIngest(options = {}) {
   }
 
   if (options.includeStaleScan) {
-    const staleCount = await runStaleScan(livePlaces, reviewQueue);
-    summary.staleFlagged = staleCount;
-  }
-
-  await saveReviewQueue(reviewQueue);
-  if (livePlacesChanged) {
-    await setLivePlaces(livePlaces);
+    summary.staleFlagged = await runStaleScan();
   }
 
   return {
@@ -249,7 +93,9 @@ export async function runDailyIngest(options = {}) {
 // đã quá STALE_DAYS). Tắt mặc định (options.includeStaleScan) vì lần chạy đầu tiên sẽ
 // gắn cờ TOÀN BỘ dữ liệu cũ (chưa từng có last_checked_at) — cần bật có chủ đích.
 // Việc gỡ 1 chỗ khỏi công khai vẫn luôn cần người duyệt xác nhận (không tự động xoá).
-async function runStaleScan(livePlaces, reviewQueue) {
+async function runStaleScan() {
+  const livePlaces = await getLivePlaces();
+  const reviewQueue = await getReviewQueue();
   const now = Date.now();
   let flagged = 0;
 
@@ -290,5 +136,6 @@ async function runStaleScan(livePlaces, reviewQueue) {
     flagged++;
   }
 
+  await saveReviewQueue(reviewQueue);
   return flagged;
 }

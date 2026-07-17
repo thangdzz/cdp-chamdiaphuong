@@ -25,8 +25,12 @@ thích ngắn ngay sau đó.
 5. **Quyết định quan trọng (đổi hướng, đổi công nghệ, đổi phạm vi) phải ghi vào
    [docs/DECISIONS.md](docs/DECISIONS.md)** kèm lý do — để sau này không quên vì sao đã
    chọn vậy.
-6. **Dữ liệu địa điểm (quán ăn/khách sạn) không tự ý đăng công khai.** Điểm nào quan trọng
-   hoặc dữ liệu không chắc chắn phải chờ anh (hoặc người anh tin tưởng) duyệt trước.
+6. **Dữ liệu địa điểm (quán ăn/khách sạn) do AI quét được thì tự động đăng công khai luôn**
+   (kể cả độ tin cậy thấp — hiển thị rõ độ tin cậy cho khách tự đánh giá, không giấu).
+   **Chỉ giữ lại chờ anh (hoặc người anh tin tưởng) duyệt khi hệ thống phát hiện nghi trùng
+   lặp hoặc mâu thuẫn dữ liệu.** Gỡ 1 chỗ khỏi công khai (nghi đã đóng cửa/không còn hoạt
+   động) luôn phải qua duyệt, không tự động xoá. (Đổi hướng 2026-07-17, xem lý do ở
+   [docs/DECISIONS.md](docs/DECISIONS.md) — nguyên tắc trước đó là "luôn phải duyệt".)
 7. Nếu yêu cầu còn mơ hồ, hỏi lại **1 câu một**, không hỏi dồn nhiều câu cùng lúc.
 
 ## Ngôn ngữ

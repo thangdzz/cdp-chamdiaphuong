@@ -79,17 +79,22 @@
 - Chủ quán/khách sạn tự cập nhật trạng thái còn chỗ.
 - Mô hình thu phí (gói nổi bật...).
 - Mở rộng ngoài khu vực TP Tuyên Quang (cũ).
-- **AI quét dữ liệu hằng ngày, mở rộng dần ra toàn TP Tuyên Quang** ✅ (bán tự động)
-  1. ✅ Trang duyệt (5a) xong trước — dữ liệu AI tìm được luôn vào "hàng chờ duyệt", không
-     tự động công khai.
+- **AI quét dữ liệu hằng ngày, mở rộng dần ra toàn TP Tuyên Quang** ✅ (bán tự động,
+  auto-publish)
+  1. ✅ Trang duyệt (5a) xong trước.
   2. ✅ Dữ liệu ingestion đã ở Upstash Redis (`ingestion:review_queue` +
      `ingestion:source_runs` + `ingestion:place_snapshots`) — xem `lib/ingestion/`.
-  3. ✅ Pipeline chuẩn hoá + so khớp/dedupe + hiển thị duyệt trong `/admin` — đã code, test
-     kỹ bằng dữ liệu mẫu (xem `data/ingestion-inbox/`).
+  3. ✅ Pipeline chuẩn hoá + so khớp/dedupe — **từ 2026-07-17: tự động công khai luôn**
+     (chỗ mới/có đổi/tin cậy thấp), chỉ giữ chờ duyệt trong `/admin` khi nghi trùng lặp/mâu
+     thuẫn (xem DECISIONS.md).
   4. ✅ **Lịch chạy hằng ngày (claude.ai routine, 8h sáng):** tự tìm kiếm web thật, trả về
      báo cáo (JSON + tóm tắt) qua chat — **bán tự động**, không tự ghi vào đâu. Anh dán báo
-     cáo vào chat mỗi sáng, xử lý vào hàng chờ duyệt trong ~30 giây (xem DECISIONS.md lý do
-     không làm hoàn toàn tự động được: 3 giới hạn hạ tầng/gói dịch vụ).
-  5. 🔲 Hoàn toàn tự động (routine tự ghi thẳng vào review_queue) — cần 1 trong 2: nâng cấp
+     cáo vào chat mỗi sáng, em xử lý (~30 giây) — đa số tự lên web luôn (xem DECISIONS.md
+     lý do không làm hoàn toàn tự động được: 3 giới hạn hạ tầng/gói dịch vụ).
+  5. 🔲 Hoàn toàn tự động (routine tự ghi thẳng vào Redis) — cần 1 trong 2: nâng cấp
      gói Claude Team/Enterprise (để routine ghi được lên GitHub), hoặc Google Places API
      (trả phí, gọi trực tiếp từ Vercel Cron đã có sẵn — `app/api/cron/daily-ingest`).
+- **Đề xuất sửa (khách góp ý) + thưởng điểm/huy hiệu** — đang bàn thiết kế (2026-07-17):
+  hướng đã chốt là điểm đóng góp + huy hiệu công khai trên web (miễn phí, không rủi ro gian
+  lận tiền bạc). Còn vướng: web chưa có tài khoản đăng nhập, cần nghĩ cách nhận diện "cùng
+  1 user" qua nhiều lần góp ý trước khi code.
