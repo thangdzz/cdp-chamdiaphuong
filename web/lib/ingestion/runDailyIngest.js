@@ -1,8 +1,9 @@
 import crypto from "crypto";
-import { getLivePlaces } from "../redis.js";
+import { getLivePlaces, setLivePlaces } from "../redis.js";
 import { SOURCES } from "./sources/index.js";
 import { normalizeRecord } from "./normalize.js";
 import { matchAgainstExisting } from "./match.js";
+import { candidateToLivePlace, applyDiffToLivePlace } from "./toLivePlace.js";
 import {
   getReviewQueue,
   saveReviewQueue,
@@ -15,6 +16,15 @@ import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "./schema.js";
 const LOW_CONFIDENCE_THRESHOLD = 0.5;
 const NEEDS_REVIEW_THRESHOLD = 0.6;
 const STALE_DAYS = 90;
+
+// Loại nào vẫn phải qua người duyệt trước khi công khai — chỉ khi hệ thống thấy dữ liệu
+// "trùng nhau"/mâu thuẫn (nghi trùng lặp, hoặc 2 nguồn khác nhau cùng lúc). Các loại còn
+// lại (chỗ mới, có thay đổi, kể cả độ tin cậy thấp) tự động công khai luôn — quyết định
+// 2026-07-15, xem DECISIONS.md.
+const GATED_TYPES = new Set([
+  REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE,
+  REVIEW_ITEM_TYPE.CONFLICT_DETECTED,
+]);
 
 function newId(prefix) {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -29,8 +39,8 @@ function isSamePendingCandidate(item, candidate) {
 }
 
 /**
- * Chạy 1 lần quét toàn bộ nguồn đã cấu hình -> chuẩn hoá -> so khớp -> ghi review_queue.
- * KHÔNG bao giờ ghi vào places:live — chỉ review_queue (đúng yêu cầu "không tự publish").
+ * Chạy 1 lần quét toàn bộ nguồn đã cấu hình -> chuẩn hoá -> so khớp -> công khai luôn
+ * (trừ khi nghi trùng lặp/mâu thuẫn thì vào review_queue chờ duyệt).
  *
  * @param {{ includeStaleScan?: boolean }} options
  */
@@ -38,14 +48,15 @@ export async function runDailyIngest(options = {}) {
   const runStartedAt = new Date().toISOString();
   const livePlaces = await getLivePlaces();
   const reviewQueue = await getReviewQueue();
+  let livePlacesChanged = false;
 
   const summary = {
     sourcesRun: 0,
     recordsFetched: 0,
-    newPlaces: 0,
-    changedPlaces: 0,
-    duplicateCandidates: 0,
-    lowConfidencePlaces: 0,
+    newPlacesPublished: 0,
+    changedPlacesApplied: 0,
+    duplicateCandidatesForReview: 0,
+    lowConfidencePublished: 0,
     updatedExistingPending: 0,
     skippedNoChange: 0,
     errors: 0,
@@ -106,7 +117,7 @@ export async function runDailyIngest(options = {}) {
         });
 
         // 1) Đã có mục CHỜ DUYỆT giống hệt (cùng tên + loại hình) -> cập nhật thay vì
-        // tạo mục mới, tránh spam hàng đợi mỗi ngày với cùng 1 chỗ.
+        // tạo mục mới, tránh spam hàng đợi mỗi ngày với cùng 1 chỗ nghi trùng lặp.
         const existingPendingIndex = reviewQueue.findIndex((item) =>
           isSamePendingCandidate(item, candidate)
         );
@@ -123,7 +134,9 @@ export async function runDailyIngest(options = {}) {
           continue;
         }
 
-        // 2) So khớp với dữ liệu đang công khai + các mục đang chờ duyệt khác.
+        // 2) So khớp với dữ liệu đang công khai (livePlaces cập nhật ngay trong vòng lặp
+        // này, để 2 nguồn cùng nhắc 1 chỗ mới trong cùng 1 lần chạy không bị đăng trùng)
+        // + các mục đang chờ duyệt khác.
         const pendingCandidatesOnly = reviewQueue.filter(
           (i) => i.status === REVIEW_STATUS.PENDING
         );
@@ -139,6 +152,47 @@ export async function runDailyIngest(options = {}) {
           type = REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE;
         }
 
+        const reasons = [...(candidate._reasons ?? []), ...(match.reasons ?? [])];
+        delete candidate._reasons;
+        delete candidate._sourceMeta;
+
+        if (!GATED_TYPES.has(type)) {
+          // Công khai luôn — không qua review_queue.
+          if (type === REVIEW_ITEM_TYPE.CHANGED_PLACE) {
+            const idx = livePlaces.findIndex((p) => p.id === match.matchedLivePlaceId);
+            if (idx !== -1) {
+              livePlaces[idx] = applyDiffToLivePlace(livePlaces[idx], match.diff, { observedAt });
+              livePlacesChanged = true;
+              sourceRun.counts.changed++;
+              summary.changedPlacesApplied++;
+            }
+          } else {
+            // new_place hoặc low_confidence_place — đều công khai luôn theo quyết định
+            // 2026-07-15. Độ tin cậy vẫn hiển thị cho khách thấy (không giấu), không phải
+            // không hiển thị gì.
+            const livePlace = candidateToLivePlace(candidate, { observedAt });
+            livePlaces.push(livePlace);
+            livePlacesChanged = true;
+            if (type === REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE) {
+              sourceRun.counts.lowConfidence++;
+              summary.lowConfidencePublished++;
+            } else {
+              sourceRun.counts.new++;
+              summary.newPlacesPublished++;
+            }
+          }
+
+          await appendReviewEvent({
+            id: newId("event"),
+            itemId: null,
+            action: "auto_published",
+            note: `${candidate.name} (${type}) từ ${batch.sourceId}: ${reasons.join("; ")}`,
+            at: observedAt,
+          });
+          continue;
+        }
+
+        // Còn lại (nghi trùng lặp / mâu thuẫn) — vẫn phải qua review_queue chờ duyệt.
         const item = {
           id: newId("review"),
           type,
@@ -149,14 +203,12 @@ export async function runDailyIngest(options = {}) {
           diff: match.diff ?? [],
           confidence_score: candidate.confidence_score,
           needs_review: true,
-          reasons: [...(candidate._reasons ?? []), ...(match.reasons ?? [])],
+          reasons,
           sources: [{ sourceId: batch.sourceId, sourceType: batch.sourceType, observedAt }],
           sourceRunId: sourceRun.id,
           createdAt: observedAt,
           updatedAt: observedAt,
         };
-        delete item.candidate._reasons;
-        delete item.candidate._sourceMeta;
 
         reviewQueue.push(item);
         await appendReviewEvent({
@@ -167,19 +219,8 @@ export async function runDailyIngest(options = {}) {
           at: observedAt,
         });
 
-        if (type === REVIEW_ITEM_TYPE.NEW_PLACE) {
-          sourceRun.counts.new++;
-          summary.newPlaces++;
-        } else if (type === REVIEW_ITEM_TYPE.CHANGED_PLACE) {
-          sourceRun.counts.changed++;
-          summary.changedPlaces++;
-        } else if (type === REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE) {
-          sourceRun.counts.duplicate++;
-          summary.duplicateCandidates++;
-        } else if (type === REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE) {
-          sourceRun.counts.lowConfidence++;
-          summary.lowConfidencePlaces++;
-        }
+        sourceRun.counts.duplicate++;
+        summary.duplicateCandidatesForReview++;
       }
     }
 
@@ -193,6 +234,9 @@ export async function runDailyIngest(options = {}) {
   }
 
   await saveReviewQueue(reviewQueue);
+  if (livePlacesChanged) {
+    await setLivePlaces(livePlaces);
+  }
 
   return {
     runStartedAt,
@@ -204,6 +248,7 @@ export async function runDailyIngest(options = {}) {
 // Quét places:live tìm chỗ lâu không được xác nhận lại (không có last_checked_at, hoặc
 // đã quá STALE_DAYS). Tắt mặc định (options.includeStaleScan) vì lần chạy đầu tiên sẽ
 // gắn cờ TOÀN BỘ dữ liệu cũ (chưa từng có last_checked_at) — cần bật có chủ đích.
+// Việc gỡ 1 chỗ khỏi công khai vẫn luôn cần người duyệt xác nhận (không tự động xoá).
 async function runStaleScan(livePlaces, reviewQueue) {
   const now = Date.now();
   let flagged = 0;
