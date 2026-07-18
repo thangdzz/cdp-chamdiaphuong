@@ -167,6 +167,16 @@ sách dài không có động lực xem. Chỉ hiện "gần bạn" luôn tạo 
 quét gần như không khả thi (WebSearch không tải được file ảnh Google Maps, dễ vướng bản
 quyền) — ảnh thật chủ yếu trông cậy vào khách tự gửi qua tính năng này.
 
+**Quyết định (2026-07-18, sau khi test thật):** Khi 1 lĩnh vực chưa đủ 3 người dùng thật,
+chèn tạm 2 hồ sơ "hạt giống" ẩn danh (không lưu Redis, chỉ chèn lúc tính bảng "gần bạn") để
+người góp ý đầu tiên không thấy trống trơn/cô đơn.
+**Vì sao:** Anh yêu cầu trực tiếp sau khi tự test thấy bảng trống vì mới chỉ có 1 mình anh
+trong lĩnh vực Nhiếp ảnh. Đây là giải pháp **tạm thời** — cần xoá `SEED_ENTRIES` trong
+`lib/contributors.js` khi 1 lĩnh vực đã có từ 5 người dùng thật trở lên.
+**Cũng sửa cùng lúc:** thêm chú thích "đang chờ duyệt" cạnh điểm hiển thị ngay sau khi gửi
+góp ý — 0 điểm lúc đó là đúng thiết kế (điểm chỉ cộng sau khi anh duyệt), nhưng dễ gây hiểu
+lầm là lỗi nếu không giải thích rõ trên giao diện.
+
 ## 2026-07-17 — Đảo ngược nguyên tắc "luôn phải duyệt trước khi đăng"
 
 **Quyết định:** Dữ liệu do AI quét hằng ngày giờ **tự động công khai luôn** (chỗ mới, có

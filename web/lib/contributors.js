@@ -67,14 +67,29 @@ export async function addContributorPoints(anonId, delta) {
   return list[idx];
 }
 
+// TẠM THỜI (2026-07-18): khi chưa đủ người dùng thật trong 1 lĩnh vực, chèn thêm vài "hạt
+// giống" ẩn danh để bảng "gần bạn" không trống trơn — người góp ý đầu tiên đỡ cảm giác cô
+// đơn. Không lưu vào Redis, chỉ chèn lúc tính toán hiển thị. XOÁ đoạn này khi 1 lĩnh vực đã
+// có đủ người dùng thật (đề xuất mốc: từ 5 người thật trở lên) — xem DECISIONS.md.
+const SEED_ENTRIES = [
+  { anonId: "seed-1", nickname: "Người góp ý ẩn danh", points: 12 },
+  { anonId: "seed-2", nickname: "Bạn đồng hành phố Tuyên", points: 4 },
+];
+const SEED_THRESHOLD = 3;
+
 // Trả về vị trí của contributor trong bảng xếp hạng CÙNG lĩnh vực, kèm vài người ngay
 // trên/dưới (không trả cả danh sách — tránh làm nản người mới, xem DECISIONS.md).
 export async function getNearbyStanding(categoryId, anonId, window = 2) {
   if (!categoryId) return null;
   const list = await getAll();
-  const inCategory = list
+  let inCategory = list
     .filter((c) => c.categoryId === categoryId)
     .sort((a, b) => b.points - a.points);
+
+  if (inCategory.length < SEED_THRESHOLD) {
+    inCategory = [...inCategory, ...SEED_ENTRIES].sort((a, b) => b.points - a.points);
+  }
+
   const idx = inCategory.findIndex((c) => c.anonId === anonId);
   if (idx === -1) return { rank: null, total: inCategory.length, nearby: [] };
   const start = Math.max(0, idx - window);

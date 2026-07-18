@@ -487,6 +487,9 @@ export function ContributionPanel({ place, onDone }) {
               ))}
             </ul>
           )}
+          <p className="text-xs text-zinc-400">
+            Góp ý vừa gửi đang chờ duyệt — điểm sẽ cộng thêm ngay khi được duyệt đúng.
+          </p>
           <button type="button" onClick={close} className={btnGhost}>
             Đóng
           </button>
