@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getOccupancyLabel, getOccupancyStatus } from "./occupancy";
 import { ContributionPanel } from "./ContributionPanel";
+import { stripDiacritics } from "@/lib/ingestion/normalize";
 
 const TYPE_LABEL = {
   ngu: "Ngủ",
@@ -322,10 +323,82 @@ function Section({ title, items }) {
   );
 }
 
+// Nút lên đầu/xuống cuối trang — mờ khi trang đứng yên (đỡ che nội dung), rõ hơn khi khách
+// đang vuốt (dễ bấm đúng lúc cần). Ẩn hẳn nếu trang ngắn, không cần cuộn.
+function ScrollButtons() {
+  const [scrolling, setScrolling] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    function updateState() {
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      setCanScrollUp(scrollY > 120);
+      setCanScrollDown(maxScroll > 120 && scrollY < maxScroll - 120);
+    }
+
+    function handleScroll() {
+      updateState();
+      setScrolling(true);
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setScrolling(false), 800);
+    }
+
+    updateState();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", updateState);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", updateState);
+      clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  if (!canScrollUp && !canScrollDown) return null;
+
+  return (
+    <div
+      className={`fixed bottom-5 right-4 z-40 flex flex-col gap-2 transition-opacity duration-300 ${
+        scrolling ? "opacity-100" : "opacity-35"
+      }`}
+    >
+      {canScrollUp && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Lên đầu trang"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 15l6-6 6 6" />
+          </svg>
+        </button>
+      )}
+      {canScrollDown && (
+        <button
+          type="button"
+          onClick={() =>
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })
+          }
+          aria-label="Xuống cuối trang"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function PlaceExplorer({ places }) {
   const [type, setType] = useState("all");
   const [ward, setWard] = useState("all");
   const [priceBucket, setPriceBucket] = useState("all");
+  const [search, setSearch] = useState("");
 
   const wards = useMemo(() => {
     const set = new Set(places.map((p) => p.ward).filter(Boolean));
@@ -333,22 +406,62 @@ export default function PlaceExplorer({ places }) {
   }, [places]);
 
   const filtered = useMemo(() => {
+    const query = stripDiacritics(search).toLowerCase().trim();
     return places.filter((p) => {
       if (type !== "all" && p.type !== type) return false;
       if (ward !== "all" && p.ward !== ward) return false;
       if (!matchesPriceBucket(p, priceBucket)) return false;
+      if (query) {
+        const haystack = stripDiacritics(`${p.name} ${p.address ?? ""}`).toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
       return true;
     });
-  }, [places, type, ward, priceBucket]);
+  }, [places, type, ward, priceBucket, search]);
 
   const ngu = filtered.filter((p) => p.type === "ngu");
   const an = filtered.filter((p) => p.type === "an");
 
-  const hasActiveFilter = type !== "all" || ward !== "all" || priceBucket !== "all";
+  const hasActiveFilter = type !== "all" || ward !== "all" || priceBucket !== "all" || search !== "";
 
   return (
     <div>
+      <ScrollButtons />
+
       <div className="mb-4 flex flex-col gap-2">
+        <div className="relative">
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+          >
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="M20 20l-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm theo tên, địa chỉ..."
+            className="w-full rounded-full border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-700"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Xoá tìm kiếm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
         <div className="flex gap-2">
           {[
             { id: "all", label: "Tất cả" },
@@ -404,6 +517,7 @@ export default function PlaceExplorer({ places }) {
               setType("all");
               setWard("all");
               setPriceBucket("all");
+              setSearch("");
             }}
             className="self-start text-sm text-zinc-500 underline"
           >
