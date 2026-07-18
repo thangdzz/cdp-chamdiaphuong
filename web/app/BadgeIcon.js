@@ -87,11 +87,12 @@ const SPARKLE_POSITIONS = [
 ];
 const SPARKLE_PATH = "M0 -6 L1.3 -1.3 L6 0 L1.3 1.3 L0 6 L-1.3 1.3 L-6 0 L-1.3 -1.3 Z";
 
-export function BadgeIcon({ icon, tierIndex = 0, size = 40 }) {
+export function BadgeIcon({ icon, tierIndex = 0, size = 40, bonusCount = 0 }) {
   const color = TIER_COLORS[tierIndex] ?? TIER_COLORS[0];
   const isLegendary = tierIndex === 4;
+  // viewBox rộng hơn 24x24 gốc 1 chút để chừa chỗ cho số góc phải trên không bị cắt.
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width={size} height={size} viewBox="-3 -3 30 30" fill="none" aria-hidden="true">
       {isLegendary && (
         <g fill={color} opacity="0.55">
           {SPARKLE_POSITIONS.map((p, i) => (
@@ -114,6 +115,22 @@ export function BadgeIcon({ icon, tierIndex = 0, size = 40 }) {
       >
         {ICONS[icon] ?? ICONS.map}
       </g>
+      {bonusCount > 0 && (
+        <g>
+          <circle cx="21" cy="3" r="4.6" fill="#1f2937" stroke="#fff" strokeWidth="1" />
+          <text
+            x="21"
+            y="3"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={bonusCount > 99 ? "5.2" : "6.2"}
+            fontWeight="700"
+            fill="#fff"
+          >
+            {bonusCount > 99 ? "99+" : bonusCount}
+          </text>
+        </g>
+      )}
     </svg>
   );
 }

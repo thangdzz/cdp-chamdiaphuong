@@ -89,8 +89,9 @@ export function ContributionPanel({ place, onDone }) {
     setBusy(true);
     setErrorMessage(null);
     try {
+      let result;
       if (action.type === "correction") {
-        await submitCorrection({
+        result = await submitCorrection({
           anonId,
           placeId: place.id,
           placeName: place.name,
@@ -106,7 +107,13 @@ export function ContributionPanel({ place, onDone }) {
         });
       } else if (action.type === "photos") {
         action.formData.set("anonId", anonId);
-        await submitPhotos(action.formData);
+        result = await submitPhotos(action.formData);
+      }
+      // Trước đây không đọc kết quả trả về — góp ý trùng/lỗi hợp lệ bị server từ chối
+      // (ok: false) vẫn hiện "Cảm ơn" như thường, trông như đã ghi nhận dù thực ra không.
+      if (!result?.ok) {
+        setErrorMessage(result?.error || "Gửi chưa thành công. Bấm thử lại giúp em nhé.");
+        return false;
       }
       setMode("thanks");
       return true;
@@ -472,10 +479,18 @@ export function ContributionPanel({ place, onDone }) {
       {mode === "standing" && standing?.badge && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <BadgeIcon icon={standing.badge.icon} tierIndex={standing.badge.tierIndex} size={44} />
+            <BadgeIcon
+              icon={standing.badge.icon}
+              tierIndex={standing.badge.tierIndex}
+              bonusCount={standing.badge.bonusCount}
+              size={44}
+            />
             <div>
               <p className="text-sm font-semibold text-zinc-800">{standing.badge.tierName}</p>
-              <p className="text-xs text-zinc-500">{standing.badge.categoryLabel}</p>
+              <p className="text-xs text-zinc-500">
+                {standing.badge.categoryLabel}
+                {standing.badge.bonusCount > 0 && ` · góp ý thêm lần ${standing.badge.bonusCount}`}
+              </p>
             </div>
           </div>
           {standing.standing?.nearby?.length > 0 && (

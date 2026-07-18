@@ -4,8 +4,10 @@
 
 import crypto from "crypto";
 import { redis } from "./redis.js";
+import { TIER_THRESHOLDS } from "./badges.js";
 
 const CONTRIBUTORS_KEY = "contributors:all";
+const LEGENDARY_THRESHOLD = TIER_THRESHOLDS[TIER_THRESHOLDS.length - 1];
 
 async function getAll() {
   const data = await redis.get(CONTRIBUTORS_KEY);
@@ -58,11 +60,22 @@ export async function setContributorCategory(anonId, categoryId) {
   return list[idx];
 }
 
+// Đã đạt bậc cao nhất (Huyền thoại) rồi mà vẫn góp ý thêm — giữ nguyên biểu tượng bậc 5,
+// chỉ đếm dồn thêm "legendaryBonus" để hiện số nhỏ góc icon (xem BadgeIcon.js), thay vì cố
+// tính ra 1 bậc 6 không tồn tại.
 export async function addContributorPoints(anonId, delta) {
   const list = await getAll();
   const idx = list.findIndex((c) => c.anonId === anonId);
   if (idx === -1) return null;
-  list[idx] = { ...list[idx], points: (list[idx].points ?? 0) + delta };
+  const current = list[idx];
+  const wasAlreadyLegendary = (current.points ?? 0) >= LEGENDARY_THRESHOLD;
+  list[idx] = {
+    ...current,
+    points: (current.points ?? 0) + delta,
+    legendaryBonus: wasAlreadyLegendary
+      ? (current.legendaryBonus ?? 0) + 1
+      : (current.legendaryBonus ?? 0),
+  };
   await saveAll(list);
   return list[idx];
 }

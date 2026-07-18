@@ -177,6 +177,22 @@ trong lĩnh vực Nhiếp ảnh. Đây là giải pháp **tạm thời** — c�
 góp ý — 0 điểm lúc đó là đúng thiết kế (điểm chỉ cộng sau khi anh duyệt), nhưng dễ gây hiểu
 lầm là lỗi nếu không giải thích rõ trên giao diện.
 
+## 2026-07-18 — Chặn góp ý trùng ăn điểm + hết bậc thì đếm dồn thay vì tạo bậc 6
+
+**Quyết định:** Không cho tính điểm khi 1 người gửi **đúng y hệt** 1 nội dung sửa (cùng
+field, cùng giá trị) hoặc **đúng y hệt** 1 file ảnh (so mã băm nội dung, không phải tên
+file) cho cùng 1 chỗ lần nữa. Vẫn cho góp ý thêm về cùng 1 chỗ nếu nội dung thực sự khác.
+**Vì sao:** Anh yêu cầu trực tiếp — tránh 1 người copy-paste lại đúng góp ý cũ nhiều lần để
+ăn điểm khống. Đồng thời phát hiện lỗi thật: phía trình duyệt trước đó **không đọc kết quả
+server trả về**, nên dù server từ chối (góp ý trùng, thiếu dữ liệu...) giao diện vẫn hiện
+"Cảm ơn" như đã thành công — đã sửa để hiện đúng lỗi.
+
+**Quyết định:** Khi đã đạt bậc 5 (Huyền thoại — mốc cao nhất), góp ý thêm không tạo "bậc 6"
+nào cả — vẫn giữ nguyên icon + tên bậc 5, chỉ thêm 1 số nhỏ góc phải trên biểu tượng đếm số
+lần góp ý thêm SAU KHI đã đạt bậc 5 (1, 2, 3...).
+**Vì sao:** Anh yêu cầu — hệ điểm chỉ có 5 bậc cố định, cần cách ghi nhận đóng góp tiếp tục
+của người đã đạt đỉnh mà không phải bịa thêm bậc mới.
+
 ## 2026-07-17 — Đảo ngược nguyên tắc "luôn phải duyệt trước khi đăng"
 
 **Quyết định:** Dữ liệu do AI quét hằng ngày giờ **tự động công khai luôn** (chỗ mới, có

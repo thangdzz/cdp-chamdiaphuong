@@ -21,3 +21,38 @@ export async function appendSuggestion(item) {
   await saveSuggestions(list);
   return item;
 }
+
+function fieldsEqual(a, b) {
+  const keys = new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})]);
+  for (const key of keys) {
+    if ((a?.[key] ?? null) !== (b?.[key] ?? null)) return false;
+  }
+  return true;
+}
+
+// Chặn cùng 1 người gửi ĐÚNG y hệt 1 nội dung sửa cho cùng 1 chỗ lần nữa (để ăn điểm) — vẫn
+// cho góp ý thêm về cùng chỗ đó nếu nội dung khác (field khác, hoặc thêm field mới).
+export async function findDuplicateCorrection(contributorId, placeId, fields, note) {
+  const list = await getSuggestions();
+  return list.find(
+    (s) =>
+      s.type === "correction" &&
+      s.contributorId === contributorId &&
+      s.placeId === placeId &&
+      fieldsEqual(s.fields, fields) &&
+      (s.note ?? null) === (note ?? null)
+  );
+}
+
+// Chặn gửi lại ĐÚNG 1 file ảnh (so theo mã băm nội dung) cho cùng 1 chỗ — ảnh khác (dù cùng
+// chỗ) vẫn tính bình thường.
+export async function findDuplicatePhoto(contributorId, placeId, contentHash) {
+  const list = await getSuggestions();
+  return list.find(
+    (s) =>
+      s.type === "photo" &&
+      s.contributorId === contributorId &&
+      s.placeId === placeId &&
+      s.contentHash === contentHash
+  );
+}

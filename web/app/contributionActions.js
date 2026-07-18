@@ -9,7 +9,7 @@ import {
   setContributorCategory,
   getNearbyStanding,
 } from "@/lib/contributors";
-import { appendSuggestion } from "@/lib/suggestions";
+import { appendSuggestion, findDuplicateCorrection, findDuplicatePhoto } from "@/lib/suggestions";
 import { getBadge } from "@/lib/badges";
 
 const MAX_PHOTOS_PER_SUBMIT = 3;
@@ -39,7 +39,9 @@ export async function chooseContributorCategory(anonId, categoryId) {
 export async function getContributorStanding(anonId) {
   const profile = await getContributor(anonId);
   if (!profile) return null;
-  const badge = profile.categoryId ? getBadge(profile.categoryId, profile.points) : null;
+  const badge = profile.categoryId
+    ? getBadge(profile.categoryId, profile.points, profile.legendaryBonus)
+    : null;
   const standing = profile.categoryId
     ? await getNearbyStanding(profile.categoryId, anonId)
     : null;
@@ -53,8 +55,17 @@ export async function submitCorrection({ anonId, placeId, placeName, fields, not
   const cleanedFields = Object.fromEntries(
     Object.entries(fields ?? {}).filter(([, v]) => v !== null && v !== undefined && v !== "")
   );
-  if (Object.keys(cleanedFields).length === 0 && !note) {
+  const cleanedNote = note?.trim() || null;
+  if (Object.keys(cleanedFields).length === 0 && !cleanedNote) {
     return { ok: false, error: "Chưa có gì để gửi." };
+  }
+
+  const duplicate = await findDuplicateCorrection(anonId, placeId, cleanedFields, cleanedNote);
+  if (duplicate) {
+    return {
+      ok: false,
+      error: "Bạn gửi đúng nội dung này cho chỗ này rồi — thử góp ý khác đi bạn nhé.",
+    };
   }
 
   await appendSuggestion({
@@ -66,12 +77,16 @@ export async function submitCorrection({ anonId, placeId, placeName, fields, not
     contributorNickname: contributor?.nickname ?? "Người ẩn danh",
     status: "pending",
     fields: cleanedFields,
-    note: note?.trim() || null,
+    note: cleanedNote,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
 
   return { ok: true };
+}
+
+function hashFile(buffer) {
+  return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
 export async function submitPhotos(formData) {
@@ -92,15 +107,34 @@ export async function submitPhotos(formData) {
     }
   }
 
-  const uploaded = [];
-  for (const file of files) {
-    const blob = await put(`place-photos/${placeId}/${crypto.randomUUID()}-${file.name}`, file, {
-      access: "public",
-    });
-    uploaded.push(blob.url);
+  // So mã băm nội dung ảnh — chặn gửi đúng 1 ảnh y hệt lần nữa cho cùng chỗ để ăn điểm,
+  // vẫn cho gửi ảnh khác dù cùng chỗ.
+  const buffers = await Promise.all(files.map(async (f) => Buffer.from(await f.arrayBuffer())));
+  const hashes = buffers.map(hashFile);
+  const toUpload = [];
+  for (let i = 0; i < files.length; i++) {
+    const duplicate = await findDuplicatePhoto(anonId, placeId, hashes[i]);
+    if (!duplicate) toUpload.push({ file: files[i], buffer: buffers[i], hash: hashes[i] });
+  }
+  const skippedCount = files.length - toUpload.length;
+
+  if (toUpload.length === 0) {
+    return {
+      ok: false,
+      error: "Ảnh này bạn đã gửi cho chỗ này rồi — thử ảnh khác nhé.",
+    };
   }
 
-  for (const url of uploaded) {
+  const uploaded = [];
+  for (const { file, buffer, hash } of toUpload) {
+    const blob = await put(`place-photos/${placeId}/${crypto.randomUUID()}-${file.name}`, buffer, {
+      access: "public",
+      contentType: file.type || "image/jpeg",
+    });
+    uploaded.push({ url: blob.url, hash });
+  }
+
+  for (const { url, hash } of uploaded) {
     await appendSuggestion({
       id: `sugg-${crypto.randomUUID()}`,
       type: "photo",
@@ -110,11 +144,12 @@ export async function submitPhotos(formData) {
       contributorNickname: contributor?.nickname ?? "Người ẩn danh",
       status: "pending",
       photoUrl: url,
+      contentHash: hash,
       note: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
   }
 
-  return { ok: true, count: uploaded.length };
+  return { ok: true, count: uploaded.length, skipped: skippedCount };
 }

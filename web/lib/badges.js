@@ -147,11 +147,14 @@ export function getTierIndex(points) {
   return tier;
 }
 
-export function getBadge(categoryId, points) {
+// legendaryBonus: số lần góp ý được duyệt SAU KHI đã đạt bậc 5 — chỉ có ý nghĩa hiển thị
+// khi đang ở đúng bậc 5 (xem addContributorPoints trong contributors.js).
+export function getBadge(categoryId, points, legendaryBonus = 0) {
   const category = getCategory(categoryId);
   if (!category) return null;
   const tierIndex = getTierIndex(points);
   const nextThreshold = TIER_THRESHOLDS[tierIndex + 1] ?? null;
+  const isLegendary = tierIndex === TIER_THRESHOLDS.length - 1;
   return {
     categoryId,
     categoryLabel: category.label,
@@ -159,5 +162,6 @@ export function getBadge(categoryId, points) {
     tierIndex,
     tierName: category.tiers[tierIndex],
     pointsToNextTier: nextThreshold !== null ? nextThreshold - points : null,
+    bonusCount: isLegendary ? legendaryBonus : 0,
   };
 }
