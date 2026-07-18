@@ -8,6 +8,7 @@ import {
   saveReviewQueue,
   appendReviewEvent,
   appendPlaceSnapshot,
+  getConfirmedDistinctPairs,
 } from "./store.js";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "./schema.js";
 
@@ -34,6 +35,39 @@ function isSamePendingCandidate(item, candidate) {
   );
 }
 
+// 2 trường quan trọng nhất để nhận ra 1 chỗ — nếu 2 nguồn cho giá trị khác nhau (đều có
+// giá trị, không phải thiếu), coi là mâu thuẫn cần người xem lại, không tự ý ghi đè.
+const CONFLICT_FIELDS = ["address_text", "phone"];
+
+// Gộp candidate mới vào candidate cũ đang chờ duyệt: điền field còn thiếu, giữ nguyên
+// field đã có nếu 2 bên khớp nhau; field trong CONFLICT_FIELDS mà 2 bên khác nhau thì
+// KHÔNG ghi đè âm thầm — trả về trong `conflicts` để hiển thị cho người duyệt tự chọn.
+function mergeCandidate(oldCandidate, newCandidate) {
+  const conflicts = [];
+  const merged = { ...oldCandidate };
+
+  for (const key of Object.keys(newCandidate)) {
+    if (key.startsWith("_")) continue;
+    const newValue = newCandidate[key];
+    if (newValue === null || newValue === undefined || newValue === "") continue;
+
+    const oldValue = oldCandidate[key];
+    if (oldValue === null || oldValue === undefined || oldValue === "") {
+      merged[key] = newValue;
+      continue;
+    }
+    if (oldValue === newValue) continue;
+
+    if (CONFLICT_FIELDS.includes(key)) {
+      conflicts.push({ field: key, oldValue, newValue });
+    } else {
+      merged[key] = newValue;
+    }
+  }
+
+  return { merged, conflicts };
+}
+
 /**
  * Xử lý 1 lô bản ghi thô (từ 1 nguồn) -> chuẩn hoá -> so khớp -> tự công khai hoặc vào
  * hàng chờ duyệt. Tự đọc/ghi places:live + review_queue mới nhất mỗi lần gọi (an toàn khi
@@ -44,6 +78,7 @@ function isSamePendingCandidate(item, candidate) {
 export async function ingestBatch(batch) {
   const livePlaces = await getLivePlaces();
   const reviewQueue = await getReviewQueue();
+  const confirmedDistinctPairs = await getConfirmedDistinctPairs();
   let livePlacesChanged = false;
 
   const summary = {
@@ -81,19 +116,26 @@ export async function ingestBatch(batch) {
     );
     if (existingPendingIndex !== -1) {
       const existingItem = reviewQueue[existingPendingIndex];
-      existingItem.candidate = candidate;
+      const { merged, conflicts } = mergeCandidate(existingItem.candidate, candidate);
+      existingItem.candidate = merged;
       existingItem.sources = [
         ...(existingItem.sources ?? []),
         { sourceId: batch.sourceId, sourceType: batch.sourceType, observedAt },
       ];
       existingItem.updatedAt = observedAt;
+
+      if (conflicts.length > 0) {
+        existingItem.conflicts = [...(existingItem.conflicts ?? []), ...conflicts];
+        existingItem.needs_review = true;
+      }
+
       reviewQueue[existingPendingIndex] = existingItem;
       summary.updatedExistingPending++;
       continue;
     }
 
     const pendingCandidatesOnly = reviewQueue.filter((i) => i.status === REVIEW_STATUS.PENDING);
-    const match = matchAgainstExisting(candidate, livePlaces, pendingCandidatesOnly);
+    const match = matchAgainstExisting(candidate, livePlaces, pendingCandidatesOnly, confirmedDistinctPairs);
 
     if (match.type === null) {
       summary.skippedNoChange++;

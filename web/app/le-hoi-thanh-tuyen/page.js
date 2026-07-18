@@ -71,6 +71,31 @@ export default function LeHoiThanhTuyenPage() {
           </ul>
 
           <h3 className="mt-4 text-sm font-semibold text-zinc-800">
+            Trước lễ hội — các hoạt động khác
+          </h3>
+          <ul className="mt-2 flex flex-col gap-2">
+            <InfoRow
+              date="Dự kiến 12/9 (thứ Bảy)"
+              title="Cuộc thi mô hình đèn Trung thu cấp phường Minh Xuân — chọn mô hình đẹp nhất tham gia Đêm hội chính 20/9"
+              place="Quảng trường Nguyễn Tất Thành, phường Minh Xuân"
+            />
+            <InfoRow
+              date="Dự kiến 11 – 25/9/2026"
+              title="Hoạt động trên tuyến phố đi bộ: dân vũ, không gian âm nhạc, trò chơi dân gian"
+              place="Tuyến phố đi bộ, phường Minh Xuân"
+            />
+            <InfoRow
+              date="13 – 25/9/2026, từ 18h30"
+              title="Đèn trang trí, điện chiếu sáng bật sớm quanh phố — đi dạo, chụp ảnh được cả những ngày không phải cao điểm"
+            />
+            <InfoRow
+              date="Tháng 9/2026 (chưa có ngày cụ thể)"
+              title="Giải trình diễn lái xe ô tô - mô tô địa hình Tuyên Quang mở rộng lần IV"
+              place="Phường Minh Xuân"
+            />
+          </ul>
+
+          <h3 className="mt-4 text-sm font-semibold text-zinc-800">
             Tuần lễ hội chính: 19 – 25/9/2026
           </h3>
           <ul className="mt-2 flex flex-col gap-2">
@@ -85,6 +110,11 @@ export default function LeHoiThanhTuyenPage() {
                 'Đêm hội Thành Tuyên — sự kiện lớn nhất, khai mạc 20h00, chủ đề "Lung linh đêm hội trăng rằm", 40 mô hình đèn tiêu biểu diễn diễu, truyền hình trực tiếp'
               }
               place="Quảng trường Nguyễn Tất Thành, phường Minh Xuân"
+            />
+            <InfoRow
+              date="20/9 (cùng đêm hội chính)"
+              title="Trưng bày Mâm cỗ Trung thu — sản vật địa phương trang trí đẹp mắt"
+              place="Quảng trường Nguyễn Tất Thành"
             />
             <InfoRow
               date="19 – 25/9"
@@ -106,6 +136,9 @@ export default function LeHoiThanhTuyenPage() {
             <li>
               Đường Chiến thắng Sông Lô, phường Minh Xuân (khu ẩm thực, hội
               chợ)
+            </li>
+            <li>
+              Tuyến phố đi bộ, phường Minh Xuân (văn nghệ, trò chơi dân gian)
             </li>
           </ul>
         </section>
@@ -130,7 +163,8 @@ export default function LeHoiThanhTuyenPage() {
           </ul>
 
           <p className="mt-4 text-xs text-zinc-400">
-            Nguồn: Kế hoạch số 246/KH-UBND, UBND tỉnh Tuyên Quang, 27/6/2026.
+            Nguồn: Kế hoạch số 246/KH-UBND, UBND tỉnh Tuyên Quang, 27/6/2026; Kế hoạch
+            UBND phường Minh Xuân, tháng 7/2026.
           </p>
         </section>
       </main>

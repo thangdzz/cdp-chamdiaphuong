@@ -28,11 +28,40 @@ hoàn thành.** Chuẩn bị Giai đoạn 6 (dữ liệu thật + kiểm thử, 
 ## Quy trình hằng ngày — anh cần làm gì
 1. Mỗi sáng ~8h, routine tự chạy, tìm kiếm web, trả về 1 báo cáo (JSON + tóm tắt).
 2. Anh mở https://claude.ai/code/routines xem kết quả, copy báo cáo dán vào chat với em.
-3. Em xử lý — **đa số chỗ tự lên web luôn, không cần anh làm gì thêm.**
-4. Anh chỉ cần vào `/admin` mục "Hàng chờ duyệt tự động" khi có **nghi trùng lặp** — xác
-   nhận đúng/sai để hệ thống xử lý tiếp.
+3. Em xử lý — **đa số chỗ tự lên web luôn, không cần anh làm gì thêm** (em cũng cập nhật
+   lại "danh sách chỗ đã biết" cho routine ngày mai, không cần anh làm gì).
+4. Anh chỉ cần vào `/admin` mục "Hàng chờ duyệt tự động" khi có **nghi trùng lặp** hoặc
+   **mâu thuẫn dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
 
 ## Cập nhật gần nhất
+
+### 2026-07-18 — Sửa 3 lỗi lộ ra khi xử lý dữ liệu quét thật (quét trùng, ghi đè âm thầm, dữ liệu sai)
+Xử lý báo cáo thật đầu tiên (38 bản ghi, gộp 4 lần quét) lộ ra 3 vấn đề, đã sửa cả 3:
+1. **Quét trùng chỗ đã biết:** routine không biết 39 chỗ hiện có là gì nên hay tìm lại đúng
+   tên cũ. Đã thêm `scripts/export-known-places.mjs` xuất `data/known-places-snapshot.json`
+   (tên + loại hình, không có gì nhạy cảm) — routine giờ đọc file này trước, tránh tìm lại.
+   **Cần làm mỗi lần xử lý xong 1 báo cáo:** chạy lại script này rồi commit + push, để
+   routine hôm sau đọc được danh sách mới nhất.
+2. **Ghi đè âm thầm khi 2 nguồn đá nhau:** phát hiện qua ca Feline Café (2 địa chỉ khác
+   nhau từ 2 nguồn) — hệ thống cũ chỉ lấy tin đến sau, không báo có mâu thuẫn. Đã sửa: khi
+   địa chỉ/SĐT của 1 chỗ đang chờ duyệt bị 2 nguồn cho giá trị khác nhau, **giữ nguyên giá
+   trị cũ** và hiển thị cảnh báo đỏ trong `/admin` để anh tự chọn, không tự ý ghi đè nữa.
+3. **Dữ liệu sai bị đưa trở lại:** batch hôm nay vô tình ghi đè "Nhà hàng Dũng Cá" bằng địa
+   chỉ/SĐT của "Mộc Restaurant" (2 chỗ khác nhau, anh đã xác nhận trước đó) — undo đúng sửa
+   thủ công anh làm trước đây. Đã: (a) sửa lại đúng dữ liệu 2 chỗ này (tra Google + Facebook
+   xác nhận), (b) xây "bộ nhớ đã xác nhận khác nhau" — từ giờ khi anh xác nhận 1 lần "không
+   trùng" trong `/admin`, hệ thống nhớ mãi, không hỏi lại chỗ đó nữa. Cũng dặn routine ưu
+   tiên Google Maps khi các nguồn đá nhau.
+- Đã test lại đúng kịch bản hôm nay (quét lại tên khác của Mộc Restaurant, quét Feline Café
+  2 địa chỉ xen kẽ) — xác nhận cả 3 chỗ sửa hoạt động đúng trước khi deploy.
+
+### 2026-07-17 (sau) — Thử thêm 1 cách tự động hoàn toàn, vẫn không được — chốt bán tự động
+Thử cho routine gọi thẳng API riêng của dự án (`/api/ingest/submit`) thay vì ghi Redis/
+GitHub — cũng bị chặn (`403` ngay ở bước kết nối HTTPS). Xác nhận: môi trường cloud của
+routine chặn gọi ra ngoài tới **bất kỳ domain nào** ngoài GitHub, không phải chặn riêng 1
+domain cụ thể — nên không còn cách nào khác để thử nữa (đã thử đủ 3 hướng). Đã bỏ bước gọi
+API khỏi lệnh routine, quay lại đúng bản bán tự động gọn. Chi tiết ở DECISIONS.md.
+👉 Quy trình hằng ngày (mục phía trên) vẫn đúng, không đổi gì thêm.
 
 ### 2026-07-17 — Auto-publish + card 2 lớp (thay đổi lớn)
 Anh yêu cầu 2 việc lớn cùng lúc:
@@ -60,6 +89,9 @@ Anh yêu cầu 2 việc lớn cùng lúc:
   vụ liên tiếp, chuyển sang bán tự động. Chi tiết đầy đủ ở DECISIONS.md.
 
 ## Câu hỏi/vướng mắc đang mở
+- **Tự động hoàn toàn: đã đóng, không thử thêm nữa.** Cả 3 hướng (ghi thẳng Redis, ghi qua
+  GitHub, gọi API riêng) đều bị chặn cùng lý do hạ tầng. Chỉ còn lối ra: nâng cấp gói Claude
+  Team/Enterprise, hoặc Google Places API trả phí — chưa cần làm, bán tự động vẫn ổn.
 - **Đề xuất sửa + thưởng điểm**: cần thiết kế cách nhận diện user (chưa có tài khoản) trước
   khi code — việc tiếp theo khi anh sẵn sàng bàn.
 - Nhãn trạng thái mềm hiện vẫn giữ 3 mức (thêm "Tín hiệu ít chỗ/phòng trống" ngoài 2 mức

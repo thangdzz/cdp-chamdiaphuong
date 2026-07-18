@@ -13,6 +13,7 @@ export const KEYS = {
   REVIEW_EVENTS: "ingestion:review_events",
   SOURCE_RUNS: "ingestion:source_runs",
   PLACE_SNAPSHOTS: "ingestion:place_snapshots",
+  CONFIRMED_DISTINCT: "ingestion:confirmed_distinct",
 };
 
 async function getList(key) {
@@ -59,4 +60,21 @@ export async function appendPlaceSnapshot(snapshot) {
 export async function getPlaceSnapshotsFor(placeKey) {
   const all = await getList(KEYS.PLACE_SNAPSHOTS);
   return all.filter((s) => s.placeKey === placeKey);
+}
+
+// Cặp place:live đã được người duyệt xác nhận là 2 chỗ KHÁC NHAU (dù dữ liệu quét được
+// có thể trông giống nhau — trùng địa chỉ/SĐT do nguồn quét nhầm). Dùng để match.js không
+// hỏi lại mỗi lần quét ra dữ liệu giống hệt lần trước — xem DECISIONS.md 2026-07-18.
+export async function getConfirmedDistinctPairs() {
+  return getList(KEYS.CONFIRMED_DISTINCT);
+}
+
+export async function appendConfirmedDistinctPair(pair) {
+  const pairs = await getConfirmedDistinctPairs();
+  const exists = pairs.some(
+    (p) => (p.a === pair.a && p.b === pair.b) || (p.a === pair.b && p.b === pair.a)
+  );
+  if (exists) return;
+  pairs.push(pair);
+  await setList(KEYS.CONFIRMED_DISTINCT, pairs);
 }

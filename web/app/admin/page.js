@@ -169,6 +169,23 @@ function ReviewItemCard({ item }) {
         </p>
       )}
 
+      {item.conflicts?.length > 0 && (
+        <div className="mt-2 rounded-lg border border-red-300 bg-red-50 p-2">
+          <p className="text-xs font-semibold text-red-800">
+            ⚠ 2 lần quét cho thông tin khác nhau — đang giữ giá trị cũ, anh kiểm tra và tự
+            sửa field bên trên nếu giá trị mới đúng hơn:
+          </p>
+          <ul className="mt-1 list-disc pl-5 text-xs text-red-700">
+            {item.conflicts.map((c, idx) => (
+              <li key={idx}>
+                {c.field}: đang lưu &quot;{c.oldValue}&quot;, lần quét sau ghi &quot;
+                {c.newValue}&quot;
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {item.diff?.length > 0 && (
         <ul className="mt-2 list-disc pl-5 text-xs text-zinc-600">
           {item.diff.map((d, idx) => (

@@ -5,7 +5,12 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getLivePlaces, setLivePlaces } from "@/lib/redis";
-import { getReviewQueue, saveReviewQueue, appendReviewEvent } from "@/lib/ingestion/store";
+import {
+  getReviewQueue,
+  saveReviewQueue,
+  appendReviewEvent,
+  appendConfirmedDistinctPair,
+} from "@/lib/ingestion/store";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { placeFromFormData } from "@/lib/placeForm";
 
@@ -32,10 +37,23 @@ async function applyDecision(id, decision, formData) {
 
   if (decision === "approve") {
     if (item.type === REVIEW_ITEM_TYPE.NEW_PLACE || item.type === REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE) {
+      const newId = `live-${crypto.randomUUID()}`;
       const livePlaces = await getLivePlaces();
-      livePlaces.push({ id: `live-${crypto.randomUUID()}`, ...placeFromFormData(formData) });
+      livePlaces.push({ id: newId, ...placeFromFormData(formData) });
       await setLivePlaces(livePlaces);
       item.status = REVIEW_STATUS.APPROVED;
+
+      // Nếu chỗ này từng bị nghi trùng rồi anh xác nhận "không trùng" — nhớ lại cặp
+      // (chỗ vừa đăng, chỗ đã nghi nhầm) để lần quét sau không hỏi lại nữa.
+      if (item.confirmedNotDuplicateOf?.length) {
+        for (const otherId of item.confirmedNotDuplicateOf) {
+          await appendConfirmedDistinctPair({
+            a: newId,
+            b: otherId,
+            decidedAt: new Date().toISOString(),
+          });
+        }
+      }
     } else if (item.type === REVIEW_ITEM_TYPE.CHANGED_PLACE) {
       const edited = placeFromFormData(formData);
       const livePlaces = await getLivePlaces();
@@ -70,6 +88,12 @@ async function applyDecision(id, decision, formData) {
     // duyệt tiếp như bình thường, thay vì tự ý loại bỏ.
     const edited = placeFromFormData(formData);
     item.type = REVIEW_ITEM_TYPE.NEW_PLACE;
+    // Giữ lại chỗ vừa bị nghi trùng nhầm — dùng để đăng ký "2 chỗ khác nhau" khi duyệt
+    // xong (xem nhánh approve NEW_PLACE ở trên), tránh hệ thống hỏi lại lần sau.
+    item.confirmedNotDuplicateOf = [
+      ...(item.confirmedNotDuplicateOf ?? []),
+      ...item.duplicateOfCandidates,
+    ];
     item.duplicateOfCandidates = [];
     item.candidate = {
       ...item.candidate,

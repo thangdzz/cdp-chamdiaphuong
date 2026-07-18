@@ -31,9 +31,16 @@ function addressSimilarity(a, b) {
  * @param {import("./schema").NormalizedPlace} candidate
  * @param {Array} existingPlaces - places:live hiện tại (đã có id)
  * @param {Array} pendingReviewCandidates - review_queue hiện tại (chưa duyệt)
+ * @param {Array} confirmedDistinctPairs - cặp {a,b} (id place:live) đã được người duyệt
+ *   xác nhận là 2 chỗ khác nhau — không so khớp chéo giữa 2 chỗ này nữa.
  * @returns {{ type: string, matchedLivePlaceId: string|null, duplicateOfCandidates: string[], reasons: string[] }}
  */
-export function matchAgainstExisting(candidate, existingPlaces, pendingReviewCandidates) {
+export function matchAgainstExisting(
+  candidate,
+  existingPlaces,
+  pendingReviewCandidates,
+  confirmedDistinctPairs = []
+) {
   const reasons = [];
   const candidatePhone = normalizePhone(candidate.phone);
 
@@ -42,6 +49,17 @@ export function matchAgainstExisting(candidate, existingPlaces, pendingReviewCan
 
   for (const existing of existingPlaces) {
     if (existing.type !== candidate.category_primary) continue;
+
+    // Nếu tên ứng viên rõ ràng gần với 1 chỗ ĐÃ được xác nhận khác với "existing" —
+    // bỏ qua existing, tránh so khớp chéo nhầm 2 chỗ đã biết là khác nhau.
+    const excludedAsConfirmedDistinct = confirmedDistinctPairs.some((pair) => {
+      if (pair.a !== existing.id && pair.b !== existing.id) return false;
+      const otherId = pair.a === existing.id ? pair.b : pair.a;
+      const other = existingPlaces.find((p) => p.id === otherId);
+      if (!other) return false;
+      return nameSimilarity(candidate.normalized_name, slugifyName(other.name)) >= 0.5;
+    });
+    if (excludedAsConfirmedDistinct) continue;
 
     const nameScore = nameSimilarity(candidate.normalized_name, slugifyName(existing.name));
     const addrScore = addressSimilarity(candidate.address_text, existing.address);
