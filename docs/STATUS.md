@@ -16,13 +16,16 @@ quét (quyết định 2026-07-18, xem DECISIONS.md).
   "Xem thêm" bung tại chỗ (địa chỉ đầy đủ, khu vực, độ tin cậy, nguồn đối chiếu, cập nhật
   gần nhất, ghi chú, cụm ảnh) → bấm ảnh mở gallery toàn màn hình (vuốt ngang đổi ảnh, vuốt
   lên/xuống đóng).
-- **"Báo sai" / "Bổ sung ảnh"** (mới, 2026-07-18): khách bấm ngay trong thẻ, sửa field
-  (địa chỉ/SĐT/giá) hoặc báo "đã đóng cửa", hoặc gửi tối đa 3 ảnh/lần (lưu ở Vercel Blob,
-  gói mới tạo `cdp-photos`). Lần đầu góp ý: đặt biệt danh ẩn danh (không cần tài khoản) +
-  nhận **mã khôi phục 6 số** để giữ điểm khi đổi máy/trình duyệt. Sau khi gửi: cảm ơn →
-  chọn 1 trong 10 lĩnh vực quan tâm (bỏ qua được) → hiện huy hiệu hiện tại (SVG, đèn lồng
-  cách điệu) + vài người trên/dưới cùng lĩnh vực. Mọi góp ý vào hàng chờ `/admin` mục
-  "Góp ý từ khách" — duyệt đúng mới áp dụng + cộng điểm (sửa +5, ảnh +10).
+- **"Báo sai" / "Bổ sung ảnh"** (2026-07-18, đã qua nhiều vòng sửa lỗi thật): khách bấm
+  ngay trong thẻ, sửa field (địa chỉ/SĐT/giá) hoặc báo "đã đóng cửa", hoặc gửi tối đa 3
+  ảnh/lần (tự nén phía trình duyệt trước khi gửi — ảnh nặng mấy cũng gọn lại, lưu ở Vercel
+  Blob `cdp-photos`). Lần đầu góp ý: đặt biệt danh ẩn danh + nhận **mã khôi phục 6 số**.
+  Sau khi gửi: cảm ơn → chọn 1 trong 10 lĩnh vực (bỏ qua được, có icon riêng + mô phỏng
+  "người khác" tạm thời khi lĩnh vực còn ít người) → hiện huy hiệu (bậc 5 "Huyền thoại" có
+  sao ăn mừng + số đếm góc phải nếu góp thêm sau khi đã max bậc). Chặn **không tính điểm**
+  nếu gửi đúng y hệt 1 nội dung/1 ảnh đã gửi trước đó cho cùng chỗ (chặn ăn điểm khống,
+  vẫn cho góp ý khác nội dung về cùng chỗ). Mọi góp ý vào `/admin` mục "Góp ý từ khách" —
+  duyệt đúng mới áp dụng + cộng điểm (sửa +5, ảnh +10).
 - **Pipeline "AI quét dữ liệu hằng ngày"** (`lib/ingestion/`): chuẩn hoá → so khớp/dedupe →
   **tự động công khai luôn** (chỗ mới/có đổi/kể cả tin cậy thấp), **chỉ giữ lại chờ duyệt
   khi nghi trùng lặp hoặc mâu thuẫn dữ liệu** (quyết định 2026-07-15, đảo ngược nguyên tắc
@@ -42,6 +45,32 @@ quét (quyết định 2026-07-18, xem DECISIONS.md).
    **mâu thuẫn dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
 
 ## Cập nhật gần nhất
+
+### 2026-07-18 (tiếp) — Vá 4 vòng lỗi thật + hoàn thiện "Báo sai/Bổ sung ảnh", đóng khả năng tự động hoá thêm
+Sau khi tính năng lên production, anh dùng thật và báo lỗi liên tục — đã sửa từng cái:
+1. **Kẹt màn hình / tự reset khi bấm nhanh 2 lần** ("Đã lưu, tiếp tục" bấm lần 1 không thấy
+   gì, lần 2 quay về ban đầu) — do khoá chặn bấm trùng dựa vào state React (có độ trễ), bấm
+   nhanh trên mạng chậm lọt qua được. Đã khoá lại bằng ref (không có độ trễ) cho toàn bộ
+   nút bấm trong luồng; lỗi thật sự (nếu có) giờ hiện thông báo đỏ để bấm lại, không im
+   lặng rồi tự reset nữa.
+2. **Gửi ảnh 2.5MB thất bại** — Next.js giới hạn mặc định 1MB/lần gửi, ảnh điện thoại thật
+   luôn vượt. Đã: nén ảnh phía trình duyệt trước khi gửi (tối đa 1600px, JPEG 82%, ảnh
+   8.3MB test còn 1.2MB) + nâng giới hạn server lên 8MB làm lưới an toàn.
+3. **Bảng "gần bạn" trống trơn + không rõ vì sao 0 điểm** — thêm 2 hồ sơ mô phỏng tạm khi
+   lĩnh vực chưa đủ 3 người thật (ghi rõ trong code là tạm, xoá khi đủ người thật), thêm
+   chú thích "đang chờ duyệt" cạnh điểm mới gửi.
+4. **Chặn ăn điểm khống + hết bậc thì đếm dồn** — không tính điểm nếu gửi đúng y hệt nội
+   dung/ảnh đã gửi cho cùng chỗ; đạt bậc 5 (Huyền thoại) rồi góp thêm thì giữ nguyên icon,
+   chỉ thêm số đếm góc phải trên (1, 2, 3...) thay vì bịa bậc 6. Nhân tiện sửa 1 lỗi thật
+   phát hiện được: trình duyệt trước đó không đọc kết quả server trả về, nên bị server từ
+   chối vẫn hiện "Cảm ơn" như đã thành công.
+- Cũng đổi icon "Người yêu Thành Tuyên" (đèn lồng → cây đa Tân Trào) và "Kinh doanh địa
+  phương" (bắt tay → cửa hàng) theo yêu cầu, thêm hiệu ứng sao cho toàn bộ huy hiệu bậc 5.
+  Trang xem trước 50 huy hiệu: xem link trong lịch sử chat (Artifact riêng, không phải file
+  trong repo).
+- **n8n Cách A (lấy hộ báo cáo routine) — đã đóng, không khả thi:** tra tài liệu chính thức
+  Anthropic xác nhận routine không có API công khai để lấy lại kết quả sau khi chạy xong.
+  Bán tự động (anh dán tay) vẫn là cách duy nhất hiện tại — xem DECISIONS.md.
 
 ### 2026-07-18 (sau) — "Báo sai/Bổ sung ảnh" + thưởng điểm/huy hiệu (Phần 3, hoàn thành)
 Làm trọn gói theo yêu cầu anh (gộp đợt 1+2), đã bàn kỹ thiết kế trước khi code:
@@ -113,16 +142,20 @@ Anh yêu cầu 2 việc lớn cùng lúc:
   vụ liên tiếp, chuyển sang bán tự động. Chi tiết đầy đủ ở DECISIONS.md.
 
 ## Câu hỏi/vướng mắc đang mở
-- **Tự động hoàn toàn: đã đóng, không thử thêm nữa.** Cả 3 hướng (ghi thẳng Redis, ghi qua
-  GitHub, gọi API riêng) đều bị chặn cùng lý do hạ tầng. Chỉ còn lối ra: nâng cấp gói Claude
-  Team/Enterprise, hoặc Google Places API trả phí — chưa cần làm, bán tự động vẫn ổn.
-- **Đề xuất sửa + thưởng điểm**: cần thiết kế cách nhận diện user (chưa có tài khoản) trước
-  khi code — việc tiếp theo khi anh sẵn sàng bàn.
+- **Tự động hoàn toàn: đã đóng, không thử thêm nữa.** Cả 4 hướng đã thử (ghi thẳng Redis,
+  ghi qua GitHub, gọi API riêng, n8n lấy hộ báo cáo routine) đều không khả thi. Chỉ còn lối
+  ra: nâng cấp gói Claude Team/Enterprise, Google Places API trả phí, hoặc **n8n tự làm
+  toàn bộ (Cách B — chưa làm, khả thi nhưng cần dựng riêng)** — chưa cần làm, bán tự động
+  vẫn ổn.
+- **`known-places-snapshot.json` cần cập nhật + push tay** mỗi lần xử lý xong 1 báo cáo
+  routine (em làm hộ, chỉ ghi chú để anh biết có bước này).
+- SEED_ENTRIES (2 hồ sơ mô phỏng trong bảng "gần bạn") là tạm — cần xoá trong
+  `lib/contributors.js` khi 1 lĩnh vực có từ 5 người dùng thật trở lên.
 - Nhãn trạng thái mềm hiện vẫn giữ 3 mức (thêm "Tín hiệu ít chỗ/phòng trống" ngoài 2 mức
   anh cho ví dụ) — đổi tên cho mềm hơn, chưa hỏi lại anh có đồng ý giữ 3 mức không.
-- Món chính/Phù hợp/Ghi chú/Ảnh/SĐT: chưa có nguồn dữ liệu thật cho phần lớn địa điểm —
-  UI đã ẩn gọn khi thiếu, nhưng cần nghĩ cách thu thập các trường này (routine AI thêm câu
-  hỏi tìm kiếm? hay anh tự nhập qua `/admin`?).
-- 25 địa điểm: vài ô giá/SĐT/địa chỉ còn để trống — anh có thể tự điền qua `/admin`.
+- Món chính/Phù hợp/Ghi chú/SĐT: chưa có nguồn dữ liệu thật cho phần lớn địa điểm — UI đã
+  ẩn gọn khi thiếu; ảnh giờ có thể trông cậy vào khách tự gửi qua "Bổ sung ảnh".
+- 25 địa điểm: vài ô giá/SĐT/địa chỉ còn để trống — anh có thể tự điền qua `/admin`, hoặc
+  chờ khách góp ý dần.
 - Mật khẩu `/admin` hiện khá đơn giản — nên đổi khi làm Giai đoạn 5b (bảo mật đầy đủ).
 - Repo GitHub đang Public — có thể đổi lại Private sau nếu tìm được cách cấp quyền đúng.
