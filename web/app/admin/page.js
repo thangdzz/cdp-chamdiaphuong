@@ -4,6 +4,7 @@ import { getLivePlaces, getPendingPlaces } from "@/lib/redis";
 import { formatPriceText, parsePriceRangeText } from "@/lib/priceFormat";
 import { getReviewQueue } from "@/lib/ingestion/store";
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
+import { getSuggestions } from "@/lib/suggestions";
 import {
   login,
   logout,
@@ -14,6 +15,7 @@ import {
   deleteLive,
 } from "./actions";
 import { approveReviewItem, rejectReviewItem } from "./reviewActions";
+import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
 
 const REVIEW_TYPE_LABEL = {
   new_place: "Địa điểm mới",
@@ -222,7 +224,66 @@ function ReviewItemCard({ item }) {
   );
 }
 
-function AdminDashboard({ live, pending, reviewQueue }) {
+function SuggestionCard({ item }) {
+  return (
+    <form className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+      <input type="hidden" name="id" value={item.id} />
+      <div className="flex items-start justify-between gap-2">
+        <span className="rounded-full bg-sky-200 px-2 py-0.5 text-xs font-medium text-sky-900">
+          {item.type === "photo" ? "Ảnh góp ý" : "Báo sai / đề xuất sửa"}
+        </span>
+        <span className="text-xs text-zinc-500">Từ: {item.contributorNickname}</span>
+      </div>
+
+      <p className="mt-2 text-sm font-medium text-zinc-800">{item.placeName}</p>
+
+      {item.type === "photo" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.photoUrl}
+          alt=""
+          className="mt-2 h-32 w-32 rounded-lg object-cover"
+        />
+      ) : (
+        <>
+          {item.fields?.closed ? (
+            <p className="mt-2 text-sm font-semibold text-red-700">
+              ⚠ Báo là chỗ này đã đóng cửa — duyệt sẽ gỡ khỏi công khai.
+            </p>
+          ) : (
+            <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700">
+              {Object.entries(item.fields ?? {}).map(([field, value]) => (
+                <li key={field}>
+                  {field}: <span className="font-medium">{String(value)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {item.note && (
+            <p className="mt-1 text-xs text-zinc-500">Ghi chú: {item.note}</p>
+          )}
+        </>
+      )}
+
+      <div className="mt-3 flex gap-2">
+        <button
+          formAction={approveSuggestion}
+          className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+        >
+          Duyệt, áp dụng
+        </button>
+        <button
+          formAction={rejectSuggestion}
+          className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+        >
+          Từ chối
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function AdminDashboard({ live, pending, reviewQueue, suggestions }) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="mb-6 flex items-center justify-between">
@@ -278,6 +339,20 @@ function AdminDashboard({ live, pending, reviewQueue }) {
         <div className="flex flex-col gap-3">
           {reviewQueue.map((item) => (
             <ReviewItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Góp ý từ khách ({suggestions.length})
+        </h2>
+        {suggestions.length === 0 && (
+          <p className="text-sm text-zinc-500">Chưa có góp ý nào từ khách.</p>
+        )}
+        <div className="flex flex-col gap-3">
+          {suggestions.map((item) => (
+            <SuggestionCard key={item.id} item={item} />
           ))}
         </div>
       </section>
@@ -346,11 +421,15 @@ export default async function AdminPage({ searchParams }) {
     return <LoginForm hasError={params?.error === "1"} />;
   }
 
-  const [live, pending, allReviewItems] = await Promise.all([
+  const [live, pending, allReviewItems, allSuggestions] = await Promise.all([
     getLivePlaces(),
     getPendingPlaces(),
     getReviewQueue(),
+    getSuggestions(),
   ]);
   const reviewQueue = allReviewItems.filter((i) => i.status === REVIEW_STATUS.PENDING);
-  return <AdminDashboard live={live} pending={pending} reviewQueue={reviewQueue} />;
+  const suggestions = allSuggestions.filter((s) => s.status === "pending");
+  return (
+    <AdminDashboard live={live} pending={pending} reviewQueue={reviewQueue} suggestions={suggestions} />
+  );
 }

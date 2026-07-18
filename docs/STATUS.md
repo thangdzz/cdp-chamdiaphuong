@@ -5,16 +5,24 @@
 > [ROADMAP.md](ROADMAP.md); lý do các quyết định xem [DECISIONS.md](DECISIONS.md).
 
 ## Đang ở giai đoạn nào
-**Giai đoạn 5a + AI quét dữ liệu hằng ngày (bán tự động, auto-publish) + card 2 lớp mới —
-hoàn thành.** Chuẩn bị Giai đoạn 6 (dữ liệu thật + kiểm thử, mốc 21/08/2026), và phần 3
-"đề xuất sửa + thưởng điểm" sẽ bàn thiết kế riêng.
+**Giai đoạn 5a + AI quét dữ liệu hằng ngày (bán tự động, auto-publish) + card 2 lớp + "đề
+xuất sửa/ảnh + thưởng điểm/huy hiệu" — hoàn thành.** KPI số lượng dữ liệu (Giai đoạn 6) giờ
+thong thả — chuyển hướng để khách tự đóng góp/sửa dần qua tính năng mới thay vì chỉ anh + em
+quét (quyết định 2026-07-18, xem DECISIONS.md).
 
 ## Tóm tắt tiến độ
 - 25 địa điểm, web hiển thị + bộ lọc (loại hình/khu vực/giá).
 - **Card 2 lớp** (Ăn & Ngủ): thẻ gọn (tên/loại/địa chỉ/giá/nhãn trạng thái mềm) → bấm
   "Xem thêm" bung tại chỗ (địa chỉ đầy đủ, khu vực, độ tin cậy, nguồn đối chiếu, cập nhật
   gần nhất, ghi chú, cụm ảnh) → bấm ảnh mở gallery toàn màn hình (vuốt ngang đổi ảnh, vuốt
-  lên/xuống đóng). "Báo sai" mới là giao diện, chưa nối chức năng.
+  lên/xuống đóng).
+- **"Báo sai" / "Bổ sung ảnh"** (mới, 2026-07-18): khách bấm ngay trong thẻ, sửa field
+  (địa chỉ/SĐT/giá) hoặc báo "đã đóng cửa", hoặc gửi tối đa 3 ảnh/lần (lưu ở Vercel Blob,
+  gói mới tạo `cdp-photos`). Lần đầu góp ý: đặt biệt danh ẩn danh (không cần tài khoản) +
+  nhận **mã khôi phục 6 số** để giữ điểm khi đổi máy/trình duyệt. Sau khi gửi: cảm ơn →
+  chọn 1 trong 10 lĩnh vực quan tâm (bỏ qua được) → hiện huy hiệu hiện tại (SVG, đèn lồng
+  cách điệu) + vài người trên/dưới cùng lĩnh vực. Mọi góp ý vào hàng chờ `/admin` mục
+  "Góp ý từ khách" — duyệt đúng mới áp dụng + cộng điểm (sửa +5, ảnh +10).
 - **Pipeline "AI quét dữ liệu hằng ngày"** (`lib/ingestion/`): chuẩn hoá → so khớp/dedupe →
   **tự động công khai luôn** (chỗ mới/có đổi/kể cả tin cậy thấp), **chỉ giữ lại chờ duyệt
   khi nghi trùng lặp hoặc mâu thuẫn dữ liệu** (quyết định 2026-07-15, đảo ngược nguyên tắc
@@ -34,6 +42,22 @@ hoàn thành.** Chuẩn bị Giai đoạn 6 (dữ liệu thật + kiểm thử, 
    **mâu thuẫn dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
 
 ## Cập nhật gần nhất
+
+### 2026-07-18 (sau) — "Báo sai/Bổ sung ảnh" + thưởng điểm/huy hiệu (Phần 3, hoàn thành)
+Làm trọn gói theo yêu cầu anh (gộp đợt 1+2), đã bàn kỹ thiết kế trước khi code:
+- Tạo Vercel Blob store `cdp-photos` (public) để lưu ảnh khách gửi — chưa có trước đây.
+- 10 lĩnh vực × 5 bậc danh hiệu (`lib/badges.js`), icon SVG vẽ tay theo bậc (`BadgeIcon.js`).
+- Hồ sơ ẩn danh + mã khôi phục 6 số (`lib/contributors.js`) — giải quyết vấn đề "chưa có
+  tài khoản": mất tiến trình khi đổi máy là rủi ro lớn nhất, mã khôi phục giảm nhẹ rủi ro
+  này mà không cần đăng nhập thật.
+- Hàng chờ góp ý riêng (`lib/suggestions.js`, `user_suggestions`) — tách khỏi review_queue
+  AI, duyệt riêng trong `/admin` mục "Góp ý từ khách".
+- Đã test đầy đủ bằng Playwright + dữ liệu TESTQA (không đụng dữ liệu thật): luồng báo sai,
+  gửi ảnh, đặt biệt danh, mã khôi phục (khôi phục đúng từ trình duyệt "mới"), chọn lĩnh
+  vực, hiển thị huy hiệu + xếp hạng gần bạn, báo đóng cửa (gỡ khỏi live đúng), duyệt trong
+  `/admin` (cộng điểm đúng, ảnh áp dụng đúng). Phát hiện 1 điều cần lưu ý (không phải bug
+  cần sửa): bấm duyệt liên tiếp quá nhanh trong `/admin` có thể mất 1 lượt (đọc-sửa-ghi
+  không khoá) — không ảnh hưởng dùng thật vì admin luôn duyệt từng cái một.
 
 ### 2026-07-18 — Sửa 3 lỗi lộ ra khi xử lý dữ liệu quét thật (quét trùng, ghi đè âm thầm, dữ liệu sai)
 Xử lý báo cáo thật đầu tiên (38 bản ghi, gộp 4 lần quét) lộ ra 3 vấn đề, đã sửa cả 3:

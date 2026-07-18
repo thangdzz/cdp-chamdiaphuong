@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getOccupancyLabel, getOccupancyStatus } from "./occupancy";
+import { ContributionPanel } from "./ContributionPanel";
 
 const TYPE_LABEL = {
   ngu: "Ngủ",
@@ -265,6 +266,8 @@ function PlaceCard({ place }) {
               )}
             </div>
           )}
+
+          <ContributionPanel place={place} />
         </div>
       )}
 
@@ -285,16 +288,6 @@ function PlaceCard({ place }) {
         >
           Chỉ đường
         </a>
-        {expanded && (
-          // "Báo sai" — chỉ là giao diện, chưa nối chức năng thật (xem phần thưởng/đề
-          // xuất sửa sẽ bàn riêng).
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600"
-          >
-            Báo sai
-          </button>
-        )}
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}

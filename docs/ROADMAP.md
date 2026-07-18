@@ -94,7 +94,6 @@
   5. 🔲 Hoàn toàn tự động (routine tự ghi thẳng vào Redis) — cần 1 trong 2: nâng cấp
      gói Claude Team/Enterprise (để routine ghi được lên GitHub), hoặc Google Places API
      (trả phí, gọi trực tiếp từ Vercel Cron đã có sẵn — `app/api/cron/daily-ingest`).
-- **Đề xuất sửa (khách góp ý) + thưởng điểm/huy hiệu** — đang bàn thiết kế (2026-07-17):
-  hướng đã chốt là điểm đóng góp + huy hiệu công khai trên web (miễn phí, không rủi ro gian
-  lận tiền bạc). Còn vướng: web chưa có tài khoản đăng nhập, cần nghĩ cách nhận diện "cùng
-  1 user" qua nhiều lần góp ý trước khi code.
+- **Đề xuất sửa (khách góp ý) + thưởng điểm/huy hiệu** ✅ (2026-07-18): "Báo sai"/"Bổ sung
+  ảnh" ngay trong thẻ, hồ sơ ẩn danh + mã khôi phục (không cần tài khoản), 10 lĩnh vực × 5
+  bậc danh hiệu, duyệt trong `/admin`. Xem chi tiết STATUS.md/DECISIONS.md.

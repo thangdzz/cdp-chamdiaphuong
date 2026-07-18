@@ -128,6 +128,45 @@ thêm domain/cách gọi khác sẽ chỉ lặp lại cùng kết quả. Chỉ c
 ROADMAP "Sau bản đầu"): nâng cấp gói Claude Team/Enterprise, hoặc dùng Google Places API
 trả phí gọi từ Vercel Cron có sẵn.
 
+## 2026-07-18 — KPI số lượng dữ liệu: chuyển từ "anh+em quét" sang "khách tự đóng góp"
+
+**Quyết định:** Không còn coi mốc số lượng địa điểm (Giai đoạn 6) là gấp — thay vào đó ưu
+tiên làm tốt tính năng "Báo sai/Bổ sung ảnh" để khách tự hoàn thiện dữ liệu dần theo thời
+gian.
+**Vì sao:** Anh chủ động đổi hướng: việc quét thủ công (anh dán báo cáo, em xử lý) có trần
+tốc độ nhất định; để cộng đồng tự sửa/bổ sung mở rộng dữ liệu nhanh và bền hơn về lâu dài,
+đúng lúc tính năng "đề xuất sửa" cũng đang được xây.
+
+## 2026-07-18 — Thiết kế "Báo sai/Bổ sung ảnh" + thưởng điểm/huy hiệu
+
+**Quyết định:** Không bắt tài khoản/đăng nhập — định danh bằng 1 hồ sơ ẩn danh lưu trên
+trình duyệt (localStorage) + biệt danh tự đặt, kèm **1 mã khôi phục 6 số** để lấy lại đúng
+hồ sơ (điểm, huy hiệu) khi đổi máy/trình duyệt.
+**Vì sao:** Bắt đăng nhập sẽ cản người mới góp ý (đi ngược mục tiêu "vào nhanh, giúp nhanh"
+của dự án). Rủi ro lớn nhất của cách ẩn danh là mất tiến trình khi đổi máy — mã khôi phục
+giải quyết đúng rủi ro này mà không cần mật khẩu/email. Vì mọi góp ý vẫn phải qua anh (và
+em kiểm sơ bộ) duyệt mới có hiệu lực, nên dù danh tính lỏng lẻo, dữ liệu web vẫn an toàn —
+rủi ro chỉ nằm ở trải nghiệm công bằng của người góp ý, chấp nhận được vì không có thưởng
+bằng tiền.
+
+**Quyết định:** 10 lĩnh vực người góp ý có thể chọn (Thổ địa Tuyên Quang, Nhiếp ảnh, Mê ẩm
+thực, Mê xê dịch, Học sinh - Sinh viên, Xe ôm - Tài xế công nghệ, Gia đình - Nội trợ, Người
+yêu Thành Tuyên, Công nghệ - Sáng tạo, Kinh doanh địa phương), mỗi lĩnh vực 5 bậc danh hiệu
+riêng (chi tiết ở `web/lib/badges.js`) theo cùng 1 thang điểm (0/5/20/50/100).
+**Vì sao:** Chọn lĩnh vực gắn với sở thích/vai trò thật của người dân Tuyên Quang (không chỉ
+nhóm "công nghệ" chung chung) — biến việc góp ý thành thể hiện bản sắc cá nhân thay vì chỉ
+"giúp app miễn phí", dễ khiến người dùng quay lại đóng góp tiếp.
+
+**Quyết định:** Khi hiện "người khác cùng lĩnh vực", chỉ hiện 1-2 người ngay trên + ngay
+dưới vị trí hiện tại — không hiện toàn bộ bảng xếp hạng.
+**Vì sao:** Hiện hết sẽ khiến người mới luôn thấy mình đứng chót (nản), người giỏi thấy danh
+sách dài không có động lực xem. Chỉ hiện "gần bạn" luôn tạo cảm giác "còn chút nữa là vượt
+được" — đúng tinh thần khơi gợi cảm xúc đóng góp mà anh muốn, không làm nản người mới.
+
+**Quyết định:** Điểm thưởng: báo sai được duyệt đúng +5, ảnh được duyệt +10. Ảnh do AI tự
+quét gần như không khả thi (WebSearch không tải được file ảnh Google Maps, dễ vướng bản
+quyền) — ảnh thật chủ yếu trông cậy vào khách tự gửi qua tính năng này.
+
 ## 2026-07-17 — Đảo ngược nguyên tắc "luôn phải duyệt trước khi đăng"
 
 **Quyết định:** Dữ liệu do AI quét hằng ngày giờ **tự động công khai luôn** (chỗ mới, có
