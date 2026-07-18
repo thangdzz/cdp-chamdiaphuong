@@ -48,11 +48,15 @@ const ICONS = {
       <path d="M10 19v-5h4v5" />
     </>
   ),
-  lantern: (
+  // Cây đa Tân Trào — tán lá rộng nhiều cụm (không phải 1 khối tròn đơn) + nhiều thân/rễ
+  // phụ toả xuống, đúng đặc trưng nhận diện của cây đa (khác cây thường chỉ 1 thân).
+  banyanTree: (
     <>
-      <path d="M12 3v2.3 M9 5.3h6l1.3 2.7-1.3 9.7H9L7.7 8z" />
-      <path d="M9.4 9h5.2 M9.6 12.2h4.8" />
-      <path d="M10.5 17.7h3v2h-3z" />
+      <circle cx="8" cy="8" r="3.2" />
+      <circle cx="13" cy="6.3" r="3.6" />
+      <circle cx="17" cy="9" r="3" />
+      <path d="M9 13v6 M12.5 12v7 M16 13v6" />
+      <path d="M6 19h12" />
     </>
   ),
   chip: (
@@ -61,20 +65,44 @@ const ICONS = {
       <path d="M9.5 7V4 M12 7V4 M14.5 7V4 M9.5 20v-3 M12 20v-3 M14.5 20v-3 M7 9.5H4 M7 12H4 M7 14.5H4 M20 9.5h-3 M20 12h-3 M20 14.5h-3" />
     </>
   ),
-  handshake: (
+  // Cửa hàng có mái hiên xếp nếp — hình ảnh gắn liền với "kinh doanh" rõ hơn bắt tay.
+  storefront: (
     <>
-      <path d="M3 12 7 8l4 3-2 2z" />
-      <path d="M21 12 17 8l-4 3 2 2z" />
-      <path d="M11 11l2 2 3-3" />
-      <path d="M7 11l3 3 1-1" />
+      <path d="M5 10 6 5h12l1 5" />
+      <path d="M5 10a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0" />
+      <path d="M5.5 10v9h13v-9" />
+      <rect x="10" y="14" width="4" height="5" />
     </>
   ),
 };
 
+// Sao nhỏ toả xung quanh, chỉ dành riêng bậc 5 "Huyền thoại" — cảm giác ăn mừng cho bậc
+// cao nhất, đặt phía sau vòng tròn chính.
+const SPARKLE_POSITIONS = [
+  { x: 3, y: 4, s: 0.55, r: -12 },
+  { x: 21, y: 3.5, s: 0.4, r: 20 },
+  { x: 22, y: 15, s: 0.5, r: 8 },
+  { x: 2, y: 17, s: 0.42, r: -18 },
+  { x: 12, y: 0.5, s: 0.32, r: 0 },
+];
+const SPARKLE_PATH = "M0 -6 L1.3 -1.3 L6 0 L1.3 1.3 L0 6 L-1.3 1.3 L-6 0 L-1.3 -1.3 Z";
+
 export function BadgeIcon({ icon, tierIndex = 0, size = 40 }) {
   const color = TIER_COLORS[tierIndex] ?? TIER_COLORS[0];
+  const isLegendary = tierIndex === 4;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {isLegendary && (
+        <g fill={color} opacity="0.55">
+          {SPARKLE_POSITIONS.map((p, i) => (
+            <path
+              key={i}
+              d={SPARKLE_PATH}
+              transform={`translate(${p.x} ${p.y}) rotate(${p.r}) scale(${p.s})`}
+            />
+          ))}
+        </g>
+      )}
       <circle cx="12" cy="12" r="11.5" fill={color} />
       <g
         stroke="#fff"

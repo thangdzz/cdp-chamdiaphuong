@@ -89,7 +89,7 @@ export const CATEGORIES = [
   {
     id: "yeu-thanh-tuyen",
     label: "Người yêu Thành Tuyên",
-    icon: "lantern",
+    icon: "banyanTree",
     tiers: [
       "Người mới yêu Thành Tuyên",
       "Fan cứng đèn lồng",
@@ -113,7 +113,7 @@ export const CATEGORIES = [
   {
     id: "kinh-doanh",
     label: "Kinh doanh địa phương",
-    icon: "handshake",
+    icon: "storefront",
     tiers: [
       "Người mới góp sức",
       "Đối tác thân thiện",
