@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   startContributorProfile,
   recoverContributorProfile,
@@ -43,16 +43,22 @@ export function ContributionPanel({ place, onDone }) {
   const [revealCode, setRevealCode] = useState(null);
   const [standing, setStanding] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  // Chặn bấm 2 lần liên tiếp thật sự chắc chắn — dùng ref vì state React cập nhật có độ
+  // trễ (render/commit), bấm nhanh trên mạng chậm có thể lọt qua nếu chỉ dựa vào `busy`.
+  const busyRef = useRef(false);
 
   function close() {
     setMode("idle");
     setFields({ address: "", phone: "", priceMin: "", priceMax: "", priceUnit: "", closed: false });
     setNote("");
+    setErrorMessage(null);
     onDone?.();
   }
 
   async function runAction(anonId, action) {
     setBusy(true);
+    setErrorMessage(null);
     try {
       if (action.type === "correction") {
         await submitCorrection({
@@ -74,14 +80,24 @@ export function ContributionPanel({ place, onDone }) {
         await submitPhotos(action.formData);
       }
       setMode("thanks");
+      return true;
+    } catch {
+      // Không được nuốt lỗi im lặng — trước đây lỗi ở đây làm màn hình đứng im, rồi bấm
+      // lần 2 lại rơi vào nhánh "không có việc gì đang chờ" nên tự reset về ban đầu, trông
+      // như mất góp ý. Giờ báo rõ và giữ nguyên pendingAction để bấm lại được ngay.
+      setErrorMessage("Gửi chưa thành công (có thể do mạng chậm). Bấm thử lại giúp em nhé.");
+      return false;
     } finally {
       setBusy(false);
+      busyRef.current = false;
     }
   }
 
   async function ensureProfileThenRun(action) {
+    if (busyRef.current) return;
     const existing = loadLocalContributor();
     if (existing?.anonId) {
+      busyRef.current = true;
       await runAction(existing.anonId, action);
       return;
     }
@@ -109,8 +125,10 @@ export function ContributionPanel({ place, onDone }) {
   }
 
   async function handleNicknameConfirm() {
-    if (!nicknameInput.trim()) return;
+    if (busyRef.current || !nicknameInput.trim()) return;
+    busyRef.current = true;
     setBusy(true);
+    setErrorMessage(null);
     try {
       const profile = await startContributorProfile(nicknameInput.trim());
       saveLocalContributor({
@@ -121,17 +139,21 @@ export function ContributionPanel({ place, onDone }) {
       });
       setRevealCode(profile.recoveryCode);
       setMode("recoveryReveal");
+    } catch {
+      setErrorMessage("Chưa tạo được hồ sơ (có thể do mạng chậm). Bấm thử lại giúp em nhé.");
     } finally {
       setBusy(false);
+      busyRef.current = false;
     }
   }
 
   async function handleRecoveryContinue() {
+    if (busyRef.current) return;
     const local = loadLocalContributor();
     if (pendingAction && local?.anonId) {
-      const action = pendingAction;
-      setPendingAction(null);
-      await runAction(local.anonId, action);
+      busyRef.current = true;
+      const ok = await runAction(local.anonId, pendingAction);
+      if (ok) setPendingAction(null);
     } else {
       close();
     }
@@ -139,6 +161,8 @@ export function ContributionPanel({ place, onDone }) {
 
   async function handleRecoverSubmit(e) {
     e.preventDefault();
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(true);
     setRecoverError(null);
     try {
@@ -154,18 +178,20 @@ export function ContributionPanel({ place, onDone }) {
         categoryId: result.categoryId,
       });
       if (pendingAction) {
-        const action = pendingAction;
-        setPendingAction(null);
-        await runAction(result.anonId, action);
-      } else {
-        close();
+        busyRef.current = false; // để runAction bên dưới tự khoá lại từ đầu
+        const ok = await runAction(result.anonId, pendingAction);
+        if (ok) setPendingAction(null);
+        return;
       }
+      close();
     } finally {
       setBusy(false);
+      busyRef.current = false;
     }
   }
 
   async function handleThanksContinue() {
+    if (busyRef.current) return;
     const local = loadLocalContributor();
     if (!local?.anonId) {
       close();
@@ -175,6 +201,7 @@ export function ContributionPanel({ place, onDone }) {
       setMode("categoryPicker");
       return;
     }
+    busyRef.current = true;
     setBusy(true);
     try {
       const data = await getContributorStanding(local.anonId);
@@ -182,12 +209,15 @@ export function ContributionPanel({ place, onDone }) {
       setMode("standing");
     } finally {
       setBusy(false);
+      busyRef.current = false;
     }
   }
 
   async function handleCategoryPick(categoryId) {
+    if (busyRef.current) return;
     const local = loadLocalContributor();
     if (!local?.anonId) return;
+    busyRef.current = true;
     setBusy(true);
     try {
       await chooseContributorCategory(local.anonId, categoryId);
@@ -196,31 +226,46 @@ export function ContributionPanel({ place, onDone }) {
       setStanding(data);
       setMode("standing");
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   }
 
   if (mode === "idle") {
     return (
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setMode("correctionForm")}
-          className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600"
-        >
-          Báo sai
-        </button>
-        <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600">
-          Bổ sung ảnh
-          <input type="file" accept="image/*" multiple className="hidden" onChange={handleFilesChosen} />
-        </label>
-        <button
-          type="button"
-          onClick={() => setMode("recoverForm")}
-          className="text-xs text-zinc-400 underline"
-        >
-          Đã góp ý trước đây? Khôi phục
-        </button>
+      <div className="mt-2 flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setMode("correctionForm")}
+            className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600"
+          >
+            Báo sai
+          </button>
+          <label
+            className={`inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600 ${
+              busy ? "opacity-50" : "cursor-pointer"
+            }`}
+          >
+            {busy ? "Đang gửi..." : "Bổ sung ảnh"}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={busy}
+              className="hidden"
+              onChange={handleFilesChosen}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setMode("recoverForm")}
+            className="text-xs text-zinc-400 underline"
+          >
+            Đã góp ý trước đây? Khôi phục
+          </button>
+        </div>
+        {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
       </div>
     );
   }
@@ -279,9 +324,10 @@ export function ContributionPanel({ place, onDone }) {
             />
             Chỗ này đã đóng cửa / không còn hoạt động
           </label>
+          {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
           <div className="flex gap-2">
             <button type="submit" disabled={busy} className={btnPrimary}>
-              Gửi góp ý
+              {busy ? "Đang gửi..." : "Gửi góp ý"}
             </button>
             <button type="button" onClick={close} className={btnGhost}>
               Huỷ
@@ -292,18 +338,17 @@ export function ContributionPanel({ place, onDone }) {
 
       {mode === "needNickname" && (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-zinc-700">
-            Đặt 1 biệt danh để em ghi nhận góp ý này (không cần đăng ký):
-          </p>
+          <p className="text-sm text-zinc-700">Biệt danh hoặc tên của bạn là gì?</p>
           <input
             className={inputClass}
             placeholder="Ví dụ: Bạn yêu Tuyên Quang"
             value={nicknameInput}
             onChange={(e) => setNicknameInput(e.target.value)}
           />
+          {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
           <div className="flex gap-2">
             <button type="button" disabled={busy} onClick={handleNicknameConfirm} className={btnPrimary}>
-              Xác nhận
+              {busy ? "Đang gửi..." : "Xác nhận"}
             </button>
             <button type="button" onClick={() => setMode("recoverForm")} className={btnGhost}>
               Đã góp ý trước đây?
@@ -343,8 +388,9 @@ export function ContributionPanel({ place, onDone }) {
             ý trước đây? Khôi phục&quot; và nhập đúng mã này để giữ lại điểm/huy hiệu của bạn.
             Mất mã này thì không lấy lại được (không có cách khôi phục nào khác).
           </p>
+          {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
           <button type="button" disabled={busy} onClick={handleRecoveryContinue} className={btnPrimary}>
-            Đã lưu, tiếp tục
+            {busy ? "Đang gửi..." : "Đã lưu, tiếp tục"}
           </button>
         </div>
       )}
