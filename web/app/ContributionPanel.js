@@ -28,6 +28,35 @@ function saveLocalContributor(data) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+// Nén ảnh phía trình duyệt trước khi gửi — ảnh chụp điện thoại thường 2-8MB, dễ vượt giới
+// hạn gửi lên; đưa về tối đa 1600px cạnh dài + JPEG 82% vẫn đủ nét để xem trên web, giảm
+// dung lượng mạnh (thường còn vài trăm KB). createImageBitmap đọc được cả HEIC trên Safari
+// (trình duyệt tự giải mã), nên không cần thư viện ngoài. Nén lỗi thì gửi ảnh gốc, không
+// chặn người dùng.
+async function compressImage(file, { maxDim = 1600, quality = 0.82 } = {}) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+    if (!blob) return file;
+
+    const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    return new File([blob], newName, { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
 const inputClass = "rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
 const btnPrimary = "rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50";
 const btnGhost = "rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-medium text-zinc-700";
@@ -85,7 +114,7 @@ export function ContributionPanel({ place, onDone }) {
       // Không được nuốt lỗi im lặng — trước đây lỗi ở đây làm màn hình đứng im, rồi bấm
       // lần 2 lại rơi vào nhánh "không có việc gì đang chờ" nên tự reset về ban đầu, trông
       // như mất góp ý. Giờ báo rõ và giữ nguyên pendingAction để bấm lại được ngay.
-      setErrorMessage("Gửi chưa thành công (có thể do mạng chậm). Bấm thử lại giúp em nhé.");
+      setErrorMessage("Gửi chưa thành công. Bấm thử lại giúp em nhé.");
       return false;
     } finally {
       setBusy(false);
@@ -116,12 +145,24 @@ export function ContributionPanel({ place, onDone }) {
   async function handleFilesChosen(e) {
     const files = Array.from(e.target.files ?? []).slice(0, 3);
     e.target.value = "";
-    if (files.length === 0) return;
-    const formData = new FormData();
-    formData.set("placeId", place.id);
-    formData.set("placeName", place.name);
-    files.forEach((f) => formData.append("photos", f));
-    await ensureProfileThenRun({ type: "photos", formData });
+    if (files.length === 0 || busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setErrorMessage(null);
+    try {
+      const compressed = await Promise.all(files.map((f) => compressImage(f)));
+      const formData = new FormData();
+      formData.set("placeId", place.id);
+      formData.set("placeName", place.name);
+      compressed.forEach((f) => formData.append("photos", f));
+      busyRef.current = false; // ensureProfileThenRun/runAction tự khoá lại từ đây
+      setBusy(false);
+      await ensureProfileThenRun({ type: "photos", formData });
+    } catch {
+      setErrorMessage("Chưa xử lý được ảnh. Bấm thử lại giúp em nhé.");
+      setBusy(false);
+      busyRef.current = false;
+    }
   }
 
   async function handleNicknameConfirm() {
