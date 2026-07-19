@@ -40,6 +40,33 @@ function formatShortAddress(address) {
   return kept.length > 0 ? kept.join(", ") : address;
 }
 
+// Nhóm từ đồng nghĩa cho tìm kiếm — gõ 1 trong các từ này đều ra kết quả như nhau. Đã qua
+// stripDiacritics + lowercase nên viết không dấu (VD "cà phê" -> "ca phe").
+const SEARCH_SYNONYM_GROUPS = [
+  ["cafe", "coffee", "ca phe", "caphe"],
+  ["khach san", "hotel"],
+  ["nha nghi", "motel", "nha tro", "guesthouse"],
+  ["nha hang", "restaurant", "quan an"],
+  ["an sang", "breakfast"],
+  ["an trua", "lunch"],
+  ["an toi", "dinner"],
+];
+
+function expandSearchWord(word) {
+  const group = SEARCH_SYNONYM_GROUPS.find((g) =>
+    g.some((term) => term.startsWith(word) || word.startsWith(term))
+  );
+  return group ? [word, ...group] : [word];
+}
+
+// Khớp từng từ trong ô tìm kiếm với địa điểm — mỗi từ phải khớp (đúng chữ hoặc 1 từ đồng
+// nghĩa của nó), cho phép gõ nhiều từ cùng lúc (VD "cafe minh xuan").
+function matchesSearchQuery(haystack, query) {
+  const words = query.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return true;
+  return words.every((word) => expandSearchWord(word).some((alt) => haystack.includes(alt)));
+}
+
 function matchesPriceBucket(place, bucketId) {
   if (bucketId === "all") return true;
   if (place.priceMin == null || place.priceMax == null) return false;
@@ -427,8 +454,10 @@ export default function PlaceExplorer({ places }) {
       if (ward !== "all" && p.ward !== ward) return false;
       if (!matchesPriceBucket(p, priceBucket)) return false;
       if (query) {
-        const haystack = stripDiacritics(`${p.name} ${p.address ?? ""}`).toLowerCase();
-        if (!haystack.includes(query)) return false;
+        const haystack = stripDiacritics(
+          `${p.name} ${p.address ?? ""} ${p.localArea ?? ""} ${p.ward ?? ""}`
+        ).toLowerCase();
+        if (!matchesSearchQuery(haystack, query)) return false;
       }
       return true;
     });

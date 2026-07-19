@@ -53,6 +53,12 @@ này, không cần mỗi ngày.
 
 ## Cập nhật gần nhất
 
+### 2026-07-19 (sau, tiếp) — Tìm kiếm hiểu từ đồng nghĩa
+Gõ "cafe", "coffee", "cà phê", hay "café" đều ra cùng 1 kết quả (tương tự "khách sạn"/
+"hotel", "nhà nghỉ"/"motel", "nhà hàng"/"restaurant"...). Danh sách nhóm từ đồng nghĩa ở
+`SEARCH_SYNONYM_GROUPS` trong `PlaceExplorer.js` — dễ thêm nhóm mới sau này. Đã test xác
+nhận không bị lẫn chéo (tìm "hotel" không lòi ra quán cà phê).
+
 ### 2026-07-19 (sau) — Địa chỉ rút gọn, thêm trường "Khu vực" (khu dân cư), gộp nút bổ sung
 - **Địa chỉ trên thẻ gọn**: chỉ còn số nhà + tên đường (VD "123 Đường Test Dài"), bỏ phần
   phường/TP — mục "Địa chỉ đầy đủ" lúc bung thẻ vẫn giữ nguyên chuỗi gốc để chỉ đường/đối
