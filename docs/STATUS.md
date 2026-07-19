@@ -38,13 +38,30 @@ quét (quyết định 2026-07-18, xem DECISIONS.md).
 
 ## Quy trình hằng ngày — anh cần làm gì
 1. Mỗi sáng ~8h, routine tự chạy, tìm kiếm web, trả về 1 báo cáo (JSON + tóm tắt).
-2. Anh mở https://claude.ai/code/routines xem kết quả, copy báo cáo dán vào chat với em.
-3. Em xử lý — **đa số chỗ tự lên web luôn, không cần anh làm gì thêm** (em cũng cập nhật
-   lại "danh sách chỗ đã biết" cho routine ngày mai, không cần anh làm gì).
-4. Anh chỉ cần vào `/admin` mục "Hàng chờ duyệt tự động" khi có **nghi trùng lặp** hoặc
-   **mâu thuẫn dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
+2. Anh mở https://claude.ai/code/routines xem kết quả, copy **toàn bộ** báo cáo (không cần
+   tự cắt lấy đúng đoạn JSON).
+3. Dán vào **1 trong 2 chỗ**: (a) chat với em như trước giờ, hoặc (b) mục "Xử lý báo cáo
+   quét dữ liệu" ngay trong `/admin` (mới, 2026-07-19) — làm được trên điện thoại, không
+   cần mở chat. Cả 2 chỗ dùng chung đúng 1 bộ lọc trùng/mâu thuẫn, kết quả như nhau.
+4. Anh chỉ cần vào mục "Hàng chờ duyệt tự động" khi có **nghi trùng lặp** hoặc **mâu thuẫn
+   dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
+
+**Lưu ý nếu dùng chỗ (b) mà không nhắn em:** file `known-places-snapshot.json` (giúp
+routine tránh tìm lại chỗ đã có) sẽ **không tự cập nhật** — chỉ em mới cập nhật + đẩy lên
+GitHub được (cần quyền git, `/admin` không có). Thỉnh thoảng nhắn em 1 câu để làm mới file
+này, không cần mỗi ngày.
 
 ## Cập nhật gần nhất
+
+### 2026-07-19 — Xử lý báo cáo routine ngay trong /admin + tìm kiếm/nút cuộn trang chủ
+- **Mục mới trong `/admin`**: dán nguyên báo cáo routine (không cần tự cắt JSON, hệ thống
+  tự tách) và xử lý ngay tại chỗ — không cần mở chat với em, làm được trên điện thoại. Dùng
+  chung đúng 1 hàm xử lý (`ingestBatch`) với mọi nguồn khác nên vẫn lọc trùng/mâu thuẫn y
+  hệt. Đánh đổi: dùng cách này thì `known-places-snapshot.json` không tự cập nhật (chỉ em
+  làm được, cần quyền git) — anh thỉnh thoảng nhắn em làm mới file này.
+- **Trang chủ**: thêm ô tìm kiếm (không cần gõ dấu) và nút lên đầu/xuống cuối trang (mờ lúc
+  đứng yên, rõ khi đang cuộn).
+- Đã test cả 2 việc bằng dữ liệu giả trước khi deploy.
 
 ### 2026-07-18 (tiếp) — Vá 4 vòng lỗi thật + hoàn thiện "Báo sai/Bổ sung ảnh", đóng khả năng tự động hoá thêm
 Sau khi tính năng lên production, anh dùng thật và báo lỗi liên tục — đã sửa từng cái:

@@ -16,6 +16,7 @@ import {
 } from "./actions";
 import { approveReviewItem, rejectReviewItem } from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
+import { IngestPasteBox } from "./IngestPasteBox";
 
 const REVIEW_TYPE_LABEL = {
   new_place: "Địa điểm mới",
@@ -327,6 +328,17 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions }) {
             Thêm vào hàng chờ duyệt
           </button>
         </form>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Xử lý báo cáo quét dữ liệu (dán từ Routine)
+        </h2>
+        <p className="mb-3 text-sm text-zinc-500">
+          Dán báo cáo từ claude.ai/code/routines vào đây — không cần mở chat với Claude Code,
+          làm được ngay trên điện thoại. Vẫn tự lọc trùng/mâu thuẫn như khi xử lý qua chat.
+        </p>
+        <IngestPasteBox />
       </section>
 
       <section className="mb-8">
