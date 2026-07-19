@@ -18,6 +18,15 @@ import { approveReviewItem, rejectReviewItem } from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
 import { IngestPasteBox } from "./IngestPasteBox";
 
+const SUGGESTION_FIELD_LABEL = {
+  address: "Địa chỉ",
+  localArea: "Khu vực",
+  phone: "SĐT",
+  priceMin: "Giá thấp nhất",
+  priceMax: "Giá cao nhất",
+  priceUnit: "Đơn vị giá",
+};
+
 const REVIEW_TYPE_LABEL = {
   new_place: "Địa điểm mới",
   changed_place: "Có thay đổi",
@@ -100,7 +109,8 @@ function PlaceForm({ place, children }) {
           </select>
         </label>
         <Field label="Địa chỉ" name="address" defaultValue={place.address} />
-        <Field label="Khu vực (phường)" name="ward" defaultValue={place.ward} />
+        <Field label="Khu (VD: Khu 80 gian, Khu cổng lấp...)" name="localArea" defaultValue={place.localArea} />
+        <Field label="Phường" name="ward" defaultValue={place.ward} />
         <Field label="Giá thấp nhất" name="priceMin" type="number" defaultValue={place.priceMin} />
         <Field label="Giá cao nhất" name="priceMax" type="number" defaultValue={place.priceMax} />
         <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" defaultValue={place.priceUnit} />
@@ -255,7 +265,8 @@ function SuggestionCard({ item }) {
             <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700">
               {Object.entries(item.fields ?? {}).map(([field, value]) => (
                 <li key={field}>
-                  {field}: <span className="font-medium">{String(value)}</span>
+                  {SUGGESTION_FIELD_LABEL[field] ?? field}:{" "}
+                  <span className="font-medium">{String(value)}</span>
                 </li>
               ))}
             </ul>
@@ -316,7 +327,8 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions }) {
               </select>
             </label>
             <Field label="Địa chỉ" name="address" />
-            <Field label="Khu vực (phường)" name="ward" />
+            <Field label="Khu (VD: Khu 80 gian, Khu cổng lấp...)" name="localArea" />
+            <Field label="Phường" name="ward" />
             <Field label="Giá thấp nhất" name="priceMin" type="number" />
             <Field label="Giá cao nhất" name="priceMax" type="number" />
             <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" />

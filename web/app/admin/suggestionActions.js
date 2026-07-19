@@ -22,6 +22,7 @@ const FIELD_MAP = {
   priceMin: "priceMin",
   priceMax: "priceMax",
   priceUnit: "priceUnit",
+  localArea: "localArea",
 };
 
 async function applyDecision(id, decision) {

@@ -53,6 +53,19 @@ này, không cần mỗi ngày.
 
 ## Cập nhật gần nhất
 
+### 2026-07-19 (sau) — Địa chỉ rút gọn, thêm trường "Khu vực" (khu dân cư), gộp nút bổ sung
+- **Địa chỉ trên thẻ gọn**: chỉ còn số nhà + tên đường (VD "123 Đường Test Dài"), bỏ phần
+  phường/TP — mục "Địa chỉ đầy đủ" lúc bung thẻ vẫn giữ nguyên chuỗi gốc để chỉ đường/đối
+  chiếu. Cắt theo dấu phẩy, dừng khi gặp "Phường/TP/Tổ/Xã/Huyện...".
+- **Trường mới `localArea`** (khu dân cư theo cách gọi người địa phương, VD "Khu 80 gian",
+  "Khu cổng lấp"): hiện cùng tên phường ở dòng "Khu vực" ("Khu 80 gian, Minh Xuân"). Nhập
+  được qua `/admin` (form sửa/thêm chỗ) và qua góp ý của khách — chưa có nguồn AI tự động
+  điền (AI không biết tên gọi không chính thức), cần nhập tay dần.
+- **Gộp nút "Báo sai" + "Bổ sung ảnh"** thành 1 nút **"Bổ sung thông tin"** — bấm vào hiện
+  menu chọn "Thêm thông tin" (form sửa, có thêm ô Khu vực) hoặc "Thêm ảnh" (như cũ).
+- Đã test đầy đủ bằng dữ liệu giả: địa chỉ rút gọn đúng, "Địa chỉ đầy đủ" không bị ảnh
+  hưởng, menu hiện đúng 2 lựa chọn, gửi + duyệt "Khu vực" áp dụng đúng vào dữ liệu thật.
+
 ### 2026-07-19 — Xử lý báo cáo routine ngay trong /admin + tìm kiếm/nút cuộn trang chủ
 - **Mục mới trong `/admin`**: dán nguyên báo cáo routine (không cần tự cắt JSON, hệ thống
   tự tách) và xử lý ngay tại chỗ — không cần mở chat với em, làm được trên điện thoại. Dùng

@@ -63,7 +63,15 @@ const btnGhost = "rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-m
 
 export function ContributionPanel({ place, onDone }) {
   const [mode, setMode] = useState("idle");
-  const [fields, setFields] = useState({ address: "", phone: "", priceMin: "", priceMax: "", priceUnit: "", closed: false });
+  const [fields, setFields] = useState({
+    address: "",
+    localArea: "",
+    phone: "",
+    priceMin: "",
+    priceMax: "",
+    priceUnit: "",
+    closed: false,
+  });
   const [note, setNote] = useState("");
   const [nicknameInput, setNicknameInput] = useState("");
   const [recoverCodeInput, setRecoverCodeInput] = useState("");
@@ -79,7 +87,15 @@ export function ContributionPanel({ place, onDone }) {
 
   function close() {
     setMode("idle");
-    setFields({ address: "", phone: "", priceMin: "", priceMax: "", priceUnit: "", closed: false });
+    setFields({
+      address: "",
+      localArea: "",
+      phone: "",
+      priceMin: "",
+      priceMax: "",
+      priceUnit: "",
+      closed: false,
+    });
     setNote("");
     setErrorMessage(null);
     onDone?.();
@@ -97,6 +113,7 @@ export function ContributionPanel({ place, onDone }) {
           placeName: place.name,
           fields: {
             address: action.fields.address || null,
+            localArea: action.fields.localArea || null,
             phone: action.fields.phone || null,
             priceMin: action.fields.priceMin ? Number(action.fields.priceMin) : null,
             priceMax: action.fields.priceMax ? Number(action.fields.priceMax) : null,
@@ -143,7 +160,15 @@ export function ContributionPanel({ place, onDone }) {
 
   async function handleCorrectionSubmit(e) {
     e.preventDefault();
-    if (!fields.address && !fields.phone && !fields.priceMin && !fields.priceMax && !note && !fields.closed) {
+    if (
+      !fields.address &&
+      !fields.localArea &&
+      !fields.phone &&
+      !fields.priceMin &&
+      !fields.priceMax &&
+      !note &&
+      !fields.closed
+    ) {
       return;
     }
     await ensureProfileThenRun({ type: "correction", fields, note });
@@ -285,26 +310,11 @@ export function ContributionPanel({ place, onDone }) {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setMode("correctionForm")}
+            onClick={() => setMode("choiceMenu")}
             className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600"
           >
-            Báo sai
+            Bổ sung thông tin
           </button>
-          <label
-            className={`inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600 ${
-              busy ? "opacity-50" : "cursor-pointer"
-            }`}
-          >
-            {busy ? "Đang gửi..." : "Bổ sung ảnh"}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              disabled={busy}
-              className="hidden"
-              onChange={handleFilesChosen}
-            />
-          </label>
           <button
             type="button"
             onClick={() => setMode("recoverForm")}
@@ -320,6 +330,39 @@ export function ContributionPanel({ place, onDone }) {
 
   return (
     <div className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+      {mode === "choiceMenu" && (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-medium text-zinc-600">
+            Bổ sung gì cho &quot;{place.name}&quot;?
+          </p>
+          <button
+            type="button"
+            onClick={() => setMode("correctionForm")}
+            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
+          >
+            Thêm thông tin (địa chỉ, khu vực, SĐT, giá...)
+          </button>
+          <label
+            className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
+              busy ? "opacity-50" : "cursor-pointer"
+            }`}
+          >
+            {busy ? "Đang gửi..." : "Thêm ảnh"}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={busy}
+              className="hidden"
+              onChange={handleFilesChosen}
+            />
+          </label>
+          <button type="button" onClick={close} className="self-start text-xs text-zinc-400 underline">
+            Huỷ
+          </button>
+        </div>
+      )}
+
       {mode === "correctionForm" && (
         <form onSubmit={handleCorrectionSubmit} className="flex flex-col gap-2">
           <p className="text-xs font-medium text-zinc-600">Sửa thông tin cho &quot;{place.name}&quot;</p>
@@ -329,6 +372,12 @@ export function ContributionPanel({ place, onDone }) {
               placeholder="Địa chỉ đúng"
               value={fields.address}
               onChange={(e) => setFields((f) => ({ ...f, address: e.target.value }))}
+            />
+            <input
+              className={inputClass}
+              placeholder="Khu vực (VD: Khu 80 gian...)"
+              value={fields.localArea}
+              onChange={(e) => setFields((f) => ({ ...f, localArea: e.target.value }))}
             />
             <input
               className={inputClass}

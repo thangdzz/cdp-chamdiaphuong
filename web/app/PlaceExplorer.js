@@ -25,6 +25,21 @@ function mapsUrl(place) {
   )}`;
 }
 
+// Rút gọn địa chỉ về "số nhà + tên đường" cho thẻ gọn — bỏ phần phường/thành phố (đã có
+// mục "Khu vực" riêng). "Địa chỉ đầy đủ" lúc bung thẻ vẫn giữ nguyên chuỗi gốc.
+const ADDRESS_DROP_PREFIXES = ["phường", "tp", "thành phố", "tổ", "xã", "huyện", "thị trấn"];
+function formatShortAddress(address) {
+  if (!address) return address;
+  const parts = address.split(",").map((s) => s.trim());
+  const kept = [];
+  for (const part of parts) {
+    const lower = part.toLowerCase();
+    if (ADDRESS_DROP_PREFIXES.some((prefix) => lower.startsWith(prefix))) break;
+    kept.push(part);
+  }
+  return kept.length > 0 ? kept.join(", ") : address;
+}
+
 function matchesPriceBucket(place, bucketId) {
   if (bucketId === "all") return true;
   if (place.priceMin == null || place.priceMax == null) return false;
@@ -177,7 +192,7 @@ function PlaceCard({ place }) {
         </span>
       </div>
 
-      <p className="mt-1 text-sm text-zinc-600">{place.address}</p>
+      <p className="mt-1 text-sm text-zinc-600">{formatShortAddress(place.address)}</p>
 
       <p className="mt-2 text-sm font-medium text-zinc-800">
         {place.priceText ?? "Chưa cập nhật giá"}
@@ -197,10 +212,10 @@ function PlaceCard({ place }) {
             <span className="text-zinc-500">Địa chỉ đầy đủ: </span>
             {place.address}
           </p>
-          {place.ward && (
+          {(place.localArea || place.ward) && (
             <p>
               <span className="text-zinc-500">Khu vực: </span>
-              {place.ward}
+              {[place.localArea, place.ward].filter(Boolean).join(", ")}
             </p>
           )}
           {lodgingKind && (

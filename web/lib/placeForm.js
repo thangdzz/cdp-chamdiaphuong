@@ -19,6 +19,9 @@ export function placeFromFormData(formData) {
     type: formData.get("type") === "an" ? "an" : "ngu",
     address: (formData.get("address") ?? "").toString().trim(),
     ward: toTextOrNull(formData.get("ward")?.toString()),
+    // Tên khu dân cư/khu vực theo cách gọi của người địa phương (VD "Khu 80 gian", "Khu
+    // cổng lấp") — khác "ward" (tên phường hành chính), hiển thị kèm nhau khi có cả 2.
+    localArea: toTextOrNull(formData.get("localArea")?.toString()),
     priceMin,
     priceMax,
     priceUnit,
