@@ -53,6 +53,14 @@ này, không cần mỗi ngày.
 
 ## Cập nhật gần nhất
 
+### 2026-07-20 — Logo "CDP" + tiêu đề bấm về trang chủ
+Bàn nhiều phương án qua Artifact trước (đèn lồng, ghim, mộc chữ, pixel...) — chốt bản đơn
+giản: "CDP" đậm màu đỏ `#c8553d` + "Chạm Địa Phương", cùng font trang đang dùng thật
+(Arial/Helvetica — phát hiện font Geist đã khai báo nhưng bị 1 dòng CSS cũ đè mất, chưa
+sửa, không ảnh hưởng việc này). Cả cụm bấm vào dẫn về trang chủ. Hiện chỉ áp dụng ở trang
+chủ (`app/page.js`) — nếu anh muốn logo này xuất hiện ở cả `/admin` và trang lễ hội, cần
+chuyển lên layout chung, để hỏi riêng nếu anh cần.
+
 ### 2026-07-19 (sau, tiếp) — Tìm kiếm hiểu từ đồng nghĩa
 Gõ "cafe", "coffee", "cà phê", hay "café" đều ra cùng 1 kết quả (tương tự "khách sạn"/
 "hotel", "nhà nghỉ"/"motel", "nhà hàng"/"restaurant"...). Danh sách nhóm từ đồng nghĩa ở

@@ -12,9 +12,10 @@ export default async function Home() {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold text-zinc-900">
-            Chạm Địa Phương
-          </h1>
+          <Link href="/" className="inline-flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#c8553d]">CDP</span>
+            <h1 className="text-2xl font-bold text-zinc-900">Chạm Địa Phương</h1>
+          </Link>
           <p className="mt-1 text-sm text-zinc-500">
             Chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang — bản thử nghiệm.
           </p>
