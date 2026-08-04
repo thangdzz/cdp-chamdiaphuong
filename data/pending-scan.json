@@ -1,12 +1,1 @@
-[
-  {
-    "name": "TEST XOA NGAY - kiem tra GitHub Action",
-    "category_primary": "an",
-    "address_text": null,
-    "near_landmark": null,
-    "phone": null,
-    "opening_hours_text": null,
-    "price_range_text": null,
-    "map_note": "Ban ghi test tu dong - se xoa ngay sau khi kiem tra pipeline"
-  }
-]
+[]
