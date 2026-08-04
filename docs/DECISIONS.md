@@ -252,3 +252,36 @@ tự sửa đúng trước đó. Tra lại Google Maps + Facebook xác nhận: D
 Phường Tân Quang (ven sông Lô), không phải 124 Trần Hưng Đạo (đó là địa chỉ của Mộc) — đã
 sửa lại đúng dữ liệu 2 chỗ. Nguyên tắc chung khi nguồn quét đá nhau: **ưu tiên thông tin
 theo Google Maps** — cũng đã dặn lại routine.
+
+## 2026-08-04 — Tự động hoá hoàn toàn quy trình quét dữ liệu hằng ngày
+
+**Quyết định:** Routine quét dữ liệu hằng ngày giờ tự ghi kết quả thẳng lên web qua GitHub
+Contents API + 1 GitHub Action mới, thay vì chỉ in báo cáo để anh copy-paste tay (kể cả vào
+chat hay vào `/admin`). Cơ chế: routine `curl PUT` (dùng 1 Personal Access Token
+fine-grained, chỉ áp dụng đúng repo `cdp-chamdiaphuong`, chỉ quyền Contents: Read/write, hạn
+90 ngày) ghi kết quả vào `data/pending-scan.json` trên GitHub → thay đổi file này tự kích
+hoạt GitHub Action (`.github/workflows/ingest-from-scan.yml`, chạy trên hạ tầng GitHub) →
+Action gọi vào `/api/ingest/submit` có sẵn từ trước → web tự lọc trùng/mâu thuẫn y hệt mọi
+nguồn khác → Action tự dọn `pending-scan.json` về rỗng sau khi gửi thành công.
+
+**Vì sao đổi được, dù trước đây (2026-07-15, 2026-07-17) đã xác nhận `git push`/gọi API
+riêng đều bị chặn:** Đây là cơ chế KHÁC — gọi thẳng REST API của GitHub
+(`api.github.com/repos/.../contents/...`) bằng Personal Access Token, không phải lệnh
+`git push` (thứ bị chặn vì thiếu quyền cài GitHub App — gói Claude hiện tại không hỗ trợ).
+Domain `api.github.com` và `raw.githubusercontent.com` KHÔNG nằm trong danh sách domain bị
+chặn của môi trường routine (chỉ có domain riêng của web, `web-five-xi-28.vercel.app`, vẫn
+bị chặn như cũ) — đã kiểm tra thật bằng 1 routine đọc thử trước khi tin và trước khi động
+vào routine thật, không dựa vào suy đoán. Anh cũng cung cấp thêm bằng chứng: 1 routine khác
+của anh (dự án `painpoint-research`, không liên quan tới CDP) đã dùng đúng cơ chế này ổn
+định từ 2026-06-16 tới nay.
+
+**Đánh đổi đã chấp nhận:** Token (Personal Access Token) phải nằm dạng chữ thường ngay trong
+nội dung routine — nền tảng hiện tại không có chỗ lưu "bí mật" riêng cho routine. Giảm rủi ro
+bằng cách giới hạn phạm vi hẹp nhất có thể (đúng 1 repo, đúng 1 quyền, hạn dùng ngắn) thay vì
+dùng lại 1 token cũ đã có sẵn (phạm vi rộng hơn — áp dụng cho mọi repo public của tài khoản).
+
+**Không đổi:** Lịch chạy (8h sáng), phạm vi tìm kiếm (TP Tuyên Quang cũ), cơ chế lọc trùng/
+mâu thuẫn phía web (dùng chung `ingestBatch`, không viết logic mới). 2 chỗ dán tay cũ (chat,
+`/admin`) vẫn giữ nguyên, dùng khi cần xử lý thủ công ngoài lịch. Việc làm mới
+`known-places-snapshot.json` vẫn cần em làm thủ công như trước (không đổi) — chỉ ảnh hưởng
+hiệu quả tìm kiếm, không ảnh hưởng việc chống đăng trùng.

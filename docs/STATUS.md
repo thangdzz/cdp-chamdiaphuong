@@ -5,10 +5,10 @@
 > [ROADMAP.md](ROADMAP.md); lý do các quyết định xem [DECISIONS.md](DECISIONS.md).
 
 ## Đang ở giai đoạn nào
-**Giai đoạn 5a + AI quét dữ liệu hằng ngày (bán tự động, auto-publish) + card 2 lớp + "đề
-xuất sửa/ảnh + thưởng điểm/huy hiệu" — hoàn thành.** KPI số lượng dữ liệu (Giai đoạn 6) giờ
-thong thả — chuyển hướng để khách tự đóng góp/sửa dần qua tính năng mới thay vì chỉ anh + em
-quét (quyết định 2026-07-18, xem DECISIONS.md).
+**Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động hoàn toàn từ 2026-08-04, auto-publish) +
+card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy hiệu" — hoàn thành.** KPI số lượng dữ liệu
+(Giai đoạn 6) giờ thong thả — chuyển hướng để khách tự đóng góp/sửa dần qua tính năng mới
+thay vì chỉ anh + em quét (quyết định 2026-07-18, xem DECISIONS.md).
 
 ## Tóm tắt tiến độ
 - 25 địa điểm, web hiển thị + bộ lọc (loại hình/khu vực/giá).
@@ -30,28 +30,57 @@ quét (quyết định 2026-07-18, xem DECISIONS.md).
   **tự động công khai luôn** (chỗ mới/có đổi/kể cả tin cậy thấp), **chỉ giữ lại chờ duyệt
   khi nghi trùng lặp hoặc mâu thuẫn dữ liệu** (quyết định 2026-07-15, đảo ngược nguyên tắc
   "luôn phải duyệt" ban đầu — xem DECISIONS.md).
-- **Lịch chạy hằng ngày** (8h sáng, claude.ai routine): tự tìm kiếm web thật, trả báo cáo
-  qua chat — **bán tự động** (anh dán báo cáo vào chat, em xử lý ~30 giây), vì cloud agent
-  bị chặn ghi thẳng vào Redis/GitHub (xem DECISIONS.md).
+- **Lịch chạy hằng ngày** (8h sáng, claude.ai routine): tự tìm kiếm web thật, tự ghi thẳng
+  lên web qua GitHub Action — **tự động hoàn toàn từ 2026-08-04**, anh không cần copy-paste
+  gì nữa, chỉ thỉnh thoảng vào `/admin` khi có mục chờ duyệt do nghi trùng/mâu thuẫn (xem
+  DECISIONS.md).
 - Link thật: 👉 https://web-five-xi-28.vercel.app · Trang duyệt: `/admin`
 - Code: 👉 github.com/thangdzz/cdp-chamdiaphuong (Public)
 
-## Quy trình hằng ngày — anh cần làm gì
-1. Mỗi sáng ~8h, routine tự chạy, tìm kiếm web, trả về 1 báo cáo (JSON + tóm tắt).
-2. Anh mở https://claude.ai/code/routines xem kết quả, copy **toàn bộ** báo cáo (không cần
-   tự cắt lấy đúng đoạn JSON).
-3. Dán vào **1 trong 2 chỗ**: (a) chat với em như trước giờ, hoặc (b) mục "Xử lý báo cáo
-   quét dữ liệu" ngay trong `/admin` (mới, 2026-07-19) — làm được trên điện thoại, không
-   cần mở chat. Cả 2 chỗ dùng chung đúng 1 bộ lọc trùng/mâu thuẫn, kết quả như nhau.
-4. Anh chỉ cần vào mục "Hàng chờ duyệt tự động" khi có **nghi trùng lặp** hoặc **mâu thuẫn
-   dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
+## Quy trình hằng ngày — anh cần làm gì (từ 2026-08-04: gần như không cần làm gì)
+1. Mỗi sáng ~8h, routine tự chạy, tự tìm kiếm web, **tự ghi thẳng lên web** — không còn phải
+   copy-paste báo cáo vào chat hay vào `/admin` nữa (cả 2 chỗ dán tay cũ vẫn còn, vẫn dùng
+   được nếu cần xử lý thủ công 1 báo cáo nào đó, nhưng không còn là bước bắt buộc).
+2. Anh chỉ cần vào `/admin` mục "Hàng chờ duyệt tự động" khi có **nghi trùng lặp** hoặc
+   **mâu thuẫn dữ liệu** (khung cảnh báo đỏ) — xác nhận đúng/sai để hệ thống xử lý tiếp.
+   Routine cũng tự gửi thông báo đẩy (push notification) ngắn sau mỗi lần chạy, báo có chỗ
+   mới hay không.
 
-**Lưu ý nếu dùng chỗ (b) mà không nhắn em:** file `known-places-snapshot.json` (giúp
-routine tránh tìm lại chỗ đã có) sẽ **không tự cập nhật** — chỉ em mới cập nhật + đẩy lên
-GitHub được (cần quyền git, `/admin` không có). Thỉnh thoảng nhắn em 1 câu để làm mới file
-này, không cần mỗi ngày.
+**Lưu ý còn lại (chưa tự động hoá — không ảnh hưởng việc đăng dữ liệu):** file
+`known-places-snapshot.json` (giúp routine tránh tìm lại chỗ đã có, chỉ để đỡ tốn công tìm
+kiếm, KHÔNG phải để chống đăng trùng — chống trùng đã nằm ở tầng ghi dữ liệu) vẫn cần em cập
+nhật + đẩy lên GitHub thủ công, không tự làm mới theo thời gian thực. Thỉnh thoảng nhắn em 1
+câu để làm mới file này, không cần mỗi ngày — không làm cũng không sao, chỉ là routine có
+thể tốn thêm chút công tìm kiếm không cần thiết.
 
 ## Cập nhật gần nhất
+
+### 2026-08-04 — Tự động hoá hoàn toàn: routine tự đăng lên web, không cần copy-paste nữa
+Đóng nốt việc còn dang dở lâu nay (từng tưởng không làm được — xem DECISIONS.md 2026-07-15,
+2026-07-17, 2026-07-18). Anh gửi 1 giải pháp mới (routine tự ghi "trạng thái" qua GitHub
+Contents API bằng Personal Access Token, khác cơ chế `git push` từng bị chặn) — kiểm tra
+thật bằng 1 routine đọc thử trước khi tin, xác nhận `api.github.com` KHÔNG bị chặn mạng
+(chỉ domain riêng của web, `web-five-xi-28.vercel.app`, vẫn bị chặn như cũ).
+
+**Kiến trúc mới:**
+1. Routine hằng ngày (không đổi lịch, vẫn 8h sáng) tự tìm chỗ mới như cũ, nhưng thay vì chỉ
+   in báo cáo, giờ tự `curl PUT` ghi kết quả vào `data/pending-scan.json` trên GitHub (dùng
+   1 Personal Access Token fine-grained, chỉ áp dụng đúng repo này, chỉ quyền ghi nội dung,
+   hạn dùng 90 ngày).
+2. File đó thay đổi → tự kích hoạt 1 GitHub Action mới (`.github/workflows/
+   ingest-from-scan.yml`, chạy trên hạ tầng GitHub nên không bị chặn mạng) → tự gọi vào
+   `/api/ingest/submit` (endpoint có sẵn từ trước) → web tự lọc trùng/mâu thuẫn y hệt mọi
+   nguồn khác → tự dọn file về rỗng sau khi gửi xong.
+- Test kỹ trước khi động vào routine thật: 1 bản ghi giả qua toàn bộ pipeline (xoá ngay sau
+  khi xác nhận đúng), rồi mới cập nhật + trigger thử routine thật — kết quả: quét ra 9 chỗ,
+  3 chỗ mới thật tự lên web, 1 chỗ nghi trùng tự vào hàng chờ duyệt, 5 chỗ hệ thống nhận ra
+  đã có sẵn nên tự bỏ qua (không đăng trùng) — đúng thiết kế, không có lỗi.
+- Routine giờ cũng tự gửi thông báo đẩy (push notification) sau mỗi lần chạy.
+- 2 chỗ dán tay cũ (chat, `/admin` mục "Xử lý báo cáo") **vẫn còn**, không xoá — dùng khi cần
+  xử lý thủ công 1 báo cáo nào đó ngoài lịch, nhưng không còn là bước bắt buộc hằng ngày.
+- Việc `known-places-snapshot.json` cần làm mới thủ công **vẫn còn** (không đổi) — chỉ ảnh
+  hưởng hiệu quả tìm kiếm của routine (đỡ tìm lại chỗ đã có), KHÔNG ảnh hưởng việc chống
+  đăng trùng (việc đó nằm ở tầng ghi dữ liệu, luôn chạy đúng bất kể snapshot cũ hay mới).
 
 ### 2026-07-20 — Logo "CDP" + tiêu đề bấm về trang chủ
 Bàn nhiều phương án qua Artifact trước (đèn lồng, ghim, mộc chữ, pixel...) — chốt bản đơn
@@ -186,11 +215,6 @@ Anh yêu cầu 2 việc lớn cùng lúc:
   vụ liên tiếp, chuyển sang bán tự động. Chi tiết đầy đủ ở DECISIONS.md.
 
 ## Câu hỏi/vướng mắc đang mở
-- **Tự động hoàn toàn: đã đóng, không thử thêm nữa.** Cả 4 hướng đã thử (ghi thẳng Redis,
-  ghi qua GitHub, gọi API riêng, n8n lấy hộ báo cáo routine) đều không khả thi. Chỉ còn lối
-  ra: nâng cấp gói Claude Team/Enterprise, Google Places API trả phí, hoặc **n8n tự làm
-  toàn bộ (Cách B — chưa làm, khả thi nhưng cần dựng riêng)** — chưa cần làm, bán tự động
-  vẫn ổn.
 - **`known-places-snapshot.json` cần cập nhật + push tay** mỗi lần xử lý xong 1 báo cáo
   routine (em làm hộ, chỉ ghi chú để anh biết có bước này).
 - SEED_ENTRIES (2 hồ sơ mô phỏng trong bảng "gần bạn") là tạm — cần xoá trong
