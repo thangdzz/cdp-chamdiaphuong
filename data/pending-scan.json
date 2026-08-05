@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "name": "Garden BBQ Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "87 Chiến Thắng Sông Lô, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3827 999",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Hẻm Quán",
+    "category_primary": "an",
+    "address_text": "64 Tổ 16, Đường 17 tháng 8, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 381 3888",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Nhà Khách Kim Bình",
+    "category_primary": "ngu",
+    "address_text": "Đường 17/8, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3822011",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Khách Sạn Toàn Thắng",
+    "category_primary": "ngu",
+    "address_text": "94 Lê Lợi, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Koi and You",
+    "category_primary": "an",
+    "address_text": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0329222255",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "AmyFlowers.Coffee",
+    "category_primary": "an",
+    "address_text": "04 Đinh Tiên Hoàng, phường Tân Quang, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0827 080 818",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Cielo Coffee & IceCream",
+    "category_primary": "an",
+    "address_text": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Home Coffee",
+    "category_primary": "an",
+    "address_text": "6 ngõ 280 đường Tân Trào, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": "9h00 - 22h00",
+    "price_range_text": "20.000đ - 50.000đ",
+    "map_note": null
+  }
+]
