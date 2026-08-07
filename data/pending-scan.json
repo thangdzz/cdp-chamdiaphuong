@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "name": "Nhà khách Kim Bình",
+    "category_primary": "ngu",
+    "address_text": "Đường 17/8, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3822011 / 0207 3822092",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Khách sạn Toàn Thắng",
+    "category_primary": "ngu",
+    "address_text": "Xóm 23, phường Ỷ La, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "15 phòng nghỉ"
+  },
+  {
+    "name": "Cielo Coffee & Ice Cream",
+    "category_primary": "an",
+    "address_text": "51 đường Bình Thuận, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": "09:00 - 23:00",
+    "price_range_text": "25.000đ - 89.000đ",
+    "map_note": null
+  },
+  {
+    "name": "Relax Coffee",
+    "category_primary": "an",
+    "address_text": "Số 260 đường Quang Trung, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "KOI AND YOU",
+    "category_primary": "an",
+    "address_text": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0329222255 / 0905896205",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "AmyFlowers.Coffee",
+    "category_primary": "an",
+    "address_text": "86 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0966 687 622",
+    "opening_hours_text": "07:00 - 22:00",
+    "price_range_text": null,
+    "map_note": null
+  }
+]
