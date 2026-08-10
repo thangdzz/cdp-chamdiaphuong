@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "name": "Ngã 8 Quán (Ốc 1963)",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Khu vực phường Tân Quang, TP Tuyên Quang. Món nướng, ốc, đồ ăn vặt giá bình dân. Chưa xác định địa chỉ cụ thể."
+  },
+  {
+    "name": "Cơm gà Hội An",
+    "category_primary": "an",
+    "address_text": "15 Đinh Tiên Hoàng, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Min-Max BBQ",
+    "category_primary": "an",
+    "address_text": "Số 135, đường 17/8, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0822 554 888",
+    "opening_hours_text": null,
+    "price_range_text": "Từ 149.000đ/người (buffet lẩu nướng)",
+    "map_note": null
+  },
+  {
+    "name": "Alala Homestay",
+    "category_primary": "ngu",
+    "address_text": "159 Nguyễn Trãi, TP Tuyên Quang",
+    "near_landmark": "Trung tâm TP Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Địa chỉ lấy từ trang booking quốc tế, chưa xác minh qua Google Maps."
+  },
+  {
+    "name": "Khách sạn Mai Sơn",
+    "category_primary": "ngu",
+    "address_text": "244 Nguyễn Trãi, TP Tuyên Quang",
+    "near_landmark": "Cách Bến xe Tuyên Quang khoảng 400m",
+    "phone": "0207 3810 555",
+    "opening_hours_text": null,
+    "price_range_text": "300.000đ - 800.000đ",
+    "map_note": null
+  },
+  {
+    "name": "Nhà nghỉ Dream",
+    "category_primary": "ngu",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Có trên Trip.com/Agoda nhưng chưa tìm được địa chỉ, SĐT cụ thể."
+  },
+  {
+    "name": "Khách sạn Toàn Thắng",
+    "category_primary": "ngu",
+    "address_text": "98 Trần Phú, tổ 35, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "15 phòng."
+  }
+]
