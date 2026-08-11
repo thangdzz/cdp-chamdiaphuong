@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "name": "Relax Coffee",
+    "category_primary": "an",
+    "address_text": "260 đường Quang Trung, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": "gần Vincom Plaza Tuyên Quang",
+    "phone": "0996836666",
+    "opening_hours_text": "06:00 - 23:59",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Feline Café",
+    "category_primary": "an",
+    "address_text": "126 Bình Thuận, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": "trung tâm thành phố",
+    "phone": "0965161315",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "The Sunday Cafe",
+    "category_primary": "an",
+    "address_text": "12 Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Nhà nghỉ Dream",
+    "category_primary": "ngu",
+    "address_text": "22C Lê Đại Hành, An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Marina Hotel Tuyên Quang",
+    "category_primary": "ngu",
+    "address_text": "169 Trần Phú, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": "trung tâm thành phố",
+    "phone": "0866261515",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Nhà Hàng Ẩm Thực Việt",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Có nhiều cơ sở tại TP Tuyên Quang (Tổ 10 P.Phan Thiết, Tổ 2 P.Minh Xuân, 124 Trần Phú P.Tân Quang) - nguồn không thống nhất, chưa xác định địa chỉ chính xác"
+  },
+  {
+    "name": "Phở Lý Quốc Sư (chi nhánh Tuyên Quang)",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Chuỗi phở, có chi nhánh tại TP Tuyên Quang - các nguồn cho địa chỉ khác nhau (Lê Quý Đôn / Quang Trung / khu đô thị Việt Mỹ P.Minh Xuân), chưa xác định địa chỉ chính xác"
+  },
+  {
+    "name": "Khách sạn Hoàng Kiên",
+    "category_primary": "ngu",
+    "address_text": "Số 01, Tổ 21, phường Tân Hà, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
