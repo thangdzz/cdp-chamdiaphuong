@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "name": "Garden BBQ Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Số 87 Chiến Thắng Sông Lô, TP. Tuyên Quang, Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3827 999 / 0911 386 186 / 0974 591 999",
+    "opening_hours_text": "09:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Hẻm Quán",
+    "category_primary": "an",
+    "address_text": "64 Tổ 16, Đường 17 tháng 8, TP. Tuyên Quang, Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 381 3888 / 0908 825 665",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Đắng Cafe",
+    "category_primary": "an",
+    "address_text": "77 Bình Thuận, TP. Tuyên Quang, Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": "07:00 - 22:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Feline Café",
+    "category_primary": "an",
+    "address_text": "126 Bình Thuận, Phường Tân Quang, TP. Tuyên Quang, Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": "07:30 - 22:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Home Coffee",
+    "category_primary": "an",
+    "address_text": "Ngõ 280 Đường Tân Trào, Tổ 7, TP. Tuyên Quang, Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Cielo Coffee & Ice Cream",
+    "category_primary": "an",
+    "address_text": "51 Bình Thuận, TP. Tuyên Quang, Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
