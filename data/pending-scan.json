@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "name": "Nhà hàng Ẩm Thực Việt Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Tổ 26, Phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Quán Ven Hồ Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Ven hồ Tuyên Quang, Tổ 32, Phường Tân Quang, TP. Tuyên Quang",
+    "near_landmark": "Ven hồ Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Lẩu nấm An Khánh",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Chưa xác định được địa chỉ cụ thể, cần kiểm tra thêm"
+  },
+  {
+    "name": "Khách Sạn Hùng Cường",
+    "category_primary": "ngu",
+    "address_text": "117 Phạm Văn Đồng, Phường Hưng Thành, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3813 836",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Khách Sạn Mai Sơn",
+    "category_primary": "ngu",
+    "address_text": "244 Nguyễn Trãi, Phường Tân Quang, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3811 555",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Nhà Khách Kim Bình",
+    "category_primary": "ngu",
+    "address_text": "Đường 17/8, Phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3822 011",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Feline Café",
+    "category_primary": "an",
+    "address_text": "126 Bình Thuận, Phường Tân Quang, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0965 161 315",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Sky Café",
+    "category_primary": "an",
+    "address_text": "155 Bình Thuận, TP. Tuyên Quang",
+    "near_landmark": "Tầng thượng ngân hàng MB, đối diện khách sạn Royal, gần lối vào cao tốc",
+    "phone": null,
+    "opening_hours_text": "08:00 - 23:00",
+    "price_range_text": "20.000đ - 50.000đ",
+    "map_note": "Đã lâu chưa có tương tác mới trên các nguồn, nên gọi xác nhận trước khi đến"
+  },
+  {
+    "name": "Cielo Coffee & IceCream",
+    "category_primary": "an",
+    "address_text": "51 Bình Thuận, Phường Hưng Thành, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3820 789",
+    "opening_hours_text": "08:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Despaciato Milk Tea & Coffee",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": "Khu vực Bình Thuận / Tân Quang, TP. Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Các nguồn cho địa chỉ khác nhau, chưa xác định được địa chỉ chính xác"
+  }
+]
