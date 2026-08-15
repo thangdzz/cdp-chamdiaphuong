@@ -3,6 +3,10 @@
 > Chia nhỏ để mỗi giai đoạn xong đều có thứ **bấm thử được**, không có giai đoạn nào chỉ
 > code mà không xem được kết quả. Xem tiến độ thật ở [STATUS.md](STATUS.md).
 
+> ⚠️ **Đọc phần "HƯỚNG MỚI — Cuốn sổ địa phương" ở cuối file trước.** Đó là kế hoạch đang
+> chạy (chốt 2026-08-11). Phần "Giai đoạn 0–6" bên dưới là **lịch sử đã làm xong**, giữ lại
+> để tra cứu, không phải việc sắp làm.
+
 ## Giai đoạn 0 — Khung tài liệu ✅
 - CLAUDE.md, PRD, ROADMAP, STATUS, DECISIONS.
 - Kết quả bấm thử: không có (đây là tài liệu, chưa code).
@@ -97,3 +101,175 @@
 - **Đề xuất sửa (khách góp ý) + thưởng điểm/huy hiệu** ✅ (2026-07-18): "Báo sai"/"Bổ sung
   ảnh" ngay trong thẻ, hồ sơ ẩn danh + mã khôi phục (không cần tài khoản), 10 lĩnh vực × 5
   bậc danh hiệu, duyệt trong `/admin`. Xem chi tiết STATUS.md/DECISIONS.md.
+
+---
+---
+
+# HƯỚNG MỚI — Cuốn sổ địa phương (chốt 2026-08-11)
+
+> Kế hoạch đang chạy. Thiết kế đầy đủ ở [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md), lý do đổi
+> hướng ở [DECISIONS.md](DECISIONS.md).
+>
+> Gọi là **"Chặng"** để khỏi lẫn với "Giai đoạn 0–6" cũ đã xong.
+
+**Nguyên tắc xếp thứ tự:** cái rẻ và không cần đăng nhập làm trước; cái làm cho dữ liệu tốt
+lên làm trước cái đem dữ liệu đi chia sẻ.
+
+**Xâu chuỗi cho dễ nhớ:** Chặng 1–3 lo **thông tin đúng và đủ** → Chặng 4 lo **có người biết
+đến** → Chặng 5–6 lo **khách quay lại** → Chặng 7–8 lo **giữ khách và kiếm tiền**.
+
+---
+
+## Chặng 0 — Dọn tài liệu · 1 buổi
+
+**Nói dễ hiểu:** sửa mấy chỗ trong tài liệu cũ đang nói khác với hướng mới. Không đụng web.
+
+Sửa [PRD.md](PRD.md) 3 chỗ đã lệch: §3 (phạm vi chỉ Ăn+Ngủ) · §4 (mốc 21/08 là hạn chót) ·
+§6 (ngoài phạm vi: "tài khoản người dùng, đăng nhập").
+
+**Cần vì:** ai đọc tài liệu sau này sẽ làm sai nếu nó còn ghi hướng cũ.
+👉 **Bấm thử:** không có (tài liệu).
+
+---
+
+## Chặng 1 — Nút "Hôm nay vẫn mở" · 2–3 ngày
+
+**Nói dễ hiểu:** dưới mỗi chỗ có một nút. Ai vừa đi ngang, thấy quán còn mở thì bấm một
+cái. Trên thẻ hiện *"Có người xác nhận: hôm nay"*.
+
+Không cần đăng nhập, không cần duyệt. Quá lâu không ai xác nhận → tự tụt xuống "chưa rõ còn
+hoạt động". Cộng +1 điểm ngay, tối đa 3 lần/ngày.
+
+**Cần vì:** đúng thứ Google làm dở nhất (quán đóng cửa vẫn hiện đang mở), mà chỉ tốn của
+khách một cái chạm. Rẻ nhất trong tất cả nhưng kiểm chứng được giả thuyết lớn nhất: người
+ta có chịu bấm không.
+👉 **Bấm thử:** mở một chỗ, bấm "vẫn mở", thấy hiện "Có người xác nhận: hôm nay".
+
+---
+
+## Chặng 2 — Câu hỏi bấm chọn · ~1 tuần
+
+**Nói dễ hiểu:** khách mở một quán, dưới cùng hiện **đúng một câu hỏi** (*"Gửi xe ở đâu?"*)
+kèm 5–6 nút bấm. Bấm xong câu hỏi biến mất, lần sau vào hỏi câu khác. Hai người trả lời
+giống nhau thì thông tin mới hiện lên thẻ.
+
+Gồm: 4 câu dùng chung + câu riêng cho Ăn/Ngủ · nút "Không rõ" · luật đồng thuận · phiếu cũ
+nhẹ dần theo thời gian · giới hạn 5 câu/chỗ/ngày. **Đổi cách tính điểm làm luôn trong chặng
+này** (bấm chọn +1 chỉ khi trùng đồng thuận, không phải mỗi lượt bấm — xem
+[NOTEBOOK-DESIGN §10](NOTEBOOK-DESIGN.md)).
+
+**Cần vì:** đây là cách gom thông tin mà khách không phải gõ chữ — không gõ thì không có
+rác, và anh không phải ngồi duyệt.
+👉 **Bấm thử:** mở một chỗ thấy đúng 1 câu hỏi, bấm xong biến mất; hai người trả lời trùng
+thì thông tin hiện lên thẻ.
+
+---
+
+## Chặng 3 — Thêm "Chơi" và "Đi lại" · 3–4 ngày
+
+**Nói dễ hiểu:** hiện web mới có Ăn và Ngủ, chặng này thêm hai nhóm còn lại cho đủ bốn.
+
+Gồm: mở rộng phạm vi quét của routine hằng ngày · bộ câu hỏi bấm chọn riêng cho 2 nhóm mới
+· thêm vào bộ lọc.
+
+**Cần vì:** mình đang hứa "cuốn sổ ăn, chơi, ngủ, đi lại" — thiếu hai mục thì chưa đúng lời
+hứa.
+👉 **Bấm thử:** lọc ra được cả 4 nhóm, mỗi nhóm có dữ liệu thật.
+
+---
+
+## Chặng 4 — Sổ chia sẻ được · ~1,5 tuần ⭐
+
+**Nói dễ hiểu:** khách chọn vài chỗ, ghi mỗi chỗ một dòng, bấm nút → được **một đường
+link**. Gửi qua Zalo cho bạn. Bạn bấm vào xem được ngay, không cài gì, không đăng nhập.
+
+Gồm: tạo sổ không cần tài khoản · link ngắn · người nhận bấm "Lưu sổ này" thành sổ của mình,
+sửa được, gửi tiếp.
+
+**Cần vì:** tháng 9 rất nhiều người Tuyên Quang sẽ bị bạn bè nhắn *"tao về xem lễ hội, ăn
+ngủ ở đâu?"* — hiện họ phải gõ tay một tin nhắn dài. Mình cho họ gửi một cái link thay thế.
+Mỗi lần ai đó gửi link là web có thêm người biết — **không tốn tiền quảng cáo**.
+
+**Nhắm xong trước 15/09.**
+👉 **Bấm thử:** tự tạo một sổ 5 chỗ, gửi link qua Zalo cho người khác, họ mở được trên máy
+họ.
+
+---
+
+## Chặng 5 — Ghi chú công khai bằng chữ · ~1 tuần
+
+**Nói dễ hiểu:** khách gõ được mẹo ngắn (*"gửi xe ở ngõ cạnh số 12"*). Gõ xong chưa hiện
+ngay — máy lọc trước, anh duyệt rồi mới lên.
+
+Gồm: 5 lớp chặn (giới hạn ký tự + chặn link/số điện thoại → lọc máy → AI đọc 1 lượt → anh
+duyệt → nút "ghi chú này không đúng") · tuỳ chọn "chỉ đúng trong dịp lễ hội" rồi tự ẩn.
+
+**Cần vì:** có những thứ không làm thành nút bấm được. Nhưng đây cũng là chỗ dễ bị phá nhất
+nên phải qua duyệt.
+👉 **Bấm thử:** gõ một mẹo, thấy báo "đang chờ kiểm tra"; duyệt trong `/admin` thì nó hiện
+lên thẻ; thử gõ bậy hoặc gài số điện thoại thì bị chặn.
+
+---
+
+## Chặng 6 — Ghi chú riêng · 4–5 ngày
+
+**Nói dễ hiểu:** khách tự ghi cho mình xem, không ai khác thấy. Lưu ngay trên máy họ, không
+cần đăng ký gì.
+
+Gồm: lưu vào bộ nhớ trình duyệt · nút "Chia sẻ ghi chú này cho mọi người" (chuyển thành note
+công khai, qua duyệt).
+
+**Cần vì:** đây mới là thứ biến web thành "cuốn sổ của tôi" chứ không phải "trang web tra
+cứu".
+👉 **Bấm thử:** ghi chú riêng ở 3 chỗ, tải lại trang vẫn còn.
+
+---
+
+## Chặng 7 — Đăng nhập bằng số điện thoại · khi cần
+
+**Nói dễ hiểu:** khi ai đó đã ghi được vài ghi chú riêng, mới hiện lời mời *"Để lại số điện
+thoại để không mất khi đổi máy?"*.
+
+**Chỉ làm khi đã có người thật ghi từ 3 note trở lên** — làm sớm hơn là làm thừa.
+
+**Cần vì:** ghi chú riêng đang nằm trong máy khách, đổi điện thoại là mất. Nhưng hỏi sớm quá
+thì họ thấy phiền và bỏ đi — phải đợi họ **có thứ để mất** rồi mới hỏi.
+👉 **Bấm thử:** ghi note trên điện thoại, đăng nhập trên máy tính, thấy note.
+
+---
+
+## Chặng 8 — Chủ quán nhận địa điểm của mình · sau, khi có traffic
+
+**Nói dễ hiểu:** chủ quán xác minh bằng số điện thoại rồi tự sửa thông tin quán mình.
+
+Bắt buộc có xác minh (OTP về đúng số điện thoại đang hiển thị công khai của chỗ đó) — không
+cho nhận ẩn danh. Lời chào nên là *"có khách nói số điện thoại quán anh sai, sửa không?"*,
+không phải "mua quảng cáo".
+
+**Cần vì:** đây là cửa để sau này kiếm tiền. Nhưng chỉ làm được khi web đã có khách vào xem
+— chủ quán không quan tâm nếu chưa ai nhìn thấy quán họ.
+👉 **Bấm thử:** nhận một địa điểm thật bằng số điện thoại thật, sửa được thông tin.
+
+---
+
+## Đường thời gian dự kiến
+
+```
+11/08  →  Chặng 0-1  →  ~15/08
+       →  Chặng 2    →  ~22/08
+       →  Chặng 3    →  ~26/08
+       →  Chặng 4    →  ~06/09   ⭐ xong trước lễ hội, còn ~2 tuần dự phòng
+
+19–25/09   LỄ HỘI — đo số liệu thật, KHÔNG code
+
+sau đó →  Chặng 5, 6, 7, 8
+```
+
+**Hai điều cố ý xếp như vậy:**
+
+1. **Chặng 4 xong trước lễ hội, còn lại để sau.** Lễ hội là cửa sổ traffic duy nhất trong
+   năm — thứ đáng có mặt lúc đó là *sổ chia sẻ được* (vòng lan truyền), không phải note chữ
+   hay tài khoản.
+2. **Tuần lễ hội không code.** Dùng để nhìn 3 con số thật: có ai bấm "vẫn mở" không · có ai
+   tạo sổ và gửi đi không · sổ gửi đi có ai mở không. Ba con số đó quyết định Chặng 5–8 có
+   đáng làm hay không — tốt hơn là đoán tiếp.

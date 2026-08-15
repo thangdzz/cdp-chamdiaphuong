@@ -285,3 +285,85 @@ mâu thuẫn phía web (dùng chung `ingestBatch`, không viết logic mới). 2
 `/admin`) vẫn giữ nguyên, dùng khi cần xử lý thủ công ngoài lịch. Việc làm mới
 `known-places-snapshot.json` vẫn cần em làm thủ công như trước (không đổi) — chỉ ảnh hưởng
 hiệu quả tìm kiếm, không ảnh hưởng việc chống đăng trùng.
+
+## 2026-08-11 — Đổi hướng lớn: CDP là "cuốn sổ địa phương", không còn là công cụ tra cứu
+
+> Thiết kế đầy đủ ở [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md). Dưới đây chỉ ghi các quyết
+> định và lý do.
+
+**Quyết định:** CDP chuyển từ "công cụ quyết định nhanh lúc đông khách" sang **cuốn sổ địa
+chỉ ăn / ngủ / chơi / đi lại**. CDP đăng địa điểm mẫu trước; người dùng vào bổ sung, sửa,
+ghi chú; sau này doanh nghiệp vào nhận (claim) địa điểm của mình. Miễn phí giai đoạn đầu,
+mô hình kiếm tiền bàn sau.
+**Vì sao:** Anh chủ động đổi hướng — đánh dài hơi, không đóng khung vào một mùa lễ hội.
+
+**Quyết định:** **Lễ hội Thành Tuyên không còn là đích, chỉ là điểm khởi đầu thuận lợi.**
+Mốc 21/08/2026 trong PRD không còn là hạn chót cứng.
+**Vì sao:** Lễ hội là thời điểm duy nhất trong năm có lượng người quan tâm tập trung — dùng
+để lấy nhóm người dùng đầu tiên, không phải để chốt sản phẩm.
+
+**Quyết định:** Nội dung chia làm 3 loại với 3 mức kiểm soát khác nhau: (a) **thông tin
+chọn sẵn** — không duyệt, hiện theo đồng thuận số đông; (b) **note công khai dạng chữ** —
+phải duyệt trước khi hiện; (c) **note cá nhân** — không kiểm duyệt gì, chỉ mình chủ nhân
+thấy.
+**Vì sao (b) đi ngược nguyên tắc auto-publish chốt 17/07:** dữ liệu AI quét sai là sai **vô
+tình** (sai địa chỉ/giá — khách bực mình, sửa được). Note do người gõ có thể sai **cố ý**:
+đối thủ bôi nhọ, quảng cáo trá hình gài số điện thoại, mâu thuẫn cá nhân. Loại rủi ro này
+có người bị thiệt hại thật, và người đó sẽ tìm anh chứ không tìm người viết. Đây là hai
+loại rủi ro khác hẳn bản chất nên xử lý khác nhau — không phải đảo ngược nguyên tắc
+auto-publish cho dữ liệu địa điểm (nguyên tắc đó giữ nguyên).
+
+**Quyết định:** **Không bao giờ** làm đánh giá sao, bình luận công khai, hay diễn đàn. Chặn
+bằng **cấu trúc** chứ không bằng nội quy: không nút thích, không trả lời, không hiện tên
+người viết, không dòng thời gian. Note hiện ra như một **thuộc tính của địa điểm** ("Gửi
+xe: ngõ cạnh số 12"), không phải như một bài đăng.
+**Vì sao:** Nội quy không chặn được tranh cãi; cấu trúc thì chặn được — không có chỗ nào
+để tranh cãi bám vào.
+
+**Quyết định:** Nguyên tắc nhập liệu là **"chọn là mặc định, gõ là ngoại lệ"**. Câu hỏi do
+hệ thống đặt (người dùng không được đặt câu hỏi), người dùng chỉ chọn đáp án. Mỗi lần chỉ
+hỏi 1 câu, luôn có nút "Không rõ".
+**Vì sao:** Mỗi ô gõ chữ là một cơ hội để có rác. Ngoài ra, lựa chọn có sẵn **không cần
+duyệt** (người dùng chỉ bỏ phiếu, không tạo nội dung) — nên càng đẩy nhiều thứ về dạng
+chọn, khối lượng việc duyệt của anh càng tiến về 0 dù người dùng tăng lên.
+
+**Quyết định:** Dữ liệu chọn sẵn hiện theo **đồng thuận**: 1 phiếu → hiện mờ; 2 phiếu trùng
+→ hiện bình thường; lệch nhau → lấy số đông, ngang nhau → không hiện. **Phiếu cũ nhẹ dần
+theo thời gian** (quá 6 tháng tính một nửa, quá 12 tháng gần như không tính).
+**Vì sao:** Vế cuối là cơ chế **tự dọn rác** — quán đổi chỗ gửi xe, đổi giờ mở thì phiếu
+mới tự lấn phiếu cũ, không cần ai đi xoá. Dữ liệu tự già đi và tự được thay.
+
+**Quyết định:** Đổi cách tính điểm. Bấm chọn chỉ được **+1 khi phiếu trùng với đồng thuận**
+(không được điểm ngay mỗi lượt bấm); người đầu tiên trả lời một câu được +2 thêm; xác nhận
+"vẫn mở" +1; note chữ được duyệt +5; ảnh +10; **báo đóng cửa xác nhận đúng +15** (cao
+nhất). Không bao giờ trừ điểm. Trần 30 điểm/ngày.
+**Vì sao:** Cơ chế cũ (+5/+10 mỗi lượt được duyệt) nếu áp cho thao tác bấm 1 chạm thì đang
+**trực tiếp trả tiền cho hành vi bấm bừa** — càng bấm nhanh càng nhiều điểm. Trả cho phiếu
+trùng đồng thuận thì cách duy nhất ăn điểm là trả lời đúng. Báo đóng cửa trả cao nhất vì
+đó là dữ liệu quý nhất của cả sản phẩm (đúng cái Google Maps không có) và khó nhất — phải
+đến tận nơi mới biết. Không trừ điểm vì trừ điểm khiến người ta sợ trả lời khi không chắc,
+mà dữ liệu ít còn tệ hơn dữ liệu lệch.
+
+**Quyết định:** Note cá nhân đi 3 bước: (1) lần đầu lưu thẳng vào bộ nhớ trình duyệt trên
+máy khách, **không hỏi đăng ký gì**; (2) khi khách có note thứ 3 mới mời để lại **số điện
+thoại** để cất lên máy chủ; (3) đổi máy thì đăng nhập bằng số cũ.
+**Vì sao:** Bắt đăng ký ngay thì nhiều người bỏ đi; không bắt thì họ mất note rồi bỏ app.
+Cùng một việc "xin số điện thoại", hỏi lúc chưa có gì là **phiền**, hỏi lúc đã có 3 note là
+**giúp**. Dùng số điện thoại thay vì mã khôi phục 6 số (cơ chế hiện tại) vì không ai giữ
+nổi tờ giấy ghi mã 6 số sau 3 tháng, còn số điện thoại thì ai cũng nhớ — mã 6 số đủ cho
+điểm/huy hiệu (mất thì tiếc), không đủ cho note cá nhân (mất thì bỏ app).
+
+**Quyết định:** Doanh nghiệp nhận địa điểm (claim) — **chưa làm bây giờ**. Khi làm phải có
+xác minh (OTP về đúng số điện thoại công khai của chỗ đó), không cho claim ẩn danh.
+**Vì sao:** Chủ quán chỉ bỏ công claim khi thấy có khách vào xem — claim là **hệ quả của
+traffic, không phải nguyên nhân**. Không xác minh thì ai cũng claim được quán không phải
+của mình để sửa sai thông tin đối thủ hoặc gắn số điện thoại của mình vào.
+
+**Nhận định nền (không phải quyết định, nhưng là lý do đằng sau nhiều quyết định trên):**
+Thứ CDP thắng được Google Maps **không phải** "sổ lưu cho mình" — Google đã có Lists + ghi
+chú riêng, CDP không có cửa. Mà là 3 thứ: **thông tin còn sống** (Google giữ quán đã đóng
+cửa vẫn hiện đang mở), **kho mẹo địa phương** (chỗ gửi xe, lối vào, đường bị chặn tối lễ
+hội), và **gửi được cho người khác** (link một cuốn sổ có ghi chú, thay vì 5 link Google
+Maps rời rạc). Sổ có giá trị vì **gửi được**, không phải vì **lưu được** — đây cũng là lời
+giải cho câu hỏi "ai viết note đầu tiên": người địa phương viết để gửi cho người quen sắp
+đến, chứ không phải viết để tự xem lại.

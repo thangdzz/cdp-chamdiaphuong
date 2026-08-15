@@ -12,6 +12,14 @@ Anh là solo creator, **không rành kỹ thuật (non-tech)**. Mọi giải th�
 đơn giản, tránh thuật ngữ khi không cần thiết; nếu buộc phải dùng thuật ngữ kỹ thuật, giải
 thích ngắn ngay sau đó.
 
+## Chia việc giữa các công cụ (từ 2026-08-11)
+- **Cowork (Claude desktop):** bàn hướng đi, thiết kế, brainstorm, và **cập nhật tài liệu
+  `.md`**. Không code ở đây.
+- **Antigravity:** nơi viết code thật.
+
+Nghĩa là: ở Cowork, sau khi chốt thiết kế thì ghi vào `docs/`, rồi bàn giao sang Antigravity
+để code — không tự viết code trong phiên Cowork trừ khi anh nói khác.
+
 ## Quy tắc làm việc bắt buộc
 
 1. **Trước khi code: phải trình kế hoạch ngắn gọn để anh duyệt.**
@@ -39,7 +47,12 @@ thích ngắn ngay sau đó.
 - Nội dung hiển thị cho người dùng cuối (khách xem web): tiếng Việt là chính.
 
 ## Tài liệu liên quan
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — **đọc trước khi code**: dữ liệu nằm đâu,
+  file nào làm gì, chỗ nào cần cẩn thận
 - [docs/PRD.md](docs/PRD.md) — sản phẩm này làm gì, cho ai, phạm vi bản đầu
+- [docs/NOTEBOOK-DESIGN.md](docs/NOTEBOOK-DESIGN.md) — thiết kế hướng "cuốn sổ địa phương"
+  (chốt 2026-08-11, hướng đi hiện tại — đọc cùng PRD)
 - [docs/ROADMAP.md](docs/ROADMAP.md) — chia giai đoạn nhỏ
+- `docs/SPEC-chang-N.md` — mô tả chi tiết từng chặng, viết ngay trước khi code chặng đó
 - [docs/STATUS.md](docs/STATUS.md) — tình trạng hiện tại, cập nhật mỗi phiên
 - [docs/DECISIONS.md](docs/DECISIONS.md) — nhật ký các quyết định quan trọng
