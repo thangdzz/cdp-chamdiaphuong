@@ -12,9 +12,9 @@ import {
 import { CATEGORIES } from "@/lib/badges";
 import { BadgeIcon } from "./BadgeIcon";
 
-const STORAGE_KEY = "cdp_contributor";
+export const STORAGE_KEY = "cdp_contributor";
 
-function loadLocalContributor() {
+export function loadLocalContributor() {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -24,7 +24,7 @@ function loadLocalContributor() {
   }
 }
 
-function saveLocalContributor(data) {
+export function saveLocalContributor(data) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 

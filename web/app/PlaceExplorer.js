@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getOccupancyLabel, getOccupancyStatus } from "./occupancy";
 import { ContributionPanel } from "./ContributionPanel";
+import { CheckinButton } from "./CheckinButton";
 import { stripDiacritics } from "@/lib/ingestion/normalize";
 
 const TYPE_LABEL = {
@@ -88,6 +89,30 @@ function formatDate(iso) {
   } catch {
     return null;
   }
+}
+
+// Dòng "Còn mở · xác nhận N ngày trước" trên thẻ — SPEC-chang-1.md §2.1. Trên 90 ngày (hoặc
+// chưa ai xác nhận bao giờ) trả về null để component không hiện gì (bỏ hẳn khỏi DOM, không
+// giữ chỗ như nhãn "còn chỗ" cũ).
+function formatCheckinAge(lastCheckinAtIso) {
+  if (!lastCheckinAtIso) return null;
+  let diffDays;
+  try {
+    diffDays = Math.floor((Date.now() - new Date(lastCheckinAtIso).getTime()) / 86400000);
+  } catch {
+    return null;
+  }
+  if (!(diffDays >= 0) || diffDays > 90) return null;
+
+  if (diffDays > 30) {
+    return { text: "⚠️ Lâu chưa ai xác nhận (hơn 1 tháng)", className: "bg-amber-50 text-amber-700" };
+  }
+  if (diffDays >= 7) {
+    const weeks = Math.min(4, Math.ceil(diffDays / 7));
+    return { text: `✅ Còn mở · xác nhận ${weeks} tuần trước`, className: "bg-emerald-50 text-emerald-700" };
+  }
+  const ago = diffDays === 0 ? "hôm nay" : diffDays === 1 ? "hôm qua" : `${diffDays} ngày trước`;
+  return { text: `✅ Còn mở · xác nhận ${ago}`, className: "bg-emerald-50 text-emerald-700" };
 }
 
 // Suy ra loại hình chỗ ngủ từ tên (không có trường riêng) — chỉ đọc lại thông tin đã có,
@@ -201,12 +226,16 @@ function PlaceCard({ place }) {
   const [status, setStatus] = useState(null);
   const [expanded, setExpanded] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(null);
+  // Bắt đầu bằng giá trị máy chủ, đổi ngay tại chỗ khi khách vừa bấm "Tôi vừa đến, vẫn mở"
+  // (SPEC-chang-1.md §2.2: dòng trên thẻ phải đổi ngay, không chờ tải lại trang).
+  const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
 
   useEffect(() => {
     setStatus(getOccupancyStatus(place));
   }, [place]);
 
   const statusLabel = status ? getOccupancyLabel(status, place.type) : null;
+  const checkinLabel = formatCheckinAge(lastCheckinAt);
   const photos = place.photos ?? [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
 
@@ -225,13 +254,22 @@ function PlaceCard({ place }) {
         {place.priceText ?? "Chưa cập nhật giá"}
       </p>
 
-      <span
-        className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-          statusLabel ? statusLabel.className : "invisible"
-        }`}
-      >
-        {statusLabel ? statusLabel.text : "…"}
-      </span>
+      <div className="mt-2 flex flex-col items-start gap-1">
+        {checkinLabel && (
+          <span
+            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${checkinLabel.className}`}
+          >
+            {checkinLabel.text}
+          </span>
+        )}
+        <span
+          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium opacity-70 ${
+            statusLabel ? statusLabel.className : "invisible"
+          }`}
+        >
+          {statusLabel ? statusLabel.text : "…"}
+        </span>
+      </div>
 
       {expanded && (
         <div className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-700">
@@ -310,6 +348,7 @@ function PlaceCard({ place }) {
             </div>
           )}
 
+          <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
           <ContributionPanel place={place} />
         </div>
       )}

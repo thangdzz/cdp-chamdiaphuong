@@ -5,10 +5,14 @@
 > [ROADMAP.md](ROADMAP.md); lý do các quyết định xem [DECISIONS.md](DECISIONS.md).
 
 ## Đang ở giai đoạn nào
-**Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động hoàn toàn từ 2026-08-04, auto-publish) +
-card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy hiệu" — hoàn thành.** KPI số lượng dữ liệu
-(Giai đoạn 6) giờ thong thả — chuyển hướng để khách tự đóng góp/sửa dần qua tính năng mới
-thay vì chỉ anh + em quét (quyết định 2026-07-18, xem DECISIONS.md).
+Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
+**Chặng 1 (nút "Hôm nay vẫn mở") đã code xong** — xem chi tiết ở mục 2026-08-15 bên dưới.
+Bước tiếp theo: anh bấm thử trên web thật, rồi quyết có làm Chặng 2 không.
+
+Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
+hoàn toàn từ 2026-08-04, auto-publish) + card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy
+hiệu". KPI số lượng dữ liệu (Giai đoạn 6) thong thả — khách tự đóng góp/sửa dần thay vì chỉ
+anh + em quét (quyết định 2026-07-18).
 
 ## Tóm tắt tiến độ
 - 25 địa điểm, web hiển thị + bộ lọc (loại hình/khu vực/giá).
@@ -54,6 +58,89 @@ câu để làm mới file này, không cần mỗi ngày — không làm cũng 
 thể tốn thêm chút công tìm kiếm không cần thiết.
 
 ## Cập nhật gần nhất
+
+### 2026-08-11 — Chốt hướng đi mới "cuốn sổ địa phương" (bàn thiết kế, chưa code)
+Cả phiên là bàn hướng, không động vào code. Kết quả: tài liệu mới
+[NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) + 9 quyết định ghi vào DECISIONS.md.
+
+**Tóm tắt những gì đã chốt:**
+- CDP là **cuốn sổ địa chỉ ăn/ngủ/chơi/đi lại**, không còn là công cụ tra cứu mùa lễ hội.
+  Lễ hội chỉ là điểm khởi đầu thuận lợi, **mốc 21/08 không còn là hạn chót cứng**.
+- Nội dung chia 3 loại: **chọn sẵn** (không duyệt, hiện theo đồng thuận) · **note công khai
+  dạng chữ** (phải duyệt) · **note cá nhân** (không kiểm duyệt, chỉ chủ nhân thấy).
+- Nguyên tắc nhập liệu: **chọn là mặc định, gõ là ngoại lệ**. Câu hỏi do hệ thống đặt, mỗi
+  lần hỏi 1 câu, luôn có nút "Không rõ".
+- **Không bao giờ** làm đánh giá sao / bình luận / diễn đàn — chặn bằng cấu trúc chứ không
+  bằng nội quy.
+- Phiếu cũ nhẹ dần theo thời gian → **dữ liệu tự dọn rác**, không cần ai đi xoá.
+- **Đổi cách tính điểm:** bấm chọn +1 chỉ khi trùng đồng thuận (không phải mỗi lượt bấm),
+  báo đóng cửa +15 là cao nhất, không bao giờ trừ điểm.
+- Note cá nhân đi 3 bước: lưu máy khách trước → có 3 note mới mời để lại số điện thoại →
+  đổi máy đăng nhập lại.
+- Doanh nghiệp claim: **chưa làm**, và khi làm phải có xác minh OTP.
+
+**Cũng trong phiên này:** đã viết xong roadmap hướng mới — 8 chặng, ghi ở cuối
+[ROADMAP.md](ROADMAP.md) (phần "HƯỚNG MỚI"). Giai đoạn 0–6 cũ giữ nguyên làm lịch sử.
+
+**✅ Chặng 0 xong luôn trong phiên này** — đã cập nhật [PRD.md](PRD.md):
+- §1: thêm 3 thứ CDP làm được mà Google Maps không làm
+- §2: thêm nhóm "người đóng góp dữ liệu" (người địa phương viết để gửi cho người quen)
+- §3: phạm vi từ 2 nhóm (Ăn+Ngủ) → **đủ 4 nhóm** (Ăn·Chơi·Ngủ·Đi lại)
+- §3.1: thêm 4 tính năng phải có mới (mục 9–12), sửa mục 6 (quy trình duyệt 3 mức)
+- §4: **bỏ vai trò hạn chót của 21/08**; mốc còn lại là Chặng 4 xong trước ~15/09
+- §6: tách "không bao giờ làm" (đánh giá/bình luận/diễn đàn) và "chưa làm bây giờ"; đưa
+  tài khoản người dùng vào phạm vi (Chặng 7, đăng nhập bằng số điện thoại)
+
+**Cũng đã ghi vào [CLAUDE.md](../CLAUDE.md):** từ nay Cowork chỉ lo bàn hướng + tài liệu,
+code làm bên Antigravity.
+
+**Cũng trong phiên này — thêm 2 tài liệu để bàn giao sang Antigravity:**
+- [ARCHITECTURE.md](ARCHITECTURE.md) — bản đồ hệ thống: 9 key Redis, bản đồ file, 3 luồng
+  dữ liệu, và mục "những chỗ cần cẩn thận" (loại địa điểm viết cứng ở 6 file · nhãn "còn
+  chỗ" không dựa trên dữ liệu thật · ghi Redis không có khoá · mảng phình vô hạn).
+  Đã đối chiếu với code thật: 35/35 đường dẫn đúng, tên biến môi trường đúng.
+- [SPEC-chang-1.md](SPEC-chang-1.md) — mô tả Chặng 1 đủ chi tiết để code: khách thấy gì,
+  key `place_checkins` mới, 6 quy tắc nghiệp vụ, 6 bước bấm thử.
+
+**Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
+mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
+
+### 2026-08-15 — Code xong Chặng 1: nút "Tôi vừa đến, vẫn mở"
+
+Trình kế hoạch 2 vòng trước khi code (đúng CLAUDE.md quy tắc 1) — anh sửa 1 chỗ quan trọng ở
+vòng 2: bản nháp đầu định lưu mỗi lượt xác nhận theo **từng chỗ** (1 sorted set/chỗ), anh
+chỉ ra điều đó khiến trang chủ phải gọi Redis N lần/lượt xem (N = số chỗ) — tốn hạn mức gói
+Upstash free (500K lệnh/tháng) khi lên ~100 chỗ ở Chặng 3. Đổi sang **1 hash duy nhất**
+(`place_checkins:latest`, field = mã chỗ) — đọc lần xác nhận gần nhất của **mọi** chỗ chỉ
+tốn đúng 1 lệnh Redis, bất kể bao nhiêu chỗ. Chi tiết kỹ thuật + lý do đầy đủ đã ghi vào
+[ARCHITECTURE.md](ARCHITECTURE.md) §2.
+
+**Đã làm:**
+- File mới: `lib/checkins.js` (3 lệnh Redis nguyên tử: khoá 24h, ghi/đọc hash, đếm điểm
+  ngày — đúng thứ tự anh yêu cầu: khoá trước, tính điểm sau, dừng ngay nếu khoá thất bại),
+  `app/checkinActions.js` (Server Action mỏng), `app/CheckinButton.js` (nút, tự đọc/tạo hồ
+  sơ ẩn danh qua key `cdp_contributor` dùng chung với `ContributionPanel.js`).
+- Sửa: `app/page.js` (đọc thêm `place_checkins:latest`, gắn vào từng chỗ), `PlaceExplorer.js`
+  (dòng xác nhận mới xếp trên, nhãn "còn chỗ" cũ làm nhạt xuống dưới; dòng mới đổi **ngay**
+  khi bấm, không chờ tải lại trang), `admin/actions.js` (xoá chỗ thì dọn luôn field tương
+  ứng trong hash, theo ý anh).
+- **Đã kiểm thử thật bằng Playwright** trên dev server (không phải chỉ đọc code): bấm nút →
+  đổi trạng thái + dòng trên thẻ đổi ngay + hiện +1 điểm; tải lại trang vẫn giữ đúng trạng
+  thái; người thứ hai (trình duyệt khác) bấm được, không bị chặn bởi người đầu; bấm chỗ thứ
+  4 trong ngày vẫn ghi nhận nhưng không cộng điểm (đúng trần 3 điểm/ngày); chỗ chưa ai xác
+  nhận không hiện dòng nào. Cũng soi thẳng Redis xác nhận: khoá 24h và bộ đếm điểm đều tự
+  hết hạn đúng như thiết kế (không sống vĩnh viễn), hash chỉ có đúng 1 field/chỗ dù bấm
+  bao nhiêu lần. Dữ liệu test đã dọn sạch khỏi Redis thật ngay sau khi kiểm chứng xong.
+- `npm run build` qua trót lọt. 1 lỗi lint có sẵn từ trước (không liên quan Chặng 1, đã xác
+  nhận bằng git stash) — không đụng vào, đúng nguyên tắc không sửa phần không liên quan.
+
+**Chưa làm (đúng phạm vi Chặng 1, xem SPEC §7):** đếm/hiện số người đã xác nhận, nút "chỗ
+này đóng rồi" (đã có sẵn trong luồng góp ý, không đụng), xếp hạng theo độ tươi của xác nhận,
+thông báo cho admin khi lâu không ai xác nhận, và câu hỏi mở "có nên bỏ nhãn còn chỗ cũ sau
+lễ hội 2026 không" (SPEC §5 — chỉ hỏi, chưa quyết).
+
+**Bước tiếp theo hợp lý nhất:** anh bấm thử trên web thật (sau khi deploy), rồi báo lại có
+đúng ý không trước khi bàn Chặng 2.
 
 ### 2026-08-04 — Tự động hoá hoàn toàn: routine tự đăng lên web, không cần copy-paste nữa
 Đóng nốt việc còn dang dở lâu nay (từng tưởng không làm được — xem DECISIONS.md 2026-07-15,

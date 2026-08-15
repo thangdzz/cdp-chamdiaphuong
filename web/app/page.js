@@ -1,12 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getLivePlaces } from "@/lib/redis";
+import { getAllLatestCheckins } from "@/lib/checkins";
 import PlaceExplorer from "./PlaceExplorer";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const places = await getLivePlaces();
+  const [livePlaces, latestCheckins] = await Promise.all([
+    getLivePlaces(),
+    getAllLatestCheckins(),
+  ]);
+  const places = livePlaces.map((p) => ({
+    ...p,
+    lastCheckinAt: latestCheckins[p.id] ?? null,
+  }));
 
   return (
     <div className="flex flex-1 justify-center">
