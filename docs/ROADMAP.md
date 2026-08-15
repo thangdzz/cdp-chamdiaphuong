@@ -118,6 +118,37 @@ lên làm trước cái đem dữ liệu đi chia sẻ.
 **Xâu chuỗi cho dễ nhớ:** Chặng 1–3 lo **thông tin đúng và đủ** → Chặng 4 lo **có người biết
 đến** → Chặng 5–6 lo **khách quay lại** → Chặng 7–8 lo **giữ khách và kiếm tiền**.
 
+## Bảng tra spec
+
+| Chặng | Spec | Trạng thái |
+|---|---|---|
+| 0 · Dọn tài liệu | — | ✅ xong 2026-08-11 |
+| 1 · Nút "Hôm nay vẫn mở" | [SPEC-chang-1.md](SPEC-chang-1.md) | ✅ code xong 2026-08-15 |
+| 2 · Câu hỏi bấm chọn | [SPEC-chang-2.md](SPEC-chang-2.md) | 🔲 spec sẵn sàng |
+| 3 · Thêm Chơi + Đi lại | [SPEC-chang-3.md](SPEC-chang-3.md) | 🔲 spec sẵn sàng |
+| 4 · Sổ chia sẻ được ⭐ | [SPEC-chang-4.md](SPEC-chang-4.md) | 🔲 spec sẵn sàng |
+| 5 · Ghi chú công khai | [SPEC-chang-5.md](SPEC-chang-5.md) | 🔲 spec sẵn sàng |
+| 6 · Ghi chú riêng | [SPEC-chang-6.md](SPEC-chang-6.md) | 🔲 spec sẵn sàng |
+| 7 · Đăng nhập số điện thoại | [SPEC-chang-7.md](SPEC-chang-7.md) | ⚠️ **bản dự kiến** — đọc lại trước khi code |
+| 8 · Chủ quán nhận địa điểm | [SPEC-chang-8.md](SPEC-chang-8.md) | ⚠️ **bản dự kiến** — đọc lại trước khi code |
+
+> Spec Chặng 7 và 8 viết trước theo yêu cầu, nhưng hai chặng này còn xa và phụ thuộc số liệu
+> thật sau lễ hội. Chặng 7 còn **một việc chưa quyết**: gửi tin nhắn OTP bằng kênh nào (chỗ
+> duy nhất trong dự án phải trả tiền cho bên thứ ba).
+
+## Chi phí đọc Redis — nguyên tắc xuyên suốt
+
+Trang chủ là `force-dynamic`, mỗi lượt khách xem là một lần đọc Redis. Gói Upstash miễn phí
+có 500.000 lệnh/tháng. **Số lệnh không bao giờ được tăng theo số địa điểm** — đó là lý do mọi
+chặng đều dùng hash + `HGETALL` thay vì một key cho mỗi chỗ.
+
+| Sau chặng | Số lệnh mỗi lượt xem trang chủ |
+|---|---|
+| 1 | 2 |
+| 2 | 3 |
+| 5 | 4 |
+| 8 | 5 |
+
 ---
 
 ## Chặng 0 — Dọn tài liệu · 1 buổi
