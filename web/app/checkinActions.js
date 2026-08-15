@@ -2,6 +2,7 @@
 
 import { createContributor, addContributorPoints } from "@/lib/contributors";
 import { submitCheckin, hasCheckedInRecently } from "@/lib/checkins";
+import { trySpendDailyPoints } from "@/lib/pointsCap";
 
 const POINTS_PER_CHECKIN = 1;
 
@@ -22,8 +23,12 @@ export async function checkin({ anonId, placeId }) {
   }
 
   const result = await submitCheckin(placeId, currentAnonId);
+  // Trần riêng 3 lượt/ngày (lib/checkins.js) không đổi — SPEC-chang-2.md §4.2 thêm 1 trần
+  // CHUNG 30 điểm/ngày áp lên mọi nguồn điểm, xin phép ở đây trước khi cộng điểm thật.
+  let pointsAwarded = false;
   if (!result.alreadyCheckedIn && result.pointsAwarded) {
-    await addContributorPoints(currentAnonId, POINTS_PER_CHECKIN);
+    pointsAwarded = await trySpendDailyPoints(currentAnonId, POINTS_PER_CHECKIN);
+    if (pointsAwarded) await addContributorPoints(currentAnonId, POINTS_PER_CHECKIN);
   }
 
   return {
@@ -31,7 +36,7 @@ export async function checkin({ anonId, placeId }) {
     anonId: currentAnonId,
     newProfile,
     alreadyCheckedIn: result.alreadyCheckedIn,
-    pointsAwarded: !result.alreadyCheckedIn && result.pointsAwarded,
+    pointsAwarded,
     at: result.at,
   };
 }

@@ -28,10 +28,10 @@ viết code Next.js.**
 
 ---
 
-## 2. Kho dữ liệu — 10 key Redis
+## 2. Kho dữ liệu — 14 key Redis
 
-Tất cả đều là **một key = một mảng JSON**, **trừ `place_checkins:latest`** (Chặng 1, xem
-bên dưới) — key đầu tiên trong dự án dùng kiểu dữ liệu Redis khác.
+Tất cả đều là **một key = một mảng JSON**, **trừ `place_checkins:latest`** (Chặng 1) và
+3 key của Chặng 2 (xem bên dưới) — dùng hash/string thay vì mảng.
 
 ### Dữ liệu địa điểm (`lib/redis.js`)
 
@@ -77,6 +77,32 @@ sửa → ghi-cả-mảng không an toàn ở đây. Ban đầu định lưu m�
 chỗ. Không lưu log từng lượt xác nhận (đếm số người/xem xu hướng) — ngoài phạm vi Chặng 1
 (SPEC-chang-1.md §7); thêm sau bằng 1 sorted set riêng nếu cần, không ảnh hưởng hash này.
 
+### Câu hỏi bấm chọn + đồng thuận (Chặng 2, `lib/answers.js`)
+
+| Key | Kiểu | Chứa gì |
+|---|---|---|
+| `place_answers:consensus` | **Hash**, field = `placeId` | value = object đã tính sẵn `{questionId: {value, votes, weak}}`. `HGETALL` đọc toàn bộ trong 1 lệnh — bảng đã tính sẵn, KHÔNG tính lúc khách xem trang |
+| `place_answers:votes:{placeId}` | **Hash**, field = `{questionId}:{anonId}` | value = `{answer, at, text, awarded}`. Chỉ đọc khi có người vừa bấm ở đúng chỗ đó |
+| `answers:skip:{anonId}:{placeId}:{questionId}` | String rỗng, tự hết hạn 30 ngày | Đánh dấu đã bấm "Không rõ" — không hỏi lại câu đó trong 30 ngày |
+
+Cộng 2 key đếm: `answers:count:{anonId}:{placeId}:{ngày}` (trần 5 câu/chỗ/ngày, TTL 48h) và
+`points:day:{anonId}:{ngày}` (`lib/pointsCap.js` — trần CHUNG 30 điểm/ngày, áp dụng cho **mọi**
+nguồn điểm kể cả Chặng 1's checkin, TTL 48h).
+
+**Vì sao đúng 3 lệnh Redis/lượt xem trang chủ dù bao nhiêu chỗ:** `places:live` (mảng) +
+`place_checkins:latest` (`HGETALL`) + `place_answers:consensus` (`HGETALL`) — không lệnh nào
+tăng theo số địa điểm. Việc "chọn câu nào để hỏi" (đọc phiếu + đồng thuận + phiếu "Không rõ"
+của 1 chỗ cụ thể) chỉ chạy khi khách **bung 1 thẻ**, không chạy cho mọi chỗ lúc tải trang.
+
+**Trọng số phiếu theo tuổi** (dưới 6 tháng = 1.0, 6–12 tháng = 0.5, trên 12 tháng = 0.1) —
+cơ chế tự dọn rác, tính lúc chốt đồng thuận (mỗi lượt bấm), không cần cron riêng.
+
+**Điểm chỉ cộng khi đồng thuận đạt ≥2 phiếu thật** (không phải theo trọng số) — phiếu đầu
+tiên luôn ghi `weak: true` để hiển thị ngay (§3.3 SPEC), nhưng KHÔNG được cộng điểm cho tới
+khi có phiếu thứ hai trùng. Cộng điểm hồi tố: khi đồng thuận vừa đạt, duyệt lại các phiếu
+trùng đáp án thắng, phiếu nào chưa `awarded` thì cộng và đánh dấu — người bấm đầu tiên được
+cộng đúng lúc người thứ hai bấm trùng, không phải lúc họ tự bấm.
+
 ### Hình dạng một chỗ trong `places:live`
 
 Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.js`:
@@ -104,18 +130,25 @@ DECISIONS 2026-07-15.
 ```
 web/
 ├── app/
-│   ├── page.js              (61)  Trang chủ — đọc places:live + place_checkins:latest,
-│   │                              render PlaceExplorer
-│   ├── PlaceExplorer.js    (624)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
-│   │                              gallery ảnh, dòng "còn mở" (Chặng 1). Nơi nặng nhất
+│   ├── page.js              (64)  Trang chủ — đọc places:live + place_checkins:latest +
+│   │                              place_answers:consensus, render PlaceExplorer
+│   ├── PlaceExplorer.js    (629)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
+│   │                              gallery ảnh, dòng "còn mở" (Chặng 1), khối hỏi + khối
+│   │                              kết quả (Chặng 2). Nơi nặng nhất của giao diện khách
 │   ├── ContributionPanel.js(564)  ⭐ Luồng góp ý: báo sai, gửi ảnh, đặt biệt danh,
 │   │                              mã khôi phục, chọn lĩnh vực, hiện huy hiệu. Export
 │   │                              STORAGE_KEY/loadLocalContributor/saveLocalContributor
-│   │                              để CheckinButton.js dùng chung 1 hồ sơ ẩn danh
+│   │                              để CheckinButton.js + QuestionPrompt.js dùng chung
+│   │                              1 hồ sơ ẩn danh
 │   ├── contributionActions.js(155) Server Action nhận góp ý từ ContributionPanel
 │   ├── CheckinButton.js     (68)  Chặng 1: nút "Tôi vừa đến, vẫn mở"
-│   ├── checkinActions.js    (43)  Server Action cho CheckinButton — gọi lib/checkins.js
-│   │                              + lib/contributors.js (tạo hồ sơ im lặng, cộng điểm)
+│   ├── checkinActions.js    (48)  Server Action cho CheckinButton — gọi lib/checkins.js
+│   │                              + lib/contributors.js + lib/pointsCap.js (trần chung
+│   │                              30đ/ngày, thêm ở Chặng 2)
+│   ├── QuestionPrompt.js   (179)  Chặng 2: khối hỏi 1 câu bấm chọn tại 1 thời điểm
+│   ├── PlaceFacts.js        (41)  Chặng 2: khối hiển thị kết quả đã đồng thuận (thuần
+│   │                              server, không "use client")
+│   ├── answerActions.js     (54)  Server Action cho QuestionPrompt — gọi lib/answers.js
 │   ├── occupancy.js         (29)  Nhãn "còn chỗ" 3 mức — suy theo LỊCH, không theo dữ liệu
 │   ├── BadgeIcon.js        (136)  SVG huy hiệu theo bậc
 │   ├── layout.js            (29)
@@ -123,8 +156,9 @@ web/
 │   ├── admin/
 │   │   ├── page.js         (459)  ⭐ Trang duyệt: đăng nhập, sửa live, duyệt hàng chờ,
 │   │   │                          duyệt góp ý khách, dán báo cáo routine
-│   │   ├── actions.js      (127)  Server Action: đăng nhập/xuất, sửa/xoá/thêm chỗ (xoá
-│   │   │                          chỗ cũng dọn field trong place_checkins:latest)
+│   │   ├── actions.js      (129)  Server Action: đăng nhập/xuất, sửa/xoá/thêm chỗ (xoá
+│   │   │                          chỗ cũng dọn field trong place_checkins:latest và
+│   │   │                          place_answers:consensus/votes)
 │   │   ├── reviewActions.js(138)  Duyệt/từ chối hàng chờ tự động
 │   │   ├── suggestionActions.js(87) Duyệt góp ý khách + cộng điểm
 │   │   ├── ingestPasteActions.js(50) Xử lý báo cáo routine dán tay
@@ -138,6 +172,13 @@ web/
 │   ├── checkins.js          (65)  Chặng 1: place_checkins:latest (hash) + khoá 24h +
 │   │                              trần điểm/ngày — 3 lệnh Redis nguyên tử, không đọc-
 │   │                              sửa-ghi cả mảng (xem §2)
+│   ├── questions.js        (185)  Chặng 2: định nghĩa bộ câu hỏi (11 câu). Thêm loại chỗ
+│   │                              mới (Chặng 3) chỉ sửa file này
+│   ├── answers.js          (228)  ⭐ Chặng 2: ghi phiếu, tính đồng thuận (trọng số theo
+│   │                              tuổi), thưởng điểm hồi tố, chọn câu để hỏi — file lõi
+│   │                              nặng nhất của Chặng 2
+│   ├── pointsCap.js         (27)  Trần CHUNG 30 điểm/ngày, dùng chung mọi nguồn điểm kể
+│   │                              cả checkin (Chặng 1) — không thay thế trần riêng từng nơi
 │   ├── placeForm.js         (32)  Đọc dữ liệu chỗ từ <form> — dùng chung cả 3 nơi nhập
 │   ├── priceFormat.js       (35)  Định dạng/tách giá
 │   ├── adminAuth.js         (43)  Mật khẩu admin + cookie phiên ký HMAC (TTL 7 ngày)

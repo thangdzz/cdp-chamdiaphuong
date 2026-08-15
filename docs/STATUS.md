@@ -6,8 +6,15 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1 (nút "Hôm nay vẫn mở") đã code xong** — xem chi tiết ở mục 2026-08-15 bên dưới.
-Bước tiếp theo: anh bấm thử trên web thật, rồi quyết có làm Chặng 2 không.
+**Chặng 1 (nút "Hôm nay vẫn mở") và Chặng 2 (câu hỏi bấm chọn + đồng thuận) đã code xong**
+(local, chưa deploy) — xem chi tiết ở mục 2026-08-15 bên dưới.
+
+**Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
+[ROADMAP.md](ROADMAP.md). Chặng 3–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
+và sửa trước khi code.
+
+Bước tiếp theo: anh bấm thử Chặng 2 trên máy (chưa deploy, xem ghi chú bên dưới), rồi quyết
+có làm Chặng 3 không.
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
 hoàn toàn từ 2026-08-04, auto-publish) + card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy
@@ -104,6 +111,66 @@ code làm bên Antigravity.
 
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
+
+### 2026-08-15 (mới nhất) — Code xong Chặng 2: câu hỏi bấm chọn + đồng thuận
+
+Chặng nặng nhất tính đến giờ — 3 key Redis mới, tính đồng thuận có trọng số theo tuổi phiếu,
+trả điểm hồi tố. Đọc `CLAUDE.md` → `ARCHITECTURE.md` → `SPEC-chang-2.md`, trình kế hoạch rồi
+anh duyệt code luôn (không cần sửa gì so với SPEC).
+
+**Đã làm:**
+- File mới: `lib/questions.js` (11 câu hỏi), `lib/answers.js` (ghi phiếu, tính đồng thuận,
+  trả điểm — file lõi), `lib/pointsCap.js` (trần chung 30 điểm/ngày), `app/answerActions.js`,
+  `app/QuestionPrompt.js` (khối hỏi), `app/PlaceFacts.js` (khối hiện kết quả).
+- Sửa: `app/page.js` (thêm 1 `HGETALL` đọc đồng thuận), `PlaceExplorer.js` (chèn 2 khối
+  trên), `admin/actions.js` (xoá chỗ dọn thêm dữ liệu Chặng 2), **`checkinActions.js`**
+  (thêm gate trần chung 30đ/ngày — SPEC yêu cầu áp trần này lên cả điểm Chặng 1, không chỉ
+  Chặng 2, dù không nằm trong danh sách "file sửa" gốc của SPEC).
+- **3 lỗi thật phát hiện được khi tự kiểm thử** (không phải chỉ đọc code):
+  1. Người đầu tiên bấm được cộng điểm ngay — sai, phải đợi đủ 2 phiếu trùng mới cộng. Sửa:
+     tách rõ "đồng thuận để hiển thị" (weak, có từ 1 phiếu) khỏi "đồng thuận để trả điểm"
+     (bắt buộc ≥2 phiếu).
+  2. Bấm lại đúng đáp án cũ (đổi ý nhưng chọn y hệt) vẫn được cộng điểm thêm — lỗ hổng có thể
+     bị khai thác để cày điểm. Sửa: chỉ reset trạng thái "đã trả điểm" khi đáp án thực sự đổi.
+  3. `submitAnswer` không kiểm tra khuôn dạng `answer` (mảng hay chuỗi, đúng lựa chọn hợp lệ
+     không) — Server Action luôn gọi được trực tiếp bất kể giao diện, đây là lỗ hổng thật.
+     Thêm bước kiểm tra đầu vào.
+- Kiểm thử: gọi thẳng `lib/answers.js` qua script (đồng thuận, hoà phiếu, trần 5 câu/ngày,
+  trần chung 30đ/ngày, câu nhiều đáp án) + Playwright thật cho giao diện (hỏi 1 câu, đổi câu
+  sau khi trả lời, "Không rõ", chọn nhiều + "Xong"). Phát hiện 1 điều cần lưu ý (không phải
+  lỗi ứng dụng): React StrictMode ở môi trường dev gọi effect trùng 2 lần, làm kịch bản test
+  tự động bấm quá nhanh bị nhầm — không ảnh hưởng bản production thật (không có StrictMode).
+- Dữ liệu test đã dọn sạch khỏi Redis thật (kể cả hồ sơ ẩn danh tạo ra trong lúc test).
+- `npm run build` qua trót lọt, lint sạch (trừ 1 lỗi có sẵn từ trước, không liên quan).
+
+**Chưa deploy lên web thật** — nhắc lại: trang này **không tự deploy khi push GitHub**, phải
+chạy `vercel --prod` thủ công (phát hiện ở phiên Chặng 1). Sẽ deploy sau khi anh xác nhận
+push code lên GitHub trước.
+
+**Bước tiếp theo hợp lý nhất:** anh bấm thử trên máy/web thật, xem câu hỏi + kết quả hiện
+đúng ý không, rồi quyết có làm Chặng 3 (Chơi + Đi lại) không.
+
+### 2026-08-15 (sau) — Viết spec cho cả 7 chặng còn lại
+Anh yêu cầu viết trước đủ spec để Claude code liền mạch, lỗi thì sửa sau (thay vì viết từng
+chặng ngay trước khi code như dự định ban đầu).
+
+- **Chặng 2** — câu hỏi bấm chọn: 11 nhóm câu hỏi, luật đồng thuận, trọng số phiếu nhẹ dần
+  theo tuổi (tự dọn rác), cách trả điểm hồi tố khi đủ đồng thuận.
+- **Chặng 3** — Chơi + Đi lại: liệt kê đủ 6 file kèm số dòng, cảnh báo 2 dòng "nếu không
+  phải Ăn thì là Ngủ" sẽ âm thầm làm hỏng dữ liệu; đề xuất gom vào `lib/placeTypes.js`.
+- **Chặng 4** — sổ chia sẻ: cấu trúc sổ, slug 8 ký tự không gây nhầm, "lưu sổ này" là mắt
+  xích lan truyền, 3 con số cần đo trong tuần lễ hội, nhắc thẻ Open Graph để link dán Zalo
+  hiện đẹp.
+- **Chặng 5** — ghi chú công khai: 5 lớp lọc cụ thể, câu hỏi cho AI ở lớp 3, cơ chế "gõ hôm
+  nay thành lựa chọn ngày mai" cho câu hỏi món ăn.
+- **Chặng 6** — ghi chú riêng: chỉ localStorage, **không có key Redis nào**, nút "chia sẻ cho
+  mọi người" làm cầu nối sang Chặng 5.
+- **Chặng 7–8** — đánh dấu rõ là **bản dự kiến**. Chặng 7 còn một việc chưa quyết: **gửi OTP
+  bằng kênh nào** (Zalo ZNS / SMS brandname / email) — chỗ duy nhất trong dự án phải trả tiền
+  cho bên thứ ba, cần tra giá tại thời điểm làm.
+
+Đã kiểm tra chéo: tên key Redis không trùng nhau, và **chi phí đọc trang chủ không tăng theo
+số địa điểm** ở bất kỳ chặng nào (2 → 3 → 4 → 5 lệnh — bảng trong ROADMAP).
 
 ### 2026-08-15 — Code xong Chặng 1: nút "Tôi vừa đến, vẫn mở"
 

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getOccupancyLabel, getOccupancyStatus } from "./occupancy";
 import { ContributionPanel } from "./ContributionPanel";
 import { CheckinButton } from "./CheckinButton";
+import { QuestionPrompt } from "./QuestionPrompt";
+import { PlaceFacts } from "./PlaceFacts";
 import { stripDiacritics } from "@/lib/ingestion/normalize";
 
 const TYPE_LABEL = {
@@ -320,6 +322,8 @@ function PlaceCard({ place }) {
             </p>
           )}
 
+          <PlaceFacts type={place.type} consensus={place.consensus} />
+
           {photos.length > 0 && (
             <div className="mt-1">
               <p className="mb-1.5 text-xs font-medium text-zinc-500">Ảnh địa điểm</p>
@@ -348,6 +352,7 @@ function PlaceCard({ place }) {
             </div>
           )}
 
+          <QuestionPrompt place={place} />
           <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
           <ContributionPanel place={place} />
         </div>

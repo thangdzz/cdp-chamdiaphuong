@@ -2,18 +2,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { getLivePlaces } from "@/lib/redis";
 import { getAllLatestCheckins } from "@/lib/checkins";
+import { getAllConsensus } from "@/lib/answers";
 import PlaceExplorer from "./PlaceExplorer";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [livePlaces, latestCheckins] = await Promise.all([
+  const [livePlaces, latestCheckins, allConsensus] = await Promise.all([
     getLivePlaces(),
     getAllLatestCheckins(),
+    getAllConsensus(),
   ]);
   const places = livePlaces.map((p) => ({
     ...p,
     lastCheckinAt: latestCheckins[p.id] ?? null,
+    consensus: allConsensus[p.id] ?? null,
   }));
 
   return (
