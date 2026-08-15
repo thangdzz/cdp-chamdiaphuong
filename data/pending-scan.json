@@ -1,8 +1,1 @@
-[
-  {"name": "Nhà hàng Ngói Cuisine", "category_primary": "an", "address_text": "Đường Nguyễn Hữu Thọ, phường Minh Xuân, TP. Tuyên Quang", "near_landmark": null, "phone": null, "opening_hours_text": null, "price_range_text": null, "map_note": null},
-  {"name": "Khách sạn Lô Giang", "category_primary": "ngu", "address_text": "Số 2, đường 17 Tháng 8, phường Minh Xuân, TP. Tuyên Quang", "near_landmark": null, "phone": "0989552520", "opening_hours_text": null, "price_range_text": "Từ 300.000 VNĐ/đêm", "map_note": null},
-  {"name": "Koi and You Tuyên Quang", "category_primary": "an", "address_text": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang", "near_landmark": null, "phone": "0329222255", "opening_hours_text": "08:00 - 22:00", "price_range_text": null, "map_note": null},
-  {"name": "Feline Café", "category_primary": "an", "address_text": "126 Bình Thuận, phường Tân Quang, TP. Tuyên Quang", "near_landmark": null, "phone": "0965161316", "opening_hours_text": "07:30 - 22:00", "price_range_text": null, "map_note": null},
-  {"name": "Cielo Coffee & Ice Cream", "category_primary": "an", "address_text": "51 Bình Thuận, phường Hưng Thành, TP. Tuyên Quang", "near_landmark": null, "phone": "0273820789", "opening_hours_text": "06:00 - 22:59", "price_range_text": null, "map_note": null},
-  {"name": "Hiro Cafe", "category_primary": "an", "address_text": "131 Trần Phú, TP. Tuyên Quang", "near_landmark": null, "phone": null, "opening_hours_text": "07:00 - 22:30", "price_range_text": null, "map_note": null}
-]
+[]
