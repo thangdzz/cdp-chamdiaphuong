@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "name": "Koi and You Coffee",
+    "category_primary": "an",
+    "address_text": "Khu đô thị Việt Mỹ Villas, Đường Lê Lợi 4, Tổ 12, Phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0329222255",
+    "opening_hours_text": "08:00 - 22:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Feline Café",
+    "category_primary": "an",
+    "address_text": "126 Bình Thuận, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "+84965161315",
+    "opening_hours_text": "Mở từ 07:30",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Sky Café",
+    "category_primary": "an",
+    "address_text": "155 Bình Thuận, TP. Tuyên Quang",
+    "near_landmark": "Tầng thượng tòa nhà, đối diện Khách sạn Royal",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "20.000đ - 50.000đ",
+    "map_note": null
+  },
+  {
+    "name": "Cielo Coffee & Ice Cream",
+    "category_primary": "an",
+    "address_text": "51 Bình Thuận, Phường Tân Quang, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "+84944484434",
+    "opening_hours_text": "08:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Despaciato Milk Tea & Coffee",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": "Khu vực đường Bình Thuận",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Địa chỉ chưa xác định - các nguồn cho thông tin khác nhau"
+  },
+  {
+    "name": "Nhà hàng Ẩm Thực Việt 1",
+    "category_primary": "an",
+    "address_text": "Tổ 17, Phường Minh Xuân, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0944494006",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
