@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "name": "Nhà hàng Ẩm Thực Việt Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Tổ 10, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": "Sau Trung tâm Hội nghị Tỉnh, đối diện UBND phường Phan Thiết khoảng 200m",
+    "phone": "0912780699",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Là chuỗi nhiều cơ sở (có thêm địa chỉ ở tổ 17 phường Minh Xuân), đây là cơ sở gần trung tâm TP"
+  },
+  {
+    "name": "Gà Tươi Mạnh Hoạch (Tuyên Quang)",
+    "category_primary": "an",
+    "address_text": "124 Trần Phú, phường Tân Quang, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0968326286",
+    "opening_hours_text": "08:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Koi and You",
+    "category_primary": "an",
+    "address_text": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0329222255",
+    "opening_hours_text": "08:00 - 22:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Cafe Lâm Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "134 đường Bình Thuận, phường Minh Xuân, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "Cà phê khoảng 15.000đ/ly",
+    "map_note": null
+  },
+  {
+    "name": "Feline Café",
+    "category_primary": "an",
+    "address_text": "126 Bình Thuận, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Cielo Coffee & IceCream",
+    "category_primary": "an",
+    "address_text": "51 Bình Thuận, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Nhà khách Kim Bình",
+    "category_primary": "ngu",
+    "address_text": "Đường 17/8, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3822011",
+    "opening_hours_text": null,
+    "price_range_text": "Từ 450.000đ/đêm",
+    "map_note": "Đơn vị thuộc Văn phòng Tỉnh ủy Tuyên Quang, 78 phòng"
+  },
+  {
+    "name": "Nhà Nghỉ Mạnh Thủy",
+    "category_primary": "ngu",
+    "address_text": "532 đường 17 tháng 8, phường Phan Thiết, TP. Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Số điện thoại không thống nhất giữa các nguồn nên để trống; lưu ý dễ nhầm với Nhà nghỉ Minh Thủy (536 đường 17/8, đã có trong danh sách) - đây là 2 cơ sở khác nhau, địa chỉ và SĐT khác nhau"
+  }
+]
