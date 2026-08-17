@@ -110,7 +110,7 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
 ```js
 {
   id: "live-<uuid>",
-  name, type: "an" | "ngu",        // ⚠️ chỉ 2 giá trị — xem §6
+  name, type: "an" | "choi" | "ngu" | "dilai", // xem lib/placeTypes.js
   address, ward, localArea, phone,
   priceMin, priceMax, priceUnit,
   priceText,                        // LUÔN tự tính, không nhận gõ tay
@@ -289,7 +289,7 @@ Không có cache, không có ISR — mỗi lần khách mở trang là một l�
 
 ## 6. Những chỗ cần cẩn thận
 
-**Loại địa điểm — đã có 4 giá trị (Chặng 3, xong 2026-08-15).** `lib/placeTypes.js` là nguồn
+**Loại địa điểm — đã có 4 giá trị (Chặng 3, xong 2026-08-17).** `lib/placeTypes.js` là nguồn
 duy nhất (`PLACE_TYPES`: `an`/`choi`/`ngu`/`dilai`). Giá trị lạ giờ **ném lỗi rõ ràng**
 (`assertValidPlaceType`/`InvalidPlaceTypeError`), không còn âm thầm rơi về `"ngu"` như trước.
 `lib/ingestion/ingestBatch.js` bắt riêng lỗi này để **bỏ qua đúng 1 bản ghi hỏng**, không làm

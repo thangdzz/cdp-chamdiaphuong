@@ -8,14 +8,14 @@
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
 **Chặng 1, 2, 3 đã code xong.** Chặng 1–2 đã lên web thật (`vercel --prod`, xem nhắc nhở ở
 mục "Quy trình hằng ngày" — push GitHub KHÔNG tự deploy). **Chặng 3 mới code xong, chưa
-push/deploy** — xem chi tiết ở mục 2026-08-15 (mới nhất) bên dưới, kèm danh sách anh cần
+push/deploy** — xem chi tiết ở mục 2026-08-17 bên dưới, kèm danh sách anh cần
 bấm thử.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). Chặng 4–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
 và sửa trước khi code.
 
-Bước tiếp theo: anh bấm thử Chặng 3 theo danh sách cuối tin nhắn/mục 2026-08-15 (mới nhất),
+Bước tiếp theo: anh bấm thử Chặng 3 theo danh sách cuối tin nhắn/mục 2026-08-17,
 quyết có deploy lên web thật không, rồi quyết có làm Chặng 4 không.
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
@@ -114,7 +114,7 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-15 (mới nhất) — Code xong Chặng 3: thêm "Chơi" và "Đi lại"
+### 2026-08-17 — Code xong Chặng 3: thêm "Chơi" và "Đi lại"
 
 Đọc `CLAUDE.md` → `ARCHITECTURE.md` → `SPEC-chang-3.md`. SPEC đã đủ chi tiết (liệt kê sẵn cả
 6 file + số dòng cần sửa), nên làm luôn không cần vòng chốt câu hỏi mở như Chặng 1.
