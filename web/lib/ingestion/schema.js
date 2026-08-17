@@ -31,14 +31,25 @@ export const AVAILABILITY_SIGNAL = {
   UNKNOWN: "unknown",
 };
 
-// Khu vực (phường) đã biết trong app hiện tại — dùng để chuẩn hoá address_text về 1 preset.
-// Khớp với các phường đã xuất hiện trong web/data/places.json.
+// Khu vực (phường) TP Tuyên Quang (cũ) — dùng để dò tìm trong address_text và chuẩn hoá về
+// 1 preset (so khớp kiểu "có chứa chữ này"). Gồm cả 10 phường trước sáp nhập 1/7/2025
+// (An Tường, Đội Cấn, Hưng Thành, Minh Xuân, Mỹ Lâm, Nông Tiến, Phan Thiết, Tân Hà, Tân
+// Quang, Ỷ La) lẫn tên phường mới sau khi gộp (Bình Thuận — 4 tên còn lại giữ nguyên tên khi
+// gộp) — vì địa chỉ thật (Google Maps, biển hiệu) có thể vẫn ghi tên cũ, chưa cập nhật kịp.
+// KHÔNG gồm "Hà Giang 1"/"Hà Giang 2" — 2 phường đó thuộc TP Hà Giang cũ, ngoài phạm vi dự
+// án, dù cùng tỉnh mới sau sáp nhập (xác nhận 2026-08-17, xem DECISIONS.md).
 export const AREA_PRESETS = [
-  "Tân Quang",
-  "Minh Xuân",
-  "Phan Thiết",
+  "An Tường",
+  "Đội Cấn",
   "Hưng Thành",
-  "Hà Giang 1", // xuất hiện trong bài viết lễ hội, chừa sẵn
+  "Minh Xuân",
+  "Mỹ Lâm",
+  "Nông Tiến",
+  "Phan Thiết",
+  "Tân Hà",
+  "Tân Quang",
+  "Ỷ La",
+  "Bình Thuận",
 ];
 
 // Trọng số tin cậy theo loại nguồn — cơ sở để tính confidence_score.

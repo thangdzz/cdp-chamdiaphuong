@@ -145,19 +145,18 @@ mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết n
   ngay sau khi xong.
 - `npm run build` qua trót lọt, lint sạch (trừ 1 lỗi có sẵn từ trước, không liên quan).
 
-**Chưa làm — 2 việc trong SPEC §6, cần anh quyết trước khi làm tiếp:**
-1. **Mở rộng routine quét hằng ngày sang Chơi/Đi lại** — routine hiện chỉ tìm Ăn/Ngủ, cần
-   sửa lệnh (prompt) của routine trên claude.ai. Đây là việc động vào lịch chạy tự động đang
-   sống, nên chưa tự làm — cần anh xác nhận trước.
-2. **`AREA_PRESETS` trong `schema.js`** (SPEC §6.2) — mới có 5 phường, có `"Hà Giang 1"` lạc
-   chỗ. Cần đúng tên phường thật của TP Tuyên Quang (cũ) để sửa đúng — em không có dữ liệu
-   này, cần anh cung cấp hoặc xác nhận.
+**✅ Cả 2 việc còn treo ở SPEC §6 đã xong luôn trong phiên này, sau khi anh duyệt:**
+1. **Routine hằng ngày mở rộng sang Chơi/Đi lại** — đã sửa lệnh routine trên claude.ai (đổi
+   tên thành "CDP - Quet du lieu An/Choi/Ngu/Di lai..."), giữ nguyên phạm vi TP Tuyên Quang
+   (cũ) và cơ chế ghi GitHub. Lần chạy tiếp theo: 18/08, 8h sáng.
+2. **`AREA_PRESETS`** — tra cứu xác nhận `"Hà Giang 1"` thuộc TP Hà Giang cũ (lạc chỗ thật).
+   Đã sửa thành 11 phường: 10 phường TP Tuyên Quang cũ + "Bình Thuận" (tên mới sau sáp
+   nhập). Chi tiết + nguồn tra cứu ghi ở DECISIONS.md 2026-08-17.
 
-**Chưa deploy lên web thật** — code mới có ở máy + sắp push GitHub, **chưa chạy `vercel
---prod`**.
+**Đã deploy lên web thật** — push GitHub + `vercel --prod` xong.
 
-**Bước tiếp theo hợp lý nhất:** anh xem danh sách bấm thử bên dưới (tin nhắn cuối), quyết có
-deploy không, rồi quyết 2 việc còn treo ở trên trước khi bàn Chặng 4.
+**Bước tiếp theo hợp lý nhất:** anh bấm thử theo danh sách đã gửi, theo dõi routine chạy
+sáng mai xem có tìm được chỗ Chơi/Đi lại nào không, rồi quyết có bàn Chặng 4 không.
 
 ### 2026-08-15 (giữa) — Code xong Chặng 2: câu hỏi bấm chọn + đồng thuận
 

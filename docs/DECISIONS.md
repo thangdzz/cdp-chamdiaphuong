@@ -367,3 +367,36 @@ hội), và **gửi được cho người khác** (link một cuốn sổ có gh
 Maps rời rạc). Sổ có giá trị vì **gửi được**, không phải vì **lưu được** — đây cũng là lời
 giải cho câu hỏi "ai viết note đầu tiên": người địa phương viết để gửi cho người quen sắp
 đến, chứ không phải viết để tự xem lại.
+
+## 2026-08-17 — Loại địa điểm lên 4 nhóm (Chặng 3) + sửa danh sách phường theo sáp nhập
+
+**Quyết định:** Thêm 2 loại địa điểm mới **Chơi** và **Đi lại** (`lib/placeTypes.js` là
+nguồn duy nhất, 6 nơi khác đọc từ đây). Giá trị loại lạ giờ **ném lỗi rõ ràng**
+(`InvalidPlaceTypeError`) thay vì âm thầm quy về `"ngu"` như code cũ.
+**Vì sao:** Đúng lời hứa "cuốn sổ ăn, chơi, ngủ, đi lại" (NOTEBOOK-DESIGN.md). Kiểu code cũ
+"nếu không phải Ăn thì là Ngủ" là lỗi âm thầm nguy hiểm — dữ liệu Chơi/Đi lại có thể bị đẩy
+nhầm vào Ngủ mà không ai biết.
+
+**Quyết định:** `ingestBatch.js` bắt riêng lỗi loại-địa-điểm-sai, **bỏ qua đúng 1 bản ghi
+hỏng** thay vì làm hỏng cả lô quét.
+**Vì sao:** Routine hằng ngày gửi ~9 chỗ/lần trong 1 lô; nếu ném lỗi thẳng mà không xử lý,
+1 bản ghi AI quét sai loại (ví dụ hallucinate "cafe" thay vì "an") sẽ chặn đứng toàn bộ 9
+chỗ hôm đó lên web, kể cả những chỗ đúng.
+
+**Quyết định:** Sửa `AREA_PRESETS` (dò tên phường trong địa chỉ) — bỏ `"Hà Giang 1"`, thêm
+đủ 10 phường TP Tuyên Quang (cũ) trước sáp nhập 1/7/2025 + `"Bình Thuận"` (tên phường mới
+sau gộp, không trùng tên cũ nào). Danh sách đầy đủ: An Tường, Đội Cấn, Hưng Thành, Minh
+Xuân, Mỹ Lâm, Nông Tiến, Phan Thiết, Tân Hà, Tân Quang, Ỷ La, Bình Thuận.
+**Vì sao:** Tra cứu xác nhận `"Hà Giang 1"` (và `"Hà Giang 2"`) là 2 phường mới của **TP Hà
+Giang cũ**, không phải TP Tuyên Quang — lạc vào danh sách dù cùng tỉnh mới sau sáp nhập. 10
+phường cũ của TP Tuyên Quang đã gộp lại thành 5 phường mới (Minh Xuân/An Tường/Nông
+Tiến/Mỹ Lâm giữ tên, riêng Đội Cấn đổi tên thành Bình Thuận). Giữ cả tên cũ lẫn tên mới vì
+`AREA_PRESETS` chỉ dùng để dò khớp chuỗi con trong địa chỉ thô — địa chỉ thật (Google Maps,
+biển hiệu) có thể chưa cập nhật kịp tên phường mới.
+
+**Đánh đổi đã chấp nhận:** Chưa mở rộng theo tên **xã** (5 xã ngoại thành cũ của TP Tuyên
+Quang, hay các xã mới sau sáp nhập) — `AREA_PRESETS` từ trước tới nay chỉ dò theo phường,
+giữ nguyên phạm vi đó.
+
+**Không đổi:** Nguyên tắc dùng vùng địa lý TP Tuyên Quang (cũ) + địa chỉ kiểu Google Maps
+(quyết định 2026-07-14) — chỉ mở rộng đúng đắn hơn trong phạm vi đó, không đổi phạm vi.

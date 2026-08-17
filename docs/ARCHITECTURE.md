@@ -316,8 +316,10 @@ cắt bớt. Ở vài chục chỗ và vài trăm người thì không sao; cầ
 kiếm của routine (tránh tìm lại chỗ đã có), **không** ảnh hưởng việc chống đăng trùng —
 việc đó nằm ở `ingestBatch()`.
 
-**`AREA_PRESETS` trong `schema.js` mới có 5 phường.** Địa chỉ ngoài danh sách này không
-chuẩn hoá được về `ward`, và chỗ không có `ward` thì nhãn còn chỗ luôn về "Chưa đủ dữ liệu".
+**`AREA_PRESETS` trong `schema.js` — đã sửa 2026-08-17, giờ có 11 phường** (10 phường TP
+Tuyên Quang cũ + "Bình Thuận" tên mới sau sáp nhập — xem DECISIONS.md). Địa chỉ ngoài danh
+sách này không chuẩn hoá được về `ward`, và chỗ không có `ward` thì nhãn còn chỗ luôn về
+"Chưa đủ dữ liệu". Chỉ dò theo **phường**, chưa mở rộng theo tên xã.
 
 ---
 
