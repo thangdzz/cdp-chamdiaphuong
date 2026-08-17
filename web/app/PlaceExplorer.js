@@ -7,11 +7,13 @@ import { CheckinButton } from "./CheckinButton";
 import { QuestionPrompt } from "./QuestionPrompt";
 import { PlaceFacts } from "./PlaceFacts";
 import { stripDiacritics } from "@/lib/ingestion/normalize";
+import { PLACE_TYPES } from "@/lib/placeTypes";
 
-const TYPE_LABEL = {
-  ngu: "Ngủ",
-  an: "Ăn",
-};
+const TYPE_LABEL = Object.fromEntries(PLACE_TYPES.map((t) => [t.id, t.label]));
+
+// Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
+// SPEC-chang-3.md §5.
+const OCCUPANCY_LABEL_TYPES = new Set(["an", "ngu"]);
 
 const PRICE_BUCKETS = [
   { id: "all", label: "Tất cả mức giá" },
@@ -232,11 +234,13 @@ function PlaceCard({ place }) {
   // (SPEC-chang-1.md §2.2: dòng trên thẻ phải đổi ngay, không chờ tải lại trang).
   const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
 
-  useEffect(() => {
-    setStatus(getOccupancyStatus(place));
-  }, [place]);
+  const showOccupancy = OCCUPANCY_LABEL_TYPES.has(place.type);
 
-  const statusLabel = status ? getOccupancyLabel(status, place.type) : null;
+  useEffect(() => {
+    if (showOccupancy) setStatus(getOccupancyStatus(place));
+  }, [place, showOccupancy]);
+
+  const statusLabel = showOccupancy && status ? getOccupancyLabel(status, place.type) : null;
   const checkinLabel = formatCheckinAge(lastCheckinAt);
   const photos = place.photos ?? [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
@@ -507,8 +511,10 @@ export default function PlaceExplorer({ places }) {
     });
   }, [places, type, ward, priceBucket, search]);
 
-  const ngu = filtered.filter((p) => p.type === "ngu");
-  const an = filtered.filter((p) => p.type === "an");
+  const groupedByType = PLACE_TYPES.map((t) => ({
+    type: t,
+    items: filtered.filter((p) => p.type === t.id),
+  }));
 
   const hasActiveFilter = type !== "all" || ward !== "all" || priceBucket !== "all" || search !== "";
 
@@ -551,11 +557,7 @@ export default function PlaceExplorer({ places }) {
         </div>
 
         <div className="flex gap-2">
-          {[
-            { id: "all", label: "Tất cả" },
-            { id: "ngu", label: "Ngủ" },
-            { id: "an", label: "Ăn" },
-          ].map((opt) => (
+          {[{ id: "all", label: "Tất cả" }, ...PLACE_TYPES].map((opt) => (
             <button
               key={opt.id}
               type="button"
@@ -620,8 +622,9 @@ export default function PlaceExplorer({ places }) {
         </p>
       ) : (
         <>
-          <Section title="Ngủ" items={ngu} />
-          <Section title="Ăn" items={an} />
+          {groupedByType.map(({ type: t, items }) => (
+            <Section key={t.id} title={t.label} items={items} />
+          ))}
         </>
       )}
     </div>

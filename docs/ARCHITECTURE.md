@@ -132,9 +132,10 @@ web/
 ├── app/
 │   ├── page.js              (64)  Trang chủ — đọc places:live + place_checkins:latest +
 │   │                              place_answers:consensus, render PlaceExplorer
-│   ├── PlaceExplorer.js    (629)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
+│   ├── PlaceExplorer.js    (632)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
 │   │                              gallery ảnh, dòng "còn mở" (Chặng 1), khối hỏi + khối
-│   │                              kết quả (Chặng 2). Nơi nặng nhất của giao diện khách
+│   │                              kết quả (Chặng 2), 4 nhóm loại + gate nhãn còn chỗ
+│   │                              (Chặng 3). Nơi nặng nhất của giao diện khách
 │   ├── ContributionPanel.js(564)  ⭐ Luồng góp ý: báo sai, gửi ảnh, đặt biệt danh,
 │   │                              mã khôi phục, chọn lĩnh vực, hiện huy hiệu. Export
 │   │                              STORAGE_KEY/loadLocalContributor/saveLocalContributor
@@ -154,8 +155,9 @@ web/
 │   ├── layout.js            (29)
 │   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh)
 │   ├── admin/
-│   │   ├── page.js         (459)  ⭐ Trang duyệt: đăng nhập, sửa live, duyệt hàng chờ,
-│   │   │                          duyệt góp ý khách, dán báo cáo routine
+│   │   ├── page.js         (469)  ⭐ Trang duyệt: đăng nhập, sửa live, duyệt hàng chờ,
+│   │   │                          duyệt góp ý khách, dán báo cáo routine. 3 form chọn
+│   │   │                          loại đọc từ lib/placeTypes.js (Chặng 3)
 │   │   ├── actions.js      (129)  Server Action: đăng nhập/xuất, sửa/xoá/thêm chỗ (xoá
 │   │   │                          chỗ cũng dọn field trong place_checkins:latest và
 │   │   │                          place_answers:consensus/votes)
@@ -169,17 +171,20 @@ web/
 │
 ├── lib/
 │   ├── redis.js             (29)  Kết nối Redis + đọc/ghi places:live, places:pending
+│   ├── placeTypes.js        (39)  ⭐ Chặng 3: nguồn duy nhất cho 4 loại địa điểm
+│   │                              (an/choi/ngu/dilai) — ném lỗi rõ ràng nếu giá trị lạ,
+│   │                              không âm thầm quy về "ngu" như trước
 │   ├── checkins.js          (65)  Chặng 1: place_checkins:latest (hash) + khoá 24h +
 │   │                              trần điểm/ngày — 3 lệnh Redis nguyên tử, không đọc-
 │   │                              sửa-ghi cả mảng (xem §2)
-│   ├── questions.js        (185)  Chặng 2: định nghĩa bộ câu hỏi (11 câu). Thêm loại chỗ
-│   │                              mới (Chặng 3) chỉ sửa file này
+│   ├── questions.js        (302)  Chặng 2 + 3: định nghĩa bộ câu hỏi (19 câu, đủ 4 loại)
 │   ├── answers.js          (228)  ⭐ Chặng 2: ghi phiếu, tính đồng thuận (trọng số theo
 │   │                              tuổi), thưởng điểm hồi tố, chọn câu để hỏi — file lõi
 │   │                              nặng nhất của Chặng 2
 │   ├── pointsCap.js         (27)  Trần CHUNG 30 điểm/ngày, dùng chung mọi nguồn điểm kể
 │   │                              cả checkin (Chặng 1) — không thay thế trần riêng từng nơi
-│   ├── placeForm.js         (32)  Đọc dữ liệu chỗ từ <form> — dùng chung cả 3 nơi nhập
+│   ├── placeForm.js         (33)  Đọc dữ liệu chỗ từ <form> — dùng chung cả 3 nơi nhập.
+│   │                              type ném lỗi qua assertValidPlaceType (Chặng 3)
 │   ├── priceFormat.js       (35)  Định dạng/tách giá
 │   ├── adminAuth.js         (43)  Mật khẩu admin + cookie phiên ký HMAC (TTL 7 ngày)
 │   ├── badges.js           (167)  10 lĩnh vực × 5 bậc, ngưỡng điểm 0/5/20/50/100
@@ -187,9 +192,12 @@ web/
 │   ├── suggestions.js       (58)  Hàng chờ góp ý + chặn gửi trùng ăn điểm
 │   └── ingestion/
 │       ├── schema.js        (72)  ⭐ Hằng số + JSDoc định nghĩa shape dữ liệu
-│       ├── normalize.js     (86)  Chuẩn hoá bản ghi thô về NormalizedPlace
+│       ├── normalize.js     (87)  Chuẩn hoá bản ghi thô về NormalizedPlace. category_primary
+│       │                          ném lỗi qua assertValidPlaceType (Chặng 3)
 │       ├── match.js        (157)  So khớp với chỗ đã có, phát hiện nghi trùng
-│       ├── ingestBatch.js  (216)  ⭐ Hàm trung tâm — MỌI nguồn dữ liệu đều đi qua đây
+│       ├── ingestBatch.js  (231)  ⭐ Hàm trung tâm — MỌI nguồn dữ liệu đều đi qua đây. Bắt
+│       │                          riêng InvalidPlaceTypeError để bỏ 1 bản ghi hỏng, không
+│       │                          làm hỏng cả lô (Chặng 3)
 │       ├── toLivePlace.js   (53)  Chuyển candidate → shape places:live
 │       ├── store.js         (80)  Đọc/ghi các key ingestion:*
 │       ├── runDailyIngest.js(141)
@@ -281,25 +289,20 @@ Không có cache, không có ISR — mỗi lần khách mở trang là một l�
 
 ## 6. Những chỗ cần cẩn thận
 
-**Loại địa điểm hiện chỉ có 2 giá trị.** `"an"` và `"ngu"` bị viết cứng ở **6 file** — đã
-kiểm tra bằng `grep '"ngu"'`:
+**Loại địa điểm — đã có 4 giá trị (Chặng 3, xong 2026-08-15).** `lib/placeTypes.js` là nguồn
+duy nhất (`PLACE_TYPES`: `an`/`choi`/`ngu`/`dilai`). Giá trị lạ giờ **ném lỗi rõ ràng**
+(`assertValidPlaceType`/`InvalidPlaceTypeError`), không còn âm thầm rơi về `"ngu"` như trước.
+`lib/ingestion/ingestBatch.js` bắt riêng lỗi này để **bỏ qua đúng 1 bản ghi hỏng**, không làm
+hỏng cả lô quét (đếm ở `summary.skippedInvalidType`). Thêm loại thứ 5 sau này: chỉ sửa
+`lib/placeTypes.js` + thêm bộ câu hỏi tương ứng trong `lib/questions.js` — 6 file kia (form
+nhập, bộ lọc, nhãn còn chỗ...) đều đọc từ `PLACE_TYPES`, không cần sửa thêm.
 
-| File | Dòng | Vấn đề |
-|---|---|---|
-| `lib/placeForm.js` | 19 | `type: ... === "an" ? "an" : "ngu"` — **mọi giá trị lạ đều rơi về `"ngu"`, không báo lỗi** |
-| `lib/ingestion/normalize.js` | 70 | y hệt, cho `category_primary` |
-| `lib/ingestion/schema.js` | 59 | JSDoc `{"an"\|"ngu"}` |
-| `app/occupancy.js` | 9 | chọn từ "phòng" hay "chỗ" |
-| `app/admin/page.js` | 107, 164, 322, 325 | 3 form nhập/sửa |
-| `app/PlaceExplorer.js` | 211, 466, 512 | phân nhóm + nút lọc |
-
-**Chặng 3 (thêm Chơi + Đi lại) phải sửa hết 6 file này.** Hai dòng đầu nguy hiểm nhất: bỏ
-sót là dữ liệu Chơi/Đi lại bị **âm thầm đẩy về `"ngu"`** mà không có lỗi nào hiện ra.
-
-**Nhãn "còn chỗ" không dựa trên dữ liệu thật.** `app/occupancy.js` chỉ nhìn **ngày giờ trên
-máy khách** so với mấy mốc lễ hội viết cứng trong file. Không liên quan gì tới việc quán có
-đông thật hay không. Chặng 1 thêm nút "Hôm nay vẫn mở" — hai thứ này khác nhau hoàn toàn,
-đừng nhầm.
+**Nhãn "còn chỗ" chỉ áp dụng cho Ăn/Ngủ (Chặng 3 §5).** `app/occupancy.js` bản thân không
+đổi (vẫn suy theo **ngày giờ máy khách** so với mốc lễ hội viết cứng, không liên quan dữ liệu
+thật) — chỗ đổi là `PlaceExplorer.js` giờ chỉ GỌI nó cho `type` trong `OCCUPANCY_LABEL_TYPES`
+(`an`, `ngu`). Chơi/Đi lại không hiện nhãn này, nhưng vẫn có nút "Hôm nay vẫn mở" (Chặng 1,
+áp dụng cho cả 4 loại). Việc "sang năm nhãn còn chỗ sai vì mốc lễ hội viết cứng" vẫn còn treo
+— chưa giải quyết, xem SPEC-chang-1.md §5 và SPEC-chang-3.md §5.
 
 **Ghi Redis không có khoá.** Mọi thao tác đều là đọc-cả-mảng → sửa → ghi-cả-mảng. Hai thao
 tác cùng lúc thì thao tác sau đè thao tác trước. Đã biết và chấp nhận ở quy mô hiện tại

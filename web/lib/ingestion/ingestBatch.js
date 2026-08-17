@@ -11,6 +11,7 @@ import {
   getConfirmedDistinctPairs,
 } from "./store.js";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "./schema.js";
+import { InvalidPlaceTypeError } from "../placeTypes.js";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.5;
 const NEEDS_REVIEW_THRESHOLD = 0.6;
@@ -89,16 +90,30 @@ export async function ingestBatch(batch) {
     lowConfidencePublished: 0,
     updatedExistingPending: 0,
     skippedNoChange: 0,
+    skippedInvalidType: 0,
   };
 
   for (const raw of batch.records) {
     summary.recordsFetched++;
     const observedAt = new Date().toISOString();
-    const candidate = normalizeRecord(raw, {
-      sourceId: batch.sourceId,
-      sourceType: batch.sourceType,
-      observedAt,
-    });
+
+    let candidate;
+    try {
+      candidate = normalizeRecord(raw, {
+        sourceId: batch.sourceId,
+        sourceType: batch.sourceType,
+        observedAt,
+      });
+    } catch (err) {
+      // Loại địa điểm sai (SPEC-chang-3.md §2) không được âm thầm quy về "ngu" — nhưng cũng
+      // không để 1 bản ghi hỏng làm hỏng cả lô quét (routine hằng ngày gửi nhiều chỗ/lần).
+      // Bỏ qua đúng bản ghi này, các bản ghi khác trong lô vẫn xử lý bình thường.
+      if (err instanceof InvalidPlaceTypeError) {
+        summary.skippedInvalidType++;
+        continue;
+      }
+      throw err;
+    }
 
     if (candidate.confidence_score < NEEDS_REVIEW_THRESHOLD) {
       candidate.needs_review = true;

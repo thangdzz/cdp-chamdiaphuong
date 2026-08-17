@@ -1,4 +1,5 @@
 import { formatPriceText } from "./priceFormat.js";
+import { assertValidPlaceType } from "./placeTypes.js";
 
 // Đọc dữ liệu địa điểm từ 1 <form> (dùng chung cho "Đang công khai", "Chờ duyệt" thủ công,
 // và "Hàng chờ duyệt tự động" — cả 3 nơi đều sửa/nhập theo đúng field này).
@@ -16,7 +17,7 @@ export function placeFromFormData(formData) {
 
   return {
     name: (formData.get("name") ?? "").toString().trim(),
-    type: formData.get("type") === "an" ? "an" : "ngu",
+    type: assertValidPlaceType(formData.get("type")?.toString()),
     address: (formData.get("address") ?? "").toString().trim(),
     ward: toTextOrNull(formData.get("ward")?.toString()),
     // Tên khu dân cư/khu vực theo cách gọi của người địa phương (VD "Khu 80 gian", "Khu

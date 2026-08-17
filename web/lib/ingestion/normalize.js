@@ -1,4 +1,5 @@
 import { AREA_PRESETS, ACTIVITY_STATUS, AVAILABILITY_SIGNAL, SOURCE_WEIGHT } from "./schema.js";
+import { assertValidPlaceType } from "../placeTypes.js";
 
 export function stripDiacritics(text) {
   return text
@@ -67,7 +68,7 @@ export function normalizeRecord(raw, sourceMeta) {
   return {
     name,
     normalized_name: slugifyName(name),
-    category_primary: raw.category_primary === "an" ? "an" : "ngu",
+    category_primary: assertValidPlaceType(raw.category_primary),
     address_text: addressText,
     area_preset: detectAreaPreset(addressText),
     near_landmark: raw.near_landmark?.trim() || null,

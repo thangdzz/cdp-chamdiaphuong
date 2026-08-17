@@ -56,7 +56,7 @@ export const SOURCE_WEIGHT = {
  * @typedef {Object} NormalizedPlace
  * @property {string} name
  * @property {string} normalized_name
- * @property {"an"|"ngu"} category_primary
+ * @property {"an"|"choi"|"ngu"|"dilai"} category_primary
  * @property {string|null} address_text
  * @property {string|null} area_preset
  * @property {string|null} near_landmark

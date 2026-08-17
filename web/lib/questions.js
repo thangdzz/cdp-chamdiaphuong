@@ -1,5 +1,6 @@
 // Bộ câu hỏi bấm chọn (Chặng 2) — SPEC-chang-2.md §2. Thêm/bớt câu hoặc thêm loại địa điểm
-// mới (Chặng 3: "choi"/"di-lai") chỉ sửa file này, không rải if/else nơi khác.
+// mới (Chặng 3: "choi"/"dilai", xem lib/placeTypes.js) chỉ sửa file này, không rải if/else
+// nơi khác.
 
 export const QUESTIONS = [
   // --- Dùng chung mọi loại (§2.1) ---
@@ -172,6 +173,122 @@ export const QUESTIONS = [
       { value: "zalo", label: "Zalo" },
       { value: "facebook", label: "Facebook" },
       { value: "walkin", label: "Đến thẳng" },
+    ],
+  },
+
+  // --- Riêng "Chơi" (SPEC-chang-3.md §4.1) ---
+  {
+    id: "ticket",
+    scope: "choi",
+    icon: "🎫",
+    label: "Vé",
+    text: "Có mất phí không?",
+    multi: false,
+    options: [
+      { value: "free", label: "Miễn phí" },
+      { value: "paid", label: "Có vé" },
+      { value: "paid_service", label: "Miễn phí vào, trả tiền dịch vụ" },
+    ],
+  },
+  {
+    id: "best_time",
+    scope: "choi",
+    icon: "🕐",
+    label: "Lúc đẹp nhất",
+    text: "Lúc nào đi đẹp nhất?",
+    multi: true,
+    options: [
+      { value: "morning", label: "Sáng sớm" },
+      { value: "afternoon", label: "Chiều" },
+      { value: "sunset", label: "Hoàng hôn" },
+      { value: "evening", label: "Tối" },
+      { value: "festival", label: "Dịp lễ hội" },
+    ],
+  },
+  {
+    id: "suitable_for",
+    scope: "choi",
+    icon: "👥",
+    label: "Hợp với ai",
+    text: "Hợp với ai?",
+    multi: true,
+    options: [
+      { value: "family", label: "Gia đình có trẻ" },
+      { value: "couple", label: "Cặp đôi" },
+      { value: "group", label: "Nhóm bạn" },
+      { value: "photo", label: "Chụp ảnh" },
+      { value: "elderly", label: "Người lớn tuổi" },
+    ],
+  },
+  {
+    id: "facilities",
+    scope: "choi",
+    icon: "✨",
+    label: "Có gì ở đó",
+    text: "Có gì ở đó?",
+    multi: true,
+    options: [
+      { value: "toilet", label: "Nhà vệ sinh" },
+      { value: "shade", label: "Chỗ ngồi có mái" },
+      { value: "food_nearby", label: "Hàng ăn gần đó" },
+      { value: "wheelchair", label: "Lối cho xe lăn" },
+    ],
+  },
+
+  // --- Riêng "Đi lại" (SPEC-chang-3.md §4.2) ---
+  {
+    id: "transport_kind",
+    scope: "dilai",
+    icon: "🚌",
+    label: "Loại hình",
+    text: "Đây là chỗ gì?",
+    multi: false,
+    options: [
+      { value: "bus_station", label: "Bến xe" },
+      { value: "rental", label: "Thuê xe" },
+      { value: "taxi", label: "Điểm taxi/xe ôm" },
+      { value: "parking", label: "Bãi gửi xe" },
+    ],
+  },
+  {
+    id: "price_style",
+    scope: "dilai",
+    icon: "💳",
+    label: "Giá",
+    text: "Giá thế nào?",
+    multi: false,
+    options: [
+      { value: "fixed", label: "Niêm yết rõ" },
+      { value: "negotiate", label: "Phải hỏi/trả giá" },
+      { value: "meter", label: "Theo đồng hồ" },
+    ],
+  },
+  {
+    id: "available_when",
+    scope: "dilai",
+    icon: "🕐",
+    label: "Lúc nào có xe",
+    text: "Lúc nào có xe?",
+    multi: true,
+    options: [
+      { value: "early", label: "Sáng sớm" },
+      { value: "daytime", label: "Ban ngày" },
+      { value: "evening", label: "Tối" },
+      { value: "late", label: "Khuya" },
+      { value: "always", label: "Cả ngày" },
+    ],
+  },
+  {
+    id: "festival_note",
+    scope: "dilai",
+    icon: "🎉",
+    label: "Dịp lễ hội",
+    text: "Dịp lễ hội thì sao?",
+    multi: false,
+    options: [
+      { value: "normal", label: "Bình thường" },
+      { value: "crowded", label: "Rất đông, nên đến sớm" },
+      { value: "blocked", label: "Bị chặn/đổi lộ trình" },
     ],
   },
 ];

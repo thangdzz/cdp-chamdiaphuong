@@ -6,15 +6,17 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1 (nút "Hôm nay vẫn mở") và Chặng 2 (câu hỏi bấm chọn + đồng thuận) đã code xong**
-(local, chưa deploy) — xem chi tiết ở mục 2026-08-15 bên dưới.
+**Chặng 1, 2, 3 đã code xong.** Chặng 1–2 đã lên web thật (`vercel --prod`, xem nhắc nhở ở
+mục "Quy trình hằng ngày" — push GitHub KHÔNG tự deploy). **Chặng 3 mới code xong, chưa
+push/deploy** — xem chi tiết ở mục 2026-08-15 (mới nhất) bên dưới, kèm danh sách anh cần
+bấm thử.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
-[ROADMAP.md](ROADMAP.md). Chặng 3–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
+[ROADMAP.md](ROADMAP.md). Chặng 4–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
 và sửa trước khi code.
 
-Bước tiếp theo: anh bấm thử Chặng 2 trên máy (chưa deploy, xem ghi chú bên dưới), rồi quyết
-có làm Chặng 3 không.
+Bước tiếp theo: anh bấm thử Chặng 3 theo danh sách cuối tin nhắn/mục 2026-08-15 (mới nhất),
+quyết có deploy lên web thật không, rồi quyết có làm Chặng 4 không.
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
 hoàn toàn từ 2026-08-04, auto-publish) + card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy
@@ -112,7 +114,52 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-15 (mới nhất) — Code xong Chặng 2: câu hỏi bấm chọn + đồng thuận
+### 2026-08-15 (mới nhất) — Code xong Chặng 3: thêm "Chơi" và "Đi lại"
+
+Đọc `CLAUDE.md` → `ARCHITECTURE.md` → `SPEC-chang-3.md`. SPEC đã đủ chi tiết (liệt kê sẵn cả
+6 file + số dòng cần sửa), nên làm luôn không cần vòng chốt câu hỏi mở như Chặng 1.
+
+**Đã làm:**
+- File mới: `lib/placeTypes.js` — nguồn duy nhất cho 4 loại (`an`/`choi`/`ngu`/`dilai`),
+  `assertValidPlaceType()` **ném lỗi rõ ràng** thay vì âm thầm quy về `"ngu"` như code cũ
+  (đúng cảnh báo nguy hiểm nhất trong SPEC §2).
+- Sửa đúng 6 file SPEC liệt kê (`placeForm.js`, `normalize.js`, `schema.js`, `occupancy.js`
+  gián tiếp qua cách gọi, `admin/page.js` × 3 form, `PlaceExplorer.js` × 3 chỗ) + 1 file phát
+  sinh khi rà lại không có trong danh sách gốc: `TYPE_LABEL` trong `PlaceExplorer.js` (nếu bỏ
+  sót, thẻ Chơi/Đi lại sẽ hiện nhãn loại rỗng).
+- Thêm vào `lib/questions.js`: 4 câu cho Chơi, 4 câu cho Đi lại (dùng chung 4 câu cũ) — sửa
+  luôn 1 chỗ đặt tên lệch giữa comment cũ (`"di-lai"` có gạch ngang) và giá trị thật dùng
+  (`"dilai"` không gạch ngang) để khỏi nhầm sau này.
+- Nhãn "còn chỗ" giờ **chỉ hiện cho Ăn/Ngủ** (SPEC §5) — Chơi/Đi lại không hiện nhãn này
+  nhưng vẫn có nút "Hôm nay vẫn mở" (áp dụng cả 4 loại, không đổi).
+- **1 lỗ hổng thật phát hiện khi tự kiểm thử:** nếu chỉ ném lỗi ở `normalize.js` mà không xử
+  lý gì thêm, **1 bản ghi loại sai trong báo cáo routine sẽ làm hỏng cả lô quét hằng ngày**
+  (routine gửi ~9 chỗ/lần, tất cả sẽ bị chặn vì 1 chỗ hỏng). Sửa: `ingestBatch.js` bắt riêng
+  lỗi này, bỏ qua đúng bản ghi hỏng, các chỗ khác trong lô vẫn lên web bình thường (đếm ở
+  `summary.skippedInvalidType`).
+- Kiểm thử: script gọi thẳng `placeFromFormData` (từ chối type sai) + `ingestBatch` (lô 3 bản
+  ghi, 1 sai loại → đúng 2 lên web, 1 bị bỏ qua, không hỏng lô) + Playwright cho giao diện
+  thật (4 nút lọc đúng thứ tự Ăn·Chơi·Ngủ·Đi lại, chỗ Chơi test lọc đúng nhóm, không hiện
+  nhãn còn chỗ, vẫn có nút checkin, câu hỏi hiện ra đúng bộ của Chơi không lẫn Ăn/Ngủ). Dữ
+  liệu test (kể cả 1 chỗ giả thêm tạm vào `places:live` thật để test giao diện) đã dọn sạch
+  ngay sau khi xong.
+- `npm run build` qua trót lọt, lint sạch (trừ 1 lỗi có sẵn từ trước, không liên quan).
+
+**Chưa làm — 2 việc trong SPEC §6, cần anh quyết trước khi làm tiếp:**
+1. **Mở rộng routine quét hằng ngày sang Chơi/Đi lại** — routine hiện chỉ tìm Ăn/Ngủ, cần
+   sửa lệnh (prompt) của routine trên claude.ai. Đây là việc động vào lịch chạy tự động đang
+   sống, nên chưa tự làm — cần anh xác nhận trước.
+2. **`AREA_PRESETS` trong `schema.js`** (SPEC §6.2) — mới có 5 phường, có `"Hà Giang 1"` lạc
+   chỗ. Cần đúng tên phường thật của TP Tuyên Quang (cũ) để sửa đúng — em không có dữ liệu
+   này, cần anh cung cấp hoặc xác nhận.
+
+**Chưa deploy lên web thật** — code mới có ở máy + sắp push GitHub, **chưa chạy `vercel
+--prod`**.
+
+**Bước tiếp theo hợp lý nhất:** anh xem danh sách bấm thử bên dưới (tin nhắn cuối), quyết có
+deploy không, rồi quyết 2 việc còn treo ở trên trước khi bàn Chặng 4.
+
+### 2026-08-15 (giữa) — Code xong Chặng 2: câu hỏi bấm chọn + đồng thuận
 
 Chặng nặng nhất tính đến giờ — 3 key Redis mới, tính đồng thuận có trọng số theo tuổi phiếu,
 trả điểm hồi tố. Đọc `CLAUDE.md` → `ARCHITECTURE.md` → `SPEC-chang-2.md`, trình kế hoạch rồi

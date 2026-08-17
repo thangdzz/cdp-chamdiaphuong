@@ -5,6 +5,7 @@ import { formatPriceText, parsePriceRangeText } from "@/lib/priceFormat";
 import { getReviewQueue } from "@/lib/ingestion/store";
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { getSuggestions } from "@/lib/suggestions";
+import { PLACE_TYPES } from "@/lib/placeTypes";
 import {
   login,
   logout,
@@ -104,8 +105,11 @@ function PlaceForm({ place, children }) {
             defaultValue={place.type}
             className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
           >
-            <option value="ngu">Ngủ</option>
-            <option value="an">Ăn</option>
+            {PLACE_TYPES.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
           </select>
         </label>
         <Field label="Địa chỉ" name="address" defaultValue={place.address} />
@@ -161,8 +165,11 @@ function ReviewItemCard({ item }) {
                 defaultValue={editable.type}
                 className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
               >
-                <option value="ngu">Ngủ</option>
-                <option value="an">Ăn</option>
+                {PLACE_TYPES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
+                ))}
               </select>
             </label>
             <Field label="Địa chỉ" name="address" defaultValue={editable.address} />
@@ -319,11 +326,14 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions }) {
               Loại hình
               <select
                 name="type"
-                defaultValue="ngu"
+                defaultValue={PLACE_TYPES[0].id}
                 className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
               >
-                <option value="ngu">Ngủ</option>
-                <option value="an">Ăn</option>
+                {PLACE_TYPES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
+                ))}
               </select>
             </label>
             <Field label="Địa chỉ" name="address" />
