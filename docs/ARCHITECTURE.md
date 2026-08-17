@@ -28,10 +28,12 @@ viết code Next.js.**
 
 ---
 
-## 2. Kho dữ liệu — 14 key Redis
+## 2. Kho dữ liệu — 18 key Redis
 
-Tất cả đều là **một key = một mảng JSON**, **trừ `place_checkins:latest`** (Chặng 1) và
-3 key của Chặng 2 (xem bên dưới) — dùng hash/string thay vì mảng.
+Tất cả đều là **một key = một mảng JSON**, **trừ `place_checkins:latest`** (Chặng 1), 3 key
+của Chặng 2, và 4 key của Chặng 4 (xem bên dưới) — dùng hash/set/string thay vì mảng.
+`notebook:{slug}` là ngoại lệ trong ngoại lệ: bản thân nó VẪN là 1 key = 1 JSON đầy đủ (như
+quy ước gốc), chỉ khác là có **nhiều key cùng dạng** (1 sổ = 1 key riêng) thay vì gộp chung.
 
 ### Dữ liệu địa điểm (`lib/redis.js`)
 
@@ -103,6 +105,34 @@ khi có phiếu thứ hai trùng. Cộng điểm hồi tố: khi đồng thuận
 trùng đáp án thắng, phiếu nào chưa `awarded` thì cộng và đánh dấu — người bấm đầu tiên được
 cộng đúng lúc người thứ hai bấm trùng, không phải lúc họ tự bấm.
 
+### Sổ chia sẻ được (Chặng 4, `lib/notebooks.js`)
+
+| Key | Kiểu | Chứa gì |
+|---|---|---|
+| `notebook:{slug}` | **1 key = 1 sổ, JSON đầy đủ** | `{slug, title, ownerAnonId, items: [{placeId, nameSnapshot, note}], copiedFrom, createdAt, updatedAt}`. Chỉ ĐÚNG 1 người ghi (chủ sổ) nên đọc-sửa-ghi cả JSON an toàn — khác Chặng 1-2 (nhiều người lạ ghi cùng lúc) |
+| `notebooks:by-owner:{anonId}` | **Set** (`SADD`/`SMEMBERS`, không phải mảng) | Danh sách slug của 1 người. Dùng lệnh nguyên tử dù chỉ 1 người ghi — để 2 tab của cùng người đó tạo sổ gần như đồng thời không đè mất lượt của nhau |
+| `notebook:stats` | **Hash**, field `{slug}:views` / `{slug}:copies` | `HINCRBY` khi có người mở/lưu sổ — không đọc-sửa-ghi cả JSON sổ mỗi lượt xem (SPEC §7) |
+| `notebook:count:total` | String (số đếm) | Tổng số sổ đã tạo — `INCR` mỗi lần tạo sổ mới, đọc trong `/admin` |
+
+**`items[].nameSnapshot`** — chép tên chỗ lúc thêm vào sổ, CHỈ dùng khi chỗ đã bị xoá khỏi
+`places:live` (khách vẫn thấy tên, không phải dòng trống kèm ghi chú vô nghĩa). Mọi lúc khác
+luôn lấy tên MỚI NHẤT từ `places:live` — chỗ đổi giá/địa chỉ thì sổ tự cập nhật theo, không
+sao chép dữ liệu chỗ vào sổ (SPEC-chang-4.md §4.3, sửa 1 lần sau khi phát hiện SPEC gốc thiếu
+chỗ lưu tên — xem lịch sử SPEC-chang-4.md).
+
+**Đếm lượt xem KHÔNG chạy lúc server render trang** — `app/so/[slug]/page.js` là Server
+Component (để `generateMetadata`/Open Graph chạy được cho người lạ mở link lần đầu), nhưng
+việc gọi `HINCRBY` tăng view lại nằm ở `NotebookViewTracker.js` (Client Component, chạy sau
+khi trang tải xong ở trình duyệt). Lý do: bot quét link tạo preview (Zalo, Facebook...) chỉ
+đọc HTML `<head>`, không chạy JavaScript — nếu đếm ngay lúc server render thì mỗi lần ai đó
+dán link vào Zalo sẽ bị tính nhầm thành 1 "lượt mở" thật, làm sai đúng con số quan trọng nhất
+của Chặng 4 (§7: đo lường vòng lan truyền).
+
+**Trang `/so`, `/so/{slug}/sua` là Client Component** (không phải Server Component) — cả 2
+cần biết "tôi là ai" (`anonId` trong localStorage) ngay từ đầu để lấy đúng dữ liệu, mà Server
+Component không đọc được localStorage. `getNotebookForEdit()` tự kiểm tra đúng chủ sổ ở
+server (so `anonId` gửi lên với `ownerAnonId` lưu trong sổ) — không tin giao diện chặn hộ.
+
 ### Hình dạng một chỗ trong `places:live`
 
 Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.js`:
@@ -154,10 +184,27 @@ web/
 │   ├── BadgeIcon.js        (136)  SVG huy hiệu theo bậc
 │   ├── layout.js            (29)
 │   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh)
+│   ├── AddToNotebook.js   (156)  Chặng 4: nút "+ Thêm vào sổ" trên thẻ — chưa có sổ nào thì
+│   │                              tự tạo luôn, có rồi thì hiện menu chọn
+│   ├── NotebookOwnerActions.js(59) Chặng 4: đáy trang xem sổ — "Lưu sổ này thành sổ của tôi"
+│   ├── NotebookViewTracker.js(19) Chặng 4: không render gì, chỉ báo lượt xem thật (client,
+│   │                              né bot Zalo/Facebook quét link — xem §2)
+│   ├── notebookActions.js  (106)  Server Action cho cả cụm sổ — gọi lib/notebooks.js
+│   ├── so/
+│   │   ├── page.js          (70)  Chặng 4: "Sổ của tôi" — Client Component (cần anonId
+│   │   │                          ngay từ đầu, Server Component không đọc được localStorage)
+│   │   ├── [slug]/
+│   │   │   ├── page.js     (117)  Chặng 4: trang xem sổ — Server Component thật (để
+│   │   │   │                      generateMetadata/Open Graph chạy được), phải mở được
+│   │   │   │                      không cần đăng nhập, không cần localStorage
+│   │   │   └── sua/page.js (251)  Chặng 4: trang sửa sổ — Client Component, tự kiểm tra
+│   │   │                          đúng chủ sổ qua Server Action, không phải chủ thì điều
+│   │   │                          hướng về trang xem
 │   ├── admin/
-│   │   ├── page.js         (469)  ⭐ Trang duyệt: đăng nhập, sửa live, duyệt hàng chờ,
+│   │   ├── page.js         (497)  ⭐ Trang duyệt: đăng nhập, sửa live, duyệt hàng chờ,
 │   │   │                          duyệt góp ý khách, dán báo cáo routine. 3 form chọn
-│   │   │                          loại đọc từ lib/placeTypes.js (Chặng 3)
+│   │   │                          loại đọc từ lib/placeTypes.js (Chặng 3); mục thống kê
+│   │   │                          sổ chia sẻ (Chặng 4)
 │   │   ├── actions.js      (129)  Server Action: đăng nhập/xuất, sửa/xoá/thêm chỗ (xoá
 │   │   │                          chỗ cũng dọn field trong place_checkins:latest và
 │   │   │                          place_answers:consensus/votes)
@@ -178,11 +225,21 @@ web/
 │   │                              trần điểm/ngày — 3 lệnh Redis nguyên tử, không đọc-
 │   │                              sửa-ghi cả mảng (xem §2)
 │   ├── questions.js        (302)  Chặng 2 + 3: định nghĩa bộ câu hỏi (19 câu, đủ 4 loại)
-│   ├── answers.js          (228)  ⭐ Chặng 2: ghi phiếu, tính đồng thuận (trọng số theo
-│   │                              tuổi), thưởng điểm hồi tố, chọn câu để hỏi — file lõi
-│   │                              nặng nhất của Chặng 2
+│   ├── answers.js          (239)  ⭐ Chặng 2: ghi phiếu, tính đồng thuận (trọng số theo
+│   │                              tuổi), thưởng điểm hồi tố, chọn câu để hỏi. Ô gõ điều
+│   │                              kiện áp lib/textFilter.js (vá thiếu sót Chặng 2, làm ở
+│   │                              Chặng 4) — file lõi nặng nhất của Chặng 2
 │   ├── pointsCap.js         (27)  Trần CHUNG 30 điểm/ngày, dùng chung mọi nguồn điểm kể
 │   │                              cả checkin (Chặng 1) — không thay thế trần riêng từng nơi
+│   ├── notebooks.js        (215)  ⭐ Chặng 4: tạo/sửa sổ, sinh slug 8 ký tự (SET NX chống
+│   │                              trùng), tra places:live 1 lần rồi ghép vào items, đếm
+│   │                              view/copy — file lõi nặng nhất của Chặng 4
+│   ├── textFilter.js        (15)  Chặn link/số điện thoại trong ô gõ ngắn — dùng chung
+│   │                              cho ghi chú trong sổ (Chặng 4) và ô gõ điều kiện của
+│   │                              câu hỏi bấm chọn (Chặng 2)
+│   ├── mapsUrl.js            (4)  Link "Chỉ đường" ra Google Maps — tách khỏi
+│   │                              PlaceExplorer.js để trang sổ (Server Component) dùng
+│   │                              chung, không import từ file "use client"
 │   ├── placeForm.js         (33)  Đọc dữ liệu chỗ từ <form> — dùng chung cả 3 nơi nhập.
 │   │                              type ném lỗi qua assertValidPlaceType (Chặng 3)
 │   ├── priceFormat.js       (35)  Định dạng/tách giá

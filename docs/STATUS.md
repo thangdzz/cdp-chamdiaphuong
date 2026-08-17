@@ -6,17 +6,18 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1, 2, 3 đã code xong.** Chặng 1–2 đã lên web thật (`vercel --prod`, xem nhắc nhở ở
-mục "Quy trình hằng ngày" — push GitHub KHÔNG tự deploy). **Chặng 3 mới code xong, chưa
-push/deploy** — xem chi tiết ở mục 2026-08-17 bên dưới, kèm danh sách anh cần
-bấm thử.
+**Chặng 1, 2, 3 đã code xong VÀ đã lên web thật** (`vercel --prod` — nhắc lại: push GitHub
+KHÔNG tự deploy, luôn cần chạy lệnh này sau khi push). **Chặng 4 (sổ chia sẻ được — chặng
+quan trọng nhất) vừa code xong, chưa push/deploy** — xem chi tiết ở mục 2026-08-17 (mới nhất)
+bên dưới, kèm danh sách anh cần bấm thử.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
-[ROADMAP.md](ROADMAP.md). Chặng 4–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
+[ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
 và sửa trước khi code.
 
-Bước tiếp theo: anh bấm thử Chặng 3 theo danh sách cuối tin nhắn/mục 2026-08-17,
-quyết có deploy lên web thật không, rồi quyết có làm Chặng 4 không.
+Bước tiếp theo: anh bấm thử Chặng 4 theo danh sách cuối tin nhắn, quyết có deploy lên web
+thật không. **Nhắc mốc:** Chặng 4 nên xong trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số
+liệu, không code (xem SPEC-chang-4.md §7).
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
 hoàn toàn từ 2026-08-04, auto-publish) + card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy
@@ -66,6 +67,16 @@ nhật + đẩy lên GitHub thủ công, không tự làm mới theo thời gian
 câu để làm mới file này, không cần mỗi ngày — không làm cũng không sao, chỉ là routine có
 thể tốn thêm chút công tìm kiếm không cần thiết.
 
+## Việc đang chờ bàn ở Cowork (chưa code)
+- **Tài khoản / đăng nhập (Chặng 7)** — anh muốn bàn kỹ ở Cowork **sau khi xong Chặng 4**,
+  trước khi code. Ba việc cần chốt: chọn kênh gửi OTP (Zalo ZNS / SMS brandname / email —
+  chỗ duy nhất trong dự án phải trả tiền cho bên thứ ba) · có nên đăng nhập bằng Zalo thay
+  vì OTP không · gộp thế nào với hồ sơ ẩn danh đang chạy. Xem
+  [SPEC-chang-7.md](SPEC-chang-7.md).
+- **Nhãn "còn chỗ" theo lịch** — ngày lễ hội 2026 viết cứng trong `app/occupancy.js`, sang
+  năm là sai. Chặng 3 đã thu hẹp phạm vi (chỉ Ăn + Ngủ) nhưng chưa giải quyết. Cần quyết
+  trước mùa lễ hội 2027: bỏ hẳn hay làm lại theo dữ liệu thật.
+
 ## Cập nhật gần nhất
 
 ### 2026-08-11 — Chốt hướng đi mới "cuốn sổ địa phương" (bàn thiết kế, chưa code)
@@ -113,6 +124,54 @@ code làm bên Antigravity.
 
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
+
+### 2026-08-17 (mới nhất) — Code xong Chặng 4: sổ chia sẻ được ⭐
+
+Chặng quan trọng nhất của cả hướng đi mới, và lớn nhất tính đến giờ (9 file mới, 4 route
+trang). Trình kế hoạch trước — anh sửa 1 chỗ: SPEC gốc (§4.3) nói "giữ lại tên" khi chỗ bị
+xoá nhưng khuôn dữ liệu (§4.1) không có chỗ lưu tên — anh tự nhận SPEC sai, sửa thêm
+`nameSnapshot` vào từng item (chép tên lúc thêm vào sổ, chỉ dùng khi chỗ đã bị xoá).
+
+**Đã làm:**
+- File mới: `lib/notebooks.js` (tạo/sửa sổ, sinh slug, tra `places:live` 1 lần rồi ghép vào
+  items, đếm view/copy), `lib/textFilter.js` (chặn link/SĐT, dùng chung), `lib/mapsUrl.js`
+  (tách khỏi `PlaceExplorer.js` để trang sổ dùng chung), `app/notebookActions.js`,
+  `app/AddToNotebook.js` (nút "+ Thêm vào sổ"), `app/NotebookOwnerActions.js` ("Lưu sổ này
+  thành sổ của tôi"), `app/NotebookViewTracker.js` (đếm lượt mở), `app/so/page.js` (danh
+  sách sổ của tôi), `app/so/[slug]/page.js` (xem sổ — Server Component thật, có Open Graph),
+  `app/so/[slug]/sua/page.js` (sửa sổ).
+- Sửa: `PlaceExplorer.js` (chèn nút), `admin/page.js` (3 số thống kê: sổ đã tạo/lượt mở/lượt
+  được lưu lại), `lib/answers.js` (áp `textFilter` — vá thiếu sót Chặng 2, xem
+  [SPEC-chang-2.md](SPEC-chang-2.md) mục cập nhật 2026-08-17).
+- **Quyết định kiến trúc quan trọng:** trang xem sổ (`/so/{slug}`) là Server Component thật
+  (không phải Client) để Open Graph chạy được cho người lạ mở link lần đầu; trang `/so` và
+  `/so/{slug}/sua` là Client Component vì cần `anonId` từ localStorage ngay từ đầu. Đếm lượt
+  mở chạy ở trình duyệt (không phải lúc server render) để không tính nhầm bot Zalo/Facebook
+  quét link tạo preview thành "lượt mở" thật — đúng con số quan trọng nhất của chặng này
+  (SPEC §7).
+- **Vá luôn 1 lỗ hổng phát hiện được:** Chặng 2 (§2.4) yêu cầu chặn link/SĐT trong ô gõ điều
+  kiện nhưng code cũ không làm — gom vào `lib/textFilter.js` dùng chung cho cả 2 nơi.
+- Kiểm thử: Playwright cho luồng chính (thêm chỗ đầu tiên tự tạo sổ không hỏi gì → thêm chỗ
+  thứ 2 thấy menu chọn sổ có sẵn → mở link bằng trình duyệt hoàn toàn mới không có
+  localStorage, xác nhận xem được đầy đủ + có thẻ Open Graph → "Lưu sổ này thành sổ của tôi"
+  → sửa sổ: đổi tên, ghi chú, chặn ghi chú chứa SĐT, đổi thứ tự, bỏ chỗ khỏi sổ) + script gọi
+  thẳng `lib/notebooks.js` cho các giới hạn (chỗ bị xoá vẫn hiện tên nhờ nameSnapshot, chặn
+  đúng ở chỗ thứ 31/sổ, chặn đúng ở sổ thứ 11/người). Phát hiện 1 điều cần lưu ý khi test
+  (không phải lỗi ứng dụng): tạo sổ mất ~2.5s thật (nhiều lệnh Redis tuần tự: tạo hồ sơ → tạo
+  sổ → thêm chỗ) — kịch bản test ban đầu chờ chưa đủ lâu nên báo nhầm là lỗi, sau kiểm tra kỹ
+  qua log server thì đúng vẫn chạy thành công.
+- Dữ liệu test đã dọn sạch khỏi Redis thật (kể cả hồ sơ ẩn danh tạo ra trong lúc test).
+- `npm run build` qua trót lọt, lint sạch hoàn toàn (không còn cả lỗi có sẵn từ trước).
+
+**Chưa deploy lên web thật.**
+
+**Ngoài phạm vi Chặng 4 (theo đúng SPEC §11, chưa làm):** sổ nhiều người cùng sửa, sổ công
+khai/xếp hạng/tìm kiếm (không bao giờ làm), bình luận trong sổ (không bao giờ làm), in
+PDF/xuất ảnh, sắp xếp theo bản đồ, điểm thưởng cho việc tạo sổ.
+
+**Bước tiếp theo hợp lý nhất:** anh bấm thử trên web thật (sau khi deploy), theo dõi 3 con số
+đo lường trong `/admin` trong tuần lễ hội 19–25/09 — đó là thứ quyết định Chặng 5–8 có đáng
+làm không (SPEC-chang-4.md §7).
 
 ### 2026-08-17 — Code xong Chặng 3: thêm "Chơi" và "Đi lại"
 

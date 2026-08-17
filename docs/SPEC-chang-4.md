@@ -96,8 +96,12 @@ Liệt kê sổ đã tạo/đã lưu. Không có sổ nào → hiện hướng d
   title: "Ăn ngủ ở Tuyên Quang dịp Trung Thu",
   ownerAnonId: "c-<uuid>",
   items: [
-    { placeId: "live-<uuid>", note: "Sáng đi sớm, 7h là hết bàn" },
-    { placeId: "live-<uuid>", note: null }
+    // nameSnapshot: chép tên lúc thêm vào sổ. CHỈ dùng để hiện khi chỗ đã bị xoá khỏi
+    // places:live — mọi lúc khác luôn lấy tên mới nhất từ places:live. Không có trường
+    // này thì chỗ biến mất sẽ hiện dòng trống, ghi chú của người ta thành vô nghĩa.
+    { placeId: "live-<uuid>", nameSnapshot: "Phở Vinh Tuyên Quang",
+      note: "Sáng đi sớm, 7h là hết bàn" },
+    { placeId: "live-<uuid>", nameSnapshot: "Khách sạn Mường Thanh", note: null }
   ],
   copiedFrom: null,
   createdAt: "2026-09-01T...",
@@ -121,9 +125,12 @@ mật duy nhất của sổ.
 **Không sao chép dữ liệu địa điểm vào sổ.** Lúc hiện trang sổ mới tra sang `places:live`.
 Như vậy chỗ đổi giá/địa chỉ thì sổ tự cập nhật theo.
 
-Chỗ đã bị xoá khỏi `places:live` → hiện mờ kèm chữ *"Chỗ này không còn trong danh bạ"*, giữ
-lại tên và ghi chú của người tạo sổ. **Không tự xoá khỏi sổ** — ghi chú của người ta vẫn có
-giá trị.
+Chỗ đã bị xoá khỏi `places:live` → hiện mờ kèm chữ *"Chỗ này không còn trong danh bạ"*, dùng
+`nameSnapshot` để vẫn hiện được tên, và giữ nguyên ghi chú của người tạo sổ. **Không tự xoá
+khỏi sổ** — ghi chú của người ta vẫn có giá trị.
+
+> Đây là lý do phải có `nameSnapshot`: không có nó, khách nhìn thấy một dòng trống kèm ghi
+> chú *"Sáng đi sớm, 7h là hết bàn"* mà không biết nói về quán nào.
 
 ### 4.4 Ghi chú trong sổ
 

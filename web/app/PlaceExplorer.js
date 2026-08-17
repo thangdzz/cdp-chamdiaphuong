@@ -8,6 +8,8 @@ import { QuestionPrompt } from "./QuestionPrompt";
 import { PlaceFacts } from "./PlaceFacts";
 import { stripDiacritics } from "@/lib/ingestion/normalize";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { mapsUrl } from "@/lib/mapsUrl";
+import { AddToNotebook } from "./AddToNotebook";
 
 const TYPE_LABEL = Object.fromEntries(PLACE_TYPES.map((t) => [t.id, t.label]));
 
@@ -22,13 +24,6 @@ const PRICE_BUCKETS = [
   { id: "500k-1tr", label: "500.000 – 1.000.000đ", min: 500000, max: 1000000 },
   { id: "tren-1tr", label: "Trên 1.000.000đ", min: 1000000, max: Infinity },
 ];
-
-function mapsUrl(place) {
-  const query = `${place.name}, ${place.address}`;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    query
-  )}`;
-}
 
 // Rút gọn địa chỉ về "số nhà + tên đường" cho thẻ gọn — bỏ phần phường/thành phố (đã có
 // mục "Khu vực" riêng). "Địa chỉ đầy đủ" lúc bung thẻ vẫn giữ nguyên chuỗi gốc.
@@ -358,6 +353,7 @@ function PlaceCard({ place }) {
 
           <QuestionPrompt place={place} />
           <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
+          <AddToNotebook place={place} />
           <ContributionPanel place={place} />
         </div>
       )}

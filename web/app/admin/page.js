@@ -6,6 +6,7 @@ import { getReviewQueue } from "@/lib/ingestion/store";
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { getSuggestions } from "@/lib/suggestions";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { getAdminNotebookStats } from "@/lib/notebooks";
 import {
   login,
   logout,
@@ -302,7 +303,7 @@ function SuggestionCard({ item }) {
   );
 }
 
-function AdminDashboard({ live, pending, reviewQueue, suggestions }) {
+function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats }) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="mb-6 flex items-center justify-between">
@@ -314,6 +315,26 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions }) {
           <button className="text-sm text-zinc-500 underline">Đăng xuất</button>
         </form>
       </div>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Sổ chia sẻ (Chặng 4) — đo lường, không hiện cho khách
+        </h2>
+        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-zinc-200 bg-white p-4">
+          <div>
+            <p className="text-2xl font-bold text-zinc-900">{notebookStats.totalNotebooks}</p>
+            <p className="text-xs text-zinc-500">Sổ đã tạo</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-zinc-900">{notebookStats.totalViews}</p>
+            <p className="text-xs text-zinc-500">Lượt mở</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-zinc-900">{notebookStats.totalCopies}</p>
+            <p className="text-xs text-zinc-500">Lượt được lưu lại</p>
+          </div>
+        </div>
+      </section>
 
       <section className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
@@ -455,15 +476,22 @@ export default async function AdminPage({ searchParams }) {
     return <LoginForm hasError={params?.error === "1"} />;
   }
 
-  const [live, pending, allReviewItems, allSuggestions] = await Promise.all([
+  const [live, pending, allReviewItems, allSuggestions, notebookStats] = await Promise.all([
     getLivePlaces(),
     getPendingPlaces(),
     getReviewQueue(),
     getSuggestions(),
+    getAdminNotebookStats(),
   ]);
   const reviewQueue = allReviewItems.filter((i) => i.status === REVIEW_STATUS.PENDING);
   const suggestions = allSuggestions.filter((s) => s.status === "pending");
   return (
-    <AdminDashboard live={live} pending={pending} reviewQueue={reviewQueue} suggestions={suggestions} />
+    <AdminDashboard
+      live={live}
+      pending={pending}
+      reviewQueue={reviewQueue}
+      suggestions={suggestions}
+      notebookStats={notebookStats}
+    />
   );
 }

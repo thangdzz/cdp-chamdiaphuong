@@ -4,6 +4,7 @@
 
 import { redis } from "./redis.js";
 import { getQuestion, getQuestionsForType } from "./questions.js";
+import { containsLinkOrPhone } from "./textFilter.js";
 import { trySpendDailyPoints } from "./pointsCap.js";
 import { addContributorPoints } from "./contributors.js";
 
@@ -173,6 +174,16 @@ export async function submitAnswer({ anonId, placeId, questionId, answer, text }
     ? Array.isArray(answer) && answer.length > 0 && answer.every((a) => validValues.has(a))
     : !Array.isArray(answer) && validValues.has(answer);
   if (!answerValid) return { ok: false };
+
+  // SPEC-chang-2.md §2.4: ô gõ điều kiện (VD "Bãi nào?") áp lớp lọc 1 — chặn link/số điện
+  // thoại + giới hạn ký tự đúng theo option đã chọn (lib/textFilter.js dùng chung với
+  // Chặng 4). Trước đây bị bỏ sót khi code Chặng 2, vá lại ở đây.
+  if (text) {
+    const selectedOption = !question.multi ? question.options.find((o) => o.value === answer) : null;
+    const maxLength = selectedOption?.followUp?.maxLength ?? 0;
+    if (!selectedOption?.followUp || text.length > maxLength) return { ok: false };
+    if (containsLinkOrPhone(text)) return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
+  }
 
   const date = todayStr();
   const cKey = countKey(anonId, placeId, date);

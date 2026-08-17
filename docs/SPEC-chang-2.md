@@ -63,6 +63,13 @@ Chỉ hiện khi lựa chọn cần làm rõ. Đây là **hai ô gõ chữ duy n
 điện thoại, chặn chuỗi vô nghĩa**. Không cần AI đọc, không cần admin duyệt ở Chặng 2 — vì
 nội dung quá ngắn và gắn cứng vào một lựa chọn cụ thể. (Ô gõ tự do đầy đủ là Chặng 5.)
 
+> **Cập nhật 2026-08-17 (làm lúc code Chặng 4):** phần "chặn link, chặn số điện thoại" ở trên
+> **bị bỏ sót khi code Chặng 2** — `submitAnswer` khi đó không kiểm tra nội dung `text`. Phát
+> hiện lại khi Chặng 4 cần đúng lớp lọc này cho ghi chú trong sổ, nên làm 1 hàm dùng chung
+> `lib/textFilter.js` (`containsLinkOrPhone`) và áp cho **cả 2 nơi**: ô gõ điều kiện ở đây
+> (`lib/answers.js`) và ghi chú trong sổ (`lib/notebooks.js`, xem SPEC-chang-4.md §4.4).
+> Lớp lọc "chặn chuỗi vô nghĩa" vẫn CHƯA làm — chỉ có lớp link/số điện thoại.
+
 ### 2.5 Nút "Không rõ"
 
 **Mọi câu hỏi đều phải có.** Bấm "Không rõ":
