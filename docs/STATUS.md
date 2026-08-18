@@ -124,7 +124,17 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-18 (mới nhất) — Đơn giản hoá nút cuối trang xem sổ
+### 2026-08-18 (mới nhất, sau) — Báo rõ khi ghi chú chạm giới hạn 140 ký tự
+
+Anh hỏi kiểm tra giới hạn 140 ký tự của ghi chú trong sổ — kiểm tra kỹ xác nhận **đúng, không
+có lỗi** (chuỗi anh đưa thật ra chỉ 93 ký tự; thử gửi thẳng 200 ký tự vào server thì bị cắt
+đúng còn 140). Nhưng phát hiện 1 chỗ thiếu: HTML tự chặn gõ thêm khi đầy ô, nhưng **không tự
+báo gì** — khách gõ tới đâu đó tự nhiên không gõ thêm được mà không hiểu vì sao. Thêm dòng đỏ
+"Đã đạt giới hạn 140 ký tự." hiện ngay khi chạm giới hạn. Kiểm thử lại bằng Playwright (chưa
+đạt giới hạn không hiện, đạt đúng 140 thì hiện, gõ thêm vẫn giữ nguyên 140 + vẫn hiện cảnh
+báo) + dọn sạch dữ liệu test. Build/lint sạch.
+
+### 2026-08-18 — Đơn giản hoá nút cuối trang xem sổ
 
 Vòng test thứ 3: anh chụp màn hình chỉ ra trang xem sổ luôn hiện **2 nút** ("Lưu sổ này thành
 sổ của tôi" / "Tự tạo sổ của riêng bạn") **bất kể ai xem** — kể cả khi chính chủ sổ tự xem

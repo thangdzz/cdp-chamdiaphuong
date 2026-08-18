@@ -219,6 +219,8 @@ export default function EditNotebookPage({ params }) {
   );
 }
 
+const NOTE_MAX_LENGTH = 140;
+
 function NoteEditor({ placeId, initialNote, onSave }) {
   const [value, setValue] = useState(initialNote ?? "");
   const [savedValue, setSavedValue] = useState(initialNote ?? "");
@@ -250,12 +252,17 @@ function NoteEditor({ placeId, initialNote, onSave }) {
       <input
         className="w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
         placeholder="Ghi chú riêng cho chỗ này (tối đa 140 ký tự)"
-        maxLength={140}
+        maxLength={NOTE_MAX_LENGTH}
         value={value}
         disabled={busy}
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
       />
+      {/* HTML maxLength chỉ lặng lẽ chặn gõ tiếp, không tự báo gì — thêm dòng đỏ để khách
+          biết vì sao gõ không thêm được, thay vì tưởng máy bị đứng. */}
+      {value.length >= NOTE_MAX_LENGTH && (
+        <p className="mt-1 text-xs text-red-600">Đã đạt giới hạn {NOTE_MAX_LENGTH} ký tự.</p>
+      )}
       {busy && <p className="mt-1 text-xs text-zinc-400">Đang lưu...</p>}
       {justSaved && !busy && <p className="mt-1 text-xs text-green-600">✓ Đã lưu</p>}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
