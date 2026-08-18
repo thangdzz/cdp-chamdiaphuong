@@ -211,7 +211,11 @@ web/
 │   │   ├── reviewActions.js(138)  Duyệt/từ chối hàng chờ tự động
 │   │   ├── suggestionActions.js(87) Duyệt góp ý khách + cộng điểm
 │   │   ├── ingestPasteActions.js(50) Xử lý báo cáo routine dán tay
-│   │   └── IngestPasteBox.js (77)
+│   │   ├── IngestPasteBox.js (77)
+│   │   ├── mergeActions.js  (100)  Gộp 2 chỗ trùng lặp — xoá dữ liệu thật, LUÔN cần admin
+│   │   │                          tự bấm xác nhận qua form, không có đường tự động
+│   │   └── MergeDuplicatePanel.js(275) Giao diện so sánh 2 cột + chọn giữ trường nào,
+│   │                              gọi mergeActions.js
 │   └── api/
 │       ├── ingest/submit/route.js    Nhận dữ liệu quét từ ngoài (bảo vệ bằng CRON_SECRET)
 │       └── cron/daily-ingest/route.js Vercel Cron 1:30 UTC (hiện gần như không dùng)
@@ -243,6 +247,9 @@ web/
 │   ├── placeForm.js         (33)  Đọc dữ liệu chỗ từ <form> — dùng chung cả 3 nơi nhập.
 │   │                              type ném lỗi qua assertValidPlaceType (Chặng 3)
 │   ├── priceFormat.js       (35)  Định dạng/tách giá
+│   ├── placeSearch.js       (27)  Dò tên chỗ gần giống trong places:live — dùng cho công
+│   │                              cụ gộp trùng lặp (mergeActions.js), tự viết riêng, không
+│   │                              dùng chung logic với lib/ingestion/match.js (khác dữ liệu)
 │   ├── adminAuth.js         (43)  Mật khẩu admin + cookie phiên ký HMAC (TTL 7 ngày)
 │   ├── badges.js           (167)  10 lĩnh vực × 5 bậc, ngưỡng điểm 0/5/20/50/100
 │   ├── contributors.js     (120)  Hồ sơ ẩn danh, mã khôi phục, cộng điểm

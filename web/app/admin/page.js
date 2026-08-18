@@ -19,6 +19,7 @@ import {
 import { approveReviewItem, rejectReviewItem } from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
 import { IngestPasteBox } from "./IngestPasteBox";
+import { MergeDuplicatePanel } from "./MergeDuplicatePanel";
 
 const SUGGESTION_FIELD_LABEL = {
   address: "Địa chỉ",
@@ -246,8 +247,7 @@ function ReviewItemCard({ item }) {
 
 function SuggestionCard({ item }) {
   return (
-    <form className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
-      <input type="hidden" name="id" value={item.id} />
+    <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
       <div className="flex items-start justify-between gap-2">
         <span className="rounded-full bg-sky-200 px-2 py-0.5 text-xs font-medium text-sky-900">
           {item.type === "photo" ? "Ảnh góp ý" : "Báo sai / đề xuất sửa"}
@@ -271,11 +271,12 @@ function SuggestionCard({ item }) {
               ⚠ Báo là chỗ này đã đóng cửa — duyệt sẽ gỡ khỏi công khai.
             </p>
           ) : item.fields?.duplicateOfName ? (
-            <p className="mt-2 text-sm font-semibold text-amber-700">
-              ⚠ Nghi trùng với &quot;{item.fields.duplicateOfName}&quot; — tự kiểm tra rồi
-              xoá/gộp tay qua mục sửa/xoá chỗ ở trên, duyệt ở đây chỉ để đóng báo cáo + cộng
-              điểm cho người báo.
-            </p>
+            <>
+              <p className="mt-2 text-sm font-semibold text-amber-700">
+                ⚠ Nghi trùng với &quot;{item.fields.duplicateOfName}&quot;
+              </p>
+              <MergeDuplicatePanel suggestion={item} />
+            </>
           ) : (
             <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700">
               {Object.entries(item.fields ?? {}).map(([field, value]) => (
@@ -292,7 +293,8 @@ function SuggestionCard({ item }) {
         </>
       )}
 
-      <div className="mt-3 flex gap-2">
+      <form className="mt-3 flex gap-2">
+        <input type="hidden" name="id" value={item.id} />
         <button
           formAction={approveSuggestion}
           className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
@@ -305,8 +307,8 @@ function SuggestionCard({ item }) {
         >
           Từ chối
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
 

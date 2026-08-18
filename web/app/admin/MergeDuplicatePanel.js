@@ -1,0 +1,275 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { getPlaceById, searchDuplicateCandidates, mergeDuplicatePlaces } from "./mergeActions";
+import { PLACE_TYPES } from "@/lib/placeTypes";
+
+const inputClass = "w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
+
+function MergeField({ label, valueA, valueB, value, onChange }) {
+  return (
+    <div className="mb-2">
+      <p className="text-xs font-medium text-zinc-500">{label}</p>
+      <div className="mb-1 flex flex-wrap gap-1">
+        <button
+          type="button"
+          onClick={() => onChange(valueA ?? "")}
+          className="rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs text-zinc-600"
+        >
+          A: {valueA || "(trống)"}
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange(valueB ?? "")}
+          className="rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs text-zinc-600"
+        >
+          B: {valueB || "(trống)"}
+        </button>
+      </div>
+      <input className={inputClass} value={value} onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+// Công cụ so sánh & gộp 2 chỗ trùng lặp — dành riêng cho báo cáo "duplicateOfName" (khách
+// gõ tên chỗ nghi trùng, chưa chắc khớp đúng chỗ nào trong places:live nên cần bước tìm ở
+// dưới). Xoá dữ liệu thật đã công khai nên LUÔN cần admin tự bấm xác nhận ở bước cuối.
+export function MergeDuplicatePanel({ suggestion }) {
+  const [placeA, setPlaceA] = useState(null);
+  const [step, setStep] = useState("collapsed"); // collapsed | loading | search | compare
+  const [query, setQuery] = useState(suggestion.fields?.duplicateOfName ?? "");
+  const [candidates, setCandidates] = useState([]);
+  const [placeB, setPlaceB] = useState(null);
+  const [keepSide, setKeepSide] = useState("A");
+  const [fields, setFields] = useState(null);
+  const [keepPhotos, setKeepPhotos] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
+
+  function expand() {
+    setStep("loading");
+    getPlaceById(suggestion.placeId).then((p) => {
+      setPlaceA(p);
+      setStep("search");
+    });
+  }
+
+  async function runSearch() {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      const results = await searchDuplicateCandidates({ query, excludePlaceId: suggestion.placeId });
+      setCandidates(results);
+    } finally {
+      setBusy(false);
+      busyRef.current = false;
+    }
+  }
+
+  useEffect(() => {
+    if (step === "search" && query.trim()) runSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  function pickCandidate(place) {
+    setPlaceB(place);
+    setFields({
+      name: placeA.name || place.name || "",
+      type: placeA.type || place.type,
+      address: placeA.address || place.address || "",
+      ward: placeA.ward || place.ward || "",
+      localArea: placeA.localArea || place.localArea || "",
+      phone: placeA.phone || place.phone || "",
+      priceMin: placeA.priceMin ?? place.priceMin ?? "",
+      priceMax: placeA.priceMax ?? place.priceMax ?? "",
+      priceUnit: placeA.priceUnit || place.priceUnit || "",
+    });
+    const allPhotos = [...(placeA.photos ?? []), ...(place.photos ?? [])];
+    setKeepPhotos([...new Set(allPhotos)]);
+    setStep("compare");
+  }
+
+  function setField(key, value) {
+    setFields((f) => ({ ...f, [key]: value }));
+  }
+
+  function togglePhoto(url) {
+    setKeepPhotos((list) => (list.includes(url) ? list.filter((u) => u !== url) : [...list, url]));
+  }
+
+  async function handleSubmit(formData) {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      await mergeDuplicatePlaces(formData);
+    } finally {
+      setBusy(false);
+      busyRef.current = false;
+    }
+  }
+
+  if (step === "collapsed") {
+    return (
+      <button
+        type="button"
+        onClick={expand}
+        className="mt-2 rounded-full border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800"
+      >
+        So sánh &amp; gộp
+      </button>
+    );
+  }
+
+  if (step === "loading") {
+    return <p className="mt-2 text-xs text-zinc-400">Đang tải dữ liệu chỗ bị báo...</p>;
+  }
+
+  if (!placeA) {
+    return (
+      <p className="mt-2 text-xs text-red-600">
+        Không tìm thấy chỗ này trong danh sách đang công khai — có thể đã bị xoá trước đó.
+      </p>
+    );
+  }
+
+  if (step === "search") {
+    return (
+      <div className="mt-2 rounded-xl border border-zinc-200 bg-white p-3">
+        <p className="mb-2 text-xs font-medium text-zinc-600">
+          Tìm chỗ nghi trùng với &quot;{placeA.name}&quot;
+        </p>
+        <div className="flex gap-2">
+          <input
+            className={inputClass}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Gõ tên chỗ để tìm"
+          />
+          <button
+            type="button"
+            onClick={runSearch}
+            disabled={busy}
+            className="shrink-0 rounded-full border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 disabled:opacity-50"
+          >
+            Tìm
+          </button>
+        </div>
+        <div className="mt-2 flex flex-col gap-1.5">
+          {busy && <p className="text-xs text-zinc-400">Đang tìm...</p>}
+          {!busy && candidates.length === 0 && (
+            <p className="text-xs text-zinc-400">
+              Chưa tìm ra chỗ nào khớp — thử gõ tên khác hoặc sửa/xoá tay như bình thường.
+            </p>
+          )}
+          {candidates.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => pickCandidate(c)}
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-left text-sm text-zinc-700"
+            >
+              <span className="font-medium">{c.name}</span>{" "}
+              <span className="text-zinc-400">— {c.address}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // step === "compare"
+  const keepId = keepSide === "A" ? placeA.id : placeB.id;
+  const deleteId = keepSide === "A" ? placeB.id : placeA.id;
+
+  return (
+    <form action={handleSubmit} className="mt-2 rounded-xl border border-zinc-200 bg-white p-3">
+      <input type="hidden" name="suggestionId" value={suggestion.id} />
+      <input type="hidden" name="keepId" value={keepId} />
+      <input type="hidden" name="deleteId" value={deleteId} />
+
+      <p className="mb-2 text-xs font-medium text-zinc-600">
+        So sánh &quot;{placeA.name}&quot; (A) và &quot;{placeB.name}&quot; (B)
+      </p>
+
+      <div className="mb-3 flex items-center gap-3 rounded-lg bg-zinc-50 p-2">
+        <span className="text-xs font-medium text-zinc-600">Giữ bản ghi của:</span>
+        <label className="flex items-center gap-1 text-xs text-zinc-700">
+          <input type="radio" checked={keepSide === "A"} onChange={() => setKeepSide("A")} /> Chỗ A
+        </label>
+        <label className="flex items-center gap-1 text-xs text-zinc-700">
+          <input type="radio" checked={keepSide === "B"} onChange={() => setKeepSide("B")} /> Chỗ B
+        </label>
+      </div>
+
+      <MergeField label="Tên" valueA={placeA.name} valueB={placeB.name} value={fields.name} onChange={(v) => setField("name", v)} />
+
+      <div className="mb-2">
+        <p className="text-xs font-medium text-zinc-500">Loại hình</p>
+        <select
+          name="type"
+          value={fields.type}
+          onChange={(e) => setField("type", e.target.value)}
+          className={inputClass}
+        >
+          {PLACE_TYPES.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <MergeField label="Địa chỉ" valueA={placeA.address} valueB={placeB.address} value={fields.address} onChange={(v) => setField("address", v)} />
+      <MergeField label="Phường" valueA={placeA.ward} valueB={placeB.ward} value={fields.ward} onChange={(v) => setField("ward", v)} />
+      <MergeField label="Khu vực" valueA={placeA.localArea} valueB={placeB.localArea} value={fields.localArea} onChange={(v) => setField("localArea", v)} />
+      <MergeField label="SĐT" valueA={placeA.phone} valueB={placeB.phone} value={fields.phone} onChange={(v) => setField("phone", v)} />
+      <MergeField label="Giá thấp nhất" valueA={placeA.priceMin} valueB={placeB.priceMin} value={fields.priceMin} onChange={(v) => setField("priceMin", v)} />
+      <MergeField label="Giá cao nhất" valueA={placeA.priceMax} valueB={placeB.priceMax} value={fields.priceMax} onChange={(v) => setField("priceMax", v)} />
+      <MergeField label="Đơn vị giá" valueA={placeA.priceUnit} valueB={placeB.priceUnit} value={fields.priceUnit} onChange={(v) => setField("priceUnit", v)} />
+
+      {/* Các input ẩn mang đúng giá trị đã chọn ở trên vào form (MergeField chỉ hiện UI,
+          không tự có name — tránh submit nhầm giá trị chưa qua nút "Dùng A/B"). */}
+      <input type="hidden" name="name" value={fields.name} />
+      <input type="hidden" name="address" value={fields.address} />
+      <input type="hidden" name="ward" value={fields.ward} />
+      <input type="hidden" name="localArea" value={fields.localArea} />
+      <input type="hidden" name="phone" value={fields.phone} />
+      <input type="hidden" name="priceMin" value={fields.priceMin} />
+      <input type="hidden" name="priceMax" value={fields.priceMax} />
+      <input type="hidden" name="priceUnit" value={fields.priceUnit} />
+
+      {(placeA.photos?.length > 0 || placeB.photos?.length > 0) && (
+        <div className="mb-2">
+          <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh giữ lại (bỏ tick để không giữ)</p>
+          <div className="flex flex-wrap gap-2">
+            {[...new Set([...(placeA.photos ?? []), ...(placeB.photos ?? [])])].map((url) => (
+              <label key={url} className="relative">
+                <input
+                  type="checkbox"
+                  checked={keepPhotos.includes(url)}
+                  onChange={() => togglePhoto(url)}
+                  className="absolute right-1 top-1 h-4 w-4"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+      {keepPhotos.map((url) => (
+        <input key={url} type="hidden" name="keepPhoto" value={url} />
+      ))}
+
+      <button
+        type="submit"
+        disabled={busy}
+        className="mt-2 w-full rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+      >
+        {busy ? "Đang gộp..." : `Gộp — giữ chỗ ${keepSide}, xoá chỗ ${keepSide === "A" ? "B" : "A"}`}
+      </button>
+    </form>
+  );
+}

@@ -124,7 +124,33 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-18 (mới nhất, sau) — Báo rõ khi ghi chú chạm giới hạn 140 ký tự
+### 2026-08-18 (mới nhất) — Công cụ so sánh & gộp 2 chỗ trùng lặp trong `/admin`
+
+Anh chỉ ra "Báo trùng với chỗ khác" (làm hôm trước) chưa có công cụ gộp thật — chỉ ghi báo
+cáo, admin phải tự làm hết bằng tay, không có cách chọn giữ/xoá chỗ nào hay gộp nội dung.
+Trình kế hoạch trước vì đây là thao tác **xoá dữ liệu thật đã công khai**.
+
+**Đã làm:**
+- `lib/placeSearch.js` (mới) — dò tên gần giống trong `places:live` (không dùng chung với
+  `lib/ingestion/match.js` vì khác loại dữ liệu đang so khớp).
+- `app/admin/mergeActions.js` (mới) — `searchDuplicateCandidates` (tìm chỗ B theo tên),
+  `getPlaceById`, `mergeDuplicatePlaces` (ghi trường đã chọn vào chỗ GIỮ, xoá hẳn chỗ còn
+  lại — tái dùng đúng cơ chế dọn dẹp của `deleteLive` sẵn có, đóng báo cáo + cộng 5 điểm
+  người báo).
+- `app/admin/MergeDuplicatePanel.js` (mới) — giao diện: tìm chỗ nghi trùng (tự gợi ý theo
+  tên khách báo, gõ lại được nếu sai) → so sánh 2 cột từng trường, mỗi trường có nút
+  "Dùng A"/"Dùng B" **kèm ô gõ tay luôn mở** (không phải chọn 1 trong 2 cứng nhắc) → ảnh thì
+  tick giữ từng cái, gộp được cả 2 bên → chọn giữ bản ghi (id) của bên nào → bấm xác nhận.
+- **1 lỗi thật phát hiện khi test:** `<form>` lồng trong `<form>` (thẻ góp ý ngoài đã là
+  `<form>`, panel gộp cũng có `<form>` riêng) — HTML không cho phép, bấm "Gộp" bị chặn im
+  lặng không báo lỗi gì. Sửa: đổi khung ngoài `SuggestionCard` từ `<form>` sang `<div>`, chỉ
+  bọc `<form>` quanh đúng 2 nút "Duyệt"/"Từ chối" thôi.
+- Kiểm thử bằng 2 chỗ giả + 1 báo cáo giả: xác nhận gộp đúng (trường trống ở A tự lấy từ B,
+  đổi tên bằng nút "Dùng B" hoạt động, ảnh gộp cả 2 bên, `priceText` tự tính lại đúng chuẩn
+  chứ không chép nguyên chữ), chỗ bị xoá biến mất khỏi `places:live`, báo cáo chuyển
+  "approved", người báo được cộng đúng 5 điểm. Dọn sạch dữ liệu test. Build/lint sạch.
+
+### 2026-08-18 (sau) — Báo rõ khi ghi chú chạm giới hạn 140 ký tự
 
 Anh hỏi kiểm tra giới hạn 140 ký tự của ghi chú trong sổ — kiểm tra kỹ xác nhận **đúng, không
 có lỗi** (chuỗi anh đưa thật ra chỉ 93 ký tự; thử gửi thẳng 200 ký tự vào server thì bị cắt
