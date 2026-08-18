@@ -84,6 +84,16 @@ export async function saveNotebookAsMine({ anonId, sourceSlug }) {
   return { ...result, anonId: currentAnonId, newProfile };
 }
 
+// Trang xem sổ cần biết "đây có phải sổ của người đang xem không" để đổi nút hiển thị (chủ
+// sổ thấy "Sửa sổ này", người khác thấy "Lưu sổ này thành sổ của tôi") — nhưng KHÔNG được lộ
+// ownerAnonId thật ra ngoài (trái §5 quy tắc 5 "sổ không hiện tên người tạo"). Chỉ trả đúng/
+// sai cho riêng người gửi anonId lên, người lạ luôn nhận false, không dò ra được chủ là ai.
+export async function checkNotebookOwnership({ anonId, slug }) {
+  if (!anonId || !slug) return { isOwner: false };
+  const notebook = await getNotebook(slug);
+  return { isOwner: notebook?.ownerAnonId === anonId };
+}
+
 // Gọi từ trình duyệt (không phải lúc server render) — bot quét link tạo preview (Zalo,
 // Facebook...) không chạy JavaScript nên không bị tính vào đây (xem lib/notebooks.js).
 export async function logNotebookView(slug) {

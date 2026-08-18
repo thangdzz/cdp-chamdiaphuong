@@ -124,7 +124,24 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-18 (mới nhất, sau) — Vá 2 lỗi thật phát hiện ở vòng test thứ 2
+### 2026-08-18 (mới nhất) — Đơn giản hoá nút cuối trang xem sổ
+
+Vòng test thứ 3: anh chụp màn hình chỉ ra trang xem sổ luôn hiện **2 nút** ("Lưu sổ này thành
+sổ của tôi" / "Tự tạo sổ của riêng bạn") **bất kể ai xem** — kể cả khi chính chủ sổ tự xem
+sổ của mình, lúc đó cả 2 lựa chọn đều vô nghĩa. Trình đề xuất trước khi code (đúng quy tắc 1):
+tách theo người xem, mỗi người chỉ thấy đúng 1 nút.
+
+**Đã làm:**
+- `app/notebookActions.js` — thêm `checkNotebookOwnership({anonId, slug})`, chỉ trả về
+  **đúng/sai** cho riêng người đang xem, không lộ `ownerAnonId` ra ngoài (giữ đúng nguyên tắc
+  "sổ không hiện tên người tạo", SPEC-chang-4.md §5 quy tắc 5).
+- `NotebookOwnerActions.js` — chủ sổ tự xem → chỉ thấy **"✏️ Sửa sổ này"** (vào thẳng trang
+  sửa). Người khác xem → chỉ thấy **"Lưu sổ này thành sổ của tôi"**. Bỏ hẳn nút "Tự tạo sổ
+  của riêng bạn" — thừa, vì link "Sổ của tôi" trên đầu trang đã dẫn đúng tới đó.
+- Kiểm thử lại bằng Playwright (2 trình duyệt riêng: chủ sổ chỉ thấy 1 nút đúng, người lạ chỉ
+  thấy 1 nút đúng, không ai thấy nút của người kia) + dọn sạch dữ liệu test. Build/lint sạch.
+
+### 2026-08-18 (sau) — Vá 2 lỗi thật phát hiện ở vòng test thứ 2
 
 Anh bấm thử tiếp (có ảnh chụp màn hình) và phát hiện thêm 2 việc:
 
