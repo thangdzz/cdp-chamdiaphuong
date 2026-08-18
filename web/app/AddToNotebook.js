@@ -1,16 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { getMyNotebooks, addPlaceToNotebook, createNotebookAndAddPlace } from "./notebookActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 
 // Nút "+ Thêm vào sổ" trên thẻ (SPEC-chang-4.md §3.1). Chưa có sổ nào -> tạo luôn sổ đầu
 // tiên tên mặc định, không hỏi gì. Có sẵn sổ -> hiện danh sách để chọn + ô tạo sổ mới.
+// Sau khi thêm PHẢI dẫn thẳng tới sổ (link "Xem sổ") — chỉ hiện "✓ Đã thêm" không đủ, khách
+// không biết lưu ở đâu/tìm lại thế nào (phản hồi thật sau khi thử Chặng 4).
 export function AddToNotebook({ place }) {
   const [open, setOpen] = useState(false);
   const [notebooks, setNotebooks] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [added, setAdded] = useState(false);
+  const [addedSlug, setAddedSlug] = useState(null);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
 
@@ -44,7 +48,10 @@ export function AddToNotebook({ place }) {
           nameSnapshot: place.name,
         });
         saveProfileIfNew(result.newProfile, local);
-        if (result.ok) setAdded(true);
+        if (result.ok) {
+          setAddedSlug(result.slug);
+          setAdded(true);
+        }
         return;
       }
       setNotebooks(list);
@@ -69,6 +76,7 @@ export function AddToNotebook({ place }) {
       });
       saveProfileIfNew(result.newProfile, local);
       if (result.ok) {
+        setAddedSlug(slug);
         setAdded(true);
         setOpen(false);
       }
@@ -92,6 +100,7 @@ export function AddToNotebook({ place }) {
       });
       saveProfileIfNew(result.newProfile, local);
       if (result.ok) {
+        setAddedSlug(result.slug);
         setAdded(true);
         setOpen(false);
         setNewTitle("");
@@ -103,7 +112,14 @@ export function AddToNotebook({ place }) {
   }
 
   if (added) {
-    return <p className="mt-2 text-sm text-zinc-500">✓ Đã thêm vào sổ</p>;
+    return (
+      <p className="mt-2 text-sm text-zinc-500">
+        ✓ Đã thêm vào sổ (lưu trên máy này, không cần đăng nhập) ·{" "}
+        <Link href={`/so/${addedSlug}`} className="font-medium text-zinc-700 underline">
+          Xem sổ
+        </Link>
+      </p>
+    );
   }
 
   return (

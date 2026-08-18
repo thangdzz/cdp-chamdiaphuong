@@ -4,6 +4,7 @@ import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
+import { SiteHeader } from "@/app/SiteHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,7 @@ export default async function NotebookViewPage({ params }) {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <NotebookViewTracker slug={slug} />
+        <SiteHeader />
 
         <header className="mb-6">
           <h1 className="text-xl font-bold text-zinc-900">{notebook.title}</h1>

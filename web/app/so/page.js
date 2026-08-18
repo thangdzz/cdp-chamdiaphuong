@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getMyNotebooks } from "@/app/notebookActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
+import { SiteHeader } from "@/app/SiteHeader";
 
 // Cần biết "tôi là ai" ngay từ đầu (anonId trong localStorage) nên làm Client Component,
 // giống CheckinButton/QuestionPrompt — Server Component không đọc được localStorage.
@@ -18,12 +19,8 @@ export default function MyNotebooksPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <header className="mb-6">
-          <Link href="/" className="inline-flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#c8553d]">CDP</span>
-            <h1 className="text-xl font-bold text-zinc-900">Sổ của tôi</h1>
-          </Link>
-        </header>
+        <SiteHeader />
+        <h1 className="mb-6 text-xl font-bold text-zinc-900">Sổ của tôi</h1>
 
         {notebooks === null && <p className="text-sm text-zinc-500">Đang tải...</p>}
 

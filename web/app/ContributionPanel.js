@@ -73,6 +73,7 @@ export function ContributionPanel({ place, onDone }) {
     closed: false,
   });
   const [note, setNote] = useState("");
+  const [duplicateOfName, setDuplicateOfName] = useState("");
   const [nicknameInput, setNicknameInput] = useState("");
   const [recoverCodeInput, setRecoverCodeInput] = useState("");
   const [recoverError, setRecoverError] = useState(null);
@@ -97,6 +98,7 @@ export function ContributionPanel({ place, onDone }) {
       closed: false,
     });
     setNote("");
+    setDuplicateOfName("");
     setErrorMessage(null);
     onDone?.();
   }
@@ -119,6 +121,7 @@ export function ContributionPanel({ place, onDone }) {
             priceMax: action.fields.priceMax ? Number(action.fields.priceMax) : null,
             priceUnit: action.fields.priceUnit || null,
             closed: action.fields.closed ? true : undefined,
+            duplicateOfName: action.fields.duplicateOfName || null,
           },
           note: action.note || null,
         });
@@ -172,6 +175,16 @@ export function ContributionPanel({ place, onDone }) {
       return;
     }
     await ensureProfileThenRun({ type: "correction", fields, note });
+  }
+
+  async function handleDuplicateSubmit(e) {
+    e.preventDefault();
+    if (!duplicateOfName.trim()) return;
+    await ensureProfileThenRun({
+      type: "correction",
+      fields: { duplicateOfName: duplicateOfName.trim() },
+      note: null,
+    });
   }
 
   async function handleFilesChosen(e) {
@@ -342,6 +355,13 @@ export function ContributionPanel({ place, onDone }) {
           >
             Thêm thông tin (địa chỉ, khu vực, SĐT, giá...)
           </button>
+          <button
+            type="button"
+            onClick={() => setMode("duplicateForm")}
+            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
+          >
+            Báo trùng với chỗ khác
+          </button>
           <label
             className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
               busy ? "opacity-50" : "cursor-pointer"
@@ -425,6 +445,33 @@ export function ContributionPanel({ place, onDone }) {
           <div className="flex gap-2">
             <button type="submit" disabled={busy} className={btnPrimary}>
               {busy ? "Đang gửi..." : "Gửi góp ý"}
+            </button>
+            <button type="button" onClick={close} className={btnGhost}>
+              Huỷ
+            </button>
+          </div>
+        </form>
+      )}
+
+      {mode === "duplicateForm" && (
+        <form onSubmit={handleDuplicateSubmit} className="flex flex-col gap-2">
+          <p className="text-xs font-medium text-zinc-600">
+            &quot;{place.name}&quot; trùng với chỗ nào?
+          </p>
+          <input
+            className={inputClass}
+            placeholder="Tên chỗ bạn nghĩ là trùng"
+            maxLength={80}
+            value={duplicateOfName}
+            onChange={(e) => setDuplicateOfName(e.target.value)}
+          />
+          <p className="text-xs text-zinc-500">
+            Bọn em sẽ kiểm tra lại rồi gộp 2 chỗ nếu đúng là trùng.
+          </p>
+          {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
+          <div className="flex gap-2">
+            <button type="submit" disabled={busy || !duplicateOfName.trim()} className={btnPrimary}>
+              {busy ? "Đang gửi..." : "Gửi báo cáo"}
             </button>
             <button type="button" onClick={close} className={btnGhost}>
               Huỷ

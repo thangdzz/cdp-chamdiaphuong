@@ -27,6 +27,7 @@ const SUGGESTION_FIELD_LABEL = {
   priceMin: "Giá thấp nhất",
   priceMax: "Giá cao nhất",
   priceUnit: "Đơn vị giá",
+  duplicateOfName: "Nghi trùng với",
 };
 
 const REVIEW_TYPE_LABEL = {
@@ -268,6 +269,12 @@ function SuggestionCard({ item }) {
           {item.fields?.closed ? (
             <p className="mt-2 text-sm font-semibold text-red-700">
               ⚠ Báo là chỗ này đã đóng cửa — duyệt sẽ gỡ khỏi công khai.
+            </p>
+          ) : item.fields?.duplicateOfName ? (
+            <p className="mt-2 text-sm font-semibold text-amber-700">
+              ⚠ Nghi trùng với &quot;{item.fields.duplicateOfName}&quot; — tự kiểm tra rồi
+              xoá/gộp tay qua mục sửa/xoá chỗ ở trên, duyệt ở đây chỉ để đóng báo cáo + cộng
+              điểm cho người báo.
             </p>
           ) : (
             <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700">

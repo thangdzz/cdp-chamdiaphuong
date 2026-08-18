@@ -6,18 +6,17 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1, 2, 3 đã code xong VÀ đã lên web thật** (`vercel --prod` — nhắc lại: push GitHub
-KHÔNG tự deploy, luôn cần chạy lệnh này sau khi push). **Chặng 4 (sổ chia sẻ được — chặng
-quan trọng nhất) vừa code xong, chưa push/deploy** — xem chi tiết ở mục 2026-08-17 (mới nhất)
-bên dưới, kèm danh sách anh cần bấm thử.
+**Chặng 1–4 đã code xong.** Chặng 4 (sổ chia sẻ được — chặng quan trọng nhất) đã lên web thật
+1 lần, anh tự bấm thử và phát hiện lỗ hổng UX thật (không tìm lại được sổ đã tạo) — **đã vá
+xong, chưa deploy lại** — xem mục 2026-08-18 (mới nhất) bên dưới.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
 và sửa trước khi code.
 
-Bước tiếp theo: anh bấm thử Chặng 4 theo danh sách cuối tin nhắn, quyết có deploy lên web
-thật không. **Nhắc mốc:** Chặng 4 nên xong trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số
-liệu, không code (xem SPEC-chang-4.md §7).
+Bước tiếp theo: deploy bản vá, anh bấm thử lại đúng luồng bị vướng lúc nãy. **Nhắc mốc:**
+Chặng 4 nên xong trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số liệu, không code (xem
+SPEC-chang-4.md §7).
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
 hoàn toàn từ 2026-08-04, auto-publish) + card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy
@@ -125,7 +124,36 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-17 (mới nhất) — Code xong Chặng 4: sổ chia sẻ được ⭐
+### 2026-08-18 (mới nhất) — Vá lỗ hổng UX phát hiện được khi anh tự bấm thử Chặng 4
+
+Anh bấm thử thật trên web (không phải qua script như em test) và phát hiện đúng vấn đề em bỏ
+sót: phần lõi (lưu dữ liệu) chạy đúng, nhưng **khách không có cách nào tự tìm lại được sổ đã
+tạo** — không có link nào tới `/so` trên trang, và bấm "+ Thêm vào sổ" chỉ hiện 4 chữ
+`✓ Đã thêm vào sổ` rồi hết, không dẫn đi đâu cả. Lúc test em dùng script bấm thẳng qua code,
+không trải nghiệm như người dùng thật lần đầu vào web nên bỏ sót việc này.
+
+**Đã sửa:**
+- `app/SiteHeader.js` (mới) — logo CDP + link "Sổ của tôi" **cố định trên đầu trang**
+  (`position: sticky`), thấy được dù cuộn xuống đâu. Gắn vào cả 4 trang: trang chủ, `/so`,
+  `/so/{slug}`, `/so/{slug}/sua` (không gắn vào `/admin` — trang nội bộ, không phải cho khách).
+- `AddToNotebook.js` — sau khi thêm, hiện thêm dòng chữ nói rõ "lưu trên máy này, không cần
+  đăng nhập" kèm link **"Xem sổ"** dẫn thẳng tới sổ vừa lưu.
+- **Vá luôn 1 lỗ hổng khác anh phát hiện lúc test (ngoài Chặng 4):** chưa có cách báo "chỗ
+  này trùng với chỗ khác" trong luồng "Bổ sung thông tin". Thêm nút **"Báo trùng với chỗ
+  khác"** — tái sử dụng nguyên vẹn hệ thống góp ý có sẵn (`lib/suggestions.js`,
+  `/admin` mục "Góp ý từ khách"), chỉ thêm 1 field `duplicateOfName` + 1 nhãn cảnh báo màu
+  vàng riêng cho admin dễ nhận ra (khác cảnh báo đỏ "đã đóng cửa") — không cần sửa cơ chế
+  duyệt/cộng điểm đã có. Xác nhận: admin duyệt không tự động gộp 2 chỗ, chỉ đóng báo cáo +
+  cộng điểm cho người báo — việc gộp/xoá vẫn phải làm tay qua công cụ sửa/xoá sẵn có (an toàn
+  hơn tự động gộp nhầm 2 chỗ khác nhau).
+- Kiểm thử lại bằng Playwright (header dính khi cuộn, link "Xem sổ" dẫn đúng sổ có chỗ vừa
+  thêm, đăng nhập `/admin` thật để xác nhận thấy đúng mục thống kê + cảnh báo trùng lặp) +
+  dọn sạch dữ liệu test. Build/lint sạch.
+
+**Bước tiếp theo hợp lý nhất:** anh bấm thử lại đúng luồng bị vướng lúc nãy sau khi deploy,
+xác nhận giờ đã rõ ràng.
+
+### 2026-08-17 — Code xong Chặng 4: sổ chia sẻ được ⭐
 
 Chặng quan trọng nhất của cả hướng đi mới, và lớn nhất tính đến giờ (9 file mới, 4 route
 trang). Trình kế hoạch trước — anh sửa 1 chỗ: SPEC gốc (§4.3) nói "giữ lại tên" khi chỗ bị

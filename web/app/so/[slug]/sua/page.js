@@ -12,6 +12,7 @@ import {
 } from "@/app/notebookActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
+import { SiteHeader } from "@/app/SiteHeader";
 
 // Chỉ chủ sổ mới vào được (SPEC-chang-4.md §3.3) — getNotebookForEdit tự kiểm tra ownership
 // ở server, trang này chỉ điều hướng về trang xem khi không phải chủ sổ, không tự chặn.
@@ -131,6 +132,7 @@ export default function EditNotebookPage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+        <SiteHeader />
         <Link href={`/so/${slug}`} className="text-sm text-zinc-400 underline">
           ← Xem sổ
         </Link>

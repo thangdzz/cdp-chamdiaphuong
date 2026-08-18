@@ -4,6 +4,7 @@ import { getLivePlaces } from "@/lib/redis";
 import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
 import PlaceExplorer from "./PlaceExplorer";
+import { SiteHeader } from "./SiteHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -22,15 +23,10 @@ export default async function Home() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <header className="mb-6">
-          <Link href="/" className="inline-flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#c8553d]">CDP</span>
-            <h1 className="text-2xl font-bold text-zinc-900">Chạm Địa Phương</h1>
-          </Link>
-          <p className="mt-1 text-sm text-zinc-500">
-            Chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang — bản thử nghiệm.
-          </p>
-        </header>
+        <SiteHeader />
+        <p className="mb-6 text-sm text-zinc-500">
+          Chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang — bản thử nghiệm.
+        </p>
 
         <Link
           href="/le-hoi-thanh-tuyen"

@@ -11,6 +11,7 @@ import {
 } from "@/lib/contributors";
 import { appendSuggestion, findDuplicateCorrection, findDuplicatePhoto } from "@/lib/suggestions";
 import { getBadge } from "@/lib/badges";
+import { containsLinkOrPhone } from "@/lib/textFilter";
 
 const MAX_PHOTOS_PER_SUBMIT = 3;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024; // 8MB/ảnh
@@ -58,6 +59,9 @@ export async function submitCorrection({ anonId, placeId, placeName, fields, not
   const cleanedNote = note?.trim() || null;
   if (Object.keys(cleanedFields).length === 0 && !cleanedNote) {
     return { ok: false, error: "Chưa có gì để gửi." };
+  }
+  if (cleanedFields.duplicateOfName && containsLinkOrPhone(cleanedFields.duplicateOfName)) {
+    return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
   }
 
   const duplicate = await findDuplicateCorrection(anonId, placeId, cleanedFields, cleanedNote);
