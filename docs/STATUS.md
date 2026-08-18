@@ -124,7 +124,28 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-18 (mới nhất) — Vá lỗ hổng UX phát hiện được khi anh tự bấm thử Chặng 4
+### 2026-08-18 (mới nhất, sau) — Vá 2 lỗi thật phát hiện ở vòng test thứ 2
+
+Anh bấm thử tiếp (có ảnh chụp màn hình) và phát hiện thêm 2 việc:
+
+1. **Lỗi thật:** trang sửa sổ (`/so/{slug}/sua`) không hiện tên chỗ — chỉ thấy nhãn loại
+   ("Chơi") trống trơn phía trên. Nguyên nhân: code đọc `item.name` nhưng dữ liệu trả về từ
+   `resolveNotebookItems()` không có trường này (chỉ có `item.place.name` hoặc
+   `item.nameSnapshot` khi chỗ đã bị xoá) — lỗi gõ nhầm tên trường lúc code, không bị lint
+   bắt vì JS không kiểm tra kiểu. Sửa: đọc đúng `item.place?.name` / `item.nameSnapshot`.
+2. **UX thiếu:** gõ ghi chú xong không có dấu hiệu gì báo đã lưu — chỉ lưu ngầm lúc rời khỏi
+   ô nhập (`onBlur`), khách gõ xong không biết có ăn hay không. Thêm dòng `✓ Đã lưu` hiện 2
+   giây sau khi lưu thành công (giống cách "✓ Đã sao chép" của nút Sao chép link).
+
+Đã trả lời anh: 2 nút "Lưu sổ này thành sổ của tôi" / "Tự tạo sổ của riêng bạn" đúng ý thiết
+kế — 1 nút sao chép sổ đang xem làm của mình (giữ nguyên các chỗ), nút kia dẫn về `/so` để
+tự bắt đầu từ đầu, không sao chép gì. Xác nhận: link xem sổ hoạt động đúng ở cửa sổ ẩn danh
+và thẻ Open Graph hiện đẹp khi dán vào Zalo (đúng yêu cầu SPEC §9).
+
+Đã kiểm thử lại bằng Playwright (tên chỗ hiện đúng, "✓ Đã lưu" hiện đúng lúc), dọn sạch dữ
+liệu test, build/lint sạch.
+
+### 2026-08-18 — Vá lỗ hổng UX phát hiện được khi anh tự bấm thử Chặng 4
 
 Anh bấm thử thật trên web (không phải qua script như em test) và phát hiện đúng vấn đề em bỏ
 sót: phần lõi (lưu dữ liệu) chạy đúng, nhưng **khách không có cách nào tự tìm lại được sổ đã

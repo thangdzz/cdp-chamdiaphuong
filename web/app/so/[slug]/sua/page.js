@@ -158,7 +158,7 @@ export default function EditNotebookPage({ params }) {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className={`text-base font-semibold ${item.deleted ? "text-zinc-400" : "text-zinc-900"}`}>
-                      {item.name}
+                      {item.deleted ? item.nameSnapshot : item.place?.name}
                     </p>
                     {item.deleted ? (
                       <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
@@ -221,16 +221,25 @@ export default function EditNotebookPage({ params }) {
 
 function NoteEditor({ placeId, initialNote, onSave }) {
   const [value, setValue] = useState(initialNote ?? "");
+  const [savedValue, setSavedValue] = useState(initialNote ?? "");
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   async function handleBlur() {
-    if (value === (initialNote ?? "")) return;
+    if (value === savedValue) return;
     setBusy(true);
     setError(null);
+    setJustSaved(false);
     try {
       const result = await onSave(placeId, value);
-      if (!result.ok) setError(result.error ?? "Chưa lưu được ghi chú.");
+      if (!result.ok) {
+        setError(result.error ?? "Chưa lưu được ghi chú.");
+      } else {
+        setSavedValue(value);
+        setJustSaved(true);
+        setTimeout(() => setJustSaved(false), 2000);
+      }
     } finally {
       setBusy(false);
     }
@@ -247,6 +256,8 @@ function NoteEditor({ placeId, initialNote, onSave }) {
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
       />
+      {busy && <p className="mt-1 text-xs text-zinc-400">Đang lưu...</p>}
+      {justSaved && !busy && <p className="mt-1 text-xs text-green-600">✓ Đã lưu</p>}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );
