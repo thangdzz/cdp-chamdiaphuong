@@ -156,95 +156,97 @@ function ReviewItemCard({ item }) {
         </span>
       </div>
 
-      {c ? (
-        <>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <Field label="Tên" name="name" defaultValue={editable.name} />
-            <label className="flex flex-col gap-1 text-xs text-zinc-500">
-              Loại hình
-              <select
-                name="type"
-                defaultValue={editable.type}
-                className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
-              >
-                {PLACE_TYPES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Field label="Địa chỉ" name="address" defaultValue={editable.address} />
-            <Field label="Khu vực (phường)" name="ward" defaultValue={editable.ward} />
-            <Field label="Giá thấp nhất" name="priceMin" type="number" defaultValue={editable.priceMin} />
-            <Field label="Giá cao nhất" name="priceMax" type="number" defaultValue={editable.priceMax} />
-            <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" defaultValue={editable.priceUnit} />
-          </div>
-          <p className="mt-2 text-xs text-zinc-500">
-            Giá sẽ hiển thị cho khách: <span className="font-medium text-zinc-700">{preview}</span>
+      <form>
+        <input type="hidden" name="id" value={item.id} />
+        {c ? (
+          <>
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <Field label="Tên" name="name" defaultValue={editable.name} />
+              <label className="flex flex-col gap-1 text-xs text-zinc-500">
+                Loại hình
+                <select
+                  name="type"
+                  defaultValue={editable.type}
+                  className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
+                >
+                  {PLACE_TYPES.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Field label="Địa chỉ" name="address" defaultValue={editable.address} />
+              <Field label="Khu vực (phường)" name="ward" defaultValue={editable.ward} />
+              <Field label="Giá thấp nhất" name="priceMin" type="number" defaultValue={editable.priceMin} />
+              <Field label="Giá cao nhất" name="priceMax" type="number" defaultValue={editable.priceMax} />
+              <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" defaultValue={editable.priceUnit} />
+            </div>
+            <p className="mt-2 text-xs text-zinc-500">
+              Giá sẽ hiển thị cho khách: <span className="font-medium text-zinc-700">{preview}</span>
+            </p>
+          </>
+        ) : (
+          <p className="mt-2 text-sm text-zinc-600">
+            Địa điểm đã công khai (id: {item.matchedLivePlaceId}) — không có dữ liệu mới, chỉ
+            cần xác nhận còn hoạt động hay không.
           </p>
-        </>
-      ) : (
-        <p className="mt-2 text-sm text-zinc-600">
-          Địa điểm đã công khai (id: {item.matchedLivePlaceId}) — không có dữ liệu mới, chỉ
-          cần xác nhận còn hoạt động hay không.
-        </p>
-      )}
+        )}
 
-      {item.conflicts?.length > 0 && (
-        <div className="mt-2 rounded-lg border border-red-300 bg-red-50 p-2">
-          <p className="text-xs font-semibold text-red-800">
-            ⚠ 2 lần quét cho thông tin khác nhau — đang giữ giá trị cũ, anh kiểm tra và tự
-            sửa field bên trên nếu giá trị mới đúng hơn:
-          </p>
-          <ul className="mt-1 list-disc pl-5 text-xs text-red-700">
-            {item.conflicts.map((c, idx) => (
+        {item.conflicts?.length > 0 && (
+          <div className="mt-2 rounded-lg border border-red-300 bg-red-50 p-2">
+            <p className="text-xs font-semibold text-red-800">
+              ⚠ 2 lần quét cho thông tin khác nhau — đang giữ giá trị cũ, anh kiểm tra và tự
+              sửa field bên trên nếu giá trị mới đúng hơn:
+            </p>
+            <ul className="mt-1 list-disc pl-5 text-xs text-red-700">
+              {item.conflicts.map((c, idx) => (
+                <li key={idx}>
+                  {c.field}: đang lưu &quot;{c.oldValue}&quot;, lần quét sau ghi &quot;
+                  {c.newValue}&quot;
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {item.diff?.length > 0 && (
+          <ul className="mt-2 list-disc pl-5 text-xs text-zinc-600">
+            {item.diff.map((d, idx) => (
               <li key={idx}>
-                {c.field}: đang lưu &quot;{c.oldValue}&quot;, lần quét sau ghi &quot;
-                {c.newValue}&quot;
+                {d.field}: &quot;{d.oldValue ?? "(trống)"}&quot; → &quot;{d.newValue}&quot;
               </li>
             ))}
           </ul>
+        )}
+
+        {item.reasons?.length > 0 && (
+          <ul className="mt-2 list-disc pl-5 text-xs text-zinc-500">
+            {item.reasons.map((r, idx) => (
+              <li key={idx}>{r}</li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-3 flex gap-2">
+          <button
+            formAction={approveReviewItem}
+            className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+          >
+            {labels.approve}
+          </button>
+          <button
+            formAction={rejectReviewItem}
+            className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+          >
+            {labels.reject}
+          </button>
         </div>
-      )}
-
-      {item.diff?.length > 0 && (
-        <ul className="mt-2 list-disc pl-5 text-xs text-zinc-600">
-          {item.diff.map((d, idx) => (
-            <li key={idx}>
-              {d.field}: &quot;{d.oldValue ?? "(trống)"}&quot; → &quot;{d.newValue}&quot;
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {item.reasons?.length > 0 && (
-        <ul className="mt-2 list-disc pl-5 text-xs text-zinc-500">
-          {item.reasons.map((r, idx) => (
-            <li key={idx}>{r}</li>
-          ))}
-        </ul>
-      )}
+      </form>
 
       {item.type === "duplicate_candidate" && item.duplicateOfCandidates?.length > 0 && (
         <MergeDuplicatePanel mode="reviewItem" reviewItem={item} />
       )}
-
-      <form className="mt-3 flex gap-2">
-        <input type="hidden" name="id" value={item.id} />
-        <button
-          formAction={approveReviewItem}
-          className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
-        >
-          {labels.approve}
-        </button>
-        <button
-          formAction={rejectReviewItem}
-          className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
-        >
-          {labels.reject}
-        </button>
-      </form>
     </div>
   );
 }

@@ -126,7 +126,28 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-19 (mới nhất) — Gộp chung công cụ so sánh & gộp cho cả 2 nguồn nghi trùng lặp
+### 2026-08-19 (mới nhất, sau) — Vá gấp lỗi "Duyệt" bị crash — do chính em gây ra hôm qua
+
+Anh báo lỗi thật: sửa địa chỉ 1 chỗ trong "Hàng chờ duyệt tự động" rồi bấm "Duyệt (đăng công
+khai)" → trang báo "This page couldn't load / A server error occurred". Nguyên nhân: khi em
+sửa lỗi "form lồng form" hôm qua (thêm `MergeDuplicatePanel` vào `ReviewItemCard`), em tách
+nhầm — các ô sửa (Tên, Loại hình, Địa chỉ, Giá...) bị đẩy ra **ngoài** cái `<form>` chứa nút
+Duyệt, chỉ còn đúng `id` được gửi đi. Server nhận `type` rỗng, ném lỗi ngay (đúng cơ chế
+`assertValidPlaceType` đã làm ở Chặng 3 — báo lỗi rõ ràng thay vì âm thầm sai, nhưng ở đây
+lộ ra thành trang lỗi cho admin thay vì được xử lý gọn).
+
+**Đã sửa:** đưa lại toàn bộ khối field sửa + nút Duyệt/Từ chối vào **chung 1 `<form>`**;
+`MergeDuplicatePanel` (có `<form>` riêng) đứng **ngoài, làm anh em (sibling)** của form đó —
+vừa không lồng form trong form (đúng yêu cầu HTML), vừa không tách rời field khỏi nút submit.
+
+**Xác nhận không mất dữ liệu:** vì lỗi xảy ra ngay từ bước kiểm tra dữ liệu (trước khi ghi
+Redis), mục "Relax Coffee" thật của anh **vẫn còn nguyên trong hàng chờ**, chưa bị mất hay
+hỏng gì — anh vào lại sửa và Duyệt lại bình thường được.
+
+Kiểm thử lại đúng kịch bản anh gặp (sửa địa chỉ + bấm Duyệt) bằng dữ liệu giả: không còn lỗi,
+địa chỉ đăng đúng như đã sửa. Dọn sạch dữ liệu test. Build/lint sạch.
+
+### 2026-08-19 — Gộp chung công cụ so sánh & gộp cho cả 2 nguồn nghi trùng lặp
 
 Anh xem card "Nghi trùng lặp" ở "Hàng chờ duyệt tự động — AI quét" (nguồn khác — máy tự phát
 hiện lúc quét, không phải khách báo tay) và hỏi sao 2 nguồn xử lý khác nhau, có gộp chung
