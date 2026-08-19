@@ -9,8 +9,8 @@
 **Chặng 1–4 đã code xong và đã lên web thật.** Ngoài 4 chặng chính, đang có 1 nhánh việc phụ
 đang làm dần theo phản hồi thật của anh: **công cụ xử lý trùng lặp trong `/admin`** — báo
 trùng từ khách (Chặng "Bổ sung thông tin") + nghi trùng do AI quét phát hiện, giờ dùng chung
-1 công cụ so sánh & gộp. Vừa code xong bản gộp chung 2 nguồn, **chưa deploy** — xem mục
-2026-08-19 (mới nhất) bên dưới.
+1 công cụ so sánh & gộp. Bản gộp chung 2 nguồn đã code xong; vừa xử lý xong 3 mục "hoá thạch"
+kẹt trong hàng chờ (chạy lại theo quy tắc mới) — xem mục 2026-08-19 (mới nhất) bên dưới.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
@@ -126,7 +126,30 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-19 (mới nhất, sau) — Vá gấp lỗi "Duyệt" bị crash — do chính em gây ra hôm qua
+### 2026-08-19 (mới nhất) — Cho 3 mục "hoá thạch" trong hàng chờ chạy theo quy tắc mới, khỏi sửa tay
+
+Giải thích cho anh 2 câu hỏi về card "Có thay đổi" (Mường Thanh Grand): (1) nó xuất hiện vì
+được tạo từ **15/07**, tức **trước** ngày đổi quy tắc auto-publish (17/07) — lúc đó loại
+"changed_place" còn phải chờ duyệt tay, giờ quy tắc đã đổi (chỉ "nghi trùng lặp" và "mâu thuẫn
+dữ liệu" mới cần duyệt tay) nhưng mục cũ này chưa từng được xử lý lại nên vẫn kẹt ở đó — gọi
+là "hoá thạch"; (2) phần chú thích (diff) đang hiện tên field thô (`address`, `phone`) — đã đề
+xuất dịch sang tiếng Việt, **anh chưa xác nhận, để sau**.
+
+Anh yêu cầu: cho các mục hoá thạch này tự chạy theo quy tắc hôm nay luôn, khỏi phải sửa tay
+từng cái. Đã rà toàn bộ 16 mục đang chờ, tìm ra đúng 3 mục hoá thạch (loại không còn bị chặn
+theo quy tắc hiện tại), áp dụng đúng logic pipeline hằng ngày đang dùng cho các loại này
+(`applyDiffToLivePlace` / `candidateToLivePlace`), rồi gỡ khỏi hàng chờ + ghi log
+`ingestion:review_events` để sau còn tra lại được:
+- **Khách sạn Mường Thanh Grand Tuyên Quang** — áp dụng đổi địa chỉ + SĐT theo đúng diff đã có.
+- **Khách sạn Royal Palace**, **Khách sạn Lavender** — đăng công khai (là "địa điểm mới", trước
+  đó cũng bị kẹt hoá thạch dù không có gì phải hỏi).
+
+Chạy 1 script tạm 1 lần (không phải code app, không commit) — vì đây là dự án **không có DB
+test riêng**, script chạy thẳng lên Redis thật. Đã kiểm tra kỹ sau khi chạy: không tạo trùng
+tên với chỗ nào đã có sẵn, dữ liệu đúng như kỳ vọng, hàng chờ giờ còn đúng **13 mục**, toàn bộ
+đều là "nghi trùng lặp" thật sự cần anh xem tay. Dọn sạch script tạm, không để lại trong repo.
+
+### 2026-08-19 (sau) — Vá gấp lỗi "Duyệt" bị crash — do chính em gây ra hôm qua
 
 Anh báo lỗi thật: sửa địa chỉ 1 chỗ trong "Hàng chờ duyệt tự động" rồi bấm "Duyệt (đăng công
 khai)" → trang báo "This page couldn't load / A server error occurred". Nguyên nhân: khi em
