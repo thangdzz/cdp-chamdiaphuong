@@ -15,6 +15,7 @@ import { POINTS } from "@/lib/badges";
 import { getReviewQueue, saveReviewQueue, getConfirmedDistinctPairs, appendConfirmedDistinctPair } from "@/lib/ingestion/store";
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { candidateToLivePlace } from "@/lib/ingestion/toLivePlace";
+import { resolveStaleReferences } from "@/lib/ingestion/resolveStaleReferences";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -192,6 +193,7 @@ export async function mergeReviewCandidate(formData) {
       status: REVIEW_STATUS.MERGED,
       updatedAt: new Date().toISOString(),
     };
+    resolveStaleReferences(reviewQueue, reviewItemId, keepId);
     await saveReviewQueue(reviewQueue);
   }
 

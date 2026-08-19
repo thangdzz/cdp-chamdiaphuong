@@ -140,7 +140,16 @@ export async function ingestBatch(batch) {
       existingItem.updatedAt = observedAt;
 
       if (conflicts.length > 0) {
-        existingItem.conflicts = [...(existingItem.conflicts ?? []), ...conflicts];
+        const existingConflicts = existingItem.conflicts ?? [];
+        const newConflicts = conflicts.filter(
+          (c) =>
+            !existingConflicts.some(
+              (e) => e.field === c.field && e.oldValue === c.oldValue && e.newValue === c.newValue
+            )
+        );
+        if (newConflicts.length > 0) {
+          existingItem.conflicts = [...existingConflicts, ...newConflicts];
+        }
         existingItem.needs_review = true;
       }
 

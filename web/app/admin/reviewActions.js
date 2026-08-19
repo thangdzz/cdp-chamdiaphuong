@@ -13,6 +13,7 @@ import {
 } from "@/lib/ingestion/store";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { placeFromFormData } from "@/lib/placeForm";
+import { resolveStaleReferences } from "@/lib/ingestion/resolveStaleReferences";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -35,9 +36,14 @@ async function applyDecision(id, decision, formData) {
   if (index === -1) return;
   const item = reviewQueue[index];
 
+  // Chỗ thật (nếu có) mà mục này kết thúc thành — dùng để vá lại các mục KHÁC đang chờ
+  // duyệt mà lỡ nghi trùng với chính mục này (xem resolveStaleReferences.js).
+  let resultingLiveId = null;
+
   if (decision === "approve") {
     if (item.type === REVIEW_ITEM_TYPE.NEW_PLACE || item.type === REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE) {
       const newId = `live-${crypto.randomUUID()}`;
+      resultingLiveId = newId;
       const livePlaces = await getLivePlaces();
       livePlaces.push({ id: newId, ...placeFromFormData(formData) });
       await setLivePlaces(livePlaces);
@@ -62,6 +68,7 @@ async function applyDecision(id, decision, formData) {
       );
       await setLivePlaces(next);
       item.status = REVIEW_STATUS.APPROVED;
+      resultingLiveId = item.matchedLivePlaceId ?? null;
     } else if (item.type === REVIEW_ITEM_TYPE.STALE_PLACE) {
       // "Duyệt" ở đây nghĩa là "đã kiểm tra, vẫn hoạt động" — chỉ cập nhật mốc thời gian.
       const livePlaces = await getLivePlaces();
@@ -70,6 +77,7 @@ async function applyDecision(id, decision, formData) {
       );
       await setLivePlaces(next);
       item.status = REVIEW_STATUS.DISMISSED;
+      resultingLiveId = item.matchedLivePlaceId ?? null;
     } else if (item.type === REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE) {
       // "Duyệt" = xác nhận đúng là trùng lặp -> không đăng, đánh dấu đã gộp.
       item.status = REVIEW_STATUS.MERGED;
@@ -111,6 +119,11 @@ async function applyDecision(id, decision, formData) {
 
   item.updatedAt = new Date().toISOString();
   reviewQueue[index] = item;
+
+  if (item.status !== REVIEW_STATUS.PENDING) {
+    resolveStaleReferences(reviewQueue, item.id, resultingLiveId);
+  }
+
   await saveReviewQueue(reviewQueue);
 
   await appendReviewEvent({
