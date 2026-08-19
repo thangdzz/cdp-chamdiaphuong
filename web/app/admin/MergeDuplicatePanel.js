@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getPlaceById, searchDuplicateCandidates, mergeDuplicatePlaces } from "./mergeActions";
+import {
+  getPlaceById,
+  searchDuplicateCandidates,
+  mergeDuplicatePlaces,
+  confirmSuggestionNotDuplicate,
+  getReviewCandidateForMerge,
+  mergeReviewCandidate,
+} from "./mergeActions";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 
 const inputClass = "w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
@@ -31,13 +38,18 @@ function MergeField({ label, valueA, valueB, value, onChange }) {
   );
 }
 
-// Công cụ so sánh & gộp 2 chỗ trùng lặp — dành riêng cho báo cáo "duplicateOfName" (khách
-// gõ tên chỗ nghi trùng, chưa chắc khớp đúng chỗ nào trong places:live nên cần bước tìm ở
-// dưới). Xoá dữ liệu thật đã công khai nên LUÔN cần admin tự bấm xác nhận ở bước cuối.
-export function MergeDuplicatePanel({ suggestion }) {
+// Công cụ so sánh & gộp 2 chỗ trùng lặp — dùng chung cho 2 nguồn:
+// - mode="suggestion": khách tự báo "trùng với chỗ khác" (gõ tên tự do) — cả 2 chỗ ĐÃ công
+//   khai, cần bước tìm chỗ B, gộp xong phải XOÁ 1 trong 2 chỗ khỏi places:live.
+// - mode="reviewItem": AI quét tự phát hiện nghi trùng — chỗ A (candidate) CHƯA từng lên
+//   web, máy đã biết sẵn ID chỗ B nên bỏ qua bước tìm kiếm, gộp xong chỉ CẬP NHẬT chỗ B,
+//   không có gì để xoá.
+// Xoá dữ liệu thật đã công khai (mode="suggestion") LUÔN cần admin tự bấm xác nhận, không
+// có đường tự động.
+export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
   const [placeA, setPlaceA] = useState(null);
-  const [step, setStep] = useState("collapsed"); // collapsed | loading | search | compare
-  const [query, setQuery] = useState(suggestion.fields?.duplicateOfName ?? "");
+  const [step, setStep] = useState("collapsed"); // collapsed | loading | search | compare | notfound
+  const [query, setQuery] = useState(suggestion?.fields?.duplicateOfName ?? "");
   const [candidates, setCandidates] = useState([]);
   const [placeB, setPlaceB] = useState(null);
   const [keepSide, setKeepSide] = useState("A");
@@ -46,12 +58,42 @@ export function MergeDuplicatePanel({ suggestion }) {
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
 
+  const sourceId = mode === "suggestion" ? suggestion.placeId : reviewItem.id;
+
+  function initFields(a, b) {
+    setFields({
+      name: a.name || b.name || "",
+      type: a.type || b.type,
+      address: a.address || b.address || "",
+      ward: a.ward || b.ward || "",
+      localArea: a.localArea || b.localArea || "",
+      phone: a.phone || b.phone || "",
+      priceMin: a.priceMin ?? b.priceMin ?? "",
+      priceMax: a.priceMax ?? b.priceMax ?? "",
+      priceUnit: a.priceUnit || b.priceUnit || "",
+    });
+    setKeepPhotos([...new Set([...(a.photos ?? []), ...(b.photos ?? [])])]);
+  }
+
   function expand() {
     setStep("loading");
-    getPlaceById(suggestion.placeId).then((p) => {
-      setPlaceA(p);
-      setStep("search");
-    });
+    if (mode === "suggestion") {
+      getPlaceById(suggestion.placeId).then((p) => {
+        setPlaceA(p);
+        setStep(p ? "search" : "notfound");
+      });
+    } else {
+      getReviewCandidateForMerge(reviewItem.id).then(({ placeA: a, placeB: b }) => {
+        setPlaceA(a);
+        if (a && b) {
+          setPlaceB(b);
+          initFields(a, b);
+          setStep("compare");
+        } else {
+          setStep("notfound");
+        }
+      });
+    }
   }
 
   async function runSearch() {
@@ -59,7 +101,7 @@ export function MergeDuplicatePanel({ suggestion }) {
     busyRef.current = true;
     setBusy(true);
     try {
-      const results = await searchDuplicateCandidates({ query, excludePlaceId: suggestion.placeId });
+      const results = await searchDuplicateCandidates({ query, excludePlaceId: sourceId });
       setCandidates(results);
     } finally {
       setBusy(false);
@@ -74,19 +116,7 @@ export function MergeDuplicatePanel({ suggestion }) {
 
   function pickCandidate(place) {
     setPlaceB(place);
-    setFields({
-      name: placeA.name || place.name || "",
-      type: placeA.type || place.type,
-      address: placeA.address || place.address || "",
-      ward: placeA.ward || place.ward || "",
-      localArea: placeA.localArea || place.localArea || "",
-      phone: placeA.phone || place.phone || "",
-      priceMin: placeA.priceMin ?? place.priceMin ?? "",
-      priceMax: placeA.priceMax ?? place.priceMax ?? "",
-      priceUnit: placeA.priceUnit || place.priceUnit || "",
-    });
-    const allPhotos = [...(placeA.photos ?? []), ...(place.photos ?? [])];
-    setKeepPhotos([...new Set(allPhotos)]);
+    initFields(placeA, place);
     setStep("compare");
   }
 
@@ -98,12 +128,12 @@ export function MergeDuplicatePanel({ suggestion }) {
     setKeepPhotos((list) => (list.includes(url) ? list.filter((u) => u !== url) : [...list, url]));
   }
 
-  async function handleSubmit(formData) {
+  async function runAction(action, formData) {
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
     try {
-      await mergeDuplicatePlaces(formData);
+      await action(formData);
     } finally {
       setBusy(false);
       busyRef.current = false;
@@ -123,13 +153,15 @@ export function MergeDuplicatePanel({ suggestion }) {
   }
 
   if (step === "loading") {
-    return <p className="mt-2 text-xs text-zinc-400">Đang tải dữ liệu chỗ bị báo...</p>;
+    return <p className="mt-2 text-xs text-zinc-400">Đang tải dữ liệu...</p>;
   }
 
-  if (!placeA) {
+  if (step === "notfound") {
     return (
       <p className="mt-2 text-xs text-red-600">
-        Không tìm thấy chỗ này trong danh sách đang công khai — có thể đã bị xoá trước đó.
+        {mode === "suggestion"
+          ? "Không tìm thấy chỗ bị báo trong danh sách đang công khai — có thể đã bị xoá trước đó."
+          : "Không tìm thấy chỗ nghi trùng trong danh sách đang công khai — có thể đã bị xoá, xử lý qua 2 nút bên dưới như bình thường."}
       </p>
     );
   }
@@ -180,35 +212,51 @@ export function MergeDuplicatePanel({ suggestion }) {
   }
 
   // step === "compare"
-  const keepId = keepSide === "A" ? placeA.id : placeB.id;
-  const deleteId = keepSide === "A" ? placeB.id : placeA.id;
+  const keepId = mode === "reviewItem" ? placeB.id : keepSide === "A" ? placeA.id : placeB.id;
+  const deleteId = mode === "reviewItem" ? null : keepSide === "A" ? placeB.id : placeA.id;
+  const mergeAction = mode === "suggestion" ? mergeDuplicatePlaces : mergeReviewCandidate;
+
+  const hiddenFieldInputs = (
+    <>
+      <input type="hidden" name="name" value={fields.name} />
+      <input type="hidden" name="type" value={fields.type} />
+      <input type="hidden" name="address" value={fields.address} />
+      <input type="hidden" name="ward" value={fields.ward} />
+      <input type="hidden" name="localArea" value={fields.localArea} />
+      <input type="hidden" name="phone" value={fields.phone} />
+      <input type="hidden" name="priceMin" value={fields.priceMin} />
+      <input type="hidden" name="priceMax" value={fields.priceMax} />
+      <input type="hidden" name="priceUnit" value={fields.priceUnit} />
+      {keepPhotos.map((url) => (
+        <input key={url} type="hidden" name="keepPhoto" value={url} />
+      ))}
+    </>
+  );
 
   return (
-    <form action={handleSubmit} className="mt-2 rounded-xl border border-zinc-200 bg-white p-3">
-      <input type="hidden" name="suggestionId" value={suggestion.id} />
-      <input type="hidden" name="keepId" value={keepId} />
-      <input type="hidden" name="deleteId" value={deleteId} />
-
+    <div className="mt-2 rounded-xl border border-zinc-200 bg-white p-3">
       <p className="mb-2 text-xs font-medium text-zinc-600">
         So sánh &quot;{placeA.name}&quot; (A) và &quot;{placeB.name}&quot; (B)
+        {mode === "reviewItem" && " — A là bản ghi mới quét, chưa từng lên web"}
       </p>
 
-      <div className="mb-3 flex items-center gap-3 rounded-lg bg-zinc-50 p-2">
-        <span className="text-xs font-medium text-zinc-600">Giữ bản ghi của:</span>
-        <label className="flex items-center gap-1 text-xs text-zinc-700">
-          <input type="radio" checked={keepSide === "A"} onChange={() => setKeepSide("A")} /> Chỗ A
-        </label>
-        <label className="flex items-center gap-1 text-xs text-zinc-700">
-          <input type="radio" checked={keepSide === "B"} onChange={() => setKeepSide("B")} /> Chỗ B
-        </label>
-      </div>
+      {mode === "suggestion" && (
+        <div className="mb-3 flex items-center gap-3 rounded-lg bg-zinc-50 p-2">
+          <span className="text-xs font-medium text-zinc-600">Giữ bản ghi của:</span>
+          <label className="flex items-center gap-1 text-xs text-zinc-700">
+            <input type="radio" checked={keepSide === "A"} onChange={() => setKeepSide("A")} /> Chỗ A
+          </label>
+          <label className="flex items-center gap-1 text-xs text-zinc-700">
+            <input type="radio" checked={keepSide === "B"} onChange={() => setKeepSide("B")} /> Chỗ B
+          </label>
+        </div>
+      )}
 
       <MergeField label="Tên" valueA={placeA.name} valueB={placeB.name} value={fields.name} onChange={(v) => setField("name", v)} />
 
       <div className="mb-2">
         <p className="text-xs font-medium text-zinc-500">Loại hình</p>
         <select
-          name="type"
           value={fields.type}
           onChange={(e) => setField("type", e.target.value)}
           className={inputClass}
@@ -229,17 +277,6 @@ export function MergeDuplicatePanel({ suggestion }) {
       <MergeField label="Giá cao nhất" valueA={placeA.priceMax} valueB={placeB.priceMax} value={fields.priceMax} onChange={(v) => setField("priceMax", v)} />
       <MergeField label="Đơn vị giá" valueA={placeA.priceUnit} valueB={placeB.priceUnit} value={fields.priceUnit} onChange={(v) => setField("priceUnit", v)} />
 
-      {/* Các input ẩn mang đúng giá trị đã chọn ở trên vào form (MergeField chỉ hiện UI,
-          không tự có name — tránh submit nhầm giá trị chưa qua nút "Dùng A/B"). */}
-      <input type="hidden" name="name" value={fields.name} />
-      <input type="hidden" name="address" value={fields.address} />
-      <input type="hidden" name="ward" value={fields.ward} />
-      <input type="hidden" name="localArea" value={fields.localArea} />
-      <input type="hidden" name="phone" value={fields.phone} />
-      <input type="hidden" name="priceMin" value={fields.priceMin} />
-      <input type="hidden" name="priceMax" value={fields.priceMax} />
-      <input type="hidden" name="priceUnit" value={fields.priceUnit} />
-
       {(placeA.photos?.length > 0 || placeB.photos?.length > 0) && (
         <div className="mb-2">
           <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh giữ lại (bỏ tick để không giữ)</p>
@@ -259,17 +296,48 @@ export function MergeDuplicatePanel({ suggestion }) {
           </div>
         </div>
       )}
-      {keepPhotos.map((url) => (
-        <input key={url} type="hidden" name="keepPhoto" value={url} />
-      ))}
 
-      <button
-        type="submit"
-        disabled={busy}
-        className="mt-2 w-full rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {busy ? "Đang gộp..." : `Gộp — giữ chỗ ${keepSide}, xoá chỗ ${keepSide === "A" ? "B" : "A"}`}
-      </button>
-    </form>
+      <form action={(fd) => runAction(mergeAction, fd)}>
+        {mode === "suggestion" ? (
+          <>
+            <input type="hidden" name="suggestionId" value={suggestion.id} />
+            <input type="hidden" name="keepId" value={keepId} />
+            <input type="hidden" name="deleteId" value={deleteId} />
+          </>
+        ) : (
+          <>
+            <input type="hidden" name="reviewItemId" value={reviewItem.id} />
+            <input type="hidden" name="keepId" value={keepId} />
+          </>
+        )}
+        {hiddenFieldInputs}
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-2 w-full rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {busy
+            ? "Đang gộp..."
+            : mode === "reviewItem"
+              ? "Gộp vào chỗ B"
+              : `Gộp — giữ chỗ ${keepSide}, xoá chỗ ${keepSide === "A" ? "B" : "A"}`}
+        </button>
+      </form>
+
+      {mode === "suggestion" && (
+        <form action={(fd) => runAction(confirmSuggestionNotDuplicate, fd)}>
+          <input type="hidden" name="suggestionId" value={suggestion.id} />
+          <input type="hidden" name="placeAId" value={placeA.id} />
+          <input type="hidden" name="placeBId" value={placeB.id} />
+          <button
+            type="submit"
+            disabled={busy}
+            className="mt-2 w-full rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600 disabled:opacity-50"
+          >
+            Không trùng — nhớ luôn, đừng hỏi lại
+          </button>
+        </form>
+      )}
+    </div>
   );
 }

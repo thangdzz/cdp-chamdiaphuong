@@ -6,16 +6,18 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1–4 đã code xong.** Chặng 4 (sổ chia sẻ được — chặng quan trọng nhất) đã lên web thật
-1 lần, anh tự bấm thử và phát hiện lỗ hổng UX thật (không tìm lại được sổ đã tạo) — **đã vá
-xong, chưa deploy lại** — xem mục 2026-08-18 (mới nhất) bên dưới.
+**Chặng 1–4 đã code xong và đã lên web thật.** Ngoài 4 chặng chính, đang có 1 nhánh việc phụ
+đang làm dần theo phản hồi thật của anh: **công cụ xử lý trùng lặp trong `/admin`** — báo
+trùng từ khách (Chặng "Bổ sung thông tin") + nghi trùng do AI quét phát hiện, giờ dùng chung
+1 công cụ so sánh & gộp. Vừa code xong bản gộp chung 2 nguồn, **chưa deploy** — xem mục
+2026-08-19 (mới nhất) bên dưới.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
 và sửa trước khi code.
 
-Bước tiếp theo: deploy bản vá, anh bấm thử lại đúng luồng bị vướng lúc nãy. **Nhắc mốc:**
-Chặng 4 nên xong trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số liệu, không code (xem
+Bước tiếp theo: deploy bản gộp công cụ trùng lặp, anh bấm thử. **Nhắc mốc:** Chặng 4 (đã
+xong) đặt mục tiêu trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số liệu, không code (xem
 SPEC-chang-4.md §7).
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
@@ -124,7 +126,36 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-18 (mới nhất) — Công cụ so sánh & gộp 2 chỗ trùng lặp trong `/admin`
+### 2026-08-19 (mới nhất) — Gộp chung công cụ so sánh & gộp cho cả 2 nguồn nghi trùng lặp
+
+Anh xem card "Nghi trùng lặp" ở "Hàng chờ duyệt tự động — AI quét" (nguồn khác — máy tự phát
+hiện lúc quét, không phải khách báo tay) và hỏi sao 2 nguồn xử lý khác nhau, có gộp chung
+cách làm được không. Bàn kỹ khác nhau ở đâu trước khi code (đúng quy tắc 1): khách báo thì
+**cả 2 chỗ đã công khai** (gộp xong phải xoá 1 chỗ khỏi web); AI quét thì bản ghi mới **chưa
+từng lên web** (gộp xong chỉ cập nhật chỗ đã có, không có gì để xoá).
+
+**Đã làm:**
+- `MergeDuplicatePanel` giờ dùng chung 1 component cho cả 2 nguồn qua prop `mode`
+  (`"suggestion"` / `"reviewItem"`) — nhánh AI quét **bỏ qua bước tìm kiếm** (máy đã biết sẵn
+  đúng ID chỗ nghi trùng), vào thẳng màn so sánh.
+- `mergeActions.js` thêm `mergeReviewCandidate` (cập nhật chỗ đã có, đóng review item, không
+  xoá gì) và `getReviewCandidateForMerge` (dựng "chỗ A" ảo từ candidate để hiện cùng khuôn
+  với chỗ B thật, dùng lại `candidateToLivePlace` sẵn có).
+- Làm luôn 1 việc đã đề xuất trước đó: nút **"Không trùng — nhớ luôn, đừng hỏi lại"** cho
+  luồng khách báo — dùng chung cơ chế `confirmed_distinct_pairs` với AI quét (trước đây chỉ
+  AI quét mới nhớ được, khách báo sai thì có thể bị hỏi lại). Đồng thời sửa `searchDuplicateCandidates`
+  bỏ qua các chỗ đã được xác nhận khác nhau trước đó.
+- **1 lỗi thật phát hiện lúc test:** `<form>` lồng trong `<form>` — cả `SuggestionCard` lẫn
+  `ReviewItemCard` đều tự bọc `<form>` quanh toàn bộ thẻ, gắn `MergeDuplicatePanel` (có
+  `<form>` riêng) vào là bị lồng, HTML chặn im lặng không báo lỗi gì. Sửa cả 2 card: đổi
+  khung ngoài sang `<div>`, chỉ bọc `<form>` quanh đúng cụm nút Duyệt/Từ chối. Ghi lại thành
+  cảnh báo trong ARCHITECTURE.md §6 vì đã dính lỗi này 2 lần.
+- Kiểm thử bằng dữ liệu giả cho cả 2 luồng: AI quét vào thẳng màn so sánh không qua tìm kiếm,
+  không có lựa chọn "giữ bản ghi A/B" (đúng vì A chưa từng lên web), trường trống bên nào tự
+  lấy từ bên kia; khách báo bấm "Không trùng" thì nhớ đúng cặp, đóng báo cáo, cả 2 chỗ vẫn
+  còn nguyên. Dọn sạch dữ liệu test. Build/lint sạch.
+
+### 2026-08-18 — Công cụ so sánh & gộp 2 chỗ trùng lặp trong `/admin`
 
 Anh chỉ ra "Báo trùng với chỗ khác" (làm hôm trước) chưa có công cụ gộp thật — chỉ ghi báo
 cáo, admin phải tự làm hết bằng tay, không có cách chọn giữ/xoá chỗ nào hay gộp nội dung.

@@ -146,8 +146,7 @@ function ReviewItemCard({ item }) {
   const preview = c ? formatPriceText(editable) ?? "Chưa có giá" : null;
 
   return (
-    <form className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-      <input type="hidden" name="id" value={item.id} />
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
       <div className="flex items-start justify-between gap-2">
         <span className="rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-900">
           {REVIEW_TYPE_LABEL[item.type] ?? item.type}
@@ -227,7 +226,12 @@ function ReviewItemCard({ item }) {
         </ul>
       )}
 
-      <div className="mt-3 flex gap-2">
+      {item.type === "duplicate_candidate" && item.duplicateOfCandidates?.length > 0 && (
+        <MergeDuplicatePanel mode="reviewItem" reviewItem={item} />
+      )}
+
+      <form className="mt-3 flex gap-2">
+        <input type="hidden" name="id" value={item.id} />
         <button
           formAction={approveReviewItem}
           className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
@@ -240,8 +244,8 @@ function ReviewItemCard({ item }) {
         >
           {labels.reject}
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
 
@@ -275,7 +279,7 @@ function SuggestionCard({ item }) {
               <p className="mt-2 text-sm font-semibold text-amber-700">
                 ⚠ Nghi trùng với &quot;{item.fields.duplicateOfName}&quot;
               </p>
-              <MergeDuplicatePanel suggestion={item} />
+              <MergeDuplicatePanel mode="suggestion" suggestion={item} />
             </>
           ) : (
             <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700">

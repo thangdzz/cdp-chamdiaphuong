@@ -212,10 +212,13 @@ web/
 │   │   ├── suggestionActions.js(87) Duyệt góp ý khách + cộng điểm
 │   │   ├── ingestPasteActions.js(50) Xử lý báo cáo routine dán tay
 │   │   ├── IngestPasteBox.js (77)
-│   │   ├── mergeActions.js  (100)  Gộp 2 chỗ trùng lặp — xoá dữ liệu thật, LUÔN cần admin
-│   │   │                          tự bấm xác nhận qua form, không có đường tự động
-│   │   └── MergeDuplicatePanel.js(275) Giao diện so sánh 2 cột + chọn giữ trường nào,
-│   │                              gọi mergeActions.js
+│   │   ├── mergeActions.js  (200)  Gộp 2 chỗ trùng lặp — dùng chung cho 2 nguồn (khách báo
+│   │   │                          + AI quét phát hiện, xem §6). Nhánh khách báo xoá dữ liệu
+│   │   │                          thật, LUÔN cần admin tự bấm xác nhận, không có đường
+│   │   │                          tự động. Cũng có confirmSuggestionNotDuplicate (nhớ 2 chỗ
+│   │   │                          khác nhau, dùng chung confirmed_distinct_pairs với AI quét)
+│   │   └── MergeDuplicatePanel.js(343) Giao diện so sánh 2 cột + chọn giữ trường nào — 1
+│   │                              component dùng chung 2 mode ("suggestion"/"reviewItem")
 │   └── api/
 │       ├── ingest/submit/route.js    Nhận dữ liệu quét từ ngoài (bảo vệ bằng CRON_SECRET)
 │       └── cron/daily-ingest/route.js Vercel Cron 1:30 UTC (hiện gần như không dùng)
@@ -352,6 +355,21 @@ Không có cache, không có ISR — mỗi lần khách mở trang là một l�
 ---
 
 ## 6. Những chỗ cần cẩn thận
+
+**Không lồng `<form>` trong `<form>` trong `/admin`.** HTML không cho phép — bấm nút bên
+trong sẽ bị chặn im lặng, không báo lỗi gì (chỉ thấy trong console trình duyệt: "cannot
+contain a nested `<form>`"), rất dễ tưởng nhầm là bug ở chỗ khác. Đã dính lỗi này **2 lần**
+khi thêm `MergeDuplicatePanel` (có `<form>` riêng) vào bên trong `SuggestionCard` và
+`ReviewItemCard` (cả 2 vốn tự bọc `<form>` quanh toàn bộ thẻ). Cách sửa đã áp dụng cho cả 2:
+đổi khung ngoài của card từ `<form>` sang `<div>`, chỉ bọc `<form>` quanh đúng cụm nút bấm
+cần nó (thường là 2 nút Duyệt/Từ chối), các cụm nút/form khác (như panel gộp) làm `<form>`
+riêng, độc lập, không lồng nhau.
+
+**2 nguồn "nghi trùng lặp" khác nhau, dùng chung công cụ gộp nhưng khác nhánh xử lý** —
+xem `app/admin/mergeActions.js` + `MergeDuplicatePanel.js` (mode `"suggestion"` vs
+`"reviewItem"`): khách báo tay thì CẢ 2 chỗ đã công khai (gộp xong phải xoá 1 chỗ khỏi
+`places:live`); AI quét phát hiện thì chỗ mới (candidate) **chưa từng lên web** (gộp xong chỉ
+cập nhật chỗ đã có, không có gì để xoá). Nhầm 2 nhánh này sẽ gọi sai action hoặc xoá nhầm.
 
 **Loại địa điểm — đã có 4 giá trị (Chặng 3, xong 2026-08-17).** `lib/placeTypes.js` là nguồn
 duy nhất (`PLACE_TYPES`: `an`/`choi`/`ngu`/`dilai`). Giá trị lạ giờ **ném lỗi rõ ràng**
