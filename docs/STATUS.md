@@ -9,8 +9,9 @@
 **Chặng 1–4 đã code xong và đã lên web thật.** Ngoài 4 chặng chính, đang có 1 nhánh việc phụ
 đang làm dần theo phản hồi thật của anh: **công cụ xử lý trùng lặp trong `/admin`** — báo
 trùng từ khách (Chặng "Bổ sung thông tin") + nghi trùng do AI quét phát hiện, giờ dùng chung
-1 công cụ so sánh & gộp. Bản gộp chung 2 nguồn đã code xong; vừa xử lý xong 3 mục "hoá thạch"
-kẹt trong hàng chờ (chạy lại theo quy tắc mới) — xem mục 2026-08-19 (mới nhất) bên dưới.
+1 công cụ so sánh & gộp. Đã xử lý xong 3 mục "hoá thạch" kẹt trong hàng chờ, và vá 2 lỗi
+pipeline anh phát hiện khi tự rà 11 mục còn lại (cảnh báo lặp + liên kết trùng lặp hỏng) —
+xem mục 2026-08-19 (mới nhất) bên dưới.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
@@ -126,7 +127,37 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-19 (mới nhất) — Cho 3 mục "hoá thạch" trong hàng chờ chạy theo quy tắc mới, khỏi sửa tay
+### 2026-08-19 (mới nhất, sau) — Vá 2 lỗi phát hiện khi anh tự rà 11 mục đang chờ duyệt
+
+Anh gặp mục "Nhà Hàng Ba Chữ Lồng" có cảnh báo lặp lại y hệt 2 lần và không rõ xử lý sao. Rà
+lại toàn bộ 11 mục đang chờ lúc đó, tìm ra 2 lỗi thật trong pipeline (không phải anh làm sai):
+
+1. **Cảnh báo mâu thuẫn field bị lặp lại** — khi 1 mục đang chờ duyệt được quét lại và phát
+   hiện đúng y hệt 1 khác biệt đã ghi nhận trước đó (ví dụ 2 lần quét liên tiếp cùng thấy 1
+   địa chỉ mới), hệ thống cứ nối thêm vào danh sách cảnh báo mà không kiểm tra đã có sẵn chưa.
+2. **Liên kết "nghi trùng với mục khác đang chờ duyệt" bị treo chết** — khi 1 candidate mới
+   quét được nghi là trùng với 1 mục KHÁC cũng đang chờ duyệt (chưa lên web), hệ thống lưu
+   thẳng ID của mục kia. Nếu mục kia được xử lý xong TRƯỚC (duyệt thành chỗ mới → đổi sang ID
+   thật khác hẳn, hoặc bị từ chối → không còn gì), mục còn lại vẫn giữ ID cũ đã chết — nút "So
+   sánh & gộp" không tìm thấy gì để so sánh nữa. Đúng là nguyên nhân khiến "Nhà Hàng Ba Chữ
+   Lồng" và "Relax Coffee (Vincom Plaza)" không dùng được nút gộp hôm nay.
+
+**Đã sửa:**
+- `lib/ingestion/ingestBatch.js` — chỉ thêm cảnh báo mới nếu chưa có y hệt (so field +
+  giá trị cũ + giá trị mới).
+- `lib/ingestion/resolveStaleReferences.js` (file mới) — hàm dùng chung: khi 1 mục rời khỏi
+  trạng thái chờ (duyệt/từ chối/gộp), tự cập nhật các mục KHÁC đang nghi trùng với nó — trỏ
+  sang ID thật nếu mục đó vừa lên web, gỡ liên kết nếu không còn gì để trỏ. Gọi hàm này ở cả
+  2 nơi có thể đóng 1 review item: `reviewActions.js` (nút Duyệt/Từ chối) và
+  `mergeActions.js` (nút "So sánh & gộp").
+
+Kiểm thử bằng test logic thuần (không cần Playwright vì đây là xử lý dữ liệu, không phải
+UI) — cả 2 sửa chạy đúng như kỳ vọng. Build sạch. Đã deploy.
+
+Anh đã duyệt hết 11 mục hôm đó nên không còn ảnh hưởng ngay, nhưng lỗi nằm trong routine
+quét hằng ngày nên sẽ tái diễn nếu không sửa — anh đồng ý sửa trước khi gặp lại lần sau.
+
+### 2026-08-19 — Cho 3 mục "hoá thạch" trong hàng chờ chạy theo quy tắc mới, khỏi sửa tay
 
 Giải thích cho anh 2 câu hỏi về card "Có thay đổi" (Mường Thanh Grand): (1) nó xuất hiện vì
 được tạo từ **15/07**, tức **trước** ngày đổi quy tắc auto-publish (17/07) — lúc đó loại
