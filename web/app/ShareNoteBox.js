@@ -59,11 +59,14 @@ export function ShareNoteBox({ placeId, initialText, onCancel }) {
   return (
     <div className="mt-2 rounded-lg border border-zinc-300 bg-white p-2">
       <p className="mb-1 text-xs text-zinc-500">Rút gọn còn tối đa {SHARE_MAX_LENGTH} ký tự trước khi đăng:</p>
-      <textarea
+      {/* input 1 dòng CỐ Ý, không phải textarea — Mẹo công khai chỉ nhận 1 dòng, input
+          không cho gõ/dán Enter được nên chặn được tận gốc, không cần lọc lại sau (lỗi thật
+          gặp khi chỉ lọc initialText mà chưa chặn lúc khách tự gõ thêm Enter). */}
+      <input
+        type="text"
         value={shareText}
         maxLength={SHARE_MAX_LENGTH}
         onChange={(e) => setShareText(e.target.value)}
-        rows={2}
         className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
       />
       <div className="mt-1 flex items-center justify-between">
