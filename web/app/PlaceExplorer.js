@@ -11,6 +11,7 @@ import { PLACE_TYPES } from "@/lib/placeTypes";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
+import { PersonalNote } from "./PersonalNote";
 
 const TYPE_LABEL = Object.fromEntries(PLACE_TYPES.map((t) => [t.id, t.label]));
 
@@ -242,7 +243,7 @@ function PlaceCard({ place }) {
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
 
   return (
-    <li className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <li id={place.id} className="scroll-mt-20 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-base font-semibold text-zinc-900">{place.name}</h3>
         <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
@@ -275,6 +276,7 @@ function PlaceCard({ place }) {
 
       {expanded && (
         <div className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-700">
+          <PersonalNote place={place} />
           <p>
             <span className="text-zinc-500">Địa chỉ đầy đủ: </span>
             {place.address}
