@@ -50,9 +50,14 @@ Trong phần bung, **trên cùng** (trước cả thông tin công khai — đâ
 │ Bà chủ dễ tính, xin thêm nước dùng │
 │ được. Đi với mẹ thì hợp.           │
 └────────────────────────────────────┘
-Chỉ mình bạn thấy · Lưu trên máy này
+Chỉ mình bạn thấy · Chỉ lưu trên máy này — đổi máy hoặc xoá dữ liệu duyệt web sẽ mất.
                     [Xoá]  [Chia sẻ cho mọi người]
 ```
+
+> **Cập nhật 2026-08-20** (phản hồi thật lúc bàn kế hoạch): dòng trạng thái dưới ô gõ đổi
+> thành cảnh báo rõ ràng luôn, hiện **mỗi lần** mở ô ghi chú (không chỉ lần đầu) — trước đó
+> SPEC gốc chỉ cảnh báo mất dữ liệu gián tiếp qua lời mời ở ghi chú thứ 3 (§5), khách viết
+> ghi chú đầu tiên hoàn toàn không biết trước là có rủi ro mất.
 
 Chưa có ghi chú → chỉ hiện một dòng mờ **"+ Ghi chú riêng"**, bấm mới mở ô nhập.
 
