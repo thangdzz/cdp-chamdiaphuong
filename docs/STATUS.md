@@ -6,9 +6,11 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1–4 đã code xong và đã lên web thật.** Anh đang tự bấm thử Chặng 4 theo checklist
-SPEC §10 — vừa phát hiện 1 chỗ thiếu (bấm vào chỗ trong sổ không mở rộng xem được), đã vá và
-lên web — xem mục 2026-08-20 (mới nhất) bên dưới.
+**Chặng 1–4 đã code xong và đã lên web thật.** Anh vừa bấm thử xong Chặng 4 theo checklist
+SPEC §10, phát hiện + vá 2 chỗ thiếu (mở rộng xem chi tiết + nút Sao chép link ở trang Xem sổ).
+
+**Chặng 5 (Ghi chú công khai bằng chữ) đã bắt đầu — phần (a) "Mẹo tự do" code xong, lên web
+thật.** Phần (b) "Nên gọi món gì" chưa làm, để sau — xem mục 2026-08-20 (mới nhất) bên dưới.
 
 Ngoài 4 chặng chính, đang có 1 nhánh việc phụ đang làm dần theo phản hồi thật của anh:
 **công cụ xử lý trùng lặp trong `/admin`** — báo trùng từ khách (Chặng "Bổ sung thông tin") +
@@ -73,6 +75,18 @@ câu để làm mới file này, không cần mỗi ngày — không làm cũng 
 thể tốn thêm chút công tìm kiếm không cần thiết.
 
 ## Việc đang chờ bàn ở Cowork (chưa code)
+- **Giá mùa cao điểm khác giá ngày thường** ⚠️ — khách sạn 900k ngày thường có thể 2,5 triệu
+  dịp lễ hội. `places:live` chỉ có **một ô giá** (`priceMin`/`priceMax`/`priceUnit`), nên
+  trong đúng tuần lễ hội web đang hiển thị con số sai lệch với chính nhóm khách cần nó nhất.
+  Đây là **rủi ro uy tín**, không chỉ thiếu tính năng — đi ngược đúng thứ dự án đang bán
+  ("thông tin đáng tin"). Chưa có hướng xử lý; vài lựa chọn để bàn: thêm cặp giá mùa cao
+  điểm · hoặc chỉ thêm cảnh báo "giá dịp lễ hội có thể cao hơn nhiều" · hoặc thành một câu
+  bấm chọn. Phát hiện 2026-08-19 khi đọc `docs/reference/de-xuat-so-2-...md`.
+- **Thông tin theo khu vực, không theo từng chỗ** — "đường Nguyễn Tất Thành chặn từ 18h"
+  không thuộc về địa điểm nào. Chặng 3 có `festival_note` nhưng gắn vào từng chỗ. Khoảng
+  trống thật nhưng lớn, chưa đề xuất làm.
+- **Lịch lễ hội thay đổi** — trang `/le-hoi-thanh-tuyen` đang tĩnh; mưa/hoãn/đổi giờ thì
+  không có cơ chế báo. Ưu tiên thấp.
 - **Tài khoản / đăng nhập (Chặng 7)** — anh muốn bàn kỹ ở Cowork **sau khi xong Chặng 4**,
   trước khi code. Ba việc cần chốt: chọn kênh gửi OTP (Zalo ZNS / SMS brandname / email —
   chỗ duy nhất trong dự án phải trả tiền cho bên thứ ba) · có nên đăng nhập bằng Zalo thay
@@ -130,7 +144,48 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau) — Thêm "Sao chép link" ngay trên trang Xem sổ
+### 2026-08-20 (mới nhất) — Chặng 5 phần (a): Mẹo tự do (ghi chú công khai bằng chữ)
+
+Đọc SPEC-chang-5.md, trình kế hoạch trước khi code (đúng quy tắc 1). Chặng này có 2 phần khá
+độc lập — thống nhất với anh: làm (a) "Mẹo tự do" trước, bấm thử ổn rồi mới làm (b) "Nên gọi
+món gì" (cơ chế gõ→nút bấm hoàn toàn mới, phức tạp hơn). Cũng chốt luôn: lớp 3 (AI lọc nội
+dung) dùng **Haiku 4.5** (rẻ, đủ cho việc phân loại OK/LOẠI đơn giản) — lần đầu tiên app này
+gọi thẳng Claude API lúc chạy thật (khác hẳn việc quét dữ liệu hằng ngày qua Claude Code cloud).
+
+**Đã làm:**
+- `lib/noteFilters.js` — lớp 1 (giới hạn 120 ký tự, 1 dòng, tái dùng `containsLinkOrPhone` có
+  sẵn) + lớp 2 (rác rõ ràng: từ khoá bậy, chuỗi gõ bậy kiểu bàn phím, ký tự lặp, toàn chữ hoa)
+  — loại thẳng, không vào hàng chờ.
+- `lib/noteAiCheck.js` — lớp 3, gọi Haiku 4.5 phân loại đúng câu hỏi + lành mạnh không. **Gọi
+  AI lỗi hoặc chưa cấu hình `ANTHROPIC_API_KEY`** (chưa thêm vào `.env.local`/Vercel) **→ tự
+  động cho qua vào hàng chờ** (fail-open, đúng SPEC §3) — nghĩa là lớp 3 hiện chưa thật sự
+  chạy, mọi ghi chú đều đi thẳng tới lớp 4 (admin duyệt tay), vẫn an toàn vì đây là loại nội
+  dung duy nhất luôn bắt buộc qua duyệt. Khi nào anh có key, thêm vào là lớp 3 tự kích hoạt,
+  không cần sửa code.
+- `lib/notes.js` — tầng dữ liệu: `place_notes:published` (hash, HSET theo field, không ghi đè
+  cả hash), `place_notes:queue`, đếm/chặn gửi hàng loạt (tối đa 3 ghi chú chờ duyệt/người),
+  chặn gửi trùng y hệt, duyệt/bỏ, và lớp 5 "Ghi chú này không đúng" (`note_reports:{id}` INCR
+  + EXPIRE 90 ngày, đạt 2 → tự ẩn + quay lại hàng chờ trong `/admin`). Ghi chú "chỉ đúng dịp
+  lễ hội" lọc lúc đọc (không xoá) — tự ẩn sau 25/09.
+- `app/NoteInput.js`, `app/noteActions.js` — ô gõ mẹo + hiện tối đa 3 mẹo đã duyệt (dạng
+  thuộc tính, không tên người viết/thời gian, đúng nguyên tắc chặn diễn đàn bằng cấu trúc) +
+  nút báo sai, gắn vào phần bung thẻ ở trang chủ (`PlaceExplorer.js`).
+- `app/admin/noteActions.js` + 2 mục mới trong `/admin`: "Ghi chú chờ duyệt" và "Ghi chú bị
+  báo sai". Duyệt xong mới cộng +5 điểm (dùng chung trần 30 điểm/ngày đã có ở `pointsCap.js`).
+  Mục bị báo sai quay lại hàng chờ không có `contributorId` gốc → duyệt lại không cộng điểm
+  ai (đúng, vì không rõ ai gửi ban đầu).
+
+Kiểm thử: script gọi thẳng `lib/notes.js` cho từng quy tắc (trần 3 ghi chú/người, chặn trùng,
+duyệt đúng field không ghi đè hash, bỏ, lớp 5 báo 2 lần) + Playwright cho luồng thật trên
+trang chủ (chặn SĐT, chặn rác, gửi hợp lệ → "sẽ hiện sau khi kiểm tra") và trên `/admin`
+(thấy đúng mục, duyệt xong lên trang chủ + cộng điểm đúng người, báo sai 2 lần từ 2 trình
+duyệt khác nhau → tự ẩn + về đúng mục "Ghi chú bị báo sai"). Dọn sạch dữ liệu test. Build/lint
+sạch (còn đúng 1 lỗi lint có sẵn từ trước, không liên quan). Đã deploy.
+
+**Chưa làm (để sau):** phần (b) "Nên gọi món gì" — cơ chế "gõ hôm nay → thành nút bấm ngày
+mai", Chặng 2 hiện chưa có sẵn cơ chế option tự sinh từ text gõ, cần viết logic mới hoàn toàn.
+
+### 2026-08-20 (sau) — Thêm "Sao chép link" ngay trên trang Xem sổ
 
 Anh hỏi rõ ràng hoá: không cần lập tài khoản gì (app này không có đăng nhập, "chủ sổ" nhận
 ra qua hồ sơ ẩn danh tạo âm thầm trong máy); nhưng đúng là **chỉ lấy link được ở trang Sửa
