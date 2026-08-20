@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getNotebook, resolveNotebookItems } from "@/lib/notebooks";
+import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
 import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
@@ -50,7 +51,13 @@ export default async function NotebookViewPage({ params }) {
   const notebook = await getNotebook(slug);
   if (!notebook) notFound();
 
-  const items = await resolveNotebookItems(notebook.items);
+  const [items, allNotes] = await Promise.all([
+    resolveNotebookItems(notebook.items),
+    getAllPublishedNotes(),
+  ]);
+  const itemsWithNotes = items.map((item) =>
+    item.deleted ? item : { ...item, place: { ...item.place, notes: filterVisibleNotes(allNotes[item.placeId] ?? []) } }
+  );
 
   return (
     <div className="flex flex-1 justify-center">
@@ -61,15 +68,15 @@ export default async function NotebookViewPage({ params }) {
         <header className="mb-6">
           <h1 className="text-xl font-bold text-zinc-900">{notebook.title}</h1>
           <p className="mt-1 text-sm text-zinc-500">
-            {items.length} chỗ · cập nhật {formatRelativeDays(notebook.updatedAt)}
+            {itemsWithNotes.length} chỗ · cập nhật {formatRelativeDays(notebook.updatedAt)}
           </p>
         </header>
 
-        {items.length === 0 ? (
+        {itemsWithNotes.length === 0 ? (
           <p className="text-sm text-zinc-500">Sổ này chưa có chỗ nào.</p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {items.map((item) =>
+            {itemsWithNotes.map((item) =>
               item.deleted ? (
                 <li
                   key={item.placeId}

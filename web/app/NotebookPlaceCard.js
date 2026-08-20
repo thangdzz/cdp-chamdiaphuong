@@ -63,6 +63,18 @@ export function NotebookPlaceCard({ item }) {
 
           <PlaceFacts type={place.type} consensus={place.consensus} />
 
+          {place.notes?.length > 0 && (
+            <div className="flex flex-col gap-1">
+              {place.notes.map((n) => (
+                <p key={n.id}>
+                  <span className="mr-1">💡</span>
+                  <span className="text-zinc-500">Mẹo: </span>
+                  {n.text}
+                </p>
+              ))}
+            </div>
+          )}
+
           {photos.length > 0 && (
             <div className="mt-1">
               <p className="mb-1.5 text-xs font-medium text-zinc-500">Ảnh địa điểm</p>

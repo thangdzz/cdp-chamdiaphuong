@@ -28,22 +28,24 @@ async function saveNoteQueue(queue) {
   await redis.set(QUEUE_KEY, queue);
 }
 
-export async function pushNoteToQueue(item) {
-  const queue = await getNoteQueue();
-  queue.push(item);
-  await saveNoteQueue(queue);
+// `queue` truyền sẵn (nếu có) để tránh đọc lại place_notes:queue nhiều lần trong 1 lượt gửi
+// (submitTip cần cả 3 hàm này — mỗi lệnh Redis mất ~300-800ms, gộp lại đỡ chậm hẳn).
+export async function pushNoteToQueue(item, queue) {
+  const list = queue ?? (await getNoteQueue());
+  list.push(item);
+  await saveNoteQueue(list);
 }
 
 // Chặn gửi hàng loạt — tối đa 3 ghi chú chờ duyệt cùng lúc/người (SPEC §7 quy tắc 3).
-export async function countPendingNotesForContributor(contributorId) {
-  const queue = await getNoteQueue();
-  return queue.filter((n) => n.contributorId === contributorId).length;
+export async function countPendingNotesForContributor(contributorId, queue) {
+  const list = queue ?? (await getNoteQueue());
+  return list.filter((n) => n.contributorId === contributorId).length;
 }
 
 // Chặn gửi trùng y hệt nội dung cho cùng 1 chỗ (SPEC §7 quy tắc 4, cùng cách suggestions.js).
-export async function findDuplicateNote(contributorId, placeId, text) {
-  const queue = await getNoteQueue();
-  if (queue.some((n) => n.contributorId === contributorId && n.placeId === placeId && n.text === text)) {
+export async function findDuplicateNote(contributorId, placeId, text, queue) {
+  const list = queue ?? (await getNoteQueue());
+  if (list.some((n) => n.contributorId === contributorId && n.placeId === placeId && n.text === text)) {
     return true;
   }
   const published = await getPublishedNotesForPlace(placeId);

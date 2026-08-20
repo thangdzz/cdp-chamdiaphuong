@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createContributor } from "@/lib/contributors";
 import { checkNoteText } from "@/lib/noteFilters";
 import { checkNoteWithAi } from "@/lib/noteAiCheck";
-import { pushNoteToQueue, countPendingNotesForContributor, findDuplicateNote, reportNote } from "@/lib/notes";
+import { getNoteQueue, pushNoteToQueue, countPendingNotesForContributor, findDuplicateNote, reportNote } from "@/lib/notes";
 
 const NOTE_MAX_LENGTH = 120;
 const MAX_PENDING_PER_CONTRIBUTOR = 3; // SPEC-chang-5.md §7 quy tắc 3
@@ -31,8 +31,9 @@ export async function submitTip({ anonId, placeId, questionId, text, festivalOnl
   const cleanText = text.trim();
 
   const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
+  const queue = await getNoteQueue();
 
-  const pendingCount = await countPendingNotesForContributor(currentAnonId);
+  const pendingCount = await countPendingNotesForContributor(currentAnonId, queue);
   if (pendingCount >= MAX_PENDING_PER_CONTRIBUTOR) {
     return {
       ok: false,
@@ -42,7 +43,7 @@ export async function submitTip({ anonId, placeId, questionId, text, festivalOnl
     };
   }
 
-  if (await findDuplicateNote(currentAnonId, placeId, cleanText)) {
+  if (await findDuplicateNote(currentAnonId, placeId, cleanText, queue)) {
     return { ok: false, error: "Bạn đã gửi đúng nội dung này cho chỗ này rồi.", anonId: currentAnonId, newProfile };
   }
 
@@ -54,16 +55,19 @@ export async function submitTip({ anonId, placeId, questionId, text, festivalOnl
     return { ok: false, error: "Ghi chú chưa phù hợp, thử viết lại.", anonId: currentAnonId, newProfile };
   }
 
-  await pushNoteToQueue({
-    id: `note-${crypto.randomUUID()}`,
-    placeId,
-    questionId,
-    text: cleanText,
-    festivalOnly: !!festivalOnly,
-    contributorId: currentAnonId,
-    at: new Date().toISOString(),
-    aiVerdict: aiResult.verdict,
-  });
+  await pushNoteToQueue(
+    {
+      id: `note-${crypto.randomUUID()}`,
+      placeId,
+      questionId,
+      text: cleanText,
+      festivalOnly: !!festivalOnly,
+      contributorId: currentAnonId,
+      at: new Date().toISOString(),
+      aiVerdict: aiResult.verdict,
+    },
+    queue
+  );
 
   revalidatePath("/admin");
   return { ok: true, anonId: currentAnonId, newProfile };
