@@ -113,7 +113,7 @@ export function AddToNotebook({ place }) {
 
   if (added) {
     return (
-      <p className="mt-2 text-sm text-zinc-500">
+      <p className="cdp-fade-in text-[13px] text-zinc-500">
         ✓ Đã thêm vào sổ (lưu trên máy này, không cần đăng nhập) ·{" "}
         <Link href={`/so/${addedSlug}`} className="font-medium text-zinc-700 underline">
           Xem sổ
@@ -123,18 +123,18 @@ export function AddToNotebook({ place }) {
   }
 
   return (
-    <div className="mt-2">
+    <div>
       <button
         type="button"
         onClick={openMenu}
         disabled={busy}
-        className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 disabled:opacity-50"
+        className="cdp-pressable inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-600 disabled:opacity-50"
       >
-        + Thêm vào sổ
+        🔖 + Thêm vào sổ
       </button>
 
       {open && (
-        <div className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+        <div className="cdp-fade-in mt-2 rounded-lg bg-zinc-50 p-3">
           <div className="flex flex-col gap-1.5">
             {notebooks?.map((nb) => (
               <button
@@ -160,7 +160,7 @@ export function AddToNotebook({ place }) {
               type="button"
               disabled={busy || !newTitle.trim()}
               onClick={createAndAdd}
-              className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+              className="cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
             >
               Tạo sổ mới
             </button>

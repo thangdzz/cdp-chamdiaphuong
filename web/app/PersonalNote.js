@@ -101,7 +101,7 @@ export function PersonalNote({ place }) {
       <button
         type="button"
         onClick={openEditor}
-        className="mb-3 block cursor-pointer text-left text-sm text-zinc-400 underline"
+        className="block w-fit cursor-pointer text-left text-[13px] text-zinc-400 underline"
       >
         + Ghi chú riêng
       </button>
@@ -109,8 +109,8 @@ export function PersonalNote({ place }) {
   }
 
   return (
-    <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-      <p className="mb-1.5 text-sm font-medium text-zinc-700">📝 Ghi chú riêng của bạn</p>
+    <div>
+      <p className="mb-1.5 text-sm font-medium text-zinc-700">Ghi chú riêng của bạn</p>
       <textarea
         value={text}
         maxLength={PERSONAL_NOTE_MAX_LENGTH}
@@ -121,30 +121,32 @@ export function PersonalNote({ place }) {
         className="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900"
       />
       {showHint && (
-        <p className="mt-1 text-xs text-amber-700">
+        <p className="mt-1 text-[13px] text-zinc-500">
           Không nên ghi thông tin nhạy cảm (mật khẩu, số tài khoản, giấy tờ).
         </p>
       )}
-      {saveError && <p className="mt-1 text-xs text-red-600">{saveError}</p>}
-      {justSaved && !saveError && <p className="mt-1 text-xs text-emerald-600">✓ Đã lưu</p>}
-      <p className="mt-1.5 text-xs text-zinc-500">
+      {saveError && <p className="mt-1 text-[13px] text-red-600">{saveError}</p>}
+      {justSaved && !saveError && (
+        <p className="cdp-fade-in mt-1 text-[13px] text-emerald-700">✓ Đã lưu</p>
+      )}
+      <p className="mt-1.5 text-xs text-zinc-400">
         Chỉ mình bạn thấy · Chỉ lưu trên máy này — đổi máy hoặc xoá dữ liệu duyệt web sẽ mất.
       </p>
       <div className="mt-2 flex items-center gap-3">
-        <button type="button" onClick={handleDelete} className="cursor-pointer text-xs text-red-600 underline">
+        <button type="button" onClick={handleDelete} className="cursor-pointer text-[13px] text-red-600 underline">
           Xoá
         </button>
         <button
           type="button"
           onClick={() => setSharing((v) => !v)}
-          className="cursor-pointer text-xs text-zinc-600 underline"
+          className="cursor-pointer text-[13px] text-zinc-500 underline"
         >
           Đăng công khai
         </button>
         <button
           type="button"
           onClick={handleSaveClick}
-          className="ml-auto cursor-pointer rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700"
+          className="cdp-pressable ml-auto cursor-pointer rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-600"
         >
           Lưu
         </button>

@@ -102,7 +102,7 @@ export function QuestionPrompt({ place }) {
 
   if (thanks) {
     return (
-      <p className="mt-2 text-sm text-zinc-500">
+      <p className="cdp-fade-in border-t border-zinc-100 pt-5 text-[13px] text-zinc-500">
         ✓ Cảm ơn bạn{thanks.pointsAwarded ? " · +1 điểm" : " · +1 đang chờ xác nhận"}
       </p>
     );
@@ -114,7 +114,7 @@ export function QuestionPrompt({ place }) {
 
   if (pendingFollowUp) {
     return (
-      <div className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+      <div className="cdp-fade-in border-t border-zinc-100 pt-5">
         <p className="mb-2 text-sm text-zinc-700">{pendingFollowUp.followUp.label}</p>
         <div className="flex gap-2">
           <input
@@ -127,7 +127,7 @@ export function QuestionPrompt({ place }) {
             type="button"
             disabled={busy}
             onClick={handleFollowUpSubmit}
-            className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
           >
             Gửi
           </button>
@@ -137,7 +137,7 @@ export function QuestionPrompt({ place }) {
   }
 
   return (
-    <div className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+    <div className="cdp-fade-in border-t border-zinc-100 pt-5">
       <p className="mb-2 text-sm text-zinc-700">{question.text}</p>
       <div className="flex flex-wrap gap-2">
         {question.options.map((opt) => (
@@ -146,10 +146,10 @@ export function QuestionPrompt({ place }) {
             type="button"
             disabled={busy}
             onClick={() => handleOptionClick(opt)}
-            className={`rounded-full border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
+            className={`cdp-pressable min-h-11 rounded-lg px-3 text-sm font-medium disabled:opacity-50 ${
               question.multi && selected.includes(opt.value)
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-300 bg-white text-zinc-700"
+                ? "bg-zinc-900 text-white"
+                : "bg-zinc-100 text-zinc-700"
             }`}
           >
             {opt.label}
@@ -160,7 +160,7 @@ export function QuestionPrompt({ place }) {
             type="button"
             disabled={busy || selected.length === 0}
             onClick={() => handleAnswer(selected)}
-            className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="cdp-pressable min-h-11 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white disabled:opacity-50"
           >
             Xong
           </button>

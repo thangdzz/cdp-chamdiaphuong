@@ -25,7 +25,7 @@ export default function LeHoiThanhTuyenPage() {
           ← Về trang chủ
         </Link>
 
-        <div className="relative mt-3 h-48 w-full overflow-hidden rounded-2xl sm:h-64">
+        <div className="relative mt-3 h-48 w-full overflow-hidden rounded-xl sm:h-64">
           <Image
             src="/images/le-hoi-thanh-tuyen-2026.jpg"
             alt="Lễ hội Thành Tuyên 2026"

@@ -27,7 +27,7 @@ function InviteBanner({ onDismiss }) {
   }
 
   return (
-    <div className="mb-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+    <div className="mb-4 rounded-xl bg-zinc-50 p-4">
       {saved ? (
         <p className="text-sm text-zinc-700">Sắp có — em đang làm phần này.</p>
       ) : (
@@ -39,14 +39,14 @@ function InviteBanner({ onDismiss }) {
             <button
               type="button"
               onClick={onDismiss}
-              className="cursor-pointer rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
+              className="cdp-pressable cursor-pointer rounded-lg px-3 py-1.5 text-[13px] text-zinc-600"
             >
               Để sau
             </button>
             <button
               type="button"
               onClick={handleSaveClick}
-              className="cursor-pointer rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white"
+              className="cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-3 py-1.5 text-[13px] font-medium text-white"
             >
               Lưu lại
             </button>
@@ -61,25 +61,25 @@ function NoteListItem({ note }) {
   const [sharing, setSharing] = useState(false);
 
   return (
-    <li className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
       {note.place ? (
-        <Link href={`/#${note.placeId}`} className="text-base font-semibold text-zinc-900 underline">
+        <Link href={`/#${note.placeId}`} className="text-lg font-medium tracking-tight text-zinc-900 underline">
           {note.place.name}
         </Link>
       ) : (
         <>
-          <p className="text-base font-semibold text-zinc-400">Chỗ đã xoá</p>
-          <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
+          <p className="text-lg font-medium tracking-tight text-zinc-400">Chỗ đã xoá</p>
+          <p className="text-[13px] text-zinc-400">Chỗ này không còn trong danh bạ</p>
         </>
       )}
-      <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">{note.text}</p>
-      <div className="mt-1 flex items-center justify-between">
+      <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700">{note.text}</p>
+      <div className="mt-3 flex items-center justify-between">
         <p className="text-xs text-zinc-400">Cập nhật {formatDate(note.updatedAt)}</p>
         {note.place && (
           <button
             type="button"
             onClick={() => setSharing((v) => !v)}
-            className="cursor-pointer text-xs text-zinc-600 underline"
+            className="cursor-pointer text-[13px] text-zinc-500 underline"
           >
             Đăng công khai
           </button>
@@ -157,7 +157,7 @@ export function PersonalNotesList({ places }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Tìm trong ghi chú..."
-        className="mb-4 w-full rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700"
+        className="mb-4 w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700"
       />
 
       {filtered.length === 0 ? (

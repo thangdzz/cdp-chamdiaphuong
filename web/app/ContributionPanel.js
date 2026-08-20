@@ -58,8 +58,8 @@ async function compressImage(file, { maxDim = 1600, quality = 0.82 } = {}) {
 }
 
 const inputClass = "rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
-const btnPrimary = "rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50";
-const btnGhost = "rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-medium text-zinc-700";
+const btnPrimary = "cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50";
+const btnGhost = "cdp-pressable rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700";
 
 export function ContributionPanel({ place, onDone }) {
   const [mode, setMode] = useState("idle");
@@ -319,14 +319,14 @@ export function ContributionPanel({ place, onDone }) {
 
   if (mode === "idle") {
     return (
-      <div className="mt-2 flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setMode("choiceMenu")}
-            className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600"
+            className="cdp-pressable inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-600"
           >
-            Bổ sung thông tin
+            ✏️ Bổ sung thông tin
           </button>
           <button
             type="button"
@@ -342,7 +342,7 @@ export function ContributionPanel({ place, onDone }) {
   }
 
   return (
-    <div className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+    <div className="cdp-fade-in mt-2 rounded-lg bg-zinc-50 p-3">
       {mode === "choiceMenu" && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-zinc-600">
@@ -524,7 +524,7 @@ export function ContributionPanel({ place, onDone }) {
 
       {mode === "recoveryReveal" && (
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold text-zinc-800">
+          <p className="text-sm font-medium text-zinc-800">
             Mã khôi phục của bạn: <span className="text-lg tracking-wider">{revealCode}</span>
           </p>
           <p className="text-xs text-zinc-600">
@@ -582,7 +582,7 @@ export function ContributionPanel({ place, onDone }) {
               size={44}
             />
             <div>
-              <p className="text-sm font-semibold text-zinc-800">{standing.badge.tierName}</p>
+              <p className="text-sm font-medium text-zinc-800">{standing.badge.tierName}</p>
               <p className="text-xs text-zinc-500">
                 {standing.badge.categoryLabel}
                 {standing.badge.bonusCount > 0 && ` · góp ý thêm lần ${standing.badge.bonusCount}`}
@@ -592,7 +592,7 @@ export function ContributionPanel({ place, onDone }) {
           {standing.standing?.nearby?.length > 0 && (
             <ul className="flex flex-col gap-0.5 text-xs text-zinc-600">
               {standing.standing.nearby.map((c) => (
-                <li key={c.anonId} className={c.isYou ? "font-semibold text-zinc-900" : ""}>
+                <li key={c.anonId} className={c.isYou ? "font-medium text-zinc-900" : ""}>
                   {c.isYou ? "Bạn" : c.nickname} — {c.points} điểm
                 </li>
               ))}

@@ -17,58 +17,28 @@ export function NotebookPlaceCard({ item }) {
   const photos = place.photos ?? [];
 
   return (
-    <li className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-base font-semibold text-zinc-900">{place.name}</h3>
-        <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+        <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
+        <span className="shrink-0 rounded-lg bg-zinc-100 px-2 py-0.5 text-[13px] font-medium text-zinc-500">
           {getPlaceTypeLabel(place.type)}
         </span>
       </div>
-      <p className="mt-1 text-sm text-zinc-600">
-        {place.priceText ?? "Chưa cập nhật giá"}
-        {place.ward ? ` · ${place.ward}` : ""}
+      <p className="mt-3 text-2xl font-medium tracking-tight text-zinc-900">
+        {place.priceText ?? <span className="text-base font-normal text-zinc-400">Chưa cập nhật giá</span>}
       </p>
+      {place.ward && <p className="mt-1 text-[13px] text-zinc-500">{place.ward}</p>}
       {item.note && <p className="mt-2 text-sm text-zinc-700">💬 {item.note}</p>}
 
       {expanded && (
-        <div className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-700">
-          <p>
-            <span className="text-zinc-500">Địa chỉ đầy đủ: </span>
-            {place.address}
-          </p>
-          {(place.localArea || place.ward) && (
-            <p>
-              <span className="text-zinc-500">Khu vực: </span>
-              {[place.localArea, place.ward].filter(Boolean).join(", ")}
-            </p>
-          )}
-          <p>
-            <span className="text-zinc-500">Cập nhật gần nhất: </span>
-            {formatDate(place.lastUpdatedAt) ?? "Chưa rõ"}
-          </p>
-          <p>
-            <span className="text-zinc-500">Độ tin cậy: </span>
-            {confidenceLabel(place.confidenceScore) ?? "Chưa đánh giá"}
-          </p>
-          <p>
-            <span className="text-zinc-500">Nguồn đối chiếu: </span>
-            {place.sourceCount ?? "Chưa rõ"}
-          </p>
-          {place.note && (
-            <p>
-              <span className="text-zinc-500">Ghi chú chung: </span>
-              {place.note}
-            </p>
-          )}
-
+        <div className="mt-5 flex flex-col gap-5 text-sm text-zinc-700">
           <PlaceFacts type={place.type} consensus={place.consensus} />
 
           {place.notes?.length > 0 && (
-            <div className="flex flex-col gap-1">
-              {place.notes.map((n) => (
+            <div className="flex flex-col gap-2">
+              {place.notes.slice(0, 3).map((n) => (
                 <p key={n.id}>
                   <span className="mr-1">💡</span>
-                  <span className="text-zinc-500">Mẹo: </span>
                   {n.text}
                 </p>
               ))}
@@ -76,8 +46,8 @@ export function NotebookPlaceCard({ item }) {
           )}
 
           {photos.length > 0 && (
-            <div className="mt-1">
-              <p className="mb-1.5 text-xs font-medium text-zinc-500">Ảnh địa điểm</p>
+            <div>
+              <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh địa điểm</p>
               <div className="flex gap-2">
                 {photos.slice(0, 3).map((src, i) => (
                   <button
@@ -95,37 +65,52 @@ export function NotebookPlaceCard({ item }) {
                 <button
                   type="button"
                   onClick={() => setGalleryIndex(3)}
-                  className="mt-1.5 text-xs font-medium text-zinc-500 underline"
+                  className="mt-1.5 text-[13px] text-zinc-500 underline"
                 >
                   Xem thêm {photos.length - 3} ảnh →
                 </button>
               )}
             </div>
           )}
+
+          <p className="text-[13px] leading-5 text-zinc-500">
+            {[
+              place.address,
+              [place.localArea, place.ward].filter(Boolean).join(", ") || null,
+              formatDate(place.lastUpdatedAt) ? `Cập nhật ${formatDate(place.lastUpdatedAt)}` : "Chưa rõ ngày cập nhật",
+              `Độ tin cậy ${confidenceLabel(place.confidenceScore) ?? "chưa đánh giá"}`,
+              `Đối chiếu ${place.sourceCount ?? "chưa rõ"} nguồn`,
+              place.note,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        {expanded && place.phone && (
-          <a
-            href={`tel:${place.phone}`}
-            className="inline-flex items-center gap-1 rounded-full bg-green-600 px-4 py-2 text-sm font-medium text-white active:bg-green-700"
-          >
-            Gọi ngay
-          </a>
-        )}
+      <div className="mt-5 flex items-center gap-1">
         <a
           href={mapsUrl(place)}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white active:bg-zinc-700"
+          className="cdp-pressable inline-flex min-h-11 items-center rounded-lg bg-[#c8553d] px-4 text-sm font-medium text-white active:bg-[#ad4832]"
         >
           Chỉ đường
         </a>
+        {expanded && place.phone && (
+          <a
+            href={`tel:${place.phone}`}
+            aria-label="Gọi ngay"
+            title="Gọi ngay"
+            className="cdp-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg text-zinc-500"
+          >
+            📞
+          </a>
+        )}
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700"
+          className="cdp-pressable ml-auto inline-flex min-h-11 items-center gap-0.5 rounded-lg px-2.5 text-sm font-medium text-zinc-500"
         >
           {expanded ? "Thu gọn" : "Xem thêm"}
         </button>

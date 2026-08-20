@@ -56,15 +56,18 @@ export function NoteInput({ place }) {
     setFestivalOnly(false);
   }
 
+  // Tối đa 3 mẹo hiện trên thẻ — nhiều hơn dễ rối, thẻ không phải nơi đọc hết mọi mẹo
+  // (SPEC-giao-dien.md §6). Không xoá dữ liệu, chỉ giới hạn hiển thị.
+  const visibleNotes = notes.slice(0, 3);
+
   return (
-    <div className="mt-3 flex flex-col gap-2 border-t border-zinc-100 pt-3">
-      {notes.length > 0 && (
-        <div className="flex flex-col gap-1 text-sm text-zinc-700">
-          {notes.map((note) => (
+    <div className="flex flex-col gap-3">
+      {visibleNotes.length > 0 && (
+        <div className="flex flex-col gap-2 text-sm text-zinc-700">
+          {visibleNotes.map((note) => (
             <div key={note.id} className="flex items-start justify-between gap-2">
               <p>
                 <span className="mr-1">💡</span>
-                <span className="text-zinc-500">Mẹo: </span>
                 {note.text}
               </p>
               <button
@@ -81,12 +84,12 @@ export function NoteInput({ place }) {
       )}
 
       {status === "sent" ? (
-        <p className="text-sm text-emerald-700">
+        <p className="cdp-fade-in text-[13px] text-emerald-700">
           ✓ Cảm ơn bạn — ghi chú sẽ hiện sau khi kiểm tra. +5 điểm đang chờ.
         </p>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <p className="text-sm text-zinc-600">Bạn có mẹo gì cho chỗ này không?</p>
+          <p className="text-[13px] text-zinc-500">Bạn có mẹo gì cho chỗ này không?</p>
           <textarea
             value={text}
             maxLength={NOTE_MAX_LENGTH}
@@ -113,7 +116,7 @@ export function NoteInput({ place }) {
             type="button"
             onClick={handleSubmit}
             disabled={status === "busy" || !text.trim()}
-            className="self-end rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+            className="cdp-pressable self-end rounded-lg bg-zinc-900 px-4 py-1.5 text-xs font-medium text-white disabled:opacity-40"
           >
             {status === "busy" ? "Đang gửi..." : "Gửi"}
           </button>

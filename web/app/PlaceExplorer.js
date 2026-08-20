@@ -105,21 +105,43 @@ function formatCheckinAge(lastCheckinAtIso) {
   }
   if (!(diffDays >= 0) || diffDays > 90) return null;
 
+  // Xanh lá dành riêng cho đúng 1 việc: "Còn mở" (SPEC-giao-dien.md §4). Cảnh báo lâu chưa
+  // xác nhận không còn tô nền hổ phách — chỉ còn chữ xám nhạt.
   if (diffDays > 30) {
-    return { text: "⚠️ Lâu chưa ai xác nhận (hơn 1 tháng)", className: "bg-amber-50 text-amber-700" };
+    return { text: "Lâu chưa ai xác nhận (hơn 1 tháng)", tone: "muted" };
   }
   if (diffDays >= 7) {
     const weeks = Math.min(4, Math.ceil(diffDays / 7));
-    return { text: `✅ Còn mở · xác nhận ${weeks} tuần trước`, className: "bg-emerald-50 text-emerald-700" };
+    return { text: `Còn mở · xác nhận ${weeks} tuần trước`, tone: "green" };
   }
   const ago = diffDays === 0 ? "hôm nay" : diffDays === 1 ? "hôm qua" : `${diffDays} ngày trước`;
-  return { text: `✅ Còn mở · xác nhận ${ago}`, className: "bg-emerald-50 text-emerald-700" };
+  return { text: `Còn mở · xác nhận ${ago}`, tone: "green" };
 }
 
 // Suy ra loại hình chỗ ngủ từ tên (không có trường riêng) — chỉ đọc lại thông tin đã có,
 // không bịa. "Món chính"/"Phù hợp" (cho Ăn) chưa có dữ liệu nguồn nào -> ẩn nếu không có.
 function inferLodgingKind(name) {
   return name.toLowerCase().includes("nhà nghỉ") ? "Nhà nghỉ" : "Khách sạn";
+}
+
+// Dòng metadata gộp (SPEC-giao-dien.md §6 mục 6): địa chỉ đầy đủ · khu vực · loại hình ·
+// món chính/phù hợp · cập nhật · độ tin cậy · nguồn · ghi chú — thu vào 1 khối nhỏ xám nhạt
+// thay vì ~8 dòng <p> riêng lẻ như trước. Không bớt dữ liệu nào, chỉ gộp cách hiển thị.
+function buildMetaLine(place, lodgingKind) {
+  const parts = [place.address];
+  if (place.localArea || place.ward) {
+    parts.push([place.localArea, place.ward].filter(Boolean).join(", "));
+  }
+  if (lodgingKind) parts.push(lodgingKind);
+  if (place.mainDish) parts.push(place.mainDish);
+  if (place.suitableFor) parts.push(place.suitableFor);
+  const updated = formatDate(place.lastUpdatedAt);
+  parts.push(updated ? `Cập nhật ${updated}` : "Chưa rõ ngày cập nhật");
+  const confidence = confidenceLabel(place.confidenceScore);
+  parts.push(confidence ? `Độ tin cậy ${confidence}` : "Chưa đánh giá độ tin cậy");
+  parts.push(`Đối chiếu ${place.sourceCount ?? "chưa rõ"} nguồn`);
+  if (place.note) parts.push(place.note);
+  return parts.filter(Boolean).join(" · ");
 }
 
 // --- Gallery ảnh toàn màn hình -------------------------------------------------------
@@ -177,7 +199,7 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
         <button
           type="button"
           onClick={requestClose}
-          className="rounded-full px-2 py-1 text-lg leading-none active:bg-white/10"
+          className="rounded-lg px-2 py-1 text-lg leading-none active:bg-white/10"
           aria-label="Đóng"
         >
           ✕
@@ -226,6 +248,13 @@ function PlaceCard({ place }) {
   // Tính theo giờ máy khách sau khi trang đã tải xong (tránh lệch giờ với máy chủ lúc build).
   const [status, setStatus] = useState(null);
   const [expanded, setExpanded] = useState(false);
+  // Nội dung bung chỉ MOUNT khi khách thực sự bấm "Xem thêm" (giữ đúng chi phí như trước —
+  // QuestionPrompt tự gọi Server Action lúc mount, mount cho mọi thẻ ngay lúc tải trang sẽ
+  // tốn lệnh Redis theo số địa điểm, phạm đúng nguyên tắc ARCHITECTURE.md §"Chi phí đọc
+  // Redis"). `mounted` trễ hơn `expanded` 250ms lúc đóng để kịp chạy hết hiệu ứng thu gọn
+  // trước khi gỡ khỏi DOM (SPEC-giao-dien.md §7).
+  const [mounted, setMounted] = useState(false);
+  const unmountTimer = useRef(null);
   const [galleryIndex, setGalleryIndex] = useState(null);
   // Bắt đầu bằng giá trị máy chủ, đổi ngay tại chỗ khi khách vừa bấm "Tôi vừa đến, vẫn mở"
   // (SPEC-chang-1.md §2.2: dòng trên thẻ phải đổi ngay, không chờ tải lại trang).
@@ -237,156 +266,135 @@ function PlaceCard({ place }) {
     if (showOccupancy) setStatus(getOccupancyStatus(place));
   }, [place, showOccupancy]);
 
+  useEffect(() => () => clearTimeout(unmountTimer.current), []);
+
+  function toggleExpanded() {
+    if (expanded) {
+      setExpanded(false);
+      clearTimeout(unmountTimer.current);
+      unmountTimer.current = setTimeout(() => setMounted(false), 250);
+    } else {
+      clearTimeout(unmountTimer.current);
+      setMounted(true);
+      requestAnimationFrame(() => requestAnimationFrame(() => setExpanded(true)));
+    }
+  }
+
   const statusLabel = showOccupancy && status ? getOccupancyLabel(status, place.type) : null;
   const checkinLabel = formatCheckinAge(lastCheckinAt);
   const photos = place.photos ?? [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
+  const metaLine = buildMetaLine(place, lodgingKind);
 
   return (
-    <li id={place.id} className="scroll-mt-20 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <li id={place.id} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-base font-semibold text-zinc-900">{place.name}</h3>
-        <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+        <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
+        <span className="shrink-0 rounded-lg bg-zinc-100 px-2 py-0.5 text-[13px] font-medium text-zinc-500">
           {TYPE_LABEL[place.type]}
         </span>
       </div>
 
-      <p className="mt-1 text-sm text-zinc-600">{formatShortAddress(place.address)}</p>
+      <p className="mt-1 text-[13px] text-zinc-500">{formatShortAddress(place.address)}</p>
 
-      <p className="mt-2 text-sm font-medium text-zinc-800">
-        {place.priceText ?? "Chưa cập nhật giá"}
+      <p className="mt-3 text-2xl font-medium tracking-tight text-zinc-900">
+        {place.priceText ?? <span className="text-base font-normal text-zinc-400">Chưa cập nhật giá</span>}
       </p>
 
-      <div className="mt-2 flex flex-col items-start gap-1">
-        {checkinLabel && (
-          <span
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${checkinLabel.className}`}
-          >
-            {checkinLabel.text}
-          </span>
-        )}
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium opacity-70 ${
-            statusLabel ? statusLabel.className : "invisible"
-          }`}
-        >
-          {statusLabel ? statusLabel.text : "…"}
-        </span>
-      </div>
-
-      {expanded && (
-        <div className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-700">
-          <PersonalNote place={place} />
-          <p>
-            <span className="text-zinc-500">Địa chỉ đầy đủ: </span>
-            {place.address}
-          </p>
-          {(place.localArea || place.ward) && (
-            <p>
-              <span className="text-zinc-500">Khu vực: </span>
-              {[place.localArea, place.ward].filter(Boolean).join(", ")}
-            </p>
+      {(checkinLabel || statusLabel) && (
+        <div className="mt-2 flex flex-col items-start gap-0.5">
+          {checkinLabel && (
+            <span className={`text-[13px] font-medium ${checkinLabel.tone === "green" ? "text-emerald-700" : "text-zinc-400"}`}>
+              {checkinLabel.text}
+            </span>
           )}
-          {lodgingKind && (
-            <p>
-              <span className="text-zinc-500">Loại hình: </span>
-              {lodgingKind}
-            </p>
-          )}
-          {place.mainDish && (
-            <p>
-              <span className="text-zinc-500">Món chính: </span>
-              {place.mainDish}
-            </p>
-          )}
-          {place.suitableFor && (
-            <p>
-              <span className="text-zinc-500">Phù hợp: </span>
-              {place.suitableFor}
-            </p>
-          )}
-          <p>
-            <span className="text-zinc-500">Cập nhật gần nhất: </span>
-            {formatDate(place.lastUpdatedAt) ?? "Chưa rõ"}
-          </p>
-          <p>
-            <span className="text-zinc-500">Độ tin cậy: </span>
-            {confidenceLabel(place.confidenceScore) ?? "Chưa đánh giá"}
-          </p>
-          <p>
-            <span className="text-zinc-500">Nguồn đối chiếu: </span>
-            {place.sourceCount ?? "Chưa rõ"}
-          </p>
-          {place.note && (
-            <p>
-              <span className="text-zinc-500">Ghi chú: </span>
-              {place.note}
-            </p>
-          )}
-
-          <PlaceFacts type={place.type} consensus={place.consensus} />
-
-          {photos.length > 0 && (
-            <div className="mt-1">
-              <p className="mb-1.5 text-xs font-medium text-zinc-500">Ảnh địa điểm</p>
-              <div className="flex gap-2">
-                {photos.slice(0, 3).map((src, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setGalleryIndex(i)}
-                    className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
-              {photos.length > 3 && (
-                <button
-                  type="button"
-                  onClick={() => setGalleryIndex(3)}
-                  className="mt-1.5 text-xs font-medium text-zinc-500 underline"
-                >
-                  Xem thêm {photos.length - 3} ảnh →
-                </button>
-              )}
-            </div>
-          )}
-
-          <QuestionPrompt place={place} />
-          <NoteInput place={place} />
-          <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
-          <AddToNotebook place={place} />
-          <ContributionPanel place={place} />
+          {statusLabel && <span className="text-[13px] text-zinc-400">{statusLabel.text}</span>}
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        {expanded && place.phone && (
-          <a
-            href={`tel:${place.phone}`}
-            className="inline-flex items-center gap-1 rounded-full bg-green-600 px-4 py-2 text-sm font-medium text-white active:bg-green-700"
-          >
-            Gọi ngay
-          </a>
-        )}
+      {mounted && (
+        <div className={`cdp-expand mt-5 ${expanded ? "cdp-expand-open" : ""}`}>
+          <div className="flex flex-col gap-5 text-sm text-zinc-700">
+            <PersonalNote place={place} />
+
+            <PlaceFacts type={place.type} consensus={place.consensus} />
+
+            <NoteInput place={place} />
+
+            {photos.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh địa điểm</p>
+                <div className="flex gap-2">
+                  {photos.slice(0, 3).map((src, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setGalleryIndex(i)}
+                      className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+                {photos.length > 3 && (
+                  <button
+                    type="button"
+                    onClick={() => setGalleryIndex(3)}
+                    className="mt-1.5 text-[13px] text-zinc-500 underline"
+                  >
+                    Xem thêm {photos.length - 3} ảnh →
+                  </button>
+                )}
+              </div>
+            )}
+
+            <p className="text-[13px] leading-5 text-zinc-500">{metaLine}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5 flex items-center gap-1">
         <a
           href={mapsUrl(place)}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white active:bg-zinc-700"
+          className="cdp-pressable inline-flex min-h-11 items-center rounded-lg bg-[#c8553d] px-4 text-sm font-medium text-white active:bg-[#ad4832]"
         >
           Chỉ đường
         </a>
+        {expanded && place.phone && (
+          <a
+            href={`tel:${place.phone}`}
+            aria-label="Gọi ngay"
+            title="Gọi ngay"
+            className="cdp-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg text-zinc-500"
+          >
+            📞
+          </a>
+        )}
         <button
           type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700"
+          onClick={toggleExpanded}
+          className="cdp-pressable ml-auto inline-flex min-h-11 items-center gap-0.5 rounded-lg px-2.5 text-sm font-medium text-zinc-500"
         >
           {expanded ? "Thu gọn" : "Xem thêm"}
         </button>
       </div>
+
+      {mounted && (
+        <div className={`cdp-expand ${expanded ? "cdp-expand-open" : ""}`}>
+          <div className="flex flex-col gap-5 pt-5">
+            <div className="flex flex-col items-start gap-1">
+              <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
+              <AddToNotebook place={place} />
+              <ContributionPanel place={place} />
+            </div>
+
+            <QuestionPrompt place={place} />
+          </div>
+        </div>
+      )}
 
       {galleryIndex !== null && (
         <PhotoGallery
@@ -403,7 +411,7 @@ function Section({ title, items }) {
   if (items.length === 0) return null;
   return (
     <section className="mt-6 first:mt-0">
-      <h2 className="mb-3 text-lg font-bold text-zinc-900">{title}</h2>
+      <h2 className="mb-3 text-lg font-medium tracking-tight text-zinc-900">{title}</h2>
       <ul className="flex flex-col gap-3">
         {items.map((place) => (
           <PlaceCard key={place.id} place={place} />
@@ -459,7 +467,7 @@ function ScrollButtons() {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Lên đầu trang"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
+          className="cdp-pressable flex h-11 w-11 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
         >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 15l6-6 6 6" />
@@ -473,7 +481,7 @@ function ScrollButtons() {
             window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })
           }
           aria-label="Xuống cuối trang"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
+          className="cdp-pressable flex h-11 w-11 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
         >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 9l6 6 6-6" />
@@ -499,7 +507,7 @@ export default function PlaceExplorer({ places }) {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.add("cdp-highlight-flash");
-    const timer = setTimeout(() => el.classList.remove("cdp-highlight-flash"), 2400);
+    const timer = setTimeout(() => el.classList.remove("cdp-highlight-flash"), 650);
     return () => clearTimeout(timer);
   }, []);
 
@@ -555,7 +563,7 @@ export default function PlaceExplorer({ places }) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm theo tên, địa chỉ..."
-            className="w-full rounded-full border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-700"
+            className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-700"
           />
           {search && (
             <button
@@ -575,10 +583,10 @@ export default function PlaceExplorer({ places }) {
               key={opt.id}
               type="button"
               onClick={() => setType(opt.id)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+              className={`cdp-pressable min-h-11 rounded-lg px-4 text-sm font-medium ${
                 type === opt.id
                   ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-700"
+                  : "bg-zinc-100 text-zinc-600"
               }`}
             >
               {opt.label}
@@ -590,7 +598,7 @@ export default function PlaceExplorer({ places }) {
           <select
             value={ward}
             onChange={(e) => setWard(e.target.value)}
-            className="flex-1 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700"
+            className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700"
           >
             <option value="all">Tất cả khu vực</option>
             {wards.map((w) => (
@@ -603,7 +611,7 @@ export default function PlaceExplorer({ places }) {
           <select
             value={priceBucket}
             onChange={(e) => setPriceBucket(e.target.value)}
-            className="flex-1 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700"
+            className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700"
           >
             {PRICE_BUCKETS.map((b) => (
               <option key={b.id} value={b.id}>
@@ -630,9 +638,23 @@ export default function PlaceExplorer({ places }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="mt-8 text-center text-sm text-zinc-500">
-          Không tìm thấy địa điểm phù hợp với bộ lọc. Thử bỏ bớt điều kiện lọc.
-        </p>
+        <div className="mt-8 flex flex-col items-center gap-2 text-center">
+          <p className="text-sm text-zinc-500">Không có chỗ nào khớp.</p>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={() => {
+                setType("all");
+                setWard("all");
+                setPriceBucket("all");
+                setSearch("");
+              }}
+              className="text-sm text-zinc-500 underline"
+            >
+              Xoá bộ lọc
+            </button>
+          )}
+        </div>
       ) : (
         <>
           {groupedByType.map(({ type: t, items }) => (

@@ -72,15 +72,15 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
           type="button"
           disabled={itemCount === 0}
           onClick={copyLink}
-          className="w-full rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
+          className="cdp-pressable w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
         >
           {copyLabel}
         </button>
         <Link
           href={`/so/${slug}/sua`}
-          className="block w-full rounded-full border border-zinc-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-zinc-700"
+          className="cdp-pressable block w-full rounded-lg bg-zinc-100 px-4 py-2.5 text-center text-sm font-medium text-zinc-700"
         >
-          ✏️ Sửa sổ này
+          Sửa sổ này
         </Link>
       </div>
     );
@@ -92,7 +92,7 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
         type="button"
         disabled={busy}
         onClick={saveAsMine}
-        className="w-full rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+        className="cdp-pressable w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
       >
         {busy ? "Đang lưu..." : "Lưu sổ này thành sổ của tôi"}
       </button>

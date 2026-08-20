@@ -33,7 +33,7 @@ export default async function Home() {
 
         <Link
           href="/le-hoi-thanh-tuyen"
-          className="mb-6 block overflow-hidden rounded-2xl shadow-sm"
+          className="mb-6 block overflow-hidden rounded-xl shadow-sm"
         >
           <div className="relative h-40 w-full sm:h-52">
             <Image
@@ -46,7 +46,7 @@ export default async function Home() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-4">
-              <p className="text-lg font-bold text-white">
+              <p className="text-lg font-medium tracking-tight text-white">
                 Lễ hội Thành Tuyên 2026
               </p>
               <p className="text-sm text-white/90">

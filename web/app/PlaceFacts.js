@@ -25,7 +25,7 @@ export function PlaceFacts({ type, consensus }) {
   if (rows.length === 0) return null;
 
   return (
-    <div className="mt-2 flex flex-col gap-1 text-sm text-zinc-700">
+    <div className="flex flex-col gap-2 text-sm text-zinc-700">
       {rows.map(({ question, consensus: c }) => (
         <div key={question.id} className={c.weak ? "opacity-60" : ""}>
           <span className="mr-1">{question.icon}</span>

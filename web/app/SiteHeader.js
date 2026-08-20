@@ -14,13 +14,13 @@ export function SiteHeader() {
       <div className="flex shrink-0 gap-2">
         <Link
           href="/ghi-chu"
-          className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700"
+          className="rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-600"
         >
           Ghi chú của tôi
         </Link>
         <Link
           href="/so"
-          className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700"
+          className="rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-600"
         >
           Sổ của tôi
         </Link>

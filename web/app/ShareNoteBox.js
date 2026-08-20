@@ -50,15 +50,15 @@ export function ShareNoteBox({ placeId, initialText, onCancel }) {
 
   if (status === "sent") {
     return (
-      <p className="mt-2 text-sm text-emerald-700">
+      <p className="cdp-fade-in mt-2 text-[13px] text-emerald-700">
         ✓ Cảm ơn bạn — mẹo sẽ hiện sau khi kiểm tra. +5 điểm đang chờ.
       </p>
     );
   }
 
   return (
-    <div className="mt-2 rounded-lg border border-zinc-300 bg-white p-2">
-      <p className="mb-1 text-xs text-zinc-500">Rút gọn còn tối đa {SHARE_MAX_LENGTH} ký tự trước khi đăng:</p>
+    <div className="mt-2 rounded-lg bg-zinc-50 p-3">
+      <p className="mb-1 text-xs text-zinc-400">Rút gọn còn tối đa {SHARE_MAX_LENGTH} ký tự trước khi đăng:</p>
       {/* input 1 dòng CỐ Ý, không phải textarea — Mẹo công khai chỉ nhận 1 dòng, input
           không cho gõ/dán Enter được nên chặn được tận gốc, không cần lọc lại sau (lỗi thật
           gặp khi chỉ lọc initialText mà chưa chặn lúc khách tự gõ thêm Enter). */}
@@ -77,7 +77,7 @@ export function ShareNoteBox({ placeId, initialText, onCancel }) {
           <button
             type="button"
             onClick={onCancel}
-            className="cursor-pointer rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
+            className="cdp-pressable cursor-pointer rounded-lg px-3 py-1.5 text-[13px] text-zinc-500"
           >
             Thôi
           </button>
@@ -85,7 +85,7 @@ export function ShareNoteBox({ placeId, initialText, onCancel }) {
             type="button"
             onClick={handleSubmit}
             disabled={status === "busy" || !shareText.trim()}
-            className="cursor-pointer rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white disabled:cursor-default disabled:opacity-40"
+            className="cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-3 py-1.5 text-[13px] font-medium text-white disabled:cursor-default disabled:opacity-40"
           >
             {status === "busy" ? "Đang đăng..." : "Đăng"}
           </button>

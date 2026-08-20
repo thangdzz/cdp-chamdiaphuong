@@ -44,8 +44,8 @@ export function CheckinButton({ place, onCheckedIn }) {
 
   if (checkedIn) {
     return (
-      <div className="mt-2 flex flex-col gap-0.5">
-        <span className="inline-flex w-fit items-center gap-1 rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-400">
+      <div className="cdp-fade-in flex flex-col gap-0.5">
+        <span className="inline-flex w-fit min-h-11 items-center gap-1 text-[13px] font-medium text-zinc-400">
           ✓ Cảm ơn bạn{justConfirmed ? " · +1 điểm" : ""}
         </span>
         {!justConfirmed && <p className="text-xs text-zinc-400">Bạn đã xác nhận hôm nay</p>}
@@ -54,15 +54,13 @@ export function CheckinButton({ place, onCheckedIn }) {
   }
 
   return (
-    <div className="mt-2">
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={busy}
-        className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 disabled:opacity-50"
-      >
-        {busy ? "Đang gửi..." : "Tôi vừa đến, vẫn mở"}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={busy}
+      className="cdp-pressable inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-600 disabled:opacity-50"
+    >
+      📍 {busy ? "Đang gửi..." : "Tôi vừa đến, vẫn mở"}
+    </button>
   );
 }

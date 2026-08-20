@@ -139,7 +139,7 @@ export default function EditNotebookPage({ params }) {
 
         <div className="mt-3 flex gap-2">
           <input
-            className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-base font-semibold text-zinc-900"
+            className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-base font-medium text-zinc-900"
             value={titleInput}
             maxLength={60}
             onChange={(e) => setTitleInput(e.target.value)}
@@ -154,16 +154,16 @@ export default function EditNotebookPage({ params }) {
         ) : (
           <ul className="mt-4 flex flex-col gap-3">
             {notebook.items.map((item, index) => (
-              <li key={item.placeId} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <li key={item.placeId} className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className={`text-base font-semibold ${item.deleted ? "text-zinc-400" : "text-zinc-900"}`}>
+                    <p className={`text-lg font-medium tracking-tight ${item.deleted ? "text-zinc-400" : "text-zinc-900"}`}>
                       {item.deleted ? item.nameSnapshot : item.place?.name}
                     </p>
                     {item.deleted ? (
                       <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
                     ) : (
-                      <p className="text-xs text-zinc-500">{getPlaceTypeLabel(item.place?.type)}</p>
+                      <p className="text-[13px] text-zinc-500">{getPlaceTypeLabel(item.place?.type)}</p>
                     )}
                   </div>
                   <div className="flex shrink-0 gap-1">
@@ -171,7 +171,7 @@ export default function EditNotebookPage({ params }) {
                       type="button"
                       disabled={busy || index === 0}
                       onClick={() => move(index, -1)}
-                      className="rounded-full border border-zinc-300 px-2 py-1 text-xs text-zinc-600 disabled:opacity-30"
+                      className="cdp-pressable rounded-lg px-2 py-1 text-xs text-zinc-500 disabled:opacity-30"
                       aria-label="Lên"
                     >
                       ↑
@@ -180,7 +180,7 @@ export default function EditNotebookPage({ params }) {
                       type="button"
                       disabled={busy || index === notebook.items.length - 1}
                       onClick={() => move(index, 1)}
-                      className="rounded-full border border-zinc-300 px-2 py-1 text-xs text-zinc-600 disabled:opacity-30"
+                      className="cdp-pressable rounded-lg px-2 py-1 text-xs text-zinc-500 disabled:opacity-30"
                       aria-label="Xuống"
                     >
                       ↓
@@ -207,7 +207,7 @@ export default function EditNotebookPage({ params }) {
           type="button"
           disabled={notebook.items.length === 0}
           onClick={copyLink}
-          className="mt-6 w-full rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
+          className="cdp-pressable mt-6 w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
         >
           {copyLabel}
         </button>

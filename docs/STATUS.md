@@ -12,8 +12,14 @@ SPEC §10, phát hiện + vá 2 chỗ thiếu (mở rộng xem chi tiết + nút
 **Chặng 5 (Ghi chú công khai bằng chữ) đã bắt đầu — phần (a) "Mẹo tự do" code xong, lên web
 thật.** Phần (b) "Nên gọi món gì" chưa làm, để sau.
 
-**Chặng 6 (Ghi chú riêng) đã code xong, lên web thật** — xem mục 2026-08-20 (mới nhất) bên
-dưới.
+**Chặng 6 (Ghi chú riêng) đã code xong, lên web thật.**
+
+**Rà soát giao diện ([SPEC-giao-dien.md](SPEC-giao-dien.md)) đã code xong, lên web thật** —
+7 mục: sửa font Arial→Geist, thang chữ 5 bậc, bỏ viền tăng khoảng trắng, 1 màu nhấn (cam CDP
++ xanh lá "còn mở", còn lại xám), 1 bán kính bo góc, sắp lại thứ tự khối trong thẻ bung, 3
+chuyển động chuẩn + tắt khi máy bật "giảm chuyển động". Làm **trước** Chặng 7 theo đúng thứ
+tự đã ghi ở mục "Việc đã chốt, chờ code" bên dưới — xem mục 2026-08-20 (mới nhất) ngay dưới
+đây.
 
 Ngoài các chặng chính, đang có 1 nhánh việc phụ đang làm dần theo phản hồi thật của anh:
 **công cụ xử lý trùng lặp trong `/admin`** — báo trùng từ khách (Chặng "Bổ sung thông tin") +
@@ -75,6 +81,34 @@ kiếm, KHÔNG phải để chống đăng trùng — chống trùng đã nằm 
 nhật + đẩy lên GitHub thủ công, không tự làm mới theo thời gian thực. Thỉnh thoảng nhắn em 1
 câu để làm mới file này, không cần mỗi ngày — không làm cũng không sao, chỉ là routine có
 thể tốn thêm chút công tìm kiếm không cần thiết.
+
+## Việc đã chốt, chờ code (2026-08-20)
+
+**A. Rà soát giao diện** — [SPEC-giao-dien.md](SPEC-giao-dien.md). Làm **trước** Chặng 7.
+Đóng khung 7 mục, hết là dừng. Việc đầu tiên: sửa dòng `font-family: Arial` trong
+`globals.css` đang đè mất font Geist đã nạp ở `layout.js` — web đang chạy bằng Arial, lỗi
+này ghi trong STATUS từ 2026-07-20 mà chưa sửa.
+
+**B. Món đặc trưng trên thẻ** — [SPEC-chang-5.md §2.2](SPEC-chang-5.md) đã viết lại. Ba
+nguồn thay vì một: (1) AI quét sẵn lúc thu thập · (2) ảnh menu · (3) khách gõ. Lý do đổi:
+cách cũ chỉ có khách gõ nên vướng khởi động lạnh — phần lớn chỗ sẽ không có "người thứ
+nhất".
+
+**C. Sửa routine quét dữ liệu** — 4 việc, xếp theo mức đáng làm:
+1. **Thêm trường `signature_dishes`** (tối đa 3) vào `NormalizedPlace` ở
+   `lib/ingestion/schema.js` + `toLivePlace.js` + lệnh routine. Hiện **chưa có chỗ nào chứa
+   món**, nên routine có tìm được cũng không biết đổ vào đâu.
+2. **Tự động hoá `known-places-snapshot.json`** — vẫn phải cập nhật tay, đang trực tiếp làm
+   routine tìm lại chỗ đã biết. **Đáng sửa nhất trong nhóm này.**
+3. **Xoay vòng trọng tâm mỗi ngày** thay vì quét chung chung: hôm nay Ăn ở Tân Quang, mai
+   Chơi ở Minh Xuân, mốt Đi lại. Thêm nguồn ngoài Google Maps + Facebook (hội nhóm địa
+   phương, báo tỉnh, blog du lịch).
+4. **Tuần lễ hội 19–25/09 nâng lên 2–3 lần/ngày**, xong lại về 1.
+
+> **Không tăng tần suất ngày thường.** Lần chạy gần nhất: 9 chỗ quét được → 3 chỗ mới thật,
+> 1 nghi trùng, **5 chỗ đã biết rồi**. Hơn nửa công đã lãng phí ở mức 1 lần/ngày; chạy 4
+> lần/ngày chỉ đọc lại đúng những trang cũ và tốn hạn mức. Vấn đề là **độ phủ mỗi lần chạy**,
+> không phải số lần chạy.
 
 ## Việc đang chờ bàn ở Cowork (chưa code)
 - **Giá mùa cao điểm khác giá ngày thường** ⚠️ — khách sạn 900k ngày thường có thể 2,5 triệu
@@ -146,7 +180,41 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 5) — Chữ khó đọc khi điện thoại bật dark mode
+### 2026-08-20 (mới nhất, sau 6) — Rà soát giao diện (SPEC-giao-dien.md), 7 mục
+
+Trình kế hoạch, anh duyệt, làm theo đúng 2 bước: (1) sửa riêng dòng `font-family: Arial` đè
+mất font Geist trong `globals.css` — dừng lại cho anh xem trước; (2) sau khi anh duyệt tiếp,
+làm 6 mục còn lại trong 1 lượt.
+
+**Đã làm:** thang chữ rút còn 5 bậc (giá to nhất, tên medium, nội dung 14px, phụ 13px, nhãn
+12px — bỏ hết `font-bold`) · thẻ bỏ viền dùng `shadow-sm`, khối con trong thẻ bỏ viền/nền
+riêng (ngăn cách bằng khoảng cách `gap-5`), khoảng trắng trong thẻ tăng theo đúng bảng SPEC ·
+màu rút còn cam CDP (nút chính/link) + xanh lá (chỉ dòng "Còn mở") + xám (còn lại) — bỏ nhãn
+hổ phách/đỏ trên thẻ · bo góc thống nhất `rounded-xl` (thẻ) / `rounded-lg` (nút, ô nhập), bỏ
+hết `rounded-full`/`rounded-2xl` ở phần khách dùng (không đụng `/admin`) · sắp lại thứ tự
+khối trong thẻ bung theo đúng SPEC §6 (ghi chú riêng → thông tin bấm chọn → mẹo công khai →
+ảnh → địa chỉ/nguồn gộp 1 dòng nhỏ → hàng nút Chỉ đường+Gọi ngay+Xem thêm → các nút góp ý
+khác thu nhỏ thành biểu tượng không viền → câu hỏi bấm chọn cuối cùng) · 3 chuyển động chuẩn
+(thẻ bung 250ms, nút bấm nhấn nhẹ 100ms, nội dung mới mờ dần 200ms) + khối
+`prefers-reduced-motion: reduce` tắt hết khi máy bật "giảm chuyển động" · nhấp nháy
+`cdp-highlight-flash` rút còn đúng 1 lần 600ms, chỉ đổi nền · trạng thái rỗng (0 kết quả lọc)
+có nút "Xoá bộ lọc" ngay dưới thông báo.
+
+**Áp dụng luôn cho các trang dùng chung "hệ thống nền tảng"** (không đổi bố cục riêng của
+từng trang): `/ghi-chu`, `/so`, `/so/{slug}`, `/so/{slug}/sua`, thẻ chỗ trong trang Xem sổ.
+Không đụng `/admin` (công cụ nội bộ, ngoài phạm vi SPEC).
+
+**Không mount nội dung bung ngay từ đầu để có hiệu ứng** — vẫn chỉ mount lúc khách bấm "Xem
+thêm" như cũ (mount sẵn cho mọi thẻ sẽ gọi `fetchNextQuestion` cho từng thẻ ngay lúc tải
+trang, tốn lệnh Redis theo số địa điểm, phạm nguyên tắc ARCHITECTURE.md). Dùng kỹ thuật hoãn
+gỡ khỏi DOM 250ms sau khi bấm "Thu gọn" để kịp chạy hết hiệu ứng thu lại.
+
+Kiểm thử: build/lint sạch (chỉ còn 1 lỗi cũ đã biết, không liên quan) · Playwright kiểm tra
+không có lỗi console qua các luồng bung/thu, ghi chú riêng, đăng công khai, xác nhận "vẫn
+mở", "+ thêm vào sổ" · chụp màn hình xác nhận bố cục · dọn sạch dữ liệu test (4 hồ sơ ẩn danh
++ 4 sổ test) khỏi Redis thật sau khi kiểm thử. Đã deploy.
+
+### 2026-08-20 (sau 5) — Chữ khó đọc khi điện thoại bật dark mode
 
 Anh báo trên iPhone bật dark mode thì chữ ở web khó nhìn. Nguyên nhân: `globals.css` còn sót
 đoạn mẫu mặc định của Next.js tự đổi nền trang sang gần đen khi máy bật dark mode, nhưng

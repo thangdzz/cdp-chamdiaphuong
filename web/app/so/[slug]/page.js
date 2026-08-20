@@ -66,8 +66,8 @@ export default async function NotebookViewPage({ params }) {
         <SiteHeader />
 
         <header className="mb-6">
-          <h1 className="text-xl font-bold text-zinc-900">{notebook.title}</h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <h1 className="text-xl font-medium tracking-tight text-zinc-900">{notebook.title}</h1>
+          <p className="mt-1 text-[13px] text-zinc-500">
             {itemsWithNotes.length} chỗ · cập nhật {formatRelativeDays(notebook.updatedAt)}
           </p>
         </header>
@@ -80,9 +80,9 @@ export default async function NotebookViewPage({ params }) {
               item.deleted ? (
                 <li
                   key={item.placeId}
-                  className="rounded-2xl border border-zinc-200 bg-white p-4 opacity-60 shadow-sm"
+                  className="rounded-xl bg-white px-[18px] py-5 opacity-60 shadow-sm"
                 >
-                  <p className="text-base font-semibold text-zinc-500">
+                  <p className="text-lg font-medium tracking-tight text-zinc-500">
                     {item.nameSnapshot ?? "Chỗ đã bị xoá"}
                   </p>
                   <p className="mt-1 text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
