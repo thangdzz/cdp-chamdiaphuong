@@ -74,14 +74,14 @@ function matchesPriceBucket(place, bucketId) {
   return place.priceMin <= bucket.max && place.priceMax >= bucket.min;
 }
 
-function confidenceLabel(score) {
+export function confidenceLabel(score) {
   if (score == null) return null;
   if (score >= 0.75) return "Cao";
   if (score >= 0.5) return "Trung bình";
   return "Thấp";
 }
 
-function formatDate(iso) {
+export function formatDate(iso) {
   if (!iso) return null;
   try {
     return new Date(iso).toLocaleDateString("vi-VN");
@@ -122,7 +122,7 @@ function inferLodgingKind(name) {
 
 // --- Gallery ảnh toàn màn hình -------------------------------------------------------
 
-function PhotoGallery({ photos, startIndex, onClose }) {
+export function PhotoGallery({ photos, startIndex, onClose }) {
   const [index, setIndex] = useState(startIndex);
   const [visible, setVisible] = useState(false);
   const touchStartRef = useRef(null);

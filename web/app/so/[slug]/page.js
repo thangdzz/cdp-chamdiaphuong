@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import { getNotebook, resolveNotebookItems } from "@/lib/notebooks";
-import { getPlaceTypeLabel } from "@/lib/placeTypes";
-import { mapsUrl } from "@/lib/mapsUrl";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
+import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
 import { SiteHeader } from "@/app/SiteHeader";
 
 export const dynamic = "force-dynamic";
@@ -83,30 +82,7 @@ export default async function NotebookViewPage({ params }) {
                   {item.note && <p className="mt-2 text-sm text-zinc-500">💬 {item.note}</p>}
                 </li>
               ) : (
-                <li
-                  key={item.placeId}
-                  className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-base font-semibold text-zinc-900">{item.place.name}</h3>
-                    <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
-                      {getPlaceTypeLabel(item.place.type)}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-600">
-                    {item.place.priceText ?? "Chưa cập nhật giá"}
-                    {item.place.ward ? ` · ${item.place.ward}` : ""}
-                  </p>
-                  {item.note && <p className="mt-2 text-sm text-zinc-700">💬 {item.note}</p>}
-                  <a
-                    href={mapsUrl(item.place)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white active:bg-zinc-700"
-                  >
-                    Chỉ đường
-                  </a>
-                </li>
+                <NotebookPlaceCard key={item.placeId} item={item} />
               )
             )}
           </ul>
