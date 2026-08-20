@@ -153,11 +153,12 @@ tranh chú ý với tên địa điểm.
 **2. Bỏ pill loại ở góc phải.** Nhãn `Ăn` xám góc trên bên phải là thừa — loại đã nằm ở dòng
 phụ ngay dưới tên. Hai chỗ nói cùng một điều.
 
-**3. Dòng phụ dùng loại · khu vực, không dùng địa chỉ.** Đang hiện
-`54 đường Bình Than (bên hông phải TT Hội nghị)` — quá dài cho thẻ gấp.
+**3. ~~Dòng phụ dùng loại · khu vực, không dùng địa chỉ.~~ Đã hoàn tác (2026-08-20).**
 
-Đổi thành `Ẩm thực · Bình Than` (loại chi tiết · khu vực). Địa chỉ đầy đủ chuyển xuống phần
-bung, mục 6 trong thứ tự khối.
+Đã thử đổi dòng phụ thành `Ẩm thực · Bình Than` (loại · khu vực), nhưng anh xem bản đã code
+thì muốn **giữ nguyên như cũ** — dòng phụ vẫn là địa chỉ rút gọn (`formatShortAddress`, vd
+`289 Lý Nam Đế`). Giữ nguyên mục 2 (bỏ pill loại) vì đó là quyết định riêng, không phụ thuộc
+mục 3.
 
 **4. Nút "Xem thêm" phải lùi hẳn về sau.** Đang có viền đen đậm, trông ngang sức với nút
 "Chỉ đường". Thẻ chỉ được có **một nút trông như nút**.

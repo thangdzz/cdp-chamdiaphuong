@@ -180,7 +180,15 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 7) — Thẻ gấp: 5 chỗ sửa theo SPEC-giao-dien.md §6b
+### 2026-08-20 (mới nhất, sau 8) — Hoàn tác 1 chỗ ở mục 6b: dòng phụ về lại địa chỉ
+
+Anh xem bản đã đổi (mục 3 của §6b — dòng phụ "Loại · Khu vực") thì muốn **giữ nguyên như
+cũ**. Hoàn tác đúng phần đó: dòng phụ dưới tên trở lại là địa chỉ rút gọn
+(`formatShortAddress`, vd "289 Lý Nam Đế") ở cả thẻ trang chủ và thẻ trong trang Xem sổ. 4
+chỗ còn lại của §6b (giá rút gọn, bỏ pill loại, nút "Xem thêm" đổi icon, nút "Chỉ đường" thu
+gọn) giữ nguyên. Đã ghi chú lại trong SPEC-giao-dien.md. Build/lint sạch. Đã deploy.
+
+### 2026-08-20 (sau 7) — Thẻ gấp: 5 chỗ sửa theo SPEC-giao-dien.md §6b
 
 Anh xem bản đã code, thẻ gấp chưa giống thiết kế — viết thêm §6b vào SPEC với 5 chỗ sửa cụ
 thể. Đã làm cả 5:
