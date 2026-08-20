@@ -28,17 +28,18 @@ body {
 /* Nhấp nháy khi nhảy tới 1 chỗ từ /ghi-chu hoặc link ngoài dạng #placeId — để khách biết
    đúng thẻ nào là đích, không phải đoán giữa cả danh sách. Màu đậm + viền sáng xung quanh
    (không chỉ đổi nền) vì bản đầu dùng màu quá nhạt (#fef3c7 gần trắng), khó nhận ra trên nền
-   thẻ trắng (phản hồi thật 2026-08-20). */
+   thẻ trắng (phản hồi thật 2026-08-20). Đổi sang tông màu logo CDP (#c8553d) thay vì vàng
+   amber để đồng bộ nhận diện thương hiệu (phản hồi thật 2026-08-20). */
 @keyframes cdp-highlight-flash {
   0%,
   100% {
     background-color: transparent;
-    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
+    box-shadow: 0 0 0 0 rgba(200, 85, 61, 0);
   }
   15%,
   55% {
-    background-color: #fde68a;
-    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.45);
+    background-color: rgba(200, 85, 61, 0.22);
+    box-shadow: 0 0 0 4px rgba(200, 85, 61, 0.5);
   }
 }
 
