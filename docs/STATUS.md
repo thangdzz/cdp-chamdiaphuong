@@ -180,7 +180,32 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 6) — Rà soát giao diện (SPEC-giao-dien.md), 7 mục
+### 2026-08-20 (mới nhất, sau 7) — Thẻ gấp: 5 chỗ sửa theo SPEC-giao-dien.md §6b
+
+Anh xem bản đã code, thẻ gấp chưa giống thiết kế — viết thêm §6b vào SPEC với 5 chỗ sửa cụ
+thể. Đã làm cả 5:
+
+1. **Rút gọn giá**: `150.000 – 300.000 đ/người` → `150–300k` (to) kèm `đ/người` (nhỏ, xám)
+   cạnh bên. Thêm hàm `formatPriceCompact()` trong `lib/priceFormat.js` — đọc thẳng
+   `priceMin/priceMax/priceUnit`, không đụng `priceText` đang lưu. Cùng đơn vị rút gọn (cùng
+   "k" hoặc cùng "tr") thì chỉ ghi hậu tố 1 lần ở cuối.
+2. Bỏ pill loại ("Ăn") ở góc phải thẻ — trùng với dòng phụ.
+3. Dòng phụ đổi từ địa chỉ dài thành "Loại · Khu vực" (vd "Ăn · Phan Thiết"). Địa chỉ đầy đủ
+   xuống dòng gộp trong phần bung (đã làm ở lượt trước).
+4. Nút "Xem thêm" đổi từ viền đậm sang chữ xám + icon chevron xoay khi bung, không viền
+   không nền — thẻ chỉ còn đúng 1 nút trông như nút ("Chỉ đường").
+5. Nút "Chỉ đường" giảm đệm còn `px-4 py-2.5`.
+
+Áp dụng đồng thời cho thẻ chỗ trong trang Xem sổ (`NotebookPlaceCard.js`) để nhất quán.
+
+**1 điểm đã trao đổi trước khi code:** ảnh mẫu SPEC ghi "Phở · Tân Quang" nhưng dữ liệu chỉ
+có 4 loại rộng (Ăn/Chơi/Ngủ/Đi lại), không có trường "món cụ thể" — anh xác nhận ảnh mẫu chỉ
+minh hoạ font/bố cục, không phải yêu cầu thêm dữ liệu. Dòng phụ dùng nhãn loại đang có ("Ăn")
+ghép khu vực, không bịa thêm thông tin.
+
+Build/lint sạch (chỉ còn 1 lỗi cũ đã biết). Đã deploy.
+
+### 2026-08-20 (sau 6) — Rà soát giao diện (SPEC-giao-dien.md), 7 mục
 
 Trình kế hoạch, anh duyệt, làm theo đúng 2 bước: (1) sửa riêng dòng `font-family: Arial` đè
 mất font Geist trong `globals.css` — dừng lại cho anh xem trước; (2) sau khi anh duyệt tiếp,

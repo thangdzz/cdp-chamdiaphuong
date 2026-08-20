@@ -21,6 +21,41 @@ export function parsePriceRangeText(text) {
   return { priceMin, priceMax, priceUnit };
 }
 
+// Rút gọn số cho thẻ gấp (SPEC-giao-dien.md §6b mục 1) — 1.000 trở lên dùng "k", 1.000.000
+// trở lên dùng "tr" (giữ tối đa 1 chữ số thập phân, dấu phẩy kiểu Việt Nam). Không dùng cho
+// giá trị lưu trữ, chỉ dùng lúc hiển thị.
+function compactNumber(n) {
+  if (n >= 1_000_000) {
+    const rounded = Math.round((n / 1_000_000) * 10) / 10;
+    const digits = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1).replace(".", ",");
+    return { digits, suffix: "tr" };
+  }
+  if (n >= 1000) return { digits: String(Math.round(n / 1000)), suffix: "k" };
+  return { digits: String(n), suffix: "" };
+}
+
+// Bản rút gọn của formatPriceText cho thẻ gấp — trả về số rút gọn (`text-2xl`) tách riêng
+// khỏi đơn vị (`text-xs`, xám) để 2 phần chênh cỡ chữ được. Đọc thẳng priceMin/priceMax/
+// priceUnit, không parse lại priceText đã lưu (SPEC-giao-dien.md §6b mục 1: không sửa
+// priceText, chỉ đổi cách hiển thị).
+export function formatPriceCompact({ priceMin, priceMax, priceUnit }) {
+  if (priceMin == null && priceMax == null) return null;
+
+  const unitText = priceUnit ? `đ/${priceUnit}` : "đ";
+
+  if (priceMin == null || priceMax == null || priceMin === priceMax) {
+    const one = compactNumber(priceMin ?? priceMax);
+    return { compact: `${one.digits}${one.suffix}`, unitText };
+  }
+
+  const min = compactNumber(priceMin);
+  const max = compactNumber(priceMax);
+  // Cùng đơn vị rút gọn (cùng "k" hoặc cùng "tr") thì chỉ ghi hậu tố 1 lần ở cuối, kiểu
+  // "150–300k" thay vì "150k–300k" (ví dụ mẫu SPEC §6b).
+  const minPart = min.suffix === max.suffix ? min.digits : `${min.digits}${min.suffix}`;
+  return { compact: `${minPart}–${max.digits}${max.suffix}`, unitText };
+}
+
 export function formatPriceText({ priceMin, priceMax, priceUnit }) {
   if (priceMin == null && priceMax == null) return null;
 

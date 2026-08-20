@@ -137,6 +137,42 @@ mỗi thẻ có 4 dòng "chưa có" thì trông chết chóc.
 
 ---
 
+## 6b. Thẻ đang gấp — 5 chỗ sửa cụ thể
+
+> Thêm 2026-08-20 sau khi xem bản đã code. Mục 1–6 nói về hệ thống nền tảng; mục này nói
+> đúng thẻ ở trạng thái gấp (thứ khách thấy đầu tiên và nhiều nhất).
+
+**1. Rút gọn giá.** Đang hiện `150.000 – 300.000 đ/người` — chiếm trọn một dòng và cạnh
+tranh chú ý với tên địa điểm.
+
+Đổi thành `150–300k` ở `text-2xl`, kèm `đ/người` ở `text-xs text-zinc-400` ngay bên cạnh
+(cùng dòng, căn đáy). Quy tắc rút gọn: từ 1.000 trở lên dùng `k`, từ 1.000.000 dùng `tr`
+(ví dụ `900k – 2,5tr`). Dùng lại `lib/priceFormat.js`, thêm một hàm rút gọn — **không sửa
+`priceText` đang lưu**, chỉ đổi cách hiển thị.
+
+**2. Bỏ pill loại ở góc phải.** Nhãn `Ăn` xám góc trên bên phải là thừa — loại đã nằm ở dòng
+phụ ngay dưới tên. Hai chỗ nói cùng một điều.
+
+**3. Dòng phụ dùng loại · khu vực, không dùng địa chỉ.** Đang hiện
+`54 đường Bình Than (bên hông phải TT Hội nghị)` — quá dài cho thẻ gấp.
+
+Đổi thành `Ẩm thực · Bình Than` (loại chi tiết · khu vực). Địa chỉ đầy đủ chuyển xuống phần
+bung, mục 6 trong thứ tự khối.
+
+**4. Nút "Xem thêm" phải lùi hẳn về sau.** Đang có viền đen đậm, trông ngang sức với nút
+"Chỉ đường". Thẻ chỉ được có **một nút trông như nút**.
+
+Đổi thành chữ `text-sm text-zinc-500` + mũi tên chevron, **không viền, không nền**.
+
+**5. Nút "Chỉ đường" thu gọn.** Giữ màu cam CDP nhưng giảm đệm còn `px-4 py-2.5`,
+`rounded-lg`, `text-sm`. Mảng cam đang hơi lớn so với lượng thông tin trên thẻ.
+
+**Lưu ý về thẻ thiếu dữ liệu:** phần lớn địa điểm hiện chưa có thông tin bấm chọn nào, nên
+thẻ trông trống là **đúng thiết kế** ([§6](#6-thứ-tự-các-khối-trong-thẻ-bung): khối không có
+dữ liệu thì ẩn hẳn). Đừng thêm chữ "chưa có thông tin" để lấp chỗ trống.
+
+---
+
 ## 7. Chuyển động
 
 Hiện chỉ có **một** hiệu ứng: `cdp-highlight-flash` — **1,1 giây × 2 lần = 2,2 giây** nhấp
