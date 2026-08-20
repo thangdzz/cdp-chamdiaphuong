@@ -146,7 +146,33 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất) — Chặng 6: Ghi chú riêng
+### 2026-08-20 (mới nhất, sau) — Vá 6 chỗ anh phát hiện khi tự test Chặng 6
+
+Anh tự bấm thử ngay sau khi code xong, gửi 1 loạt phản hồi + 1 lỗi thật:
+
+1. **Đổi tên "Chia sẻ cho mọi người" → "Đăng công khai"** — anh đúng, dễ hiểu nhầm là gửi
+   riêng cho 1 người/nhóm (kiểu chia sẻ link). Đưa ra 3 phương án, anh chọn "Đăng công khai".
+2. **Lỗi thật: ghi chú nhiều dòng bị chặn "chỉ được viết 1 dòng" khi đăng công khai** — Ghi
+   chú riêng cho gõ nhiều dòng (đúng SPEC), nhưng Mẹo công khai chỉ 1 dòng; lúc rút gọn để
+   đăng, code cũ không tự bỏ dấu xuống dòng nên bị chính bộ lọc của Chặng 5 chặn lại. Sửa:
+   tự nối các dòng bằng " · " trước khi đưa vào ô rút gọn.
+3. Thêm nút "Lưu" + thông báo "✓ Đã lưu" khi rời khỏi ô hoặc bấm nút — trước đó tự lưu ngầm,
+   không có xác nhận gì nên anh không yên tâm là đã lưu chưa.
+4. Thêm `cursor-pointer` cho các nút bấm được trong khu Ghi chú riêng — trước đó hiện con
+   trỏ mũi tên mặc định (Tailwind v4 không tự thêm, phải khai báo tay).
+5. Thêm hiệu ứng nhấp nháy nhẹ ở đúng thẻ đích khi nhảy tới từ `/ghi-chu` — trước đó chỉ cuộn
+   tới, giữa danh sách dài khách khó nhận ra đúng thẻ nào.
+6. Thêm nút "Đăng công khai" trực tiếp cạnh mỗi ghi chú ở `/ghi-chu` — trước đó phải quay lại
+   trang chủ, bung thẻ, mới đăng được.
+
+Tách logic "đăng công khai" (gồm cả fix xuống dòng) ra `app/ShareNoteBox.js` dùng chung cho
+cả thẻ trang chủ và trang `/ghi-chu`, tránh viết lặp 2 nơi.
+
+Kiểm thử Playwright đủ 6 điểm trên bằng dữ liệu giả, kể cả đọc `getComputedStyle` để xác nhận
+đúng `cursor: pointer`. Dọn sạch dữ liệu test. Build/lint sạch (không phát sinh lỗi lint mới).
+Đã deploy.
+
+### 2026-08-20 — Chặng 6: Ghi chú riêng
 
 Đọc SPEC-chang-6.md, trình kế hoạch trước khi code. Anh hỏi kỹ 2 việc trước khi duyệt: (1)
 giải thích nút "Chia sẻ cho mọi người" — xác nhận nó gửi qua đúng hàng chờ Chặng 5, không có
