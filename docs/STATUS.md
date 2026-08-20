@@ -10,17 +10,19 @@
 SPEC §10, phát hiện + vá 2 chỗ thiếu (mở rộng xem chi tiết + nút Sao chép link ở trang Xem sổ).
 
 **Chặng 5 (Ghi chú công khai bằng chữ) đã bắt đầu — phần (a) "Mẹo tự do" code xong, lên web
-thật.** Phần (b) "Nên gọi món gì" chưa làm, để sau — xem mục 2026-08-20 (mới nhất) bên dưới.
+thật.** Phần (b) "Nên gọi món gì" chưa làm, để sau.
 
-Ngoài 4 chặng chính, đang có 1 nhánh việc phụ đang làm dần theo phản hồi thật của anh:
+**Chặng 6 (Ghi chú riêng) đã code xong, lên web thật** — xem mục 2026-08-20 (mới nhất) bên
+dưới.
+
+Ngoài các chặng chính, đang có 1 nhánh việc phụ đang làm dần theo phản hồi thật của anh:
 **công cụ xử lý trùng lặp trong `/admin`** — báo trùng từ khách (Chặng "Bổ sung thông tin") +
 nghi trùng do AI quét phát hiện, giờ dùng chung 1 công cụ so sánh & gộp. Đã xử lý xong 3 mục
 "hoá thạch" kẹt trong hàng chờ, và vá 2 lỗi pipeline anh phát hiện khi tự rà 11 mục còn lại
 (cảnh báo lặp + liên kết trùng lặp hỏng) — xem mục 2026-08-19 bên dưới.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
-[ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
-và sửa trước khi code.
+[ROADMAP.md](ROADMAP.md). **Chặng 7–8 là bản dự kiến**, phải đọc lại và sửa trước khi code.
 
 Bước tiếp theo: deploy bản gộp công cụ trùng lặp, anh bấm thử. **Nhắc mốc:** Chặng 4 (đã
 xong) đặt mục tiêu trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số liệu, không code (xem
@@ -144,7 +146,47 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau) — Vá 2 lỗ hổng anh tự test ra + tối ưu tốc độ gửi mẹo
+### 2026-08-20 (mới nhất) — Chặng 6: Ghi chú riêng
+
+Đọc SPEC-chang-6.md, trình kế hoạch trước khi code. Anh hỏi kỹ 2 việc trước khi duyệt: (1)
+giải thích nút "Chia sẻ cho mọi người" — xác nhận nó gửi qua đúng hàng chờ Chặng 5, không có
+đường tắt; (2) cảnh báo mất dữ liệu (đổi máy/xoá dữ liệu duyệt web) có hiện lúc khách gõ ghi
+chú không — rà lại SPEC gốc thì **không**, chỉ cảnh báo gián tiếp muộn ở ghi chú thứ 3. Anh
+duyệt thêm dòng cảnh báo rõ hơn ngay ở ô gõ (đã sửa SPEC-chang-6.md ghi lại quyết định này),
+rồi mới cho code.
+
+**Đã làm đúng theo SPEC:**
+- `lib/personalNotes.js` — đọc/ghi `localStorage` (khoá `cdp_personal_notes`), **không phải
+  Server Action**, không đụng gì phía máy chủ (đúng SPEC §4 "Chặng 5 và 6 không dùng chung
+  chỗ lưu nào"). Bắt lỗi ghi thất bại (bộ nhớ đầy/Safari chế độ riêng tư) thay vì im lặng mất
+  dữ liệu.
+- `app/PersonalNote.js` — ô ghi chú ở **trên cùng** phần bung thẻ, trước cả thông tin công
+  khai. Tự lưu sau ngừng gõ ~1 giây, không có nút Lưu, tối đa 500 ký tự. Dòng cảnh báo mới
+  (theo quyết định vừa chốt) hiện **mỗi lần** mở ô, không chỉ lần đầu. Nút "Chia sẻ cho mọi
+  người" — rút gọn còn 120 ký tự, gửi thẳng qua `submitTip` (dùng lại nguyên hàng chờ Mẹo tự
+  do của Chặng 5, không viết pipeline riêng).
+- `app/ghi-chu/page.js` + `PersonalNotesList.js` — trang liệt kê mọi ghi chú riêng kèm tên
+  chỗ, có tìm kiếm, bấm vào nhảy tới đúng chỗ (dùng anchor `#placeId`, thêm `id={place.id}`
+  vào thẻ ở `PlaceExplorer.js`). Lời mời để lại SĐT hiện từ ghi chú thứ 3 — **chỉ hiện lời
+  mời, chưa làm chức năng thật** (việc đó để Chặng 7), bấm "Để sau" thì 14 ngày không hỏi lại.
+- `SiteHeader.js` — thêm link "Ghi chú của tôi" cạnh "Sổ của tôi". Chủ động thêm dù SPEC
+  không liệt kê file này — đúng bài học đã ghi sẵn trong comment của `SiteHeader.js` từ
+  Chặng 4 ("khách không tự tìm lại được sổ đã tạo"), tránh lặp lại y hệt lỗi đó cho ghi chú
+  riêng.
+
+Kiểm thử bằng Playwright khá kỹ vì đây là tính năng phía trình duyệt hoàn toàn (không có gì
+để kiểm tra qua Redis): viết ghi chú → tải lại trang còn nguyên; mở bằng "trình duyệt khác"
+(context Playwright riêng) → không thấy (đúng tính riêng tư); trang `/ghi-chu` hiện đúng tên
+chỗ + nội dung + bấm vào nhảy đúng chỗ; nút Xoá hoạt động; "Chia sẻ cho mọi người" tạo đúng
+mục trong `place_notes:queue` y hệt Mẹo tự do thường, ghi chú riêng gốc vẫn còn sau khi chia
+sẻ; đủ 3 ghi chú hiện lời mời SĐT, bấm "Để sau" thì tải lại không hỏi lại. Gặp vài lần script
+test tự viết bị sai (locator mơ hồ trùng ô gõ khác, dùng nhầm lệnh chờ điều hướng phía trình
+duyệt của Next.js) — đã xác minh lại kỹ, không phải lỗi app. Dọn sạch dữ liệu test, không đụng
+hồ sơ khách thật. Build/lint sạch (vá thêm 2 lỗi lint mới phát sinh từ code Chặng 6, theo đúng
+cách đã dùng ở `CheckinButton.js` — không tính lỗi có sẵn từ trước ở `PlaceExplorer.js`). Đã
+deploy.
+
+### 2026-08-20 — Vá 2 lỗ hổng anh tự test ra + tối ưu tốc độ gửi mẹo
 
 Anh tự bấm thử "Mẹo tự do", cố tình gõ lách luật để test và phát hiện 2 chỗ thật:
 
