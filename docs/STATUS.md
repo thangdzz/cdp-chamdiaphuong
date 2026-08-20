@@ -146,7 +146,17 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 2) — Vá lại: xuống dòng vẫn lọt sau lần vá trước
+### 2026-08-20 (mới nhất, sau 3) — Hiệu ứng nhấp nháy quá nhạt, khó thấy
+
+Anh báo hiệu ứng nhấp nháy (mục ngay dưới) "chưa hoạt động". Đo kỹ bằng script chụp màu nền
+theo từng mốc thời gian thì hoá ra **hiệu ứng chạy đúng kỹ thuật** (đổi màu đúng chu kỳ, class
+gắn/gỡ đúng lúc) — chỉ là màu `#fef3c7` chọn ban đầu quá nhạt, gần trắng, khó nhận ra trên nền
+thẻ trắng, nhất là đúng lúc trang vừa nhảy tới (mắt còn đang định hình). Đổi màu đậm hơn
+(`#fde68a`) + thêm viền sáng quanh thẻ lúc nhấp nháy, rút ngắn chu kỳ. Xác nhận lại bằng ảnh
+chụp màn hình thật (không chỉ đo qua code) — thẻ đích giờ nổi bật rõ so với các thẻ khác.
+Dọn sạch dữ liệu test. Đã deploy.
+
+### 2026-08-20 (sau 2) — Vá lại: xuống dòng vẫn lọt sau lần vá trước
 
 Anh bấm thử lại ngay, vẫn dính đúng lỗi "Ghi chú chỉ được viết 1 dòng." — lần vá trước
 (mục ngay dưới) chỉ lọc xuống dòng ở nội dung **điền sẵn ban đầu** (`initialText`), chưa chặn
