@@ -130,7 +130,24 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất) — Chặng 4: bấm vào chỗ trong sổ giờ xem được đầy đủ
+### 2026-08-20 (mới nhất, sau) — Thêm "Sao chép link" ngay trên trang Xem sổ
+
+Anh hỏi rõ ràng hoá: không cần lập tài khoản gì (app này không có đăng nhập, "chủ sổ" nhận
+ra qua hồ sơ ẩn danh tạo âm thầm trong máy); nhưng đúng là **chỉ lấy link được ở trang Sửa
+sổ** — trang Xem trước đó chỉ có nút "Sửa sổ này", muốn copy link phải bấm thêm 1 bước vào
+Sửa. Anh xác nhận muốn tiện hơn.
+
+**Đã làm:** `app/NotebookOwnerActions.js` — chủ sổ giờ thấy 2 nút ở trang Xem: "Sao chép
+link" (chính, đen) + "✏️ Sửa sổ này" (phụ, viền) thay vì chỉ 1 nút như trước. Dùng lại đúng
+logic copy đã có ở trang Sửa (kể cả chặn copy khi sổ trống — SPEC §9). `app/so/[slug]/page.js`
+truyền thêm `itemCount` để biết khi nào chặn.
+
+Kiểm thử: script tạo 1 sổ giả + Playwright giả lập trình duyệt của đúng chủ sổ (set sẵn hồ sơ
+ẩn danh khớp), xác nhận thấy đủ 2 nút, bấm "Sao chép link" đổi thành "✓ Đã sao chép", clipboard
+đúng URL sổ, không lỗi trang. Dọn sạch dữ liệu test. Build/lint sạch (còn đúng 1 lỗi lint có
+sẵn từ trước, không liên quan). Đã deploy.
+
+### 2026-08-20 — Chặng 4: bấm vào chỗ trong sổ giờ xem được đầy đủ
 
 Anh tự bấm thử checklist SPEC §10, phát hiện 2 việc:
 1. Trang Xem sổ (`/so/{slug}`) chỉ hiện thẻ gọn (tên/giá/khu vực/ghi chú) — bấm vào không có
