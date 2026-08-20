@@ -499,7 +499,7 @@ export default function PlaceExplorer({ places }) {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.add("cdp-highlight-flash");
-    const timer = setTimeout(() => el.classList.remove("cdp-highlight-flash"), 3200);
+    const timer = setTimeout(() => el.classList.remove("cdp-highlight-flash"), 2400);
     return () => clearTimeout(timer);
   }, []);
 
