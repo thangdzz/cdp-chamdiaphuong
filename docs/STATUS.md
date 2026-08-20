@@ -146,7 +146,17 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 4) — Đổi màu nhấp nháy sang tông logo CDP
+### 2026-08-20 (mới nhất, sau 5) — Chữ khó đọc khi điện thoại bật dark mode
+
+Anh báo trên iPhone bật dark mode thì chữ ở web khó nhìn. Nguyên nhân: `globals.css` còn sót
+đoạn mẫu mặc định của Next.js tự đổi nền trang sang gần đen khi máy bật dark mode, nhưng
+**không có component nào trong dự án được làm để đổi màu chữ theo** — mọi chữ đều màu xám đậm
+cố định (dùng cho nền trắng). Kết quả: nền đen + chữ xám đậm = gần như vô hình. Sửa tận gốc:
+bỏ đoạn tự đổi nền đó, ép `color-scheme: light` để web luôn hiển thị giao diện sáng bất kể máy
+đang bật chế độ gì — đúng với cách toàn bộ web đang được thiết kế. Kiểm chứng bằng Playwright
+giả lập dark mode + chụp ảnh màn hình thật, xác nhận nền trắng/chữ rõ. Đã deploy.
+
+### 2026-08-20 (sau 4) — Đổi màu nhấp nháy sang tông logo CDP
 
 Anh thấy màu vàng amber ở hiệu ứng nhấp nháy (mục ngay dưới) không hợp, đề nghị đổi sang màu
 giống logo CDP. Đổi từ `#fde68a` (vàng amber) sang tông đỏ đất `#c8553d` — đúng màu chữ "CDP"
