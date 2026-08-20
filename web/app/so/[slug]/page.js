@@ -88,7 +88,7 @@ export default async function NotebookViewPage({ params }) {
           </ul>
         )}
 
-        <NotebookOwnerActions slug={slug} />
+        <NotebookOwnerActions slug={slug} itemCount={items.length} />
       </main>
     </div>
   );
