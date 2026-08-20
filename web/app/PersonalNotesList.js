@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getAllPersonalNotes } from "@/lib/personalNotes";
+import { ShareNoteBox } from "./ShareNoteBox";
 
 const INVITE_DISMISS_KEY = "cdp_personal_notes_invite_dismissed_until";
 const INVITE_MIN_NOTES = 3;
@@ -38,14 +39,14 @@ function InviteBanner({ onDismiss }) {
             <button
               type="button"
               onClick={onDismiss}
-              className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
+              className="cursor-pointer rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
             >
               Để sau
             </button>
             <button
               type="button"
               onClick={handleSaveClick}
-              className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white"
+              className="cursor-pointer rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white"
             >
               Lưu lại
             </button>
@@ -53,6 +54,39 @@ function InviteBanner({ onDismiss }) {
         </>
       )}
     </div>
+  );
+}
+
+function NoteListItem({ note }) {
+  const [sharing, setSharing] = useState(false);
+
+  return (
+    <li className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+      {note.place ? (
+        <Link href={`/#${note.placeId}`} className="text-base font-semibold text-zinc-900 underline">
+          {note.place.name}
+        </Link>
+      ) : (
+        <>
+          <p className="text-base font-semibold text-zinc-400">Chỗ đã xoá</p>
+          <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
+        </>
+      )}
+      <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">{note.text}</p>
+      <div className="mt-1 flex items-center justify-between">
+        <p className="text-xs text-zinc-400">Cập nhật {formatDate(note.updatedAt)}</p>
+        {note.place && (
+          <button
+            type="button"
+            onClick={() => setSharing((v) => !v)}
+            className="cursor-pointer text-xs text-zinc-600 underline"
+          >
+            Đăng công khai
+          </button>
+        )}
+      </div>
+      {sharing && <ShareNoteBox placeId={note.placeId} initialText={note.text} onCancel={() => setSharing(false)} />}
+    </li>
   );
 }
 
@@ -131,20 +165,7 @@ export function PersonalNotesList({ places }) {
       ) : (
         <ul className="flex flex-col gap-3">
           {filtered.map((n) => (
-            <li key={n.placeId} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              {n.place ? (
-                <Link href={`/#${n.placeId}`} className="text-base font-semibold text-zinc-900 underline">
-                  {n.place.name}
-                </Link>
-              ) : (
-                <>
-                  <p className="text-base font-semibold text-zinc-400">Chỗ đã xoá</p>
-                  <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
-                </>
-              )}
-              <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">{n.text}</p>
-              <p className="mt-1 text-xs text-zinc-400">Cập nhật {formatDate(n.updatedAt)}</p>
-            </li>
+            <NoteListItem key={n.placeId} note={n} />
           ))}
         </ul>
       )}

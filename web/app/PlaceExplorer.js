@@ -490,6 +490,19 @@ export default function PlaceExplorer({ places }) {
   const [priceBucket, setPriceBucket] = useState("all");
   const [search, setSearch] = useState("");
 
+  // Nhảy tới từ /ghi-chu dùng link "/#placeId" — trình duyệt tự cuộn tới đúng thẻ nhờ id
+  // trùng hash, nhưng giữa danh sách dài khách khó nhận ra đúng thẻ nào -> nhấp nháy nhẹ 1
+  // lượt để chỉ rõ (không dùng setState, chỉ thao tác DOM trực tiếp qua classList).
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add("cdp-highlight-flash");
+    const timer = setTimeout(() => el.classList.remove("cdp-highlight-flash"), 3200);
+    return () => clearTimeout(timer);
+  }, []);
+
   const wards = useMemo(() => {
     const set = new Set(places.map((p) => p.ward).filter(Boolean));
     return Array.from(set).sort();
