@@ -33,6 +33,17 @@ function detectAreaPreset(addressText) {
   return found ?? null;
 }
 
+// Món đặc trưng (SPEC-chang-5.md §2.2 Nguồn 1) — tối đa 3, chỉ áp dụng "an". Cắt bớt thay vì
+// từ chối cả bản ghi nếu routine lỡ trả nhiều hơn 3 — không đáng làm hỏng cả lô vì 1 trường
+// phụ. Không có giá kèm theo (đúng §2.3 "không ghi giá từng món") vì chỉ nhận mảng chuỗi tên.
+function normalizeSignatureDishes(raw, categoryPrimary) {
+  if (categoryPrimary !== "an" || !Array.isArray(raw)) return [];
+  return raw
+    .map((d) => (typeof d === "string" ? d.trim() : ""))
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
 /**
  * Chuyển 1 bản ghi thô từ nguồn (tuỳ format từng adapter) thành NormalizedPlace.
  * @param {object} raw - bản ghi thô, tối thiểu cần { name, category_primary }.
@@ -44,6 +55,7 @@ export function normalizeRecord(raw, sourceMeta) {
   const addressText = raw.address_text?.trim() || null;
   const phone = raw.phone?.trim() || null;
 
+  const categoryPrimary = assertValidPlaceType(raw.category_primary);
   const missingAddress = !addressText;
   const missingPhone = !phone;
 
@@ -68,7 +80,7 @@ export function normalizeRecord(raw, sourceMeta) {
   return {
     name,
     normalized_name: slugifyName(name),
-    category_primary: assertValidPlaceType(raw.category_primary),
+    category_primary: categoryPrimary,
     address_text: addressText,
     area_preset: detectAreaPreset(addressText),
     near_landmark: raw.near_landmark?.trim() || null,
@@ -76,6 +88,7 @@ export function normalizeRecord(raw, sourceMeta) {
     opening_hours_text: raw.opening_hours_text?.trim() || null,
     price_range_text: raw.price_range_text?.trim() || null,
     map_note: raw.map_note?.trim() || null,
+    signature_dishes: normalizeSignatureDishes(raw.signature_dishes, categoryPrimary),
     source_summary: `${sourceMeta.sourceId} (${sourceMeta.observedAt})`,
     activity_status: ACTIVITY_STATUS.UNKNOWN, // chưa có tín hiệu xác nhận hoạt động
     availability_signal: AVAILABILITY_SIGNAL.UNKNOWN, // không tự khẳng định còn/hết chỗ

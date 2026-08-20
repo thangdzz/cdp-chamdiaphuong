@@ -21,6 +21,7 @@ export function candidateToLivePlace(candidate, meta = {}) {
     priceMax,
     priceUnit,
     priceText: formatPriceText({ priceMin, priceMax, priceUnit }),
+    signatureDishes: candidate.signature_dishes?.length ? candidate.signature_dishes : null,
     confidenceScore: candidate.confidence_score,
     sourceCount: 1,
     lastUpdatedAt: meta.observedAt ?? new Date().toISOString(),

@@ -75,6 +75,8 @@ export const SOURCE_WEIGHT = {
  * @property {string|null} opening_hours_text
  * @property {string|null} price_range_text
  * @property {string|null} map_note
+ * @property {string[]} signature_dishes - tối đa 3, chỉ có nghĩa khi category_primary "an"
+ *   (SPEC-chang-5.md §2.2 Nguồn 1) — món đặc trưng đọc từ tên/mô tả lúc quét, KHÔNG kèm giá
  * @property {string} source_summary
  * @property {string} activity_status
  * @property {string} availability_signal

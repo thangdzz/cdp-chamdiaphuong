@@ -180,7 +180,33 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 8) — Hoàn tác 1 chỗ ở mục 6b: dòng phụ về lại địa chỉ
+### 2026-08-20 (mới nhất, sau 9) — Món đặc trưng, việc 1/4: thêm `signature_dishes` vào schema
+
+Bắt đầu làm [SPEC-chang-5.md §2.2](SPEC-chang-5.md) (mục B trong "Việc đã chốt, chờ code" ở
+trên) — làm đúng thứ tự anh duyệt: **schema trước, giao diện sau**. Việc 1/4 xong:
+
+- `lib/ingestion/schema.js`: thêm `signature_dishes` (mảng, tối đa 3) vào JSDoc
+  `NormalizedPlace`.
+- `lib/ingestion/normalize.js`: cắt tối đa 3, trim từng chuỗi, bỏ rỗng — **chỉ áp dụng
+  `category_primary === "an"`**, loại khác luôn `[]` dù routine lỡ gửi món.
+- `lib/ingestion/toLivePlace.js`: đổ sang `places:live` thành `signatureDishes` (`null` nếu
+  không có món, không phải mảng rỗng).
+- `lib/ingestion/match.js`: `computeDiff()` thêm so sánh món — **chỉ báo "thay đổi" khi ứng
+  viên có món VÀ khác nội dung đã lưu**, tránh báo thay đổi giả mỗi lần quét lại (mảng không
+  so sánh được bằng `!==` như các trường chuỗi khác).
+
+Không đụng `ingestBatch.js`, `runDailyIngest.js`, các `sources/*.js`, route
+`/api/ingest/submit` — tất cả đã generic theo field, món mới tự chảy qua được không cần sửa
+thêm. Kiểm thử bằng script gọi trực tiếp `normalizeRecord`/`candidateToLivePlace`/
+`matchAgainstExisting` (không đụng Redis thật): cắt đúng 3 món, loại khác "an" luôn rỗng,
+không báo thay đổi giả khi routine không tìm thấy món hoặc món trùng đã lưu. Build/lint sạch.
+
+**Còn lại theo đúng thứ tự đã duyệt:** 2. soạn lại lệnh routine (văn bản, không phải code —
+anh tự dán vào claude.ai Routines) · 3. thêm loại ảnh "Ảnh menu" · 4. ô gõ món cho khách (làm
+cuối). Chưa deploy phần này riêng — đợi gộp cùng lúc với việc 2–4 hoặc anh muốn lên web thật
+ngay bây giờ đã được (dữ liệu chưa có món nào nên chưa hiện gì thay đổi cho khách).
+
+### 2026-08-20 (sau 8) — Hoàn tác 1 chỗ ở mục 6b: dòng phụ về lại địa chỉ
 
 Anh xem bản đã đổi (mục 3 của §6b — dòng phụ "Loại · Khu vực") thì muốn **giữ nguyên như
 cũ**. Hoàn tác đúng phần đó: dòng phụ dưới tên trở lại là địa chỉ rút gọn

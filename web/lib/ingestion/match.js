@@ -153,5 +153,17 @@ function computeDiff(candidate, existing) {
       diff.push({ field: existingField, oldValue: oldValue ?? null, newValue });
     }
   }
+
+  // Món đặc trưng: mảng, không so sánh bằng !== được. Chỉ báo thay đổi khi ứng viên CÓ món
+  // và khác nội dung đã lưu — quét lại mỗi ngày không tự nhiên báo "thay đổi" khi cả 2 bên
+  // đều rỗng, hoặc khi ứng viên không tìm thấy món (không có nghĩa là chỗ đó hết món).
+  const newDishes = candidate.signature_dishes;
+  if (newDishes?.length) {
+    const oldDishes = existing.signatureDishes ?? [];
+    if (JSON.stringify(newDishes) !== JSON.stringify(oldDishes)) {
+      diff.push({ field: "signatureDishes", oldValue: existing.signatureDishes ?? null, newValue: newDishes });
+    }
+  }
+
   return diff;
 }
