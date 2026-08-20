@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "name": "Quảng trường Nguyễn Tất Thành",
+    "category_primary": "choi",
+    "address_text": "Trung tâm TP Tuyên Quang, ven sông Lô",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": "Mở cửa tự do, không gian công cộng",
+    "price_range_text": "Miễn phí",
+    "map_note": null
+  },
+  {
+    "name": "Công viên Sông Lô",
+    "category_primary": "choi",
+    "address_text": "Cạnh Quảng trường Nguyễn Tất Thành, TP Tuyên Quang",
+    "near_landmark": "Ngay cạnh Quảng trường Nguyễn Tất Thành",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "Miễn phí",
+    "map_note": null
+  },
+  {
+    "name": "Bảo tàng tỉnh Tuyên Quang",
+    "category_primary": "choi",
+    "address_text": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3818 459",
+    "opening_hours_text": "07:00–18:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Bến xe Tuyên Quang",
+    "category_primary": "dilai",
+    "address_text": "Số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "02073822664",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Hơn 200 chuyến xe/ngày"
+  },
+  {
+    "name": "Taxi Tâm Đức",
+    "category_primary": "dilai",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": "0207 3819 819",
+    "opening_hours_text": "24/24",
+    "price_range_text": null,
+    "map_note": "Thuê xe theo giờ, theo ngày, theo tháng"
+  },
+  {
+    "name": "Citrus Coffee Lab",
+    "category_primary": "an",
+    "address_text": "217 đường Trần Phú, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0946622262",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Cielo Coffee & Ice Cream",
+    "category_primary": "an",
+    "address_text": "51 đường Bình Thuận, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "02073820789",
+    "opening_hours_text": "Từ 08:00",
+    "price_range_text": "25.000đ–89.000đ",
+    "map_note": null
+  },
+  {
+    "name": "Feline Café",
+    "category_primary": "an",
+    "address_text": "102 đường Quang Trung, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Sky Café",
+    "category_primary": "an",
+    "address_text": "155 đường Bình Thuận, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Tầng thượng tòa nhà, đối diện khách sạn Royal"
+  }
+]
