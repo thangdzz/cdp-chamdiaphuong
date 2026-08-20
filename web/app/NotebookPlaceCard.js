@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
@@ -16,16 +15,12 @@ export function NotebookPlaceCard({ item }) {
   const [galleryIndex, setGalleryIndex] = useState(null);
   const place = item.place;
   const photos = place.photos ?? [];
-  const subArea = place.localArea || place.ward;
   const compactPrice = formatPriceCompact(place);
 
   return (
     <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
-      <p className="mt-1 text-[13px] text-zinc-500">
-        {getPlaceTypeLabel(place.type)}
-        {subArea ? ` · ${subArea}` : ""}
-      </p>
+      {place.ward && <p className="mt-1 text-[13px] text-zinc-500">{place.ward}</p>}
       <p className="mt-5 flex items-baseline gap-1">
         {compactPrice ? (
           <>

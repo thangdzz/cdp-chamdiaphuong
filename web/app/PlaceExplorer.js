@@ -14,8 +14,6 @@ import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 
-const TYPE_LABEL = Object.fromEntries(PLACE_TYPES.map((t) => [t.id, t.label]));
-
 // Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
 // SPEC-chang-3.md §5.
 const OCCUPANCY_LABEL_TYPES = new Set(["an", "ngu"]);
@@ -27,6 +25,21 @@ const PRICE_BUCKETS = [
   { id: "500k-1tr", label: "500.000 – 1.000.000đ", min: 500000, max: 1000000 },
   { id: "tren-1tr", label: "Trên 1.000.000đ", min: 1000000, max: Infinity },
 ];
+
+// Rút gọn địa chỉ về "số nhà + tên đường" cho thẻ gọn — bỏ phần phường/thành phố (đã có
+// mục "Khu vực" riêng). "Địa chỉ đầy đủ" lúc bung thẻ vẫn giữ nguyên chuỗi gốc.
+const ADDRESS_DROP_PREFIXES = ["phường", "tp", "thành phố", "tổ", "xã", "huyện", "thị trấn"];
+function formatShortAddress(address) {
+  if (!address) return address;
+  const parts = address.split(",").map((s) => s.trim());
+  const kept = [];
+  for (const part of parts) {
+    const lower = part.toLowerCase();
+    if (ADDRESS_DROP_PREFIXES.some((prefix) => lower.startsWith(prefix))) break;
+    kept.push(part);
+  }
+  return kept.length > 0 ? kept.join(", ") : address;
+}
 
 // Nhóm từ đồng nghĩa cho tìm kiếm — gõ 1 trong các từ này đều ra kết quả như nhau. Đã qua
 // stripDiacritics + lowercase nên viết không dấu (VD "cà phê" -> "ca phe").
@@ -272,16 +285,12 @@ function PlaceCard({ place }) {
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
   const metaLine = buildMetaLine(place, lodgingKind);
 
-  const subArea = place.localArea || place.ward;
   const compactPrice = formatPriceCompact(place);
 
   return (
     <li id={place.id} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
-      <p className="mt-1 text-[13px] text-zinc-500">
-        {TYPE_LABEL[place.type]}
-        {subArea ? ` · ${subArea}` : ""}
-      </p>
+      <p className="mt-1 text-[13px] text-zinc-500">{formatShortAddress(place.address)}</p>
 
       <p className="mt-5 flex items-baseline gap-1">
         {compactPrice ? (
