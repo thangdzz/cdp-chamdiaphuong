@@ -144,7 +144,32 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất) — Chặng 5 phần (a): Mẹo tự do (ghi chú công khai bằng chữ)
+### 2026-08-20 (mới nhất, sau) — Vá 2 lỗ hổng anh tự test ra + tối ưu tốc độ gửi mẹo
+
+Anh tự bấm thử "Mẹo tự do", cố tình gõ lách luật để test và phát hiện 2 chỗ thật:
+
+1. **Mẹo đã duyệt không hiện trong "Sổ của tôi"** — đúng, chỉ gắn vào thẻ trang chủ, quên gắn
+   vào thẻ chỗ trong trang Xem sổ (`NotebookPlaceCard.js`). Đã vá: gắn `place.notes` vào dữ
+   liệu sổ (`app/so/[slug]/page.js`) + hiện đúng khối "💡 Mẹo:..." (không có nút Báo sai —
+   giữ đúng nguyên tắc trang Xem sổ chỉ xem, không có nút hành động).
+2. **Gõ link lách luật lọt qua lớp 1** — `tinhte(.)vn`, `tinhte . vn`, `tinhte*vn` đều không
+   bị chặn vì bộ lọc cũ chỉ nhận domain viết liền không dấu cách/ký tự lạ. Đã vá
+   `lib/textFilter.js` (dùng chung với Chặng 2/4) — bắt được cả 3 kiểu lách trên, đồng thời
+   xác nhận không bắt nhầm câu bình thường kiểu "...rất OK me lắm..." (test kỹ trước khi vá).
+   Số điện thoại nói bằng chữ ("ba khong bay...") — bàn với anh và **quyết định chưa vá**:
+   quá phức tạp so với lợi ích, và loại nội dung này vốn *luôn* bắt buộc qua tay admin duyệt
+   nên vẫn an toàn dù lớp 1 không bắt được.
+
+**Phát hiện thêm lúc test (không phải lỗi, chỉ là chậm):** gửi 1 mẹo mất **~2-4 giây** thật —
+không phải bị treo, chỉ do nhiều lệnh Redis nối tiếp nhau. Nhân tiện thấy code đang đọc lại
+`place_notes:queue` **3 lần** trong 1 lượt gửi (đáng ra 1 lần đủ) — gộp lại, nhanh hơn ~20%.
+
+Kiểm thử: script đo trực tiếp tốc độ trước/sau khi gộp, Playwright xác nhận cả 3 kiểu link
+lách luật đều bị chặn đúng, câu bình thường không bị chặn nhầm, mẹo hiện đúng trong sổ. Dọn
+sạch dữ liệu test (kể cả rà lại contributors:all để chắc không lỡ xoá hồ sơ khách thật — vẫn
+còn nguyên "Thợ ảnh điện thoại" 68 điểm). Build/lint sạch. Đã deploy.
+
+### 2026-08-20 — Chặng 5 phần (a): Mẹo tự do (ghi chú công khai bằng chữ)
 
 Đọc SPEC-chang-5.md, trình kế hoạch trước khi code (đúng quy tắc 1). Chặng này có 2 phần khá
 độc lập — thống nhất với anh: làm (a) "Mẹo tự do" trước, bấm thử ổn rồi mới làm (b) "Nên gọi
