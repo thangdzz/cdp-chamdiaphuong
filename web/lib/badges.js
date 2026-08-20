@@ -133,6 +133,7 @@ export const TIER_COLORS = ["#8b5e3c", "#b08d57", "#a8a8a8", "#d4af37", "#a78bfa
 export const POINTS = {
   correction: 5,
   photo: 10,
+  note: 5,
 };
 
 export function getCategory(categoryId) {

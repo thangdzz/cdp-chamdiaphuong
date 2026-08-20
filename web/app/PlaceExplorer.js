@@ -10,6 +10,7 @@ import { stripDiacritics } from "@/lib/ingestion/normalize";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { AddToNotebook } from "./AddToNotebook";
+import { NoteInput } from "./NoteInput";
 
 const TYPE_LABEL = Object.fromEntries(PLACE_TYPES.map((t) => [t.id, t.label]));
 
@@ -352,6 +353,7 @@ function PlaceCard({ place }) {
           )}
 
           <QuestionPrompt place={place} />
+          <NoteInput place={place} />
           <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
           <AddToNotebook place={place} />
           <ContributionPanel place={place} />

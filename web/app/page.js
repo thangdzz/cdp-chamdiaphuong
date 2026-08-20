@@ -3,21 +3,24 @@ import Link from "next/link";
 import { getLivePlaces } from "@/lib/redis";
 import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
+import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import PlaceExplorer from "./PlaceExplorer";
 import { SiteHeader } from "./SiteHeader";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [livePlaces, latestCheckins, allConsensus] = await Promise.all([
+  const [livePlaces, latestCheckins, allConsensus, allNotes] = await Promise.all([
     getLivePlaces(),
     getAllLatestCheckins(),
     getAllConsensus(),
+    getAllPublishedNotes(),
   ]);
   const places = livePlaces.map((p) => ({
     ...p,
     lastCheckinAt: latestCheckins[p.id] ?? null,
     consensus: allConsensus[p.id] ?? null,
+    notes: filterVisibleNotes(allNotes[p.id] ?? []),
   }));
 
   return (

@@ -7,6 +7,7 @@ import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { getSuggestions } from "@/lib/suggestions";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { getAdminNotebookStats } from "@/lib/notebooks";
+import { getNoteQueue } from "@/lib/notes";
 import {
   login,
   logout,
@@ -18,8 +19,11 @@ import {
 } from "./actions";
 import { approveReviewItem, rejectReviewItem } from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
+import { approveNoteAction, rejectNoteAction } from "./noteActions";
 import { IngestPasteBox } from "./IngestPasteBox";
 import { MergeDuplicatePanel } from "./MergeDuplicatePanel";
+
+const NOTE_QUESTION_LABEL = { tip: "Bạn có mẹo gì cho chỗ này không?" };
 
 const SUGGESTION_FIELD_LABEL = {
   address: "Địa chỉ",
@@ -251,6 +255,45 @@ function ReviewItemCard({ item }) {
   );
 }
 
+// Ghi chú công khai bằng chữ (SPEC-chang-5.md §6) — loại nội dung duy nhất luôn phải qua
+// duyệt. item.reported = true là mục vừa bị 2 người báo sai, tự ẩn, quay lại đây (lớp 5).
+function NoteCard({ item, placeName }) {
+  return (
+    <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+      <div className="flex items-start justify-between gap-2">
+        <span className="rounded-full bg-violet-200 px-2 py-0.5 text-xs font-medium text-violet-900">
+          {item.reported ? "Bị báo sai — chờ duyệt lại" : "Ghi chú mới"}
+        </span>
+        <span className="text-xs text-zinc-500">AI: {item.aiVerdict ?? "—"}</span>
+      </div>
+      <p className="mt-2 text-sm font-medium text-zinc-800">{placeName}</p>
+      <p className="mt-1 text-xs text-zinc-500">
+        {NOTE_QUESTION_LABEL[item.questionId] ?? item.questionId ?? "Mẹo tự do"}
+      </p>
+      <p className="mt-1 text-sm text-zinc-700">💬 {item.text}</p>
+      {item.festivalOnly && (
+        <p className="mt-1 text-xs text-amber-700">Chỉ đúng dịp lễ hội — tự ẩn sau 25/09</p>
+      )}
+
+      <form className="mt-3 flex gap-2">
+        <input type="hidden" name="id" value={item.id} />
+        <button
+          formAction={approveNoteAction}
+          className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+        >
+          Duyệt
+        </button>
+        <button
+          formAction={rejectNoteAction}
+          className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+        >
+          Bỏ
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function SuggestionCard({ item }) {
   return (
     <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
@@ -318,7 +361,10 @@ function SuggestionCard({ item }) {
   );
 }
 
-function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats }) {
+function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats, noteQueue }) {
+  const placeNameById = (id) => live.find((p) => p.id === id)?.name ?? "(chỗ không rõ, có thể đã bị xoá)";
+  const pendingNotes = noteQueue.filter((n) => !n.reported);
+  const reportedNotes = noteQueue.filter((n) => n.reported);
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="mb-6 flex items-center justify-between">
@@ -415,6 +461,33 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats
 
       <section className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Ghi chú chờ duyệt ({pendingNotes.length})
+        </h2>
+        {pendingNotes.length === 0 && (
+          <p className="text-sm text-zinc-500">Chưa có ghi chú mới nào chờ duyệt.</p>
+        )}
+        <div className="flex flex-col gap-3">
+          {pendingNotes.map((item) => (
+            <NoteCard key={item.id} item={item} placeName={placeNameById(item.placeId)} />
+          ))}
+        </div>
+      </section>
+
+      {reportedNotes.length > 0 && (
+        <section className="mb-8">
+          <h2 className="mb-3 text-lg font-bold text-zinc-900">
+            Ghi chú bị báo sai ({reportedNotes.length})
+          </h2>
+          <div className="flex flex-col gap-3">
+            {reportedNotes.map((item) => (
+              <NoteCard key={item.id} item={item} placeName={placeNameById(item.placeId)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Góp ý từ khách ({suggestions.length})
         </h2>
         {suggestions.length === 0 && (
@@ -491,12 +564,13 @@ export default async function AdminPage({ searchParams }) {
     return <LoginForm hasError={params?.error === "1"} />;
   }
 
-  const [live, pending, allReviewItems, allSuggestions, notebookStats] = await Promise.all([
+  const [live, pending, allReviewItems, allSuggestions, notebookStats, noteQueue] = await Promise.all([
     getLivePlaces(),
     getPendingPlaces(),
     getReviewQueue(),
     getSuggestions(),
     getAdminNotebookStats(),
+    getNoteQueue(),
   ]);
   const reviewQueue = allReviewItems.filter((i) => i.status === REVIEW_STATUS.PENDING);
   const suggestions = allSuggestions.filter((s) => s.status === "pending");
@@ -507,6 +581,7 @@ export default async function AdminPage({ searchParams }) {
       reviewQueue={reviewQueue}
       suggestions={suggestions}
       notebookStats={notebookStats}
+      noteQueue={noteQueue}
     />
   );
 }
