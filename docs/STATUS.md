@@ -146,7 +146,17 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau) — Vá 6 chỗ anh phát hiện khi tự test Chặng 6
+### 2026-08-20 (mới nhất, sau 2) — Vá lại: xuống dòng vẫn lọt sau lần vá trước
+
+Anh bấm thử lại ngay, vẫn dính đúng lỗi "Ghi chú chỉ được viết 1 dòng." — lần vá trước
+(mục ngay dưới) chỉ lọc xuống dòng ở nội dung **điền sẵn ban đầu** (`initialText`), chưa chặn
+lúc anh **tự gõ thêm Enter** ngay trong ô "Đăng công khai" đang mở. Sửa tận gốc lần này: đổi
+ô đó từ `textarea` sang `input` 1 dòng thật sự — Enter không xuống dòng được nữa (browser tự
+chặn), không cần lọc lại sau. Kiểm thử bằng Playwright bấm phím Enter thật (không phải dán
+chuỗi có `\n`) ngay trong ô, xác nhận không còn ký tự xuống dòng và đăng thành công. Dọn sạch
+dữ liệu test. Build/lint sạch. Đã deploy.
+
+### 2026-08-20 (sau) — Vá 6 chỗ anh phát hiện khi tự test Chặng 6
 
 Anh tự bấm thử ngay sau khi code xong, gửi 1 loạt phản hồi + 1 lỗi thật:
 
