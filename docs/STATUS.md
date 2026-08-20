@@ -146,7 +146,14 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 3) — Hiệu ứng nhấp nháy quá nhạt, khó thấy
+### 2026-08-20 (mới nhất, sau 4) — Đổi màu nhấp nháy sang tông logo CDP
+
+Anh thấy màu vàng amber ở hiệu ứng nhấp nháy (mục ngay dưới) không hợp, đề nghị đổi sang màu
+giống logo CDP. Đổi từ `#fde68a` (vàng amber) sang tông đỏ đất `#c8553d` — đúng màu chữ "CDP"
+ở logo trên đầu trang (`SiteHeader.js`). Giữ nguyên cơ chế viền sáng + chu kỳ nhấp nháy, chỉ
+đổi màu. Build sạch. Đã deploy.
+
+### 2026-08-20 (sau 3) — Hiệu ứng nhấp nháy quá nhạt, khó thấy
 
 Anh báo hiệu ứng nhấp nháy (mục ngay dưới) "chưa hoạt động". Đo kỹ bằng script chụp màu nền
 theo từng mốc thời gian thì hoá ra **hiệu ứng chạy đúng kỹ thuật** (đổi màu đúng chu kỳ, class
