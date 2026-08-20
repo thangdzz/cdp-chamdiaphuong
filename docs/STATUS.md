@@ -6,12 +6,15 @@
 
 ## Đang ở giai đoạn nào
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
-**Chặng 1–4 đã code xong và đã lên web thật.** Ngoài 4 chặng chính, đang có 1 nhánh việc phụ
-đang làm dần theo phản hồi thật của anh: **công cụ xử lý trùng lặp trong `/admin`** — báo
-trùng từ khách (Chặng "Bổ sung thông tin") + nghi trùng do AI quét phát hiện, giờ dùng chung
-1 công cụ so sánh & gộp. Đã xử lý xong 3 mục "hoá thạch" kẹt trong hàng chờ, và vá 2 lỗi
-pipeline anh phát hiện khi tự rà 11 mục còn lại (cảnh báo lặp + liên kết trùng lặp hỏng) —
-xem mục 2026-08-19 (mới nhất) bên dưới.
+**Chặng 1–4 đã code xong và đã lên web thật.** Anh đang tự bấm thử Chặng 4 theo checklist
+SPEC §10 — vừa phát hiện 1 chỗ thiếu (bấm vào chỗ trong sổ không mở rộng xem được), đã vá và
+lên web — xem mục 2026-08-20 (mới nhất) bên dưới.
+
+Ngoài 4 chặng chính, đang có 1 nhánh việc phụ đang làm dần theo phản hồi thật của anh:
+**công cụ xử lý trùng lặp trong `/admin`** — báo trùng từ khách (Chặng "Bổ sung thông tin") +
+nghi trùng do AI quét phát hiện, giờ dùng chung 1 công cụ so sánh & gộp. Đã xử lý xong 3 mục
+"hoá thạch" kẹt trong hàng chờ, và vá 2 lỗi pipeline anh phát hiện khi tự rà 11 mục còn lại
+(cảnh báo lặp + liên kết trùng lặp hỏng) — xem mục 2026-08-19 bên dưới.
 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). Chặng 5–6 sẵn sàng code; **Chặng 7–8 là bản dự kiến**, phải đọc lại
@@ -127,7 +130,32 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-19 (mới nhất, sau) — Vá 2 lỗi phát hiện khi anh tự rà 11 mục đang chờ duyệt
+### 2026-08-20 (mới nhất) — Chặng 4: bấm vào chỗ trong sổ giờ xem được đầy đủ
+
+Anh tự bấm thử checklist SPEC §10, phát hiện 2 việc:
+1. Trang Xem sổ (`/so/{slug}`) chỉ hiện thẻ gọn (tên/giá/khu vực/ghi chú) — bấm vào không có
+   gì xảy ra, khác hẳn trang chủ có "Xem thêm" bung đủ thông tin. Ban đầu là thiết kế cố ý
+   theo đúng SPEC gốc (mockup §3.2 vẽ sẵn thẻ gọn này), nhưng anh xác nhận muốn có nút mở
+   rộng như trang chủ, để khách xem sổ không phải quay lại trang chủ tìm.
+2. Ô tìm kiếm trang chủ nên ghim cùng phần logo — ghi nhận, chưa làm (ngoài phạm vi Chặng 4,
+   để làm riêng sau).
+
+**Đã làm (việc #1):** thêm `app/NotebookPlaceCard.js` — bản rút gọn của `PlaceCard` ở trang
+chủ, có nút "Xem thêm" bung địa chỉ đầy đủ/khu vực/cập nhật gần nhất/độ tin cậy/nguồn đối
+chiếu/cụm ảnh + gallery, dùng lại đúng dữ liệu đã có sẵn trong `item.place` (không cần sửa gì
+ở `resolveNotebookItems`). **Cố ý không** đưa các nút hành động (báo sai/hỏi đáp/check-in)
+vào đây — trang này cho khách lạ xem, không phải trang quản lý dữ liệu. Xuất thêm 3 hàm dùng
+chung từ `PlaceExplorer.js` (`PhotoGallery`, `confidenceLabel`, `formatDate`) thay vì viết
+lặp lại.
+
+Kiểm thử bằng script gọi thẳng `lib/notebooks.js` tạo 1 chỗ + 1 sổ giả có đủ ảnh/độ tin
+cậy/SĐT, rồi Playwright xác nhận: trước khi bấm không thấy phần mở rộng, sau khi bấm hiện đủ
+địa chỉ/độ tin cậy/nguồn đối chiếu/nút Gọi ngay, bấm ảnh mở được gallery, không có lỗi
+console. Dọn sạch dữ liệu test (kể cả 1 lần dọn sót do gọi nhầm tên hàm ở lượt thử đầu — đã
+rà lại kỹ, xác nhận Redis thật không còn sót gì). Build sạch (còn đúng 1 lỗi lint có sẵn từ
+trước ở `PlaceExplorer.js`, không liên quan). Đã deploy.
+
+### 2026-08-19 — Vá 2 lỗi phát hiện khi anh tự rà 11 mục đang chờ duyệt
 
 Anh gặp mục "Nhà Hàng Ba Chữ Lồng" có cảnh báo lặp lại y hệt 2 lần và không rõ xử lý sao. Rà
 lại toàn bộ 11 mục đang chờ lúc đó, tìm ra 2 lỗi thật trong pipeline (không phải anh làm sai):
