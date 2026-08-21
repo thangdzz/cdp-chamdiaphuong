@@ -342,21 +342,28 @@ function SuggestionCard({ item }) {
         </>
       )}
 
-      <form className="mt-3 flex gap-2">
-        <input type="hidden" name="id" value={item.id} />
-        <button
-          formAction={approveSuggestion}
-          className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
-        >
-          Duyệt, áp dụng
-        </button>
-        <button
-          formAction={rejectSuggestion}
-          className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
-        >
-          Từ chối
-        </button>
-      </form>
+      {/* Báo trùng lặp KHÔNG được có đường tắt "Duyệt, áp dụng" — nút đó chỉ biết áp dụng
+          field thường (địa chỉ/SĐT/giá...), không biết gộp/xoá chỗ. Bấm nhầm nút này cho loại
+          báo cáo trùng lặp sẽ đánh dấu "đã duyệt" mà KHÔNG hề gộp gì — đúng lỗi thật gặp phải
+          2026-08-18 và lặp lại 2026-08-21. Loại này bắt buộc đi qua MergeDuplicatePanel ở
+          trên, có sẵn cả 2 lối ra ("Gộp" và "Không trùng — nhớ luôn, đừng hỏi lại"). */}
+      {!item.fields?.duplicateOfName && (
+        <form className="mt-3 flex gap-2">
+          <input type="hidden" name="id" value={item.id} />
+          <button
+            formAction={approveSuggestion}
+            className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+          >
+            Duyệt, áp dụng
+          </button>
+          <button
+            formAction={rejectSuggestion}
+            className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+          >
+            Từ chối
+          </button>
+        </form>
+      )}
     </div>
   );
 }

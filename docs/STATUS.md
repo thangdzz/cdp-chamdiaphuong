@@ -237,7 +237,27 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — 1 báo cáo trùng lặp "approved" nhưng chưa hề được gộp
+### 2026-08-21 (mới nhất) — Tìm ra lý do thật: nút "Duyệt, áp dụng" là đường tắt gây lỗi lặp lại
+
+Sau khi đưa báo cáo về `pending` (mục ngay dưới), anh tự vào `/admin` xử lý — nhưng **vẫn còn
+cả 2 chỗ** sau khi "duyệt". Không phải lỗi cũ tái phát ngẫu nhiên: `SuggestionCard` trong
+`admin/page.js` **luôn hiện sẵn 2 nút "Duyệt, áp dụng"/"Từ chối" cho MỌI loại góp ý** — kể cả
+thẻ báo trùng lặp (đang hiện thêm `MergeDuplicatePanel` riêng ngay phía trên). Nút "Duyệt, áp
+dụng" gọi `applyDecision()` trong `suggestionActions.js`, chỉ biết áp dụng field trong
+`FIELD_MAP` (address/phone/giá...) — **không có `duplicateOfName` trong danh sách đó**, nên
+bấm nhầm nút xanh nổi bật này (thay vì mở "So sánh & gộp") thì chỉ đánh dấu "đã duyệt" + cộng
+điểm, **không gộp/xoá gì cả**. Đây chính xác là cơ chế đã xảy ra hôm 18/08 — và nút gây nhầm
+đó vẫn còn nguyên nên lặp lại hôm nay.
+
+**Đã sửa:** `admin/page.js` — ẩn hẳn form "Duyệt, áp dụng"/"Từ chối" khi
+`item.fields?.duplicateOfName` có giá trị. Loại báo cáo này giờ **chỉ còn đúng 1 đường xử lý**
+là qua `MergeDuplicatePanel` (đã có sẵn cả 2 lối ra: "Gộp" hoặc "Không trùng — nhớ luôn, đừng
+hỏi lại") — không còn nút nào gây nhầm nữa. Build/lint sạch. Đã deploy.
+
+Đưa suggestion `sugg-484d5d5f...` về lại `pending` lần 2 — **anh chủ động xin tự thao tác lại
+qua `/admin` cho chắc**, không nhờ script làm hộ lần này.
+
+### 2026-08-21 (sau) — 1 báo cáo trùng lặp "approved" nhưng chưa hề được gộp
 
 Sau khi lên bản sửa L2 (mục ngay dưới), anh test lại luồng "Báo trùng với chỗ khác" và thấy
 thông báo *"Nội dung này đã được duyệt và áp dụng rồi"* cho "Công viên hồ Tân Quang" — nhưng
