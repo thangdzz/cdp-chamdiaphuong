@@ -237,7 +237,29 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — L1 (xưng hô) + L2 (chặn trùng không xét trạng thái)
+### 2026-08-21 (mới nhất) — 1 báo cáo trùng lặp "approved" nhưng chưa hề được gộp
+
+Sau khi lên bản sửa L2 (mục ngay dưới), anh test lại luồng "Báo trùng với chỗ khác" và thấy
+thông báo *"Nội dung này đã được duyệt và áp dụng rồi"* cho "Công viên hồ Tân Quang" — nhưng
+`/admin` không còn gì để duyệt.
+
+**Rà thật thì đây là dữ liệu cũ bị kẹt, không phải lỗi mới:** báo cáo này (từ "Thợ ảnh điện
+thoại") tạo lúc 10:04 sáng 18/08 — **trước khi công cụ gộp trùng lặp ra đời** (11:27 cùng
+ngày, hơn 1 tiếng sau). Lúc đó được duyệt qua nút "Duyệt" đơn giản kiểu cũ — nút đó chỉ cộng
+điểm, **không thật sự gộp 2 chỗ** (field `duplicateOfName` không nằm trong danh sách field mà
+nút đó biết áp dụng). Kết quả: status ghi "approved" nhưng "Công viên hồ Tân Quang" vẫn còn
+tồn tại riêng trên web, chưa từng được gộp. Lỗi L2 cũ (thông báo chung chung) vô tình che mất
+việc này bấy lâu; sửa xong L2 thì lộ ra ngay.
+
+Đã rà toàn bộ `user_suggestions` — **chỉ đúng 1 ca** bị vậy (không phải một đợt hàng loạt như
+3 mục "hoá thạch" ngày 19/08).
+
+**Đã sửa:** đổi status suggestion này về lại `pending` bằng script chạy thẳng 1 lần lên Redis
+thật (không phải sửa code, không commit — giống cách xử lý "hoá thạch" 19/08). Xác nhận
+`/admin` lọc đúng `status === "pending"` cho mục "Góp ý từ khách" nên báo cáo này sẽ hiện lại
+để anh dùng công cụ gộp xử lý cho thật.
+
+### 2026-08-21 (sau) — L1 (xưng hô) + L2 (chặn trùng không xét trạng thái)
 
 **L1 — rà cả thư mục, tìm được 19 chỗ** (nhiều hơn 2 chỗ ban đầu phát hiện) lệch giọng
 "em/bọn em/…nhé/…nha" trong 12 file (`ContributionPanel.js`, `contributionActions.js`,
