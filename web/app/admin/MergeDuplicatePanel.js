@@ -21,14 +21,14 @@ function MergeField({ label, valueA, valueB, value, onChange }) {
         <button
           type="button"
           onClick={() => onChange(valueA ?? "")}
-          className="rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs text-zinc-600"
+          className="cursor-pointer rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs text-zinc-600 hover:border-zinc-400 hover:bg-zinc-100"
         >
           A: {valueA || "(trống)"}
         </button>
         <button
           type="button"
           onClick={() => onChange(valueB ?? "")}
-          className="rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs text-zinc-600"
+          className="cursor-pointer rounded-full border border-zinc-300 bg-white px-2 py-0.5 text-xs text-zinc-600 hover:border-zinc-400 hover:bg-zinc-100"
         >
           B: {valueB || "(trống)"}
         </button>
@@ -60,19 +60,23 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
 
   const sourceId = mode === "suggestion" ? suggestion.placeId : reviewItem.id;
 
-  function initFields(a, b) {
+  // Ưu tiên giá trị của bên đang được GIỮ, thiếu ô nào mới lấy bên còn lại — "primary" là bên
+  // giữ, "secondary" là bên bị xoá/không giữ. Trước đây luôn ưu tiên A bất kể chọn giữ bên
+  // nào, nên chỗ sống sót mang đúng id của bên được giữ nhưng NỘI DUNG lại của bên kia (lỗi
+  // nặng, làm hỏng dữ liệu thật đã công khai — xem STATUS.md "L3").
+  function initFields(primary, secondary) {
     setFields({
-      name: a.name || b.name || "",
-      type: a.type || b.type,
-      address: a.address || b.address || "",
-      ward: a.ward || b.ward || "",
-      localArea: a.localArea || b.localArea || "",
-      phone: a.phone || b.phone || "",
-      priceMin: a.priceMin ?? b.priceMin ?? "",
-      priceMax: a.priceMax ?? b.priceMax ?? "",
-      priceUnit: a.priceUnit || b.priceUnit || "",
+      name: primary.name || secondary.name || "",
+      type: primary.type || secondary.type,
+      address: primary.address || secondary.address || "",
+      ward: primary.ward || secondary.ward || "",
+      localArea: primary.localArea || secondary.localArea || "",
+      phone: primary.phone || secondary.phone || "",
+      priceMin: primary.priceMin ?? secondary.priceMin ?? "",
+      priceMax: primary.priceMax ?? secondary.priceMax ?? "",
+      priceUnit: primary.priceUnit || secondary.priceUnit || "",
     });
-    setKeepPhotos([...new Set([...(a.photos ?? []), ...(b.photos ?? [])])]);
+    setKeepPhotos([...new Set([...(primary.photos ?? []), ...(secondary.photos ?? [])])]);
   }
 
   function expand() {
@@ -87,7 +91,6 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
         setPlaceA(a);
         if (a && b) {
           setPlaceB(b);
-          initFields(a, b);
           setStep("compare");
         } else {
           setStep("notfound");
@@ -95,6 +98,24 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
       });
     }
   }
+
+  // Nguồn duy nhất quyết định lúc nào điền lại các ô — chạy lại mỗi khi đổi "Giữ bản ghi
+  // của" (mode="suggestion") để ô điền sẵn luôn khớp đúng bên đang chọn giữ. Phụ thuộc vào
+  // id (không phải cả object placeA/placeB) — tránh tự điền lại ngoài ý muốn nếu object đổi
+  // tham chiếu nhưng nội dung không đổi, làm mất các ô admin đã sửa tay.
+  useEffect(() => {
+    if (!placeA || !placeB) return;
+    // Bọc qua .then() để tránh setState ngay trong thân effect (đúng cách đã dùng ở
+    // CheckinButton.js/PersonalNote.js).
+    Promise.resolve().then(() => {
+      if (mode === "suggestion" && keepSide === "B") {
+        initFields(placeB, placeA);
+      } else {
+        initFields(placeA, placeB);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keepSide, placeA?.id, placeB?.id, mode]);
 
   async function runSearch() {
     if (busyRef.current) return;
@@ -116,7 +137,6 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
 
   function pickCandidate(place) {
     setPlaceB(place);
-    initFields(placeA, place);
     setStep("compare");
   }
 
@@ -211,7 +231,13 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
     );
   }
 
-  // step === "compare"
+  // step === "compare" — fields được điền qua effect (bọc .then() để tránh setState ngay
+  // trong thân effect), nên có 1 nhịp render fields còn null trước khi effect kịp chạy. Chờ
+  // thay vì đọc fields.* lúc còn null (vỡ trang — lỗi thật gặp khi test UI thật).
+  if (!fields) {
+    return <p className="mt-2 text-xs text-zinc-400">Đang tải dữ liệu...</p>;
+  }
+
   const keepId = mode === "reviewItem" ? placeB.id : keepSide === "A" ? placeA.id : placeB.id;
   const deleteId = mode === "reviewItem" ? null : keepSide === "A" ? placeB.id : placeA.id;
   const mergeAction = mode === "suggestion" ? mergeDuplicatePlaces : mergeReviewCandidate;

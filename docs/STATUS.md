@@ -81,6 +81,39 @@ ghi dữ liệu) giờ **tự cập nhật sau mỗi lần ingest thành công**
 (xem mục "Sửa routine quét dữ liệu" bên dưới) — miễn là anh đã thêm 2 GitHub Secret cần
 thiết.
 
+## 🔴 L3 — Gộp trùng lặp gộp NHẦM BÊN — ✅ đã sửa, xem mục 2026-08-21 (mới nhất) bên dưới
+
+**Lỗi nặng nhất tới giờ — làm hỏng dữ liệu thật đã công khai.**
+
+Hiện tượng: admin chọn *"Giữ bản ghi của: Chỗ B"*, bấm *"Gộp — giữ chỗ B, xoá chỗ A"*, nhưng
+trên web thì chỗ B biến mất và chỗ A ở lại.
+
+**Gốc lỗi** — `app/admin/MergeDuplicatePanel.js` dòng **63–76**, hàm `initFields(a, b)`:
+
+```js
+name: a.name || b.name || "",
+address: a.address || b.address || "",
+```
+
+**Luôn ưu tiên A**, chỉ lấy B khi ô của A trống. Và chỉ chạy **một lần** lúc chọn chỗ B (dòng
+119) — **không chạy lại khi admin đổi nút "Giữ bản ghi của"** (state `keepSide`, dòng 55).
+
+`keepId`/`deleteId` (dòng 215–216) thì **đúng**: chọn B → `keepId = B.id`, `deleteId = A.id`.
+Nên bản ghi sống sót thật sự là B — nhưng **nội dung ghi đè lên nó là của A**. Kết quả: chỗ
+còn lại mang **id của B nhưng tên/địa chỉ/phường của A** → nhìn y hệt như "B bị xoá, A được
+giữ".
+
+Tệ hơn, đây là kết hợp xấu nhất của hai bên: giữ **lịch sử của B** (check-in Chặng 1, câu trả
+lời Chặng 2 gắn với id B) nhưng **dữ liệu của A** — còn check-in/câu trả lời của A thì bị xoá
+theo `deleteId`.
+
+**Cách sửa:** `initFields` phải theo `keepSide` — giữ B thì điền sẵn giá trị của B, thiếu ô
+nào mới lấy của A. Và **chạy lại mỗi khi đổi nút chọn**, vì "giữ chỗ B" nghĩa là "bắt đầu từ
+dữ liệu của B". Admin vẫn sửa tay từng ô được sau đó.
+
+⚠️ **Cần rà lại dữ liệu:** mọi lần gộp đã thực hiện với lựa chọn "giữ chỗ B" đều sai theo cách
+này. Kiểm tra xem đã gộp nhầm chỗ nào chưa.
+
 ## Lỗi phát hiện khi dùng thật (2026-08-21) — ✅ đã sửa, xem mục 2026-08-21 (mới nhất) bên dưới
 
 **L1. Xưng hô lệch giọng.** `app/ContributionPanel.js:469` dùng *"Bọn em sẽ kiểm tra lại rồi
@@ -237,7 +270,44 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — Tìm ra lý do thật: nút "Duyệt, áp dụng" là đường tắt gây lỗi lặp lại
+### 2026-08-21 (mới nhất) — L3: sửa `initFields` gộp nhầm bên + rà dữ liệu
+
+**Sửa lỗi gốc** (`app/admin/MergeDuplicatePanel.js`): `initFields` giờ nhận `(primary,
+secondary)` — ưu tiên giá trị bên **primary** (bên đang được giữ), thiếu ô nào mới lấy bên
+kia. Gộp 2 lần gọi thủ công (lúc `expand()` và `pickCandidate()`) thành **1 nguồn duy nhất**:
+`useEffect` theo dõi đúng `[keepSide, placeA?.id, placeB?.id, mode]` — dùng `id` chứ không
+dùng cả object, tránh tự điền lại ngoài ý muốn nếu object đổi tham chiếu nhưng nội dung không
+đổi (làm mất ô admin đã sửa tay, theo đúng yêu cầu). `mode="reviewItem"` **giữ nguyên hành vi
+cũ** trong lượt sửa lỗi này (ưu tiên A) — đổi sang ưu tiên B là quyết định riêng, xem
+DECISIONS.md, không lẫn vào commit sửa lỗi.
+
+**Lỗi phát sinh khi test bằng UI thật (không phải chỉ test logic thuần):** đổi sang chạy
+`initFields` qua effect bị trễ 1 nhịp render so với lúc `setStep("compare")` — có lúc `fields`
+còn `null` mà trang đã cố đọc `fields.name`, vỡ trang thật (`Cannot read properties of null`).
+Thêm điều kiện chờ `fields` sẵn sàng trước khi render form so sánh.
+
+**Tiện thể sửa luôn giao diện:** 2 viên "A: .../B: ..." trong `MergeField` giờ có
+`cursor-pointer` + `hover` rõ ràng — trước đó trông y hệt nhãn tĩnh dù bấm được.
+
+**Kiểm thử:** script test logic thuần (giữ A/giữ B/thiếu ô/reviewItem chưa đổi) — cả 5 ca
+đúng. Test thật trên UI bằng Playwright với 2 chỗ giả lập: mặc định giữ A → ô Tên/Địa chỉ
+đúng giá trị A; chuyển sang giữ B → đổi đúng sang giá trị B (có chụp ảnh xác nhận). Dọn sạch
+dữ liệu test. Build/lint sạch.
+
+**Việc 1 — rà `places:live` tìm chỗ gộp nhầm (chỉ báo cáo, không tự sửa):**
+
+- `mode="suggestion"`: chỉ có đúng 1 báo cáo trùng lặp từng gửi trong lịch sử — "Công viên hồ
+  Tân Quang" báo trùng "Công viên Đài tưởng niệm" (đã biết, đang chờ anh tự xử lý qua
+  `/admin`, xem mục 2026-08-21 trước đó).
+- `mode="reviewItem"` (AI quét tự phát hiện): rà cả 13 mục `duplicate_candidate` đã
+  `merged`. **2 ca nghi ngờ** bị ghi đè bởi bản quét mới thay vì giữ dữ liệu chỗ đã công khai
+  (tên **và** địa chỉ hiện tại khớp y hệt bản quét mới, không có dấu hiệu admin sửa tay):
+  - `review-2427a3e1...` → chỗ giữ lại `live-e7b7715c...` ("Koi and You")
+  - `review-cfa52c3a...` → chỗ giữ lại `ngu-10` ("Nhà Nghỉ Mạnh Thủy")
+  Đây chỉ là suy luận gián tiếp (không có log lưu "lúc gộp đã chọn ưu tiên bên nào"), không
+  chắc chắn 100% là dữ liệu sai — cần anh tự đối chiếu 2 chỗ này với thực tế.
+
+### 2026-08-21 (sau) — Tìm ra lý do thật: nút "Duyệt, áp dụng" là đường tắt gây lỗi lặp lại
 
 Sau khi đưa báo cáo về `pending` (mục ngay dưới), anh tự vào `/admin` xử lý — nhưng **vẫn còn
 cả 2 chỗ** sau khi "duyệt". Không phải lỗi cũ tái phát ngẫu nhiên: `SuggestionCard` trong
