@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { getMyNotebooks, addPlaceToNotebook, createNotebookAndAddPlace } from "./notebookActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
+import { BookmarkIcon } from "./Icon";
 
 // Nút "+ Thêm vào sổ" trên thẻ (SPEC-chang-4.md §3.1). Chưa có sổ nào -> tạo luôn sổ đầu
 // tiên tên mặc định, không hỏi gì. Có sẵn sổ -> hiện danh sách để chọn + ô tạo sổ mới.
@@ -113,7 +114,7 @@ export function AddToNotebook({ place }) {
 
   if (added) {
     return (
-      <p className="cdp-fade-in text-[13px] text-zinc-500">
+      <p className="cdp-fade-in w-full text-[13px] text-zinc-500">
         ✓ Đã thêm vào sổ (lưu trên máy này, không cần đăng nhập) ·{" "}
         <Link href={`/so/${addedSlug}`} className="font-medium text-zinc-700 underline">
           Xem sổ
@@ -123,18 +124,19 @@ export function AddToNotebook({ place }) {
   }
 
   return (
-    <div>
+    <>
       <button
         type="button"
         onClick={openMenu}
         disabled={busy}
-        className="cdp-pressable inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-600 disabled:opacity-50"
+        className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600 disabled:cursor-default disabled:opacity-50"
       >
-        🔖 + Thêm vào sổ
+        <BookmarkIcon size={15} />
+        + Vào sổ
       </button>
 
       {open && (
-        <div className="cdp-fade-in mt-2 rounded-lg bg-zinc-50 p-3">
+        <div className="cdp-fade-in mt-2 w-full rounded-lg bg-zinc-50 p-3">
           <div className="flex flex-col gap-1.5">
             {notebooks?.map((nb) => (
               <button
@@ -142,7 +144,7 @@ export function AddToNotebook({ place }) {
                 type="button"
                 disabled={busy}
                 onClick={() => pick(nb.slug)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-left text-sm text-zinc-700 disabled:opacity-50"
+                className="w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-3 py-2 text-left text-sm text-zinc-700 disabled:cursor-default disabled:opacity-50"
               >
                 {nb.title} <span className="text-zinc-400">({nb.itemCount} chỗ)</span>
               </button>
@@ -160,13 +162,13 @@ export function AddToNotebook({ place }) {
               type="button"
               disabled={busy || !newTitle.trim()}
               onClick={createAndAdd}
-              className="cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+              className="cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
             >
               Tạo sổ mới
             </button>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

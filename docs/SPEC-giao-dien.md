@@ -174,6 +174,70 @@ dữ liệu thì ẩn hẳn). Đừng thêm chữ "chưa có thông tin" để l
 
 ---
 
+## 6c. Thẻ đã bung — 6 chỗ sửa (phản hồi thật trên điện thoại 2026-08-21)
+
+**1. ⚠️ Khối thông tin cuối thẻ: mỗi thứ một dòng, có icon, và BỎ HẲN dòng không có dữ liệu**
+
+Đang hiện gộp thành một đoạn chữ chạy tràn:
+
+> *289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang · Phan Thiết · Chưa rõ ngày cập nhật ·
+> Chưa đánh giá độ tin cậy · Đối chiếu chưa rõ nguồn*
+
+Hai vấn đề. Thứ nhất, gộp bằng dấu `·` nên xuống dòng loạn, không đọc được.
+
+Thứ hai — **vi phạm chính [§6](#6-thứ-tự-các-khối-trong-thẻ-bung) của spec này**:
+`app/PlaceExplorer.js` **dòng 138 và 140** đang đẩy chuỗi dự phòng `"Chưa rõ ngày cập nhật"`
+và `"Chưa đánh giá độ tin cậy"` vào mảng. §6 đã ghi rõ *"khối nào không có dữ liệu thì ẩn
+hẳn, không hiện chưa có thông tin"*. Ba chữ "Chưa..." liền nhau làm web trông như hỏng.
+
+**Sửa:** mỗi thứ một dòng riêng, icon ở đầu dòng, **thiếu dữ liệu thì bỏ hẳn dòng đó**:
+
+| Icon | Dòng | Khi nào ẩn |
+|---|---|---|
+| Ghim | Địa chỉ đầy đủ | Luôn hiện |
+| Đồng hồ | Cập nhật 3 ngày trước | Ẩn khi chưa rõ |
+| Tích | Độ tin cậy 65% | Ẩn khi chưa đánh giá |
+| Tài liệu | Nguồn: cổng thông tin tỉnh | Ẩn khi chưa rõ |
+
+Thẻ chưa có gì thì chỉ còn đúng một dòng địa chỉ — **đúng thiết kế, đừng lấp chỗ trống**.
+
+**2. Bỏ lặp địa chỉ.** "289 Lý Nam Đế" đang hiện ở dòng phụ dưới tên, rồi lại hiện đầy đủ ở
+khối dưới. Dòng phụ giữ bản rút gọn, khối dưới giữ bản đầy đủ — nhưng nếu hai bản giống hệt
+nhau thì **ẩn dòng ở khối dưới**.
+
+**3. ⚠️ Con trỏ chuột chưa đổi.** `cursor-pointer` xuất hiện **0 lần** trong
+`app/PlaceExplorer.js`. Mọi thứ bấm được — "Tôi vừa đến, vẫn mở", "+ Thêm vào sổ", "Bổ sung
+thông tin", các nút bấm chọn, "Không rõ", "Thu gọn" — đều phải có `cursor-pointer`.
+
+Ưu tiên dùng thẻ `<button>` thật thay vì `<div>` có `onClick`: vừa tự có con trỏ đúng, vừa
+bấm được bằng bàn phím, vừa đúng cho trình đọc màn hình.
+
+**4. Ba mục hành động đang trông như danh sách chữ, không như nút**
+
+Hiện xếp dọc ba dòng, mỗi dòng một emoji + chữ — trông như menu văn bản, không rõ bấm được,
+và tốn nhiều chiều cao trên điện thoại.
+
+**Sửa:** gom thành **một hàng ngang** ngay dưới nút "Chỉ đường", dạng nút viền nhạt:
+
+```
+[ Chỉ đường ]        [ Vẫn mở ]  [ + Vào sổ ]  [ Bổ sung ]     Thu gọn ⌃
+```
+
+Vùng bấm mỗi nút cao tối thiểu **44px**. Chữ ngắn lại cho vừa màn hình hẹp.
+
+**5. Bỏ emoji, dùng icon SVG.** Đang dùng emoji làm biểu tượng (ghim, sổ, bút chì…). Emoji
+mỗi máy hiển thị một kiểu, kích thước lệch nhau, và trông rẻ tiền cạnh chữ Geist. Thay bằng
+bộ icon nét mảnh đồng bộ, cùng độ dày nét, cùng cỡ.
+
+**6. "Đã góp ý trước đây? Khôi phục" phải nhỏ hơn hẳn.** Đang đứng ngang hàng với "Bổ sung
+thông tin" — hai thứ khác cấp độ mà trông ngang nhau. Đây là chức năng hiếm dùng: đưa xuống
+dòng riêng, `text-xs text-zinc-400`, hoặc giấu vào trong luồng góp ý.
+
+**7. Nút cuộn lên/xuống đang đè lên nội dung.** Hai nút mũi tên góc phải che mất chữ trên
+điện thoại. Đẩy ra sát mép hơn, thu nhỏ, và làm mờ hẳn khi trang đứng yên.
+
+---
+
 ## 7. Chuyển động
 
 Hiện chỉ có **một** hiệu ứng: `cdp-highlight-flash` — **1,1 giây × 2 lần = 2,2 giây** nhấp

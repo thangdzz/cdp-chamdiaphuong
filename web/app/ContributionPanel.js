@@ -11,6 +11,7 @@ import {
 } from "./contributionActions";
 import { CATEGORIES } from "@/lib/badges";
 import { BadgeIcon } from "./BadgeIcon";
+import { PencilIcon } from "./Icon";
 
 export const STORAGE_KEY = "cdp_contributor";
 
@@ -58,8 +59,8 @@ async function compressImage(file, { maxDim = 1600, quality = 0.82 } = {}) {
 }
 
 const inputClass = "rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
-const btnPrimary = "cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50";
-const btnGhost = "cdp-pressable rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700";
+const btnPrimary = "cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50";
+const btnGhost = "cdp-pressable cursor-pointer rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700";
 
 export function ContributionPanel({ place, onDone }) {
   const [mode, setMode] = useState("idle");
@@ -319,30 +320,29 @@ export function ContributionPanel({ place, onDone }) {
 
   if (mode === "idle") {
     return (
-      <div className="flex flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("choiceMenu")}
-            className="cdp-pressable inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-600"
-          >
-            ✏️ Bổ sung thông tin
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("recoverForm")}
-            className="text-xs text-zinc-400 underline"
-          >
-            Đã góp ý trước đây? Khôi phục
-          </button>
-        </div>
-        {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
-      </div>
+      <>
+        <button
+          type="button"
+          onClick={() => setMode("choiceMenu")}
+          className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
+        >
+          <PencilIcon size={15} />
+          Bổ sung
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("recoverForm")}
+          className="w-full cursor-pointer text-left text-xs text-zinc-400 underline"
+        >
+          Đã góp ý trước đây? Khôi phục
+        </button>
+        {errorMessage && <p className="w-full text-xs text-red-600">{errorMessage}</p>}
+      </>
     );
   }
 
   return (
-    <div className="cdp-fade-in mt-2 rounded-lg bg-zinc-50 p-3">
+    <div className="cdp-fade-in mt-2 w-full rounded-lg bg-zinc-50 p-3">
       {mode === "choiceMenu" && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-zinc-600">
@@ -351,14 +351,14 @@ export function ContributionPanel({ place, onDone }) {
           <button
             type="button"
             onClick={() => setMode("correctionForm")}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
+            className="w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
           >
             Thêm thông tin (địa chỉ, khu vực, SĐT, giá...)
           </button>
           <button
             type="button"
             onClick={() => setMode("duplicateForm")}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
+            className="w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
           >
             Báo trùng với chỗ khác
           </button>
@@ -377,7 +377,7 @@ export function ContributionPanel({ place, onDone }) {
               onChange={handleFilesChosen}
             />
           </label>
-          <button type="button" onClick={close} className="self-start text-xs text-zinc-400 underline">
+          <button type="button" onClick={close} className="self-start cursor-pointer text-xs text-zinc-400 underline">
             Huỷ
           </button>
         </div>
@@ -560,13 +560,13 @@ export function ContributionPanel({ place, onDone }) {
                 type="button"
                 disabled={busy}
                 onClick={() => handleCategoryPick(c.id)}
-                className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-left text-xs font-medium text-zinc-700"
+                className="cursor-pointer rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-left text-xs font-medium text-zinc-700"
               >
                 {c.label}
               </button>
             ))}
           </div>
-          <button type="button" onClick={close} className="text-xs text-zinc-400 underline">
+          <button type="button" onClick={close} className="cursor-pointer text-xs text-zinc-400 underline">
             Bỏ qua
           </button>
         </div>

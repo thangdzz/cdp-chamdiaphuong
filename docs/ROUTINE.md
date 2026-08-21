@@ -152,6 +152,7 @@ rồi gõ lại — để không phải nhập lại token.
 | 2026-08-04 | Dựng routine tự ghi GitHub (thay cho bản chỉ in báo cáo để copy-paste tay) |
 | 2026-08-17 | Mở rộng từ 2 nhóm (Ăn/Ngủ) lên **4 nhóm** Ăn/Chơi/Ngủ/Đi lại (Chặng 3) |
 | 2026-08-20 | Thêm khối **"MON DAC TRUNG"** vào Bước 4 mục 3 — trường `signature_dishes`, tối đa 3 món, chỉ với `category_primary = "an"`. Nội dung lệnh: 5.084 → 6.030 ký tự |
+| 2026-08-21 | **Viết lại toàn bộ Bước 4** — bỏ đoạn `curl` đã chết (403 Forbidden), thay bằng dùng thẳng công cụ GitHub trong phiên. Giữ nguyên khối "MON DAC TRUNG" và bổ sung khối **"QUAN TRONG - KHONG DUOC GHI DE"**. Nội dung lệnh: 6.030 → **5.786 ký tự**. Đã dán và xác nhận lưu thành công |
 | 2026-08-21 | Bỏ đoạn `curl`/`base64`/`$GITHUB_TOKEN` chết ở Bước 4 (403 Forbidden mọi lần chạy) — thay bằng chỉ dẫn dùng thẳng công cụ GitHub có sẵn trong phiên, **giữ nguyên hành vi gộp vào cuối mảng cũ, không ghi đè** |
 
 ---

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { checkin, getCheckinStatus } from "./checkinActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
+import { CheckCircleIcon } from "./Icon";
 
 export function CheckinButton({ place, onCheckedIn }) {
   const [checkedIn, setCheckedIn] = useState(false);
@@ -44,7 +45,7 @@ export function CheckinButton({ place, onCheckedIn }) {
 
   if (checkedIn) {
     return (
-      <div className="cdp-fade-in flex flex-col gap-0.5">
+      <div className="cdp-fade-in flex w-full flex-col gap-0.5">
         <span className="inline-flex w-fit min-h-11 items-center gap-1 text-[13px] font-medium text-zinc-400">
           ✓ Cảm ơn bạn{justConfirmed ? " · +1 điểm" : ""}
         </span>
@@ -58,9 +59,10 @@ export function CheckinButton({ place, onCheckedIn }) {
       type="button"
       onClick={handleClick}
       disabled={busy}
-      className="cdp-pressable inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-600 disabled:opacity-50"
+      className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600 disabled:cursor-default disabled:opacity-50"
     >
-      📍 {busy ? "Đang gửi..." : "Tôi vừa đến, vẫn mở"}
+      <CheckCircleIcon size={15} />
+      {busy ? "Đang gửi..." : "Vẫn mở"}
     </button>
   );
 }

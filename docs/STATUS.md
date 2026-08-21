@@ -115,9 +115,15 @@ nhất".
 2. ✅ **Tự động hoá `known-places-snapshot.json`** — **xong 2026-08-21.**
    `.github/workflows/ingest-from-scan.yml` giờ tự chạy `scripts/export-known-places.mjs` và
    commit lại snapshot **sau mỗi lần ingest thành công**, không cần ai đụng tay. Đã chạy tay
-   1 lần luôn để snapshot khớp dữ liệu thật ngay: 39 → **109 chỗ**. ⚠️ Cần anh tự thêm 2
-   GitHub Secret (`KV_REST_API_URL`/`KV_REST_API_TOKEN`, **giá trị token chỉ-đọc** — repo
-   Public) thì bước mới mới chạy được — xem mục 2026-08-21 trong lịch sử bên dưới.
+   1 lần luôn để snapshot khớp dữ liệu thật ngay: 39 → **109 chỗ**.
+   ✅ **2 GitHub Secret: anh đã thêm xong 2026-08-21** (`KV_REST_API_URL`,
+   `KV_REST_API_TOKEN`). ⚠️ Giá trị của `KV_REST_API_TOKEN` **cố ý là token CHỈ ĐỌC**
+   (lấy từ dòng `KV_REST_API_READ_ONLY_TOKEN` trong `.env.local`), vì script chỉ gọi
+   `redis.get` và repo đang Public. **Đừng "sửa lại cho đúng tên"** — lệch tên như vậy là
+   đúng chủ ý.
+
+   📌 **Con số 39 → 109 xác nhận chẩn đoán:** có **70 địa điểm** trên web mà routine hoàn
+   toàn không biết, nên ngày nào cũng tìm lại. Tệ hơn ước lượng ban đầu khá nhiều.
 2b. ✅ **Thêm địa chỉ vào snapshot** — xong cùng lúc với 2. Mỗi mục giờ có
    `{name, type, address}`.
 2c. ✅ **Sửa Bước 4 của routine — đoạn curl đã chết.** Xong 2026-08-21. Đã soạn lại thành chỉ
@@ -204,7 +210,38 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — Sửa routine quét dữ liệu: việc 2 + 2b + 2c
+### 2026-08-21 (mới nhất) — Thẻ đã bung: 7 chỗ sửa từ phản hồi thật trên điện thoại (§6c)
+
+Anh tự bấm thử trên điện thoại thật, phát hiện thẻ bung chưa giống thiết kế — viết thêm
+[SPEC-giao-dien.md §6c](SPEC-giao-dien.md) với 7 chỗ cụ thể. Đã làm cả 7:
+
+1. **Khối thông tin cuối thẻ** — bỏ hàm nối chuỗi cũ (đang tự chèn "Chưa rõ ngày cập nhật" /
+   "Chưa đánh giá độ tin cậy" khi thiếu dữ liệu — **vi phạm đúng §6 của chính spec này**).
+   Giờ mỗi thứ 1 dòng riêng, icon SVG đầu dòng, **dòng nào thiếu dữ liệu thì bỏ hẳn**, không
+   lấp chỗ trống.
+2. **Bỏ lặp địa chỉ** — dòng phụ dưới tên (rút gọn) và khối dưới (đầy đủ) giờ so sánh nhau,
+   giống hệt thì ẩn dòng dưới.
+3. **`cursor-pointer`** — thêm cho toàn bộ nút trong `PlaceExplorer.js` (đúng như anh phát
+   hiện: 0 lần trước đó — Tailwind v4 bỏ mặc định `cursor: pointer` cho `<button>`, phải tự
+   thêm). Rà luôn `CheckinButton.js`/`AddToNotebook.js`/`ContributionPanel.js`/
+   `QuestionPrompt.js` vì đang động vào các file này ở mục 4.
+4. **Gộp 3 nút hành động thành 1 hàng ngang** — "Vẫn mở"/"+ Vào sổ"/"Bổ sung" chuyển từ danh
+   sách dọc từng dòng sang pill viền nhạt cùng hàng với "Chỉ đường"/"Thu gọn". Kỹ thuật: hàng
+   dùng `flex flex-wrap`, panel/menu khi mở ra được đánh dấu `w-full` nên tự xuống dòng riêng
+   thay vì đè lên các nút khác — không đổi logic bên trong 3 component, chỉ đổi phần bọc JSX.
+5. **Bỏ emoji, dùng icon SVG** — thêm `app/Icon.js` (bộ icon nét mảnh dùng chung: ghim, đồng
+   hồ, tích tròn, tài liệu, điện thoại, bookmark, bút chì).
+6. **"Khôi phục" hạ cấp** — tách khỏi hàng nút, xuống dòng riêng, `text-xs text-zinc-400`.
+7. **Nút cuộn đè nội dung** — đẩy sát mép hơn, mờ hơn lúc đứng yên (opacity 35%→20%), icon
+   trong nút nhỏ lại. **Giữ nguyên 44px** (không thu nhỏ vùng bấm như spec gợi ý) — SPEC §8
+   chính nó yêu cầu tối thiểu 44px, ưu tiên quy tắc đó hơn.
+
+Kiểm thử: build/lint sạch (chỉ còn 1 lỗi cũ đã biết) · Playwright bấm thật cả 3 luồng "Vẫn
+mở"/"+ Vào sổ"/"Bổ sung thông tin" sau khi gộp — không lỗi console, panel mở đúng vị trí,
+`cursor: pointer` xác nhận qua computed style · dọn sạch dữ liệu test (3 hồ sơ ẩn danh, 2 sổ,
+1 lượt checkin) khỏi Redis thật. Đã deploy.
+
+### 2026-08-21 (sau) — Sửa routine quét dữ liệu: việc 2 + 2b + 2c
 
 Làm mục C trong "Việc đã chốt, chờ code" — ưu tiên việc 2 trước theo đúng yêu cầu (đây là
 việc **đáng sửa nhất**, có số liệu chứng minh: snapshot đóng băng từ 18/07, routine đã chạy

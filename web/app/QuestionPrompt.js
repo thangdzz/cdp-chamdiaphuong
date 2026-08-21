@@ -127,7 +127,7 @@ export function QuestionPrompt({ place }) {
             type="button"
             disabled={busy}
             onClick={handleFollowUpSubmit}
-            className="cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
           >
             Gửi
           </button>
@@ -146,7 +146,7 @@ export function QuestionPrompt({ place }) {
             type="button"
             disabled={busy}
             onClick={() => handleOptionClick(opt)}
-            className={`cdp-pressable min-h-11 rounded-lg px-3 text-sm font-medium disabled:opacity-50 ${
+            className={`cdp-pressable min-h-11 cursor-pointer rounded-lg px-3 text-sm font-medium disabled:cursor-default disabled:opacity-50 ${
               question.multi && selected.includes(opt.value)
                 ? "bg-zinc-900 text-white"
                 : "bg-zinc-100 text-zinc-700"
@@ -160,7 +160,7 @@ export function QuestionPrompt({ place }) {
             type="button"
             disabled={busy || selected.length === 0}
             onClick={() => handleAnswer(selected)}
-            className="cdp-pressable min-h-11 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white disabled:opacity-50"
+            className="cdp-pressable min-h-11 cursor-pointer rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
           >
             Xong
           </button>
@@ -170,7 +170,7 @@ export function QuestionPrompt({ place }) {
         type="button"
         disabled={busy}
         onClick={handleSkip}
-        className="mt-2 text-xs text-zinc-400 underline disabled:opacity-50"
+        className="mt-2 cursor-pointer text-xs text-zinc-400 underline disabled:cursor-default disabled:opacity-50"
       >
         Không rõ
       </button>

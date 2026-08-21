@@ -13,6 +13,7 @@ import { formatPriceCompact } from "@/lib/priceFormat";
 import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
+import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon, PhoneIcon } from "./Icon";
 
 // Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
 // SPEC-chang-3.md §5.
@@ -123,24 +124,24 @@ function inferLodgingKind(name) {
   return name.toLowerCase().includes("nhà nghỉ") ? "Nhà nghỉ" : "Khách sạn";
 }
 
-// Dòng metadata gộp (SPEC-giao-dien.md §6 mục 6): địa chỉ đầy đủ · khu vực · loại hình ·
-// món chính/phù hợp · cập nhật · độ tin cậy · nguồn · ghi chú — thu vào 1 khối nhỏ xám nhạt
-// thay vì ~8 dòng <p> riêng lẻ như trước. Không bớt dữ liệu nào, chỉ gộp cách hiển thị.
-function buildMetaLine(place, lodgingKind) {
-  const parts = [place.address];
-  if (place.localArea || place.ward) {
-    parts.push([place.localArea, place.ward].filter(Boolean).join(", "));
-  }
-  if (lodgingKind) parts.push(lodgingKind);
-  if (place.mainDish) parts.push(place.mainDish);
-  if (place.suitableFor) parts.push(place.suitableFor);
+// Khối thông tin cuối thẻ bung (SPEC-giao-dien.md §6c mục 1) — mỗi thứ 1 dòng riêng, icon
+// đầu dòng, BỎ HẲN dòng nào không có dữ liệu (không lấp bằng "Chưa rõ..."/"Chưa đánh giá...").
+// Trả về mảng {icon, text}, component tự quyết định ẩn dòng nào.
+function buildMetaRows(place, lodgingKind, showAddress) {
+  const rows = [];
+  if (showAddress) rows.push({ icon: PinIcon, text: place.address });
   const updated = formatDate(place.lastUpdatedAt);
-  parts.push(updated ? `Cập nhật ${updated}` : "Chưa rõ ngày cập nhật");
+  if (updated) rows.push({ icon: ClockIcon, text: `Cập nhật ${updated}` });
   const confidence = confidenceLabel(place.confidenceScore);
-  parts.push(confidence ? `Độ tin cậy ${confidence}` : "Chưa đánh giá độ tin cậy");
-  parts.push(`Đối chiếu ${place.sourceCount ?? "chưa rõ"} nguồn`);
-  if (place.note) parts.push(place.note);
-  return parts.filter(Boolean).join(" · ");
+  if (confidence) rows.push({ icon: CheckCircleIcon, text: `Độ tin cậy ${confidence}` });
+  if (place.sourceCount) rows.push({ icon: DocumentIcon, text: `Đối chiếu ${place.sourceCount} nguồn` });
+  return rows;
+}
+
+// Dòng phụ không icon (loại hình/món chính/phù hợp/ghi chú) — vẫn ẩn hẳn khi rỗng, chỉ khác
+// là không đủ "cấp" để có icon riêng như 4 dòng chính ở buildMetaRows.
+function buildExtraLines(place, lodgingKind) {
+  return [lodgingKind, place.mainDish, place.suitableFor, place.note].filter(Boolean);
 }
 
 // --- Gallery ảnh toàn màn hình -------------------------------------------------------
@@ -198,7 +199,7 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
         <button
           type="button"
           onClick={requestClose}
-          className="rounded-lg px-2 py-1 text-lg leading-none active:bg-white/10"
+          className="cursor-pointer rounded-lg px-2 py-1 text-lg leading-none active:bg-white/10"
           aria-label="Đóng"
         >
           ✕
@@ -227,7 +228,7 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
               key={i}
               type="button"
               onClick={() => setIndex(i)}
-              className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 ${
+              className={`h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 ${
                 i === index ? "border-white" : "border-transparent opacity-50"
               }`}
             >
@@ -283,14 +284,19 @@ function PlaceCard({ place }) {
   const checkinLabel = formatCheckinAge(lastCheckinAt);
   const photos = place.photos ?? [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
-  const metaLine = buildMetaLine(place, lodgingKind);
+  const shortAddress = formatShortAddress(place.address);
+  // §6c mục 2: dòng phụ dưới tên đã hiện địa chỉ rút gọn — nếu rút gọn không bớt được gì
+  // (bằng hệt địa chỉ đầy đủ) thì đừng lặp lại y nguyên ở khối bung bên dưới.
+  const showFullAddress = Boolean(place.address) && shortAddress !== place.address;
+  const metaRows = buildMetaRows(place, lodgingKind, showFullAddress);
+  const extraLines = buildExtraLines(place, lodgingKind);
 
   const compactPrice = formatPriceCompact(place);
 
   return (
     <li id={place.id} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
-      <p className="mt-1 text-[13px] text-zinc-500">{formatShortAddress(place.address)}</p>
+      <p className="mt-1 text-[13px] text-zinc-500">{shortAddress}</p>
 
       <p className="mt-5 flex items-baseline gap-1">
         {compactPrice ? (
@@ -332,7 +338,7 @@ function PlaceCard({ place }) {
                       key={i}
                       type="button"
                       onClick={() => setGalleryIndex(i)}
-                      className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
+                      className="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={src} alt="" className="h-full w-full object-cover" />
@@ -343,7 +349,7 @@ function PlaceCard({ place }) {
                   <button
                     type="button"
                     onClick={() => setGalleryIndex(3)}
-                    className="mt-1.5 text-[13px] text-zinc-500 underline"
+                    className="cursor-pointer mt-1.5 text-[13px] text-zinc-500 underline"
                   >
                     Xem thêm {photos.length - 3} ảnh →
                   </button>
@@ -351,12 +357,26 @@ function PlaceCard({ place }) {
               </div>
             )}
 
-            <p className="text-[13px] leading-5 text-zinc-500">{metaLine}</p>
+            {(metaRows.length > 0 || extraLines.length > 0) && (
+              <div className="flex flex-col gap-1.5">
+                {metaRows.map(({ icon: RowIcon, text }, i) => (
+                  <div key={i} className="flex items-start gap-1.5 text-[13px] text-zinc-500">
+                    <RowIcon size={15} className="mt-0.5 shrink-0 text-zinc-400" />
+                    <span>{text}</span>
+                  </div>
+                ))}
+                {extraLines.map((text, i) => (
+                  <p key={i} className="pl-[22px] text-[13px] text-zinc-500">
+                    {text}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      <div className="mt-5 flex items-center gap-1">
+      <div className="mt-5 flex flex-wrap items-center gap-2">
         <a
           href={mapsUrl(place)}
           target="_blank"
@@ -370,15 +390,22 @@ function PlaceCard({ place }) {
             href={`tel:${place.phone}`}
             aria-label="Gọi ngay"
             title="Gọi ngay"
-            className="cdp-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg text-zinc-500"
+            className="cdp-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600"
           >
-            📞
+            <PhoneIcon size={16} />
           </a>
+        )}
+        {mounted && (
+          <>
+            <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
+            <AddToNotebook place={place} />
+            <ContributionPanel place={place} />
+          </>
         )}
         <button
           type="button"
           onClick={toggleExpanded}
-          className="cdp-pressable ml-auto inline-flex min-h-11 items-center gap-0.5 rounded-lg px-2.5 text-sm text-zinc-500"
+          className="cdp-pressable ml-auto inline-flex min-h-11 cursor-pointer items-center gap-0.5 rounded-lg px-2.5 text-sm text-zinc-500"
         >
           {expanded ? "Thu gọn" : "Xem thêm"}
           <svg
@@ -397,19 +424,7 @@ function PlaceCard({ place }) {
         </button>
       </div>
 
-      {mounted && (
-        <div className={`cdp-expand ${expanded ? "cdp-expand-open" : ""}`}>
-          <div className="flex flex-col gap-5 pt-5">
-            <div className="flex flex-col items-start gap-1">
-              <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
-              <AddToNotebook place={place} />
-              <ContributionPanel place={place} />
-            </div>
-
-            <QuestionPrompt place={place} />
-          </div>
-        </div>
-      )}
+      {mounted && <QuestionPrompt place={place} />}
 
       {galleryIndex !== null && (
         <PhotoGallery
@@ -473,8 +488,8 @@ function ScrollButtons() {
 
   return (
     <div
-      className={`fixed bottom-5 right-4 z-40 flex flex-col gap-2 transition-opacity duration-300 ${
-        scrolling ? "opacity-100" : "opacity-35"
+      className={`fixed bottom-3 right-2 z-40 flex flex-col gap-1.5 transition-opacity duration-300 ${
+        scrolling ? "opacity-100" : "opacity-20"
       }`}
     >
       {canScrollUp && (
@@ -482,9 +497,9 @@ function ScrollButtons() {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Lên đầu trang"
-          className="cdp-pressable flex h-11 w-11 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
+          className="cdp-pressable flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
         >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 15l6-6 6 6" />
           </svg>
         </button>
@@ -496,9 +511,9 @@ function ScrollButtons() {
             window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })
           }
           aria-label="Xuống cuối trang"
-          className="cdp-pressable flex h-11 w-11 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
+          className="cdp-pressable flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg bg-zinc-900 text-white shadow-lg active:bg-zinc-700"
         >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
@@ -585,7 +600,7 @@ export default function PlaceExplorer({ places }) {
               type="button"
               onClick={() => setSearch("")}
               aria-label="Xoá tìm kiếm"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
             >
               ✕
             </button>
@@ -598,7 +613,7 @@ export default function PlaceExplorer({ places }) {
               key={opt.id}
               type="button"
               onClick={() => setType(opt.id)}
-              className={`cdp-pressable min-h-11 rounded-lg px-4 text-sm font-medium ${
+              className={`cdp-pressable min-h-11 cursor-pointer rounded-lg px-4 text-sm font-medium ${
                 type === opt.id
                   ? "bg-zinc-900 text-white"
                   : "bg-zinc-100 text-zinc-600"
@@ -645,7 +660,7 @@ export default function PlaceExplorer({ places }) {
               setPriceBucket("all");
               setSearch("");
             }}
-            className="self-start text-sm text-zinc-500 underline"
+            className="cursor-pointer self-start text-sm text-zinc-500 underline"
           >
             Xoá bộ lọc
           </button>
@@ -664,7 +679,7 @@ export default function PlaceExplorer({ places }) {
                 setPriceBucket("all");
                 setSearch("");
               }}
-              className="text-sm text-zinc-500 underline"
+              className="cursor-pointer text-sm text-zinc-500 underline"
             >
               Xoá bộ lọc
             </button>
