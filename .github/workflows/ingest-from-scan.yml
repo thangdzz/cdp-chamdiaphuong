@@ -65,12 +65,34 @@ jobs:
 
           echo "sent=true" >> "$GITHUB_OUTPUT"
 
-      - name: Xoá nội dung file sau khi gửi thành công (tránh gửi trùng lần sau)
+      - name: Setup Node
+        if: steps.send.outputs.sent == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cài đúng gói cần cho script xuất snapshot (bỏ devDependencies — không cần Playwright)
+        if: steps.send.outputs.sent == 'true'
+        working-directory: web
+        run: npm ci --omit=dev
+
+      - name: Xuất lại known-places-snapshot.json từ dữ liệu mới nhất
+        if: steps.send.outputs.sent == 'true'
+        working-directory: web
+        env:
+          # Chỉ token CHỈ-ĐỌC — repo Public, không được để lộ token có quyền ghi.
+          # Tên biến giữ nguyên KV_REST_API_TOKEN (đúng tên code đang đọc), giá trị dán vào
+          # secret là token read-only (xem docs/ROUTINE.md).
+          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
+          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
+        run: node scripts/export-known-places.mjs
+
+      - name: Xoá pending-scan.json + commit snapshot mới (1 commit)
         if: steps.send.outputs.sent == 'true'
         run: |
           echo "[]" > data/pending-scan.json
           git config user.name "cdp-ingest-bot"
           git config user.email "actions@github.com"
-          git add data/pending-scan.json
-          git diff --cached --quiet && echo "Không có gì thay đổi" || git commit -m "chore: clear pending-scan.json after ingest [skip ci]"
+          git add data/pending-scan.json web/data/known-places-snapshot.json
+          git diff --cached --quiet && echo "Không có gì thay đổi" || git commit -m "chore: xoa pending-scan.json + cap nhat known-places-snapshot.json sau ingest [skip ci]"
           git push

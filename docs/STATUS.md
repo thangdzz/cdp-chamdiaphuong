@@ -75,14 +75,25 @@ anh + em quét (quyết định 2026-07-18).
    Routine cũng tự gửi thông báo đẩy (push notification) ngắn sau mỗi lần chạy, báo có chỗ
    mới hay không.
 
-**Lưu ý còn lại (chưa tự động hoá — không ảnh hưởng việc đăng dữ liệu):** file
-`known-places-snapshot.json` (giúp routine tránh tìm lại chỗ đã có, chỉ để đỡ tốn công tìm
-kiếm, KHÔNG phải để chống đăng trùng — chống trùng đã nằm ở tầng ghi dữ liệu) vẫn cần em cập
-nhật + đẩy lên GitHub thủ công, không tự làm mới theo thời gian thực. Thỉnh thoảng nhắn em 1
-câu để làm mới file này, không cần mỗi ngày — không làm cũng không sao, chỉ là routine có
-thể tốn thêm chút công tìm kiếm không cần thiết.
+**Cập nhật 2026-08-21:** file `known-places-snapshot.json` (giúp routine tránh tìm lại chỗ đã
+có, chỉ để đỡ tốn công tìm kiếm, KHÔNG phải để chống đăng trùng — chống trùng đã nằm ở tầng
+ghi dữ liệu) giờ **tự cập nhật sau mỗi lần ingest thành công**, không cần ai đụng tay nữa
+(xem mục "Sửa routine quét dữ liệu" bên dưới) — miễn là anh đã thêm 2 GitHub Secret cần
+thiết.
 
 ## Việc đã chốt, chờ code (2026-08-20)
+
+**D. Kiểm lại dữ liệu cũ** — [SPEC-kiem-lai-du-lieu.md](SPEC-kiem-lai-du-lieu.md) (viết
+2026-08-21). Vấn đề: 39+ địa điểm trên web, từ lúc thêm vào **chưa ai kiểm lại lần nào** —
+đúng lỗi mà CDP đang chê Google Maps. Ba việc:
+1. **Hiện tuổi dữ liệu trên thẻ**, nói thẳng khi đã cũ ("Chưa kiểm lại hơn 1 tháng"). Rẻ
+   nhất, làm được ngay.
+2. **Routine chia đôi công việc** — mỗi lần chạy tìm ~5 chỗ mới **và** kiểm lại ~5 chỗ lâu
+   nhất. Cần thêm trường `lastVerifiedAt` (hiện chỉ có `lastUpdatedAt` = lần cuối bị SỬA,
+   không phải lần cuối được KIỂM — nên kiểm mà không đổi gì thì không ghi lại được).
+   ⚠️ Phải đặt trần **3 mục chờ duyệt mới/ngày** từ nguồn kiểm lại, không thì ngập.
+3. **Anh gọi điện 10–15 chỗ quan trọng nhất trước lễ hội** (2–3 tiếng, không cần code) —
+   giải luôn vấn đề giá mùa cao điểm bằng cách hỏi thẳng.
 
 **A. Rà soát giao diện** — [SPEC-giao-dien.md](SPEC-giao-dien.md). Làm **trước** Chặng 7.
 Đóng khung 7 mục, hết là dừng. Việc đầu tiên: sửa dòng `font-family: Arial` trong
@@ -95,11 +106,24 @@ cách cũ chỉ có khách gõ nên vướng khởi động lạnh — phần l�
 nhất".
 
 **C. Sửa routine quét dữ liệu** — 4 việc, xếp theo mức đáng làm:
-1. **Thêm trường `signature_dishes`** (tối đa 3) vào `NormalizedPlace` ở
-   `lib/ingestion/schema.js` + `toLivePlace.js` + lệnh routine. Hiện **chưa có chỗ nào chứa
-   món**, nên routine có tìm được cũng không biết đổ vào đâu.
-2. **Tự động hoá `known-places-snapshot.json`** — vẫn phải cập nhật tay, đang trực tiếp làm
-   routine tìm lại chỗ đã biết. **Đáng sửa nhất trong nhóm này.**
+1. ✅ **Thêm trường `signature_dishes`** (tối đa 3) — **xong 2026-08-20**. Code đã có
+   (`schema.js`, `normalize.js`, `toLivePlace.js`, `match.js`), và **lệnh routine đã cập
+   nhật**: chèn khối "MON DAC TRUNG" vào BUOC 4 mục 3, ngay sau dòng định dạng JSON.
+   Routine ở **claude.ai → Code → Routines** (không phải Home → Scheduled), tên
+   *"CDP - Quet du lieu An/Choi/Ngu/Di lai Tuyen Quang hang ngay"*, chạy 8:00 GMT+7.
+   Nội dung lệnh: 5.084 → 6.030 ký tự.
+2. ✅ **Tự động hoá `known-places-snapshot.json`** — **xong 2026-08-21.**
+   `.github/workflows/ingest-from-scan.yml` giờ tự chạy `scripts/export-known-places.mjs` và
+   commit lại snapshot **sau mỗi lần ingest thành công**, không cần ai đụng tay. Đã chạy tay
+   1 lần luôn để snapshot khớp dữ liệu thật ngay: 39 → **109 chỗ**. ⚠️ Cần anh tự thêm 2
+   GitHub Secret (`KV_REST_API_URL`/`KV_REST_API_TOKEN`, **giá trị token chỉ-đọc** — repo
+   Public) thì bước mới mới chạy được — xem mục 2026-08-21 trong lịch sử bên dưới.
+2b. ✅ **Thêm địa chỉ vào snapshot** — xong cùng lúc với 2. Mỗi mục giờ có
+   `{name, type, address}`.
+2c. ✅ **Sửa Bước 4 của routine — đoạn curl đã chết.** Xong 2026-08-21. Đã soạn lại thành chỉ
+   dẫn dùng thẳng công cụ GitHub có sẵn trong phiên, **giữ nguyên bắt buộc hành vi gộp vào
+   cuối mảng cũ, không ghi đè**. Xem [ROUTINE.md §4, §7](ROUTINE.md). ⚠️ Anh cần tự dán đoạn
+   Bước 4 mới vào routine trên claude.ai — em không sửa được trực tiếp.
 3. **Xoay vòng trọng tâm mỗi ngày** thay vì quét chung chung: hôm nay Ăn ở Tân Quang, mai
    Chơi ở Minh Xuân, mốt Đi lại. Thêm nguồn ngoài Google Maps + Facebook (hội nhóm địa
    phương, báo tỉnh, blog du lịch).
@@ -180,7 +204,47 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-20 (mới nhất, sau 9) — Món đặc trưng, việc 1/4: thêm `signature_dishes` vào schema
+### 2026-08-21 (mới nhất) — Sửa routine quét dữ liệu: việc 2 + 2b + 2c
+
+Làm mục C trong "Việc đã chốt, chờ code" — ưu tiên việc 2 trước theo đúng yêu cầu (đây là
+việc **đáng sửa nhất**, có số liệu chứng minh: snapshot đóng băng từ 18/07, routine đã chạy
+16 lần không hề biết 70 chỗ mới đã lên web trong lúc đó).
+
+**Việc 2 — tự động hoá `known-places-snapshot.json`:** sửa
+`.github/workflows/ingest-from-scan.yml`, thêm bước sau khi ingest thành công: cài gói (chỉ
+`dependencies`, không cài `devDependencies` — tránh Playwright) → chạy
+`scripts/export-known-places.mjs` → commit file snapshot mới **cùng 1 commit** với bước xoá
+`pending-scan.json` đã có sẵn. Test `npm ci --omit=dev` trong thư mục tạm riêng, xác nhận bỏ
+đúng Playwright/eslint/tailwind, giữ `@upstash/redis`, script chạy đúng — dù Next.js (nằm ở
+`dependencies`, không phải `devDependencies`) vẫn được cài, không tránh được bằng cờ này.
+
+**Việc 2b — thêm địa chỉ vào snapshot:** `scripts/export-known-places.mjs` xuất thêm
+`address` mỗi mục. Đã chạy tay ngay để snapshot khớp dữ liệu thật luôn (không đợi lần ingest
+tự động đầu tiên) — từ 39 chỗ cũ (2026-07-18) lên **109 chỗ**, đều có địa chỉ.
+
+**Theo đúng góp ý trước khi code:**
+- Dùng token **chỉ-đọc** cho secret `KV_REST_API_TOKEN`/`KV_REST_API_URL` (anh tự tạo secret,
+  dán giá trị token read-only — repo Public nên không được để lộ token có quyền ghi). Code
+  không cần biết token loại gì, chỉ đọc từ env như cũ.
+- Bước commit `git add` đúng cả 2 đường dẫn: `data/pending-scan.json` (gốc repo) và
+  `web/data/known-places-snapshot.json` (trong `web/`).
+
+**⚠️ Cần anh tự làm — không có công cụ để làm thay:** vào GitHub repo → Settings → Secrets
+and variables → Actions → thêm 2 secret `KV_REST_API_URL` và `KV_REST_API_TOKEN` (giá trị
+chỉ-đọc). Thiếu 2 secret này thì bước xuất snapshot mới sẽ lỗi (các bước ingest cũ vẫn chạy
+bình thường, không ảnh hưởng).
+
+**Việc 2c — Bước 4 routine (văn bản, không phải code):** soạn lại đoạn hướng dẫn thay thế
+`curl` đã chết (403 Forbidden mọi lần) bằng chỉ dẫn dùng thẳng công cụ GitHub có sẵn trong
+phiên — **giữ nguyên bắt buộc hành vi gộp dữ liệu mới vào CUỐI mảng đã đọc được, không ghi
+đè** (đúng yêu cầu, tránh mất dữ liệu của lần chạy trước nếu lần đó lỗi giữa chừng). Đã cập
+nhật [ROUTINE.md](ROUTINE.md) (§3, §4, §6, §7, §9) khớp với nội dung mới — anh cần tự dán
+đoạn Bước 4 mới (nguyên văn ở ROUTINE.md §7) vào routine trên claude.ai.
+
+Build/lint sạch, YAML hợp lệ (kiểm bằng `js-yaml`). Đã commit (không deploy Vercel — thay đổi
+không thuộc app Next.js).
+
+### 2026-08-20 (sau 9) — Món đặc trưng, việc 1/4: thêm `signature_dishes` vào schema
 
 Bắt đầu làm [SPEC-chang-5.md §2.2](SPEC-chang-5.md) (mục B trong "Việc đã chốt, chờ code" ở
 trên) — làm đúng thứ tự anh duyệt: **schema trước, giao diện sau**. Việc 1/4 xong:
