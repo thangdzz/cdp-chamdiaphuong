@@ -54,6 +54,6 @@ export function deletePersonalNote(placeId) {
     writeStore(store);
     return { ok: true };
   } catch {
-    return { ok: false, error: "Chưa xoá được, thử lại nhé." };
+    return { ok: false, error: "Chưa xoá được, thử lại sau." };
   }
 }

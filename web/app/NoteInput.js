@@ -47,7 +47,7 @@ export function NoteInput({ place }) {
       });
     }
     if (!result.ok) {
-      setErrorMessage(result.error ?? "Chưa gửi được, thử lại nhé.");
+      setErrorMessage(result.error ?? "Chưa gửi được, thử lại sau.");
       setStatus("idle");
       return;
     }

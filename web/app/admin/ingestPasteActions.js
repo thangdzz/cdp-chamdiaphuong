@@ -30,7 +30,7 @@ export async function processIngestPaste(rawText) {
   if (!records) {
     return {
       ok: false,
-      error: "Không tìm thấy đoạn JSON hợp lệ trong nội dung dán vào — kiểm tra lại giúp em.",
+      error: "Không tìm thấy đoạn JSON hợp lệ trong nội dung dán vào — kiểm tra lại.",
     };
   }
   if (records.length === 0) {

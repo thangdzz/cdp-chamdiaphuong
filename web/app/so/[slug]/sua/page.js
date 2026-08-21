@@ -121,7 +121,7 @@ export default function EditNotebookPage({ params }) {
       setCopyLabel("✓ Đã sao chép");
       setTimeout(() => setCopyLabel("Sao chép link"), 2000);
     } catch {
-      setCopyLabel("Không sao chép được, tự chọn link nhé");
+      setCopyLabel("Không sao chép được, tự chọn link.");
     }
   }
 

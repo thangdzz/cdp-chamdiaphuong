@@ -71,7 +71,7 @@ export async function createNotebook(ownerAnonId, title) {
       return { ok: true, slug };
     }
   }
-  return { ok: false, error: "Không tạo được sổ, thử lại giúp em nhé." };
+  return { ok: false, error: "Không tạo được sổ, thử lại sau." };
 }
 
 export async function getNotebooksSummary(anonId) {
@@ -180,7 +180,7 @@ export async function copyNotebook({ sourceSlug, newOwnerAnonId }) {
       return { ok: true, slug };
     }
   }
-  return { ok: false, error: "Không tạo được sổ, thử lại giúp em nhé." };
+  return { ok: false, error: "Không tạo được sổ, thử lại sau." };
 }
 
 // §7: đếm bằng HINCRBY trên key riêng, không đọc-sửa-ghi cả JSON sổ mỗi lượt xem — vừa tốn

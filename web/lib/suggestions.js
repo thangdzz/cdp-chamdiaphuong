@@ -30,6 +30,12 @@ function fieldsEqual(a, b) {
   return true;
 }
 
+// Chỉ tính là "trùng" nếu bản cũ còn đang chờ hoặc đã được duyệt — bản `rejected` không chặn
+// gửi lại nữa. Trước đây so trên TOÀN BỘ danh sách không lọc status, nên góp ý đã xử lý xong
+// từ lâu vẫn chặn người dùng vĩnh viễn, trong khi admin không còn thấy gì trong hàng chờ để
+// xử lý (lỗi thật phát hiện 2026-08-21, xem STATUS.md).
+const BLOCKING_STATUSES = new Set(["pending", "approved"]);
+
 // Chặn cùng 1 người gửi ĐÚNG y hệt 1 nội dung sửa cho cùng 1 chỗ lần nữa (để ăn điểm) — vẫn
 // cho góp ý thêm về cùng chỗ đó nếu nội dung khác (field khác, hoặc thêm field mới).
 export async function findDuplicateCorrection(contributorId, placeId, fields, note) {
@@ -40,7 +46,8 @@ export async function findDuplicateCorrection(contributorId, placeId, fields, no
       s.contributorId === contributorId &&
       s.placeId === placeId &&
       fieldsEqual(s.fields, fields) &&
-      (s.note ?? null) === (note ?? null)
+      (s.note ?? null) === (note ?? null) &&
+      BLOCKING_STATUSES.has(s.status)
   );
 }
 
@@ -53,6 +60,7 @@ export async function findDuplicatePhoto(contributorId, placeId, contentHash) {
       s.type === "photo" &&
       s.contributorId === contributorId &&
       s.placeId === placeId &&
-      s.contentHash === contentHash
+      s.contentHash === contentHash &&
+      BLOCKING_STATUSES.has(s.status)
   );
 }

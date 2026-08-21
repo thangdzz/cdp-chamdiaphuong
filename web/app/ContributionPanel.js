@@ -133,7 +133,7 @@ export function ContributionPanel({ place, onDone }) {
       // Trước đây không đọc kết quả trả về — góp ý trùng/lỗi hợp lệ bị server từ chối
       // (ok: false) vẫn hiện "Cảm ơn" như thường, trông như đã ghi nhận dù thực ra không.
       if (!result?.ok) {
-        setErrorMessage(result?.error || "Gửi chưa thành công. Bấm thử lại giúp em nhé.");
+        setErrorMessage(result?.error || "Gửi chưa thành công. Thử lại sau.");
         return false;
       }
       setMode("thanks");
@@ -142,7 +142,7 @@ export function ContributionPanel({ place, onDone }) {
       // Không được nuốt lỗi im lặng — trước đây lỗi ở đây làm màn hình đứng im, rồi bấm
       // lần 2 lại rơi vào nhánh "không có việc gì đang chờ" nên tự reset về ban đầu, trông
       // như mất góp ý. Giờ báo rõ và giữ nguyên pendingAction để bấm lại được ngay.
-      setErrorMessage("Gửi chưa thành công. Bấm thử lại giúp em nhé.");
+      setErrorMessage("Gửi chưa thành công. Thử lại sau.");
       return false;
     } finally {
       setBusy(false);
@@ -205,7 +205,7 @@ export function ContributionPanel({ place, onDone }) {
       setBusy(false);
       await ensureProfileThenRun({ type: "photos", formData });
     } catch {
-      setErrorMessage("Chưa xử lý được ảnh. Bấm thử lại giúp em nhé.");
+      setErrorMessage("Chưa xử lý được ảnh. Thử lại sau.");
       setBusy(false);
       busyRef.current = false;
     }
@@ -227,7 +227,7 @@ export function ContributionPanel({ place, onDone }) {
       setRevealCode(profile.recoveryCode);
       setMode("recoveryReveal");
     } catch {
-      setErrorMessage("Chưa tạo được hồ sơ (có thể do mạng chậm). Bấm thử lại giúp em nhé.");
+      setErrorMessage("Chưa tạo được hồ sơ (có thể do mạng chậm). Thử lại sau.");
     } finally {
       setBusy(false);
       busyRef.current = false;
@@ -466,7 +466,7 @@ export function ContributionPanel({ place, onDone }) {
             onChange={(e) => setDuplicateOfName(e.target.value)}
           />
           <p className="text-xs text-zinc-500">
-            Bọn em sẽ kiểm tra lại rồi gộp 2 chỗ nếu đúng là trùng.
+            Hệ thống sẽ kiểm tra lại rồi gộp 2 chỗ nếu đúng là trùng.
           </p>
           {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
           <div className="flex gap-2">

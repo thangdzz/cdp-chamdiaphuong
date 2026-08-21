@@ -81,6 +81,33 @@ ghi dữ liệu) giờ **tự cập nhật sau mỗi lần ingest thành công**
 (xem mục "Sửa routine quét dữ liệu" bên dưới) — miễn là anh đã thêm 2 GitHub Secret cần
 thiết.
 
+## Lỗi phát hiện khi dùng thật (2026-08-21) — ✅ đã sửa, xem mục 2026-08-21 (mới nhất) bên dưới
+
+**L1. Xưng hô lệch giọng.** `app/ContributionPanel.js:469` dùng *"Bọn em sẽ kiểm tra lại rồi
+gộp 2 chỗ nếu đúng là trùng"* → đổi thành **"Hệ thống"**. Cùng lúc sửa
+`app/contributionActions.js:71` — *"thử góp ý khác đi bạn nhé"* nghe như nhắn tin riêng.
+Giọng chung của web: xưng "hệ thống", không xưng "em/bọn em/mình", không thêm "nhé/nha".
+
+**L2. ⚠️ Chặn gửi trùng không xét trạng thái — ngõ cụt vĩnh viễn.**
+`lib/suggestions.js` → `findDuplicateCorrection()` (và `findDuplicatePhoto()`) tìm trong
+**toàn bộ** danh sách góp ý, **không lọc theo `status`**. Nên nó khớp cả những góp ý đã
+`approved`/`rejected` từ lâu.
+
+Hậu quả thật (anh gặp 2026-08-21): gửi báo trùng lặp → web báo *"Bạn gửi đúng nội dung này
+cho chỗ này rồi"* → nhưng vào `/admin` **không thấy gì trong hàng chờ**, vì bản cũ đã được xử
+lý xong rồi. Người dùng bị chặn vĩnh viễn mà không hiểu vì sao.
+
+**Cách sửa** (giữ mục đích chống ăn điểm khống của DECISIONS 2026-07-18):
+
+| Trạng thái bản cũ | Xử lý | Thông báo |
+|---|---|---|
+| `pending` | Chặn | "Góp ý này đang chờ duyệt rồi." |
+| `approved` | Chặn | "Góp ý này đã được duyệt và áp dụng rồi." |
+| `rejected` | **Cho gửi lại** | — |
+
+Vẫn không ăn điểm hai lần (đã duyệt thì chặn), mà bỏ được ngõ cụt. Thông báo phải **nói rõ
+chuyện gì đã xảy ra**, không chỉ "bạn gửi rồi".
+
 ## Việc đã chốt, chờ code (2026-08-20)
 
 **D. Kiểm lại dữ liệu cũ** — [SPEC-kiem-lai-du-lieu.md](SPEC-kiem-lai-du-lieu.md) (viết
@@ -210,7 +237,28 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — Thẻ đã bung: 7 chỗ sửa từ phản hồi thật trên điện thoại (§6c)
+### 2026-08-21 (mới nhất) — L1 (xưng hô) + L2 (chặn trùng không xét trạng thái)
+
+**L1 — rà cả thư mục, tìm được 19 chỗ** (nhiều hơn 2 chỗ ban đầu phát hiện) lệch giọng
+"em/bọn em/…nhé/…nha" trong 12 file (`ContributionPanel.js`, `contributionActions.js`,
+`lib/notebooks.js`, `NotebookOwnerActions.js`, `so/[slug]/sua/page.js`, `noteActions.js`,
+`NoteInput.js`, `ShareNoteBox.js`, `lib/personalNotes.js`, `admin/ingestPasteActions.js`,
+`admin/IngestPasteBox.js` — kể cả `/admin`, coi là giọng chung của cả web, `PersonalNotesList.js`).
+Đổi hết sang câu trung tính ("Thử lại sau.", "Hệ thống sẽ…") — không còn "nhé/nha/em/bọn em"
+ở đâu trong `app/`, `lib/` (đã grep xác nhận sạch).
+
+**L2 — sửa đúng gốc:** `lib/suggestions.js` — `findDuplicateCorrection()` **và**
+`findDuplicatePhoto()` (bị y hệt lỗi dù anh chỉ nêu hàm đầu, sửa luôn cho nhất quán) giờ chỉ
+khớp góp ý `pending`/`approved`, bỏ qua `rejected` — cho gửi lại tự nhiên, không cần code
+riêng cho nhánh đó. `contributionActions.js`: `submitCorrection` và `submitPhotos` đổi thông
+báo theo đúng trạng thái bản trùng ("đang chờ duyệt" / "đã được duyệt và áp dụng") — `photos`
+gộp nhiều ảnh 1 lần gửi nên báo "đã duyệt" nếu **có ít nhất 1** ảnh trùng đã approved.
+
+Kiểm thử L2 bằng script gọi thẳng `findDuplicateCorrection()` với 1 bản ghi test lần lượt đổi
+`pending → rejected → approved`, xác nhận đúng cả 3: chặn/cho gửi lại/chặn. Build/lint sạch
+(chỉ còn lỗi cũ đã biết). Đã dọn dữ liệu test. Đã deploy.
+
+### 2026-08-21 (sau) — Thẻ đã bung: 7 chỗ sửa từ phản hồi thật trên điện thoại (§6c)
 
 Anh tự bấm thử trên điện thoại thật, phát hiện thẻ bung chưa giống thiết kế — viết thêm
 [SPEC-giao-dien.md §6c](SPEC-giao-dien.md) với 7 chỗ cụ thể. Đã làm cả 7:

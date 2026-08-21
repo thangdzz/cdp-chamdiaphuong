@@ -33,7 +33,7 @@ export function IngestPasteBox() {
         setText("");
       }
     } catch {
-      setError("Xử lý chưa thành công. Bấm thử lại giúp em nhé.");
+      setError("Xử lý chưa thành công. Thử lại sau.");
     } finally {
       setBusy(false);
     }

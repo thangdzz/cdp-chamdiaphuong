@@ -29,7 +29,7 @@ function InviteBanner({ onDismiss }) {
   return (
     <div className="mb-4 rounded-xl bg-zinc-50 p-4">
       {saved ? (
-        <p className="text-sm text-zinc-700">Sắp có — em đang làm phần này.</p>
+        <p className="text-sm text-zinc-700">Tính năng này sắp có.</p>
       ) : (
         <>
           <p className="text-sm text-zinc-700">

@@ -37,7 +37,7 @@ export async function submitTip({ anonId, placeId, questionId, text, festivalOnl
   if (pendingCount >= MAX_PENDING_PER_CONTRIBUTOR) {
     return {
       ok: false,
-      error: `Đang có ${MAX_PENDING_PER_CONTRIBUTOR} ghi chú chờ duyệt rồi, đợi admin duyệt xong đã nhé.`,
+      error: `Đang có ${MAX_PENDING_PER_CONTRIBUTOR} ghi chú chờ duyệt rồi, đợi admin duyệt xong đã.`,
       anonId: currentAnonId,
       newProfile,
     };

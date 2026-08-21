@@ -23,7 +23,7 @@ export async function startContributorProfile(nickname) {
 
 export async function recoverContributorProfile(code) {
   const profile = await recoverContributorByCode(code);
-  if (!profile) return { ok: false, error: "Không tìm thấy mã này. Kiểm tra lại giúp em nhé." };
+  if (!profile) return { ok: false, error: "Không tìm thấy mã này. Kiểm tra lại." };
   return {
     ok: true,
     anonId: profile.anonId,
@@ -68,7 +68,10 @@ export async function submitCorrection({ anonId, placeId, placeName, fields, not
   if (duplicate) {
     return {
       ok: false,
-      error: "Bạn gửi đúng nội dung này cho chỗ này rồi — thử góp ý khác đi bạn nhé.",
+      error:
+        duplicate.status === "approved"
+          ? "Nội dung này đã được duyệt và áp dụng rồi."
+          : "Nội dung này đang chờ duyệt rồi.",
     };
   }
 
@@ -112,20 +115,25 @@ export async function submitPhotos(formData) {
   }
 
   // So mã băm nội dung ảnh — chặn gửi đúng 1 ảnh y hệt lần nữa cho cùng chỗ để ăn điểm,
-  // vẫn cho gửi ảnh khác dù cùng chỗ.
+  // vẫn cho gửi ảnh khác dù cùng chỗ. Ảnh trùng với bản đã `rejected` thì không chặn nữa —
+  // findDuplicatePhoto() chỉ khớp bản `pending`/`approved` (xem lib/suggestions.js).
   const buffers = await Promise.all(files.map(async (f) => Buffer.from(await f.arrayBuffer())));
   const hashes = buffers.map(hashFile);
   const toUpload = [];
+  const duplicates = [];
   for (let i = 0; i < files.length; i++) {
     const duplicate = await findDuplicatePhoto(anonId, placeId, hashes[i]);
-    if (!duplicate) toUpload.push({ file: files[i], buffer: buffers[i], hash: hashes[i] });
+    if (duplicate) duplicates.push(duplicate);
+    else toUpload.push({ file: files[i], buffer: buffers[i], hash: hashes[i] });
   }
-  const skippedCount = files.length - toUpload.length;
+  const skippedCount = duplicates.length;
 
   if (toUpload.length === 0) {
     return {
       ok: false,
-      error: "Ảnh này bạn đã gửi cho chỗ này rồi — thử ảnh khác nhé.",
+      error: duplicates.some((d) => d.status === "approved")
+        ? "Ảnh này đã được duyệt và áp dụng rồi."
+        : "Ảnh này đang chờ duyệt rồi.",
     };
   }
 

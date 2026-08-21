@@ -41,7 +41,7 @@ export function ShareNoteBox({ placeId, initialText, onCancel }) {
       });
     }
     if (!result.ok) {
-      setError(result.error ?? "Chưa đăng được, thử lại nhé.");
+      setError(result.error ?? "Chưa đăng được, thử lại sau.");
       setStatus("idle");
       return;
     }
