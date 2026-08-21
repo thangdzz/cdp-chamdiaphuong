@@ -400,3 +400,29 @@ giữ nguyên phạm vi đó.
 
 **Không đổi:** Nguyên tắc dùng vùng địa lý TP Tuyên Quang (cũ) + địa chỉ kiểu Google Maps
 (quyết định 2026-07-14) — chỉ mở rộng đúng đắn hơn trong phạm vi đó, không đổi phạm vi.
+
+## 2026-08-21 — Công cụ gộp trùng lặp: nguồn AI quét (`mode="reviewItem"`) ưu tiên dữ liệu chỗ đã công khai (B), không phải bản mới quét (A)
+
+**Bối cảnh:** sửa lỗi L3 (`app/admin/MergeDuplicatePanel.js` — xem STATUS.md) phát hiện
+`initFields()` luôn ưu tiên A bất kể đang giữ bên nào. Với `mode="suggestion"` (khách tự báo
+trùng), đây rõ ràng là **lỗi** — giao diện có nút chọn "Giữ bản ghi của: Chỗ A/B" nhưng ô
+điền sẵn không theo lựa chọn đó. Với `mode="reviewItem"` (AI quét tự phát hiện nghi trùng),
+**không có lựa chọn nào bị vi phạm** — luồng này luôn giữ B cố định (không có nút chọn), và
+việc ưu tiên A (bản mới quét) chỉ là hành vi mặc định từ trước tới giờ, không phải lỗi theo
+đúng nghĩa "làm sai điều đã hứa với admin".
+
+**Quyết định:** Đổi `mode="reviewItem"` sang ưu tiên **B** (dữ liệu chỗ đã công khai) khi
+điền sẵn form so sánh — thiếu ô nào mới lấy từ A (bản mới quét). Admin vẫn sửa tay hoặc bấm
+nút "A: ..."/"B: ..." để lấy giá trị bên kia cho từng ô như cũ.
+
+**Vì sao:** (1) Nhất quán với nguyên tắc chung vừa áp cho `mode="suggestion"` — "ưu tiên bên
+đang được giữ, thiếu mới lấy bên kia" — dễ hiểu, dễ nhớ, không phải nhớ 2 quy tắc khác nhau
+cho 2 luồng. (2) Dữ liệu B đã qua ít nhất 1 lần xử lý/tồn tại công khai, còn A là bản quét
+mới — mặc định tin B hơn an toàn hơn, tránh 1 lần quét chất lượng thấp âm thầm ghi đè dữ liệu
+đang đúng mà admin không để ý (rà dữ liệu sau khi sửa tìm được 2 ca nghi ngờ đúng kiểu này —
+xem STATUS.md).
+
+**Đánh đổi:** khi bản quét mới (A) thực ra chính xác hơn B (vd B nhập tay từ lâu, có lỗi;
+A vừa quét được thông tin cập nhật hơn), admin phải tự bấm nút "A: ..." cho từng ô muốn lấy,
+thay vì được điền sẵn. Chấp nhận được — admin luôn thấy cả 2 cột A/B để so sánh, không mất
+thông tin nào, chỉ đổi giá trị mặc định điền sẵn.

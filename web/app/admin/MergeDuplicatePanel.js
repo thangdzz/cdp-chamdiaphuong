@@ -108,7 +108,10 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
     // Bọc qua .then() để tránh setState ngay trong thân effect (đúng cách đã dùng ở
     // CheckinButton.js/PersonalNote.js).
     Promise.resolve().then(() => {
-      if (mode === "suggestion" && keepSide === "B") {
+      // mode="reviewItem" luôn giữ B (chỗ đã công khai) — ưu tiên B mặc định, thiếu ô nào
+      // mới lấy A (bản mới quét). Đổi hành vi có chủ đích, không phải sửa lỗi — xem
+      // DECISIONS.md 2026-08-21.
+      if ((mode === "suggestion" && keepSide === "B") || mode === "reviewItem") {
         initFields(placeB, placeA);
       } else {
         initFields(placeA, placeB);
