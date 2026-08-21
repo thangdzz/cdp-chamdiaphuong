@@ -270,7 +270,19 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — L3: sửa `initFields` gộp nhầm bên + rà dữ liệu
+### 2026-08-21 (mới nhất) — Commit riêng: `mode="reviewItem"` đổi sang ưu tiên B
+
+Tách khỏi commit sửa lỗi L3 theo đúng yêu cầu — đây là **đổi hành vi có chủ đích**, không
+phải sửa lỗi (luồng AI quét không có nút "giữ bên nào" nên ưu tiên A trước đây không vi phạm
+lời hứa gì với admin, chỉ là mặc định chưa tối ưu). Lý do đổi + đánh đổi đã chấp nhận: ghi ở
+[DECISIONS.md](DECISIONS.md) 2026-08-21. Test logic thuần xác nhận đúng cả 2 chiều (ưu tiên
+B, và thiếu ô ở B thì lấy A). Build/lint sạch.
+
+Lưu ý: **2 ca nghi ngờ ở Việc 1 (mục ngay dưới) là dữ liệu từ TRƯỚC khi đổi hành vi này** —
+lúc đó luồng reviewItem còn ưu tiên A. Từ giờ về sau, gộp mới qua luồng AI quét sẽ mặc định
+ưu tiên giữ dữ liệu B (chỗ đã công khai), không còn bị ghi đè âm thầm bởi bản mới quét nữa.
+
+### 2026-08-21 (sau) — L3: sửa `initFields` gộp nhầm bên + rà dữ liệu
 
 **Sửa lỗi gốc** (`app/admin/MergeDuplicatePanel.js`): `initFields` giờ nhận `(primary,
 secondary)` — ưu tiên giá trị bên **primary** (bên đang được giữ), thiếu ô nào mới lấy bên
