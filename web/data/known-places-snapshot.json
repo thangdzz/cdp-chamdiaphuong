@@ -10,6 +10,11 @@
     "address": "86 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "An Kafe",
+    "type": "an",
+    "address": "04 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Ẩm thực Hà Tuyên",
     "type": "an",
     "address": "54 đường Bình Than (bên hông phải TT Hội nghị)"
@@ -45,6 +50,11 @@
     "address": "375 Đường 17/8, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Chùa An Vinh (An Vinh Thiền Tự)",
+    "type": "choi",
+    "address": "Tổ 7, phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
     "name": "Chuyện Coffee and more",
     "type": "an",
     "address": "289 Trần Phú, Tổ 11, Phường Phan Thiết, TP Tuyên Quang"
@@ -63,11 +73,6 @@
     "name": "Citrus coffee Lab",
     "type": "an",
     "address": "217 đường Trần Phú, phường Tân Quang, TP Tuyên Quang"
-  },
-  {
-    "name": "Công viên Đài tưởng niệm",
-    "type": "choi",
-    "address": "Đối diện 300 Đại lộ Tân Trào"
   },
   {
     "name": "Công viên hồ Tân Quang",
@@ -123,6 +128,11 @@
     "name": "Đền Hạ",
     "type": "choi",
     "address": "Số 53 đường Chiến Thắng Sông Lô, tổ 4, phường Tân Quang, thành phố Tuyên Quang"
+  },
+  {
+    "name": "Đô Đô Homestay",
+    "type": "ngu",
+    "address": "Số nhà 10A, Ngõ 136 Kim Quan, Tổ 4, Phường Ỷ La, TP Tuyên Quang"
   },
   {
     "name": "Feline Café",
@@ -193,6 +203,11 @@
     "name": "Khách Sạn Lô Giang",
     "type": "ngu",
     "address": "Số 2, đường 17 Tháng 8, phường Minh Xuân, TP. Tuyên Quang"
+  },
+  {
+    "name": "Khách sạn Mai Sơn",
+    "type": "ngu",
+    "address": "244 Nguyễn Trãi, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Khách Sạn Mai Sơn",
@@ -450,6 +465,11 @@
     "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Phở 10",
+    "type": "an",
+    "address": "10 Tân Trào, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Phở 82",
     "type": "an",
     "address": "67 Đường 17/8, Phường Minh Xuân, TP Tuyên Quang"
@@ -512,7 +532,12 @@
   {
     "name": "Taxi Tâm Đức",
     "type": "dilai",
-    "address": null
+    "address": "10 Bình Thuận, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Tân Việt Wonderland",
+    "type": "choi",
+    "address": "Tầng 1, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Thành Nhà Mạc",
