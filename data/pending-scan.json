@@ -1,1 +1,63 @@
-[]
+[
+  {
+    "name": "An Kafe",
+    "category_primary": "an",
+    "address_text": "04 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0827080818",
+    "opening_hours_text": "Mở cả ngày",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Phở 10",
+    "category_primary": "an",
+    "address_text": "10 Tân Trào, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "35.000 - 45.000đ/bát",
+    "map_note": null,
+    "signature_dishes": ["phở tái", "phở bò viên", "phở nạm gầu"]
+  },
+  {
+    "name": "Chùa An Vinh (An Vinh Thiền Tự)",
+    "category_primary": "choi",
+    "address_text": "Tổ 7, phường Hưng Thành, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Chùa lớn nhất TP Tuyên Quang, xây từ đầu thế kỷ 18, cách trung tâm khoảng 4,5km"
+  },
+  {
+    "name": "Taxi Trung Á",
+    "category_primary": "dilai",
+    "address_text": "10 Bình Thuận, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "02073819819",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Đô Đô Homestay",
+    "category_primary": "ngu",
+    "address_text": "Số nhà 10A, Ngõ 136 Kim Quan, Tổ 4, Phường Ỷ La, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "Từ 250.000đ/đêm",
+    "map_note": null
+  },
+  {
+    "name": "Tân Việt Wonderland",
+    "category_primary": "choi",
+    "address_text": "Tầng 1, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, Phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": "Vincom Plaza Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "Vé 40.000đ ngày thường, 50.000đ cuối tuần/lễ",
+    "map_note": null
+  }
+]
