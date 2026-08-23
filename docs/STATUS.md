@@ -224,6 +224,28 @@ nhất".
 
 ## Cập nhật gần nhất
 
+### 2026-08-23 (mới nhất) — `/admin`: gọn mục "Đang công khai" thành danh sách tìm kiếm/lọc
+Làm đúng theo [SPEC-admin.md](SPEC-admin.md) đã trình và anh duyệt. Mục "Đang công khai" (122
+chỗ) trước đây mở sẵn 122 form sửa cùng lúc — giờ đổi thành danh sách gọn, có ô tìm kiếm
+(không cần gõ dấu) + tab lọc theo loại (Ăn/Chơi/Ngủ/Đi lại, có số đếm), bấm "Sửa" mới mở form,
+chỉ 1 form mở tại 1 thời điểm.
+
+File mới: `app/admin/LivePlacesManager.js` (Client Component), `app/admin/PlaceFormFields.js`
+(tách `Field`/`PlaceForm` ra khỏi `page.js` để dùng chung được — `page.js` là Server Component
+có `next/headers`, Client Component không import trực tiếp từ đó được).
+
+Đã test bằng Playwright theo đúng 12 bước SPEC §7 (trừ bước tìm "Phở Vinh" — chỗ đó không có
+thật trong dữ liệu, chỉ là ví dụ minh hoạ trong spec). Bắt được và sửa 1 lỗi thật lúc test: hàm
+tìm kiếm so khớp bị lệch hoa/thường (thiếu `.toLowerCase()`) khiến gõ không dấu không ra kết
+quả — đã vá trước khi lên web thật.
+
+**Phát hiện thêm 1 lỗi KHÔNG liên quan tới việc này, chưa sửa:** bước 12 (đăng xuất → vào lại
+`/admin` phải hỏi mật khẩu) **thất bại** — cookie phiên đăng nhập không bị xoá khi bấm "Đăng
+xuất", vào lại vẫn thấy trang quản trị luôn. Đã kiểm tra lại trên code CŨ (trước khi làm việc
+này) — lỗi có sẵn từ trước, không phải do thay đổi hôm nay gây ra. Nghĩa là ai đã đăng nhập
+`/admin` một lần trên máy/trình duyệt nào thì bấm "Đăng xuất" cũng không đăng xuất thật —
+**cần anh quyết định có ưu tiên sửa ngay không** (ảnh hưởng bảo mật nếu dùng chung máy).
+
 ### 2026-08-11 — Chốt hướng đi mới "cuốn sổ địa phương" (bàn thiết kế, chưa code)
 Cả phiên là bàn hướng, không động vào code. Kết quả: tài liệu mới
 [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) + 9 quyết định ghi vào DECISIONS.md.
@@ -270,7 +292,7 @@ code làm bên Antigravity.
 **Bước tiếp theo hợp lý nhất (lúc đó):** code Chặng 1 bên Antigravity — **đã làm xong, xem
 mục 2026-08-15 bên trên trong "Đang ở giai đoạn nào" và chi tiết ngay dưới đây.**
 
-### 2026-08-21 (mới nhất) — Commit riêng: `mode="reviewItem"` đổi sang ưu tiên B
+### 2026-08-21 — Commit riêng: `mode="reviewItem"` đổi sang ưu tiên B
 
 Tách khỏi commit sửa lỗi L3 theo đúng yêu cầu — đây là **đổi hành vi có chủ đích**, không
 phải sửa lỗi (luồng AI quét không có nút "giữ bên nào" nên ưu tiên A trước đây không vi phạm
