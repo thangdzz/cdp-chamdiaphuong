@@ -15,6 +15,11 @@
     "address": "04 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Anh Anh Luxury Hotel",
+    "type": "ngu",
+    "address": "15 Nguyễn Văn Linh, TP Tuyên Quang"
+  },
+  {
     "name": "Ẩm thực Hà Tuyên",
     "type": "an",
     "address": "54 đường Bình Than (bên hông phải TT Hội nghị)"
@@ -38,6 +43,11 @@
     "name": "Bến xe Tuyên Quang",
     "type": "dilai",
     "address": "Số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Cafe HELIO",
+    "type": "an",
+    "address": "Phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Cafe Lâm Tuyên Quang",
@@ -125,9 +135,19 @@
     "address": "tổ 17, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Đền Đôi Cô",
+    "type": "choi",
+    "address": "Tổ 10, phường Nông Tiến, TP Tuyên Quang"
+  },
+  {
     "name": "Đền Hạ",
     "type": "choi",
     "address": "Số 53 đường Chiến Thắng Sông Lô, tổ 4, phường Tân Quang, thành phố Tuyên Quang"
+  },
+  {
+    "name": "Đền Ỷ La (Đền Mẫu Ỷ La)",
+    "type": "choi",
+    "address": "Tổ 4, phường Ỷ La, TP Tuyên Quang"
   },
   {
     "name": "Đô Đô Homestay",
@@ -148,6 +168,11 @@
     "name": "Garden BBQ Tuyên Quang",
     "type": "an",
     "address": "Số 87 Chiến Thắng Sông Lô, TP. Tuyên Quang, Tuyên Quang"
+  },
+  {
+    "name": "Hãng Taxi Sơn Trang",
+    "type": "dilai",
+    "address": "361 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Hẻm Quán",
@@ -530,6 +555,11 @@
     "address": "155 đường Bình Thuận, TP Tuyên Quang"
   },
   {
+    "name": "Taxi Mai Linh Tuyên Quang",
+    "type": "dilai",
+    "address": "Số 192, đường Trường Chinh, Tổ 14, phường Tân Hà, TP Tuyên Quang"
+  },
+  {
     "name": "Taxi Tâm Đức",
     "type": "dilai",
     "address": "10 Bình Thuận, Phường Tân Quang, TP Tuyên Quang"
@@ -568,5 +598,10 @@
     "name": "Thủy Mộc Quán (Cafe Cá Koi)",
     "type": "an",
     "address": "Tổ 3, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
+    "name": "Zhen Dong Tuyên Quang",
+    "type": "an",
+    "address": "Tổ 2, Khu ẩm thực, phường Minh Xuân, TP Tuyên Quang"
   }
 ]
