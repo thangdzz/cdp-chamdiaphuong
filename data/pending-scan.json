@@ -1,1 +1,73 @@
-[]
+[
+  {
+    "name": "Zhen Dong Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Tổ 2, Khu ẩm thực, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": "Khu ẩm thực phường Minh Xuân",
+    "phone": "0886559966",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["lẩu bò"]
+  },
+  {
+    "name": "Cafe HELIO",
+    "category_primary": "an",
+    "address_text": "Phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Đền Ỷ La (Đền Mẫu Ỷ La)",
+    "category_primary": "choi",
+    "address_text": "Tổ 4, phường Ỷ La, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Di tích lịch sử - văn hóa cấp quốc gia, cùng cụm lễ hội với Đền Hạ, Đền Thượng"
+  },
+  {
+    "name": "Đền Đôi Cô",
+    "category_primary": "choi",
+    "address_text": "Tổ 10, phường Nông Tiến, TP Tuyên Quang",
+    "near_landmark": "Cạnh cầu Nông Tiến, bên bờ sông Lô",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Anh Anh Luxury Hotel",
+    "category_primary": "ngu",
+    "address_text": "15 Nguyễn Văn Linh, TP Tuyên Quang",
+    "near_landmark": "Gần hồ trung tâm thành phố",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Taxi Mai Linh Tuyên Quang",
+    "category_primary": "dilai",
+    "address_text": "Số 192, đường Trường Chinh, Tổ 14, phường Tân Hà, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0779355355",
+    "opening_hours_text": "24/7",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Hãng Taxi Sơn Trang",
+    "category_primary": "dilai",
+    "address_text": "361 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "02073828828",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
