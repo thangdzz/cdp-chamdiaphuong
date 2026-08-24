@@ -4,7 +4,7 @@ import { useState } from "react";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
-import { PhotoGallery, confidenceLabel, formatDate } from "./PlaceExplorer";
+import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
 
 // Thẻ chỗ trong trang Xem sổ (/so/{slug}) — bản rút gọn của PlaceCard ở trang chủ, chỉ
 // thêm "Xem thêm" để bung xem đầy đủ thông tin (địa chỉ, độ tin cậy, ảnh...), không kèm các
@@ -13,8 +13,17 @@ import { PhotoGallery, confidenceLabel, formatDate } from "./PlaceExplorer";
 export function NotebookPlaceCard({ item }) {
   const [expanded, setExpanded] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(null);
+  const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   const place = item.place;
   const photos = place.photos ?? [];
+  const menuPhotos = place.menuPhotos ?? [];
+  const newestMenuPhotoAge =
+    menuPhotos.length > 0
+      ? formatRelativeAge(
+          menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
+        )
+      : null;
+  const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const compactPrice = formatPriceCompact(place);
 
   return (
@@ -36,6 +45,22 @@ export function NotebookPlaceCard({ item }) {
       {expanded && (
         <div className="mt-5 flex flex-col gap-5 text-sm text-zinc-700">
           <PlaceFacts type={place.type} consensus={place.consensus} />
+
+          {signatureDishes.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-[13px] text-zinc-500">Món đặc trưng</p>
+              <div className="flex flex-wrap gap-1.5">
+                {signatureDishes.map((dish) => (
+                  <span
+                    key={dish}
+                    className="rounded-full bg-zinc-100 px-2.5 py-1 text-[13px] text-zinc-700"
+                  >
+                    {dish}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {place.notes?.length > 0 && (
             <div className="flex flex-col gap-2">
@@ -71,6 +96,36 @@ export function NotebookPlaceCard({ item }) {
                   className="mt-1.5 text-[13px] text-zinc-500 underline"
                 >
                   Xem thêm {photos.length - 3} ảnh →
+                </button>
+              )}
+            </div>
+          )}
+
+          {menuPhotos.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-[13px] text-zinc-500">
+                Ảnh menu · khách gửi {newestMenuPhotoAge}
+              </p>
+              <div className="flex gap-2">
+                {menuPhotos.slice(0, 3).map((m, i) => (
+                  <button
+                    key={m.url}
+                    type="button"
+                    onClick={() => setMenuGalleryIndex(i)}
+                    className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={m.url} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              {menuPhotos.length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setMenuGalleryIndex(3)}
+                  className="mt-1.5 text-[13px] text-zinc-500 underline"
+                >
+                  Xem thêm {menuPhotos.length - 3} ảnh →
                 </button>
               )}
             </div>
@@ -134,6 +189,14 @@ export function NotebookPlaceCard({ item }) {
 
       {galleryIndex !== null && (
         <PhotoGallery photos={photos} startIndex={galleryIndex} onClose={() => setGalleryIndex(null)} />
+      )}
+
+      {menuGalleryIndex !== null && (
+        <PhotoGallery
+          photos={menuPhotos.map((m) => m.url)}
+          startIndex={menuGalleryIndex}
+          onClose={() => setMenuGalleryIndex(null)}
+        />
       )}
     </li>
   );

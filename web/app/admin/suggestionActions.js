@@ -51,6 +51,11 @@ async function applyDecision(id, decision) {
       }
       livePlaces[placeIndex] = { ...place, ...updates, lastUpdatedAt: new Date().toISOString() };
       await setLivePlaces(livePlaces);
+    } else if (item.type === "photo" && placeIndex !== -1 && item.photoTag === "menu") {
+      const place = livePlaces[placeIndex];
+      const menuPhotos = [...(place.menuPhotos ?? []), { url: item.photoUrl, addedAt: item.createdAt }];
+      livePlaces[placeIndex] = { ...place, menuPhotos };
+      await setLivePlaces(livePlaces);
     } else if (item.type === "photo" && placeIndex !== -1) {
       const place = livePlaces[placeIndex];
       const photos = [...(place.photos ?? []), item.photoUrl];

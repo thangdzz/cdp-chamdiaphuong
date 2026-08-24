@@ -10,6 +10,7 @@ import {
   mergeReviewCandidate,
 } from "./mergeActions";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { formatRelativeAge } from "../PlaceExplorer";
 
 const inputClass = "w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
 
@@ -55,6 +56,7 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
   const [keepSide, setKeepSide] = useState("A");
   const [fields, setFields] = useState(null);
   const [keepPhotos, setKeepPhotos] = useState([]);
+  const [keepMenuPhotos, setKeepMenuPhotos] = useState([]);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
 
@@ -77,6 +79,16 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
       priceUnit: primary.priceUnit || secondary.priceUnit || "",
     });
     setKeepPhotos([...new Set([...(primary.photos ?? []), ...(secondary.photos ?? [])])]);
+
+    const menuPhotoUnion = [...(primary.menuPhotos ?? []), ...(secondary.menuPhotos ?? [])];
+    const seenUrls = new Set();
+    setKeepMenuPhotos(
+      menuPhotoUnion.filter((m) => {
+        if (seenUrls.has(m.url)) return false;
+        seenUrls.add(m.url);
+        return true;
+      })
+    );
   }
 
   function expand() {
@@ -149,6 +161,15 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
 
   function togglePhoto(url) {
     setKeepPhotos((list) => (list.includes(url) ? list.filter((u) => u !== url) : [...list, url]));
+  }
+
+  function toggleMenuPhoto(url) {
+    setKeepMenuPhotos((list) => {
+      if (list.some((m) => m.url === url)) return list.filter((m) => m.url !== url);
+      const fromA = placeA?.menuPhotos?.find((m) => m.url === url);
+      const fromB = placeB?.menuPhotos?.find((m) => m.url === url);
+      return [...list, fromA ?? fromB];
+    });
   }
 
   async function runAction(action, formData) {
@@ -259,6 +280,9 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
       {keepPhotos.map((url) => (
         <input key={url} type="hidden" name="keepPhoto" value={url} />
       ))}
+      {keepMenuPhotos.map((m) => (
+        <input key={m.url} type="hidden" name="keepMenuPhoto" value={JSON.stringify(m)} />
+      ))}
     </>
   );
 
@@ -322,6 +346,36 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
                 <img src={url} alt="" className="h-16 w-16 rounded-lg object-cover" />
               </label>
             ))}
+          </div>
+        </div>
+      )}
+
+      {(placeA.menuPhotos?.length > 0 || placeB.menuPhotos?.length > 0) && (
+        <div className="mb-2">
+          <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh menu giữ lại (bỏ tick để không giữ)</p>
+          <div className="flex flex-wrap gap-2">
+            {(() => {
+              const union = [...(placeA.menuPhotos ?? []), ...(placeB.menuPhotos ?? [])];
+              const seen = new Set();
+              const uniqueUnion = union.filter((m) => {
+                if (seen.has(m.url)) return false;
+                seen.add(m.url);
+                return true;
+              });
+              return uniqueUnion.map((m) => (
+                <label key={m.url} className="relative flex flex-col items-center">
+                  <input
+                    type="checkbox"
+                    checked={keepMenuPhotos.some((k) => k.url === m.url)}
+                    onChange={() => toggleMenuPhoto(m.url)}
+                    className="absolute right-1 top-1 h-4 w-4"
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={m.url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                  <span className="mt-0.5 text-[11px] text-zinc-400">{formatRelativeAge(m.addedAt)}</span>
+                </label>
+              ));
+            })()}
           </div>
         </div>
       )}

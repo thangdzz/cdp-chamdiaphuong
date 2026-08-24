@@ -188,7 +188,7 @@ export function ContributionPanel({ place, onDone }) {
     });
   }
 
-  async function handleFilesChosen(e) {
+  async function handleFilesChosen(e, tag) {
     const files = Array.from(e.target.files ?? []).slice(0, 3);
     e.target.value = "";
     if (files.length === 0 || busyRef.current) return;
@@ -200,6 +200,7 @@ export function ContributionPanel({ place, onDone }) {
       const formData = new FormData();
       formData.set("placeId", place.id);
       formData.set("placeName", place.name);
+      formData.set("photoTag", tag ?? "");
       compressed.forEach((f) => formData.append("photos", f));
       busyRef.current = false; // ensureProfileThenRun/runAction tự khoá lại từ đây
       setBusy(false);
@@ -362,21 +363,56 @@ export function ContributionPanel({ place, onDone }) {
           >
             Báo trùng với chỗ khác
           </button>
-          <label
-            className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
-              busy ? "opacity-50" : "cursor-pointer"
-            }`}
-          >
-            {busy ? "Đang gửi..." : "Thêm ảnh"}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              disabled={busy}
-              className="hidden"
-              onChange={handleFilesChosen}
-            />
-          </label>
+          {place.type === "an" ? (
+            <>
+              <label
+                className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
+                  busy ? "opacity-50" : "cursor-pointer"
+                }`}
+              >
+                {busy ? "Đang gửi..." : "Ảnh menu"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={busy}
+                  className="hidden"
+                  onChange={(e) => handleFilesChosen(e, "menu")}
+                />
+              </label>
+              <label
+                className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
+                  busy ? "opacity-50" : "cursor-pointer"
+                }`}
+              >
+                {busy ? "Đang gửi..." : "Ảnh khác (món ăn, không gian...)"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={busy}
+                  className="hidden"
+                  onChange={(e) => handleFilesChosen(e, null)}
+                />
+              </label>
+            </>
+          ) : (
+            <label
+              className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
+                busy ? "opacity-50" : "cursor-pointer"
+              }`}
+            >
+              {busy ? "Đang gửi..." : "Thêm ảnh"}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={busy}
+                className="hidden"
+                onChange={(e) => handleFilesChosen(e, null)}
+              />
+            </label>
+          )}
           <button type="button" onClick={close} className="self-start cursor-pointer text-xs text-zinc-400 underline">
             Huỷ
           </button>

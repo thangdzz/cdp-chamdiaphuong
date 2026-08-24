@@ -10,7 +10,10 @@
 SPEC §10, phát hiện + vá 2 chỗ thiếu (mở rộng xem chi tiết + nút Sao chép link ở trang Xem sổ).
 
 **Chặng 5 (Ghi chú công khai bằng chữ) đã bắt đầu — phần (a) "Mẹo tự do" code xong, lên web
-thật.** Phần (b) "Nên gọi món gì" chưa làm, để sau.
+thật.** Phần (b) "Món đặc trưng" (SPEC-chang-5.md §2.2, sửa lớn 2026-08-20 sang 3 nguồn): ảnh
+menu + hiện món AI quét được (dạng nhãn tĩnh) đã code xong 2026-08-24, **chưa deploy** (xem
+mục 2026-08-24 bên dưới — có sự cố lúc test đã xử lý xong, cần anh xem lại trước khi lên web
+thật). Phần ô gõ món cho khách + bấm chọn đồng thuận để lượt sau, cần bàn thiết kế riêng.
 
 **Chặng 6 (Ghi chú riêng) đã code xong, lên web thật.**
 
@@ -30,9 +33,10 @@ nghi trùng do AI quét phát hiện, giờ dùng chung 1 công cụ so sánh & 
 **Spec cho cả 8 chặng đã viết xong** — bảng tra ở đầu phần "HƯỚNG MỚI" trong
 [ROADMAP.md](ROADMAP.md). **Chặng 7–8 là bản dự kiến**, phải đọc lại và sửa trước khi code.
 
-Bước tiếp theo: deploy bản gộp công cụ trùng lặp, anh bấm thử. **Nhắc mốc:** Chặng 4 (đã
-xong) đặt mục tiêu trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số liệu, không code (xem
-SPEC-chang-4.md §7).
+Bước tiếp theo: anh xem lại phần "Món đặc trưng" vừa code (mục 2026-08-24) rồi mới deploy —
+đợt này có sự cố gộp nhầm 2 chỗ thật lúc test (đã khôi phục xong, ghi rõ trong mục đó). **Nhắc
+mốc:** Chặng 4 (đã xong) đặt mục tiêu trước ~15/09 — tuần lễ hội 19–25/09 chỉ đo số liệu,
+không code (xem SPEC-chang-4.md §7).
 
 Phần đã chạy được từ trước vẫn nguyên: Giai đoạn 5a + AI quét dữ liệu hằng ngày (tự động
 hoàn toàn từ 2026-08-04, auto-publish) + card 2 lớp + "đề xuất sửa/ảnh + thưởng điểm/huy
@@ -224,7 +228,63 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-08-23 (mới nhất) — `/admin`: gọn mục "Đang công khai" thành danh sách tìm kiếm/lọc
+### 2026-08-24 (mới nhất) — Món đặc trưng: ảnh menu + hiện món AI quét được lên thẻ
+
+Làm mục B trong "Việc đã chốt, chờ code" (SPEC-chang-5.md §2.2) — 2 việc còn lại: (3) thêm
+loại ảnh "Ảnh menu", (4) hiện món do AI quét được lên thẻ (dạng nhãn tĩnh, chưa bấm chọn
+được — cơ chế gõ + bấm chọn đồng thuận để lượt sau bàn riêng, vì cần thiết kế tầng dữ liệu
+mới). Khảo sát trước khi code phát hiện `signatureDishes` (đã ghi vào `places:live` từ
+2026-08-20) **chưa từng được hiển thị ở đâu** — lỗ hổng cũ, không phải việc mới phát sinh.
+
+**Việc 1 — Ảnh menu:** tái dùng luồng gửi ảnh có sẵn, thêm field `photoTag` xuyên suốt
+(`ContributionPanel.js` → `contributionActions.js` → `user_suggestions` → `/admin` duyệt →
+`places:live`). Ảnh menu duyệt xong vào mảng riêng `place.menuPhotos` (khác `place.photos`
+giữ nguyên không đổi) — mỗi phần tử `{url, addedAt}` để mang theo ngày khách gửi.
+
+**Việc 2 — Món đặc trưng dạng nhãn:** `PlaceExplorer.js`/`NotebookPlaceCard.js` đọc
+`place.signatureDishes`, hiện dạng pill tĩnh (không bấm được) khi `type === "an"` và có món.
+
+**Việc 3 (phát sinh lúc duyệt kế hoạch, anh yêu cầu thêm):** công cụ gộp trùng lặp
+(`MergeDuplicatePanel.js`/`mergeActions.js`) trước đây **không hề biết tới `menuPhotos`** —
+gộp 2 chỗ sẽ làm mất ảnh menu của bên bị xoá mà không ai hay. Đã sửa theo đúng cơ chế đang
+dùng cho `photos` (union 2 bên, admin tự bỏ tick ảnh không giữ, hidden input gửi lên,
+`mergeActions.js` ghi `menuPhotos: keepMenuPhotos`). Thêm hàm dùng chung
+`formatRelativeAge()` (PlaceExplorer.js) hiện tuổi ảnh — "Ảnh menu · khách gửi 3 tháng
+trước" trên thẻ khách xem, hiện riêng từng ảnh trong công cụ gộp (admin cần so ảnh cũ/mới
+giữa 2 chỗ để quyết định giữ cái nào). Lý do bắt buộc phải làm: SPEC-chang-5 §2.3 đã chốt
+không ghi giá từng món (giá cũ nhanh nhất), mà ảnh menu lại chụp nguyên bảng giá — không sửa
+được chuyện ảnh cũ nhưng phải nói thật tuổi của nó.
+
+**⚠️ Sự cố lúc test — đã xử lý xong, ghi lại để không lặp lại:** lúc kiểm thử Việc 3 bằng
+Playwright, cần 2 chỗ thật có `menuPhotos` khác nhau để tạo tình huống "nghi trùng" trong
+`/admin`. Đã chọn đại 2 chỗ **thật, đang công khai, không hề trùng nhau** (`an-02` "Dê Phố
+(Tân Hòa)" và `an-03` "Nhà hàng Dũng Cá"), gán ảnh menu giả, tạo báo cáo nghi trùng, rồi
+**bấm nút Gộp thật** để kiểm tra luồng — gộp nhầm 2 quán khác nhau làm một, đúng loại lỗi L3
+đã từng gặp trước đây (STATUS.md 2026-08-21), lần này do người kiểm thử gây ra chứ không phải
+lỗi code.
+
+Hậu quả: `an-03` bị xoá khỏi `places:live` (kèm check-in/đồng thuận gắn với nó — hành vi bình
+thường của nút gộp). May mắn `an-03` gần như không có dữ liệu gì khác ngoài tên/loại/địa chỉ,
+nên khôi phục gần như đầy đủ được ngay từ `data/known-places-snapshot.json` (đã commit sẵn
+trong repo) — tạo lại đúng `id` cũ để sổ tay khách (nếu ai đã lưu chỗ này) nối lại được liên
+kết thay vì chỉ còn `nameSnapshot`. Đã dọn sạch toàn bộ dữ liệu test khỏi Redis/Blob thật
+(2 suggestion, 2 hồ sơ đóng góp test, 1 ảnh test trên Vercel Blob, `menuPhotos`/
+`signatureDishes` giả gán tạm ở `an-01`/`an-02`) — xác nhận lại bằng script đọc thẳng Redis
+sau khi dọn.
+
+**Rút kinh nghiệm cho lần sau:** không dùng chỗ thật đang công khai để test nút Gộp (hoặc bất
+kỳ hành động ghi/xoá không thể hoàn tác dễ dàng nào) — kể cả khi có vẻ an toàn vì "chắc chỗ
+đó không ai để ý". Lần sau cần tạo chỗ test riêng (id/tên rõ ràng là test, ví dụ
+`test-merge-a`/`test-merge-b`) rồi xoá hẳn sau khi xong, thay vì mượn dữ liệu thật.
+
+Kiểm thử còn lại (Việc 1–2) đều qua Playwright trên chỗ thật `an-01`: gửi ảnh menu → badge
+"Ảnh menu" đúng trong `/admin` → duyệt → thẻ trang chủ hiện đúng khối "Ảnh menu · khách gửi
+hôm nay" tách biệt khỏi "Ảnh địa điểm", gallery mở đúng ảnh; gán tạm `signatureDishes` → pill
+"Món đặc trưng" hiện đúng. Build/lint sạch (chỉ còn 1 lỗi cũ đã biết, không liên quan). Đã
+dọn sạch dữ liệu test của Việc 1–2 cùng đợt dọn ở trên. **Chưa deploy lên Vercel** — đợi anh
+xem lại đợt sửa lỗi gộp nhầm này trước khi lên web thật.
+
+### 2026-08-23 — `/admin`: gọn mục "Đang công khai" thành danh sách tìm kiếm/lọc
 Làm đúng theo [SPEC-admin.md](SPEC-admin.md) đã trình và anh duyệt. Mục "Đang công khai" (122
 chỗ) trước đây mở sẵn 122 form sửa cùng lúc — giờ đổi thành danh sách gọn, có ô tìm kiếm
 (không cần gõ dấu) + tab lọc theo loại (Ăn/Chơi/Ngủ/Đi lại, có số đếm), bấm "Sửa" mới mở form,

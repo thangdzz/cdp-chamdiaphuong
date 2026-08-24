@@ -100,6 +100,7 @@ export async function submitPhotos(formData) {
   const anonId = formData.get("anonId")?.toString();
   const placeId = formData.get("placeId")?.toString();
   const placeName = formData.get("placeName")?.toString();
+  const photoTag = formData.get("photoTag")?.toString() === "menu" ? "menu" : null;
   if (!anonId || !placeId) return { ok: false, error: "Thiếu thông tin." };
 
   const contributor = await getContributor(anonId);
@@ -156,6 +157,7 @@ export async function submitPhotos(formData) {
       contributorNickname: contributor?.nickname ?? "Người ẩn danh",
       status: "pending",
       photoUrl: url,
+      photoTag,
       contentHash: hash,
       note: null,
       createdAt: new Date().toISOString(),

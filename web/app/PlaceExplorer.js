@@ -92,6 +92,25 @@ export function formatDate(iso) {
   }
 }
 
+// Tuổi tương đối, không giới hạn trần (khác formatCheckinAge bên dưới, vốn ẩn hẳn sau 90
+// ngày) — dùng cho ảnh menu, nơi cần nói thật ảnh cũ đến đâu chứ không được phép im lặng.
+export function formatRelativeAge(iso) {
+  if (!iso) return null;
+  let diffDays;
+  try {
+    diffDays = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  } catch {
+    return null;
+  }
+  if (!(diffDays >= 0)) return null;
+  if (diffDays === 0) return "hôm nay";
+  if (diffDays === 1) return "hôm qua";
+  if (diffDays < 7) return `${diffDays} ngày trước`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} tuần trước`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} tháng trước`;
+  return `${Math.floor(diffDays / 365)} năm trước`;
+}
+
 // Dòng "Còn mở · xác nhận N ngày trước" trên thẻ — SPEC-chang-1.md §2.1. Trên 90 ngày (hoặc
 // chưa ai xác nhận bao giờ) trả về null để component không hiện gì (bỏ hẳn khỏi DOM, không
 // giữ chỗ như nhãn "còn chỗ" cũ).
@@ -256,6 +275,7 @@ function PlaceCard({ place }) {
   const [mounted, setMounted] = useState(false);
   const unmountTimer = useRef(null);
   const [galleryIndex, setGalleryIndex] = useState(null);
+  const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   // Bắt đầu bằng giá trị máy chủ, đổi ngay tại chỗ khi khách vừa bấm "Tôi vừa đến, vẫn mở"
   // (SPEC-chang-1.md §2.2: dòng trên thẻ phải đổi ngay, không chờ tải lại trang).
   const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
@@ -283,6 +303,14 @@ function PlaceCard({ place }) {
   const statusLabel = showOccupancy && status ? getOccupancyLabel(status, place.type) : null;
   const checkinLabel = formatCheckinAge(lastCheckinAt);
   const photos = place.photos ?? [];
+  const menuPhotos = place.menuPhotos ?? [];
+  const newestMenuPhotoAge =
+    menuPhotos.length > 0
+      ? formatRelativeAge(
+          menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
+        )
+      : null;
+  const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
   const shortAddress = formatShortAddress(place.address);
   // §6c mục 2: dòng phụ dưới tên đã hiện địa chỉ rút gọn — nếu rút gọn không bớt được gì
@@ -327,6 +355,22 @@ function PlaceCard({ place }) {
 
             <PlaceFacts type={place.type} consensus={place.consensus} />
 
+            {signatureDishes.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-[13px] text-zinc-500">Món đặc trưng</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {signatureDishes.map((dish) => (
+                    <span
+                      key={dish}
+                      className="rounded-full bg-zinc-100 px-2.5 py-1 text-[13px] text-zinc-700"
+                    >
+                      {dish}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <NoteInput place={place} />
 
             {photos.length > 0 && (
@@ -352,6 +396,36 @@ function PlaceCard({ place }) {
                     className="cursor-pointer mt-1.5 text-[13px] text-zinc-500 underline"
                   >
                     Xem thêm {photos.length - 3} ảnh →
+                  </button>
+                )}
+              </div>
+            )}
+
+            {menuPhotos.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-[13px] text-zinc-500">
+                  Ảnh menu · khách gửi {newestMenuPhotoAge}
+                </p>
+                <div className="flex gap-2">
+                  {menuPhotos.slice(0, 3).map((m, i) => (
+                    <button
+                      key={m.url}
+                      type="button"
+                      onClick={() => setMenuGalleryIndex(i)}
+                      className="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.url} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+                {menuPhotos.length > 3 && (
+                  <button
+                    type="button"
+                    onClick={() => setMenuGalleryIndex(3)}
+                    className="cursor-pointer mt-1.5 text-[13px] text-zinc-500 underline"
+                  >
+                    Xem thêm {menuPhotos.length - 3} ảnh →
                   </button>
                 )}
               </div>
@@ -431,6 +505,14 @@ function PlaceCard({ place }) {
           photos={photos}
           startIndex={galleryIndex}
           onClose={() => setGalleryIndex(null)}
+        />
+      )}
+
+      {menuGalleryIndex !== null && (
+        <PhotoGallery
+          photos={menuPhotos.map((m) => m.url)}
+          startIndex={menuGalleryIndex}
+          onClose={() => setMenuGalleryIndex(null)}
         />
       )}
     </li>

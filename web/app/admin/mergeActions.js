@@ -88,13 +88,20 @@ export async function mergeDuplicatePlaces(formData) {
 
   const keptFields = readMergedFieldsFromForm(formData);
   const keepPhotos = formData.getAll("keepPhoto").map((p) => p.toString());
+  const keepMenuPhotos = formData.getAll("keepMenuPhoto").map((p) => JSON.parse(p.toString()));
 
   const live = await getLivePlaces();
   const next = live
     .filter((p) => p.id !== deleteId)
     .map((p) =>
       p.id === keepId
-        ? { ...p, ...keptFields, photos: keepPhotos, lastUpdatedAt: new Date().toISOString() }
+        ? {
+            ...p,
+            ...keptFields,
+            photos: keepPhotos,
+            menuPhotos: keepMenuPhotos,
+            lastUpdatedAt: new Date().toISOString(),
+          }
         : p
     );
   await setLivePlaces(next);
@@ -170,6 +177,7 @@ export async function mergeReviewCandidate(formData) {
 
   const updates = readMergedFieldsFromForm(formData);
   const keepPhotos = formData.getAll("keepPhoto").map((p) => p.toString());
+  const keepMenuPhotos = formData.getAll("keepMenuPhoto").map((p) => JSON.parse(p.toString()));
 
   const live = await getLivePlaces();
   const next = live.map((p) =>
@@ -178,6 +186,7 @@ export async function mergeReviewCandidate(formData) {
           ...p,
           ...updates,
           photos: keepPhotos,
+          menuPhotos: keepMenuPhotos,
           lastUpdatedAt: new Date().toISOString(),
           sourceCount: (p.sourceCount ?? 1) + 1,
         }

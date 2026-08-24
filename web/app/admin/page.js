@@ -249,7 +249,11 @@ function SuggestionCard({ item }) {
     <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
       <div className="flex items-start justify-between gap-2">
         <span className="rounded-full bg-sky-200 px-2 py-0.5 text-xs font-medium text-sky-900">
-          {item.type === "photo" ? "Ảnh góp ý" : "Báo sai / đề xuất sửa"}
+          {item.type === "photo"
+            ? item.photoTag === "menu"
+              ? "Ảnh menu"
+              : "Ảnh góp ý"
+            : "Báo sai / đề xuất sửa"}
         </span>
         <span className="text-xs text-zinc-500">Từ: {item.contributorNickname}</span>
       </div>
