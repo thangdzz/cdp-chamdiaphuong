@@ -165,10 +165,32 @@ function buildExtraLines(place, lodgingKind) {
 
 // --- Gallery ảnh toàn màn hình -------------------------------------------------------
 
+// Chụm 2 ngón để zoom (quanh tâm ảnh, không đuổi theo đúng điểm chụm — đơn giản, đủ dùng cho
+// nhu cầu xem rõ chi tiết/đọc ảnh menu), 1 ngón kéo xem khi đã zoom, double-tap zoom nhanh
+// 1x<->2.5x. `touch-none` trên đúng vùng ảnh chặn trình duyệt tự zoom cả trang (SPEC lỗi
+// 2026-08-24: chụm 2 ngón trước đây bị trình duyệt hiểu thành zoom toàn trang, giật/lệch).
+const ZOOM_MAX = 4;
+const DOUBLE_TAP_ZOOM = 2.5;
+
+function touchDistance(t0, t1) {
+  return Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+}
+
 export function PhotoGallery({ photos, startIndex, onClose }) {
   const [index, setIndex] = useState(startIndex);
   const [visible, setVisible] = useState(false);
-  const touchStartRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [isGesturing, setIsGesturing] = useState(false);
+  const pinchRef = useRef(null);
+  // 1 ngón chạm: lưu điểm bắt đầu cho CẢ 2 việc (kéo xem khi đã zoom / vuốt đổi ảnh-đóng khi
+  // chưa zoom) — quyết định đây là tap hay kéo dựa vào quãng đường di chuyển thực tế lúc buông
+  // tay (touchend), KHÔNG dựa vào scale lúc bắt đầu chạm. Trước đây tách riêng theo scale lúc
+  // touchstart nên double-tap khi đang zoom luôn bị hiểu nhầm thành bắt đầu kéo, không bao giờ
+  // kiểm tra được double-tap để zoom ra lại.
+  const touchRef = useRef(null);
+  const lastTapRef = useRef(null);
+  const imgRef = useRef(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -180,27 +202,111 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
     setTimeout(onClose, 200);
   }
 
+  // Ảnh mới (vuốt/bấm thumbnail) luôn bắt đầu từ 1x, không mang zoom ảnh cũ sang — reset ngay
+  // tại nơi đổi `index` (thay vì effect riêng) để tránh setState lồng trong effect.
+  function goToIndex(next) {
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+    setIndex(next);
+  }
+
+  function clampTranslate(x, y, s) {
+    const el = imgRef.current;
+    if (!el) return { x: 0, y: 0 };
+    const maxX = Math.max(0, (el.offsetWidth * s - el.offsetWidth) / 2);
+    const maxY = Math.max(0, (el.offsetHeight * s - el.offsetHeight) / 2);
+    return { x: Math.min(maxX, Math.max(-maxX, x)), y: Math.min(maxY, Math.max(-maxY, y)) };
+  }
+
+  function toggleZoom() {
+    if (scale > 1) {
+      setScale(1);
+      setTranslate({ x: 0, y: 0 });
+    } else {
+      setScale(DOUBLE_TAP_ZOOM);
+    }
+  }
+
   function handleTouchStart(e) {
+    if (e.touches.length === 2) {
+      pinchRef.current = { startDist: touchDistance(e.touches[0], e.touches[1]), startScale: scale };
+      touchRef.current = null;
+      setIsGesturing(true);
+      return;
+    }
     const t = e.touches[0];
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
+    touchRef.current = { startX: t.clientX, startY: t.clientY, startTranslate: translate };
+    if (scale > 1) setIsGesturing(true);
+  }
+
+  // `touch-action: none` trên vùng ảnh (JSX bên dưới) đã đủ chặn trình duyệt tự zoom/cuộn
+  // trang khi chạm ở đây — không cần preventDefault() nữa (React gắn listener touch dạng
+  // passive nên gọi preventDefault() chỉ tạo cảnh báo console vô ích, không có tác dụng thêm).
+  function handleTouchMove(e) {
+    if (pinchRef.current && e.touches.length === 2) {
+      const dist = touchDistance(e.touches[0], e.touches[1]);
+      const nextScale = Math.min(
+        ZOOM_MAX,
+        Math.max(1, pinchRef.current.startScale * (dist / pinchRef.current.startDist))
+      );
+      setScale(nextScale);
+      setTranslate((t) => clampTranslate(t.x, t.y, nextScale));
+      return;
+    }
+    // Kéo xem chỉ có tác dụng khi đã zoom — lúc scale === 1, clampTranslate() luôn ghim về
+    // {0,0} (biên bằng 0), nên cứ để chạy, không cần tách nhánh riêng theo scale ở đây.
+    if (touchRef.current && e.touches.length === 1 && scale > 1) {
+      const t = e.touches[0];
+      const dx = t.clientX - touchRef.current.startX;
+      const dy = t.clientY - touchRef.current.startY;
+      setTranslate(clampTranslate(touchRef.current.startTranslate.x + dx, touchRef.current.startTranslate.y + dy, scale));
+    }
   }
 
   function handleTouchEnd(e) {
-    const start = touchStartRef.current;
+    if (pinchRef.current) {
+      pinchRef.current = null;
+      setIsGesturing(false);
+      if (scale < 1.05) {
+        setScale(1);
+        setTranslate({ x: 0, y: 0 });
+      }
+      return;
+    }
+
+    const start = touchRef.current;
+    touchRef.current = null;
+    setIsGesturing(false);
     if (!start) return;
     const t = e.changedTouches[0];
-    const dx = t.clientX - start.x;
-    const dy = t.clientY - start.y;
+    if (!t) return;
+    const dx = t.clientX - start.startX;
+    const dy = t.clientY - start.startY;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
+
+    // Gần như không di chuyển -> tap (bất kể đang zoom hay không). Cách lần chạm trước < 300ms,
+    // gần đúng 1 chỗ -> double-tap, đổi zoom nhanh.
+    if (absDx < 10 && absDy < 10) {
+      const now = Date.now();
+      const last = lastTapRef.current;
+      if (last && now - last.time < 300 && Math.hypot(t.clientX - last.x, t.clientY - last.y) < 40) {
+        lastTapRef.current = null;
+        toggleZoom();
+        return;
+      }
+      lastTapRef.current = { time: now, x: t.clientX, y: t.clientY };
+      return;
+    }
+
+    if (scale > 1) return; // đã kéo xem ảnh zoom — không chuyển ảnh/đóng theo vuốt nữa
 
     if (absDy > 60 && absDy > absDx) {
       requestClose(); // vuốt lên hoặc xuống để đóng
     } else if (absDx > 50 && absDx > absDy) {
-      if (dx < 0) setIndex((i) => Math.min(i + 1, photos.length - 1));
-      else setIndex((i) => Math.max(i - 1, 0));
+      if (dx < 0) goToIndex(Math.min(index + 1, photos.length - 1));
+      else goToIndex(Math.max(index - 1, 0));
     }
-    touchStartRef.current = null;
   }
 
   return (
@@ -208,8 +314,6 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
       className={`fixed inset-0 z-50 flex flex-col bg-black/95 text-white transition-opacity duration-200 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       <div className="flex items-center justify-between px-4 py-3 text-sm">
         <span>
@@ -225,19 +329,30 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
         </button>
       </div>
 
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-2">
+      <div
+        className="touch-none relative flex flex-1 items-center justify-center overflow-hidden px-2"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imgRef}
           src={photos[index]}
           alt=""
-          className={`max-h-full max-w-full object-contain transition-transform duration-200 ${
-            visible ? "scale-100" : "scale-95"
+          draggable={false}
+          className={`max-h-full max-w-full select-none object-contain ${
+            isGesturing ? "" : "transition-transform duration-200"
           }`}
+          style={{
+            transform: `translate(${translate.x}px, ${translate.y}px) scale(${(visible ? 1 : 0.95) * scale})`,
+          }}
         />
       </div>
 
       <p className="pb-2 text-center text-xs text-white/50">
-        ← vuốt ngang xem ảnh khác → · vuốt lên/xuống để đóng
+        ← vuốt ngang xem ảnh khác → · vuốt lên/xuống để đóng · chụm 2 ngón hoặc chạm 2 lần để
+        phóng to
       </p>
 
       {photos.length > 1 && (
@@ -246,7 +361,7 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
             <button
               key={i}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => goToIndex(i)}
               className={`h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 ${
                 i === index ? "border-white" : "border-transparent opacity-50"
               }`}

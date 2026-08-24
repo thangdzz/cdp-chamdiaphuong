@@ -228,7 +228,39 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-08-24 (mới nhất) — Món đặc trưng: ảnh menu + hiện món AI quét được lên thẻ
+### 2026-08-24 (sau, mới nhất) — Sửa zoom ảnh trong khối xem ảnh toàn màn hình
+
+Anh báo: zoom ảnh (chụm 2 ngón) "không mượt, không chuẩn, nhảy ra zoom cả trang web". Kiểm
+tra `PhotoGallery` (`web/app/PlaceExplorer.js`) thì component này **chưa hề có code xử lý
+zoom** — chỉ có vuốt đổi ảnh/đóng, không `touch-action` nào được đặt ở đâu trong CSS/viewport,
+nên chụm 2 ngón bị trình duyệt hiểu thành zoom cả trang mặc định (kéo giãn cả overlay, nút
+đóng...). Đặc biệt cần cho "Ảnh menu" vừa làm — khách cần zoom để đọc giá.
+
+Đã thêm: chụm 2 ngón để zoom (1x–4x, quanh tâm ảnh), 1 ngón kéo xem khi đã zoom (có giới hạn
+biên), chạm 2 lần nhanh (double-tap) để zoom nhanh 1x⇄2.5x, `touch-action: none` đúng vùng
+ảnh (không đặt lên cả overlay, để thanh ảnh nhỏ phía dưới vẫn vuốt ngang bình thường) để chặn
+hẳn trình duyệt tự zoom trang. Vuốt đổi ảnh/đóng chỉ còn hoạt động khi chưa zoom; đổi ảnh
+(vuốt hoặc bấm thumbnail) tự reset về 1x.
+
+**1 lỗi logic thật bắt được lúc test (không phải chỉ lỗi hiển thị):** ban đầu quyết định "đây
+là kéo xem ảnh hay là tap" dựa vào **scale lúc bắt đầu chạm** — nên khi đang zoom, mọi cú chạm
+1 ngón đều bị hiểu ngay là "bắt đầu kéo", double-tap để zoom ra lại **không bao giờ được kiểm
+tra tới**. Sửa lại: quyết định dựa vào **quãng đường di chuyển thực tế lúc buông tay**
+(touchend) — di chuyển ít thì luôn tính là tap (dù đang zoom hay không), đủ xa mới tính là kéo/
+vuốt. Nhân tiện bỏ luôn 2 lệnh `preventDefault()` thừa trong lúc pinch/pan (gây cảnh báo
+console "Unable to preventDefault inside passive event listener" — `touch-action: none` đã đủ
+chặn trình duyệt rồi, preventDefault ở đây không có tác dụng thêm).
+
+**Kiểm thử:** Playwright mô phỏng iPhone (`hasTouch: true`), tự tạo `TouchEvent`/`Touch` thật
+để giả lập chụm/nhả 2 ngón + kéo 1 ngón + double-tap (không dùng dữ liệu Redis thật, chỉ thao
+tác giao diện nên không cần dọn dữ liệu sau test). Xác nhận đủ 7 điều: `touch-action: none`
+đúng vùng ảnh · thanh thumbnail vẫn `auto` (không bị ăn theo) · pinch tăng đúng tỉ lệ, có trần
+4x · pan dịch đúng hướng sau khi zoom, có giới hạn biên · double-tap đổi đúng 1x→1x(reset) rồi
+1x→2.5x · đổi ảnh reset đúng về 1x · console sạch, không còn cảnh báo. Build/lint sạch (chỉ
+còn 1 lỗi cũ đã biết, không liên quan). Chỉ sửa `PlaceExplorer.js`, không đụng file nào khác.
+**Đã deploy lên web thật.**
+
+### 2026-08-24 — Món đặc trưng: ảnh menu + hiện món AI quét được lên thẻ
 
 Làm mục B trong "Việc đã chốt, chờ code" (SPEC-chang-5.md §2.2) — 2 việc còn lại: (3) thêm
 loại ảnh "Ảnh menu", (4) hiện món do AI quét được lên thẻ (dạng nhãn tĩnh, chưa bấm chọn
