@@ -239,12 +239,10 @@ thật trong dữ liệu, chỉ là ví dụ minh hoạ trong spec). Bắt đư�
 tìm kiếm so khớp bị lệch hoa/thường (thiếu `.toLowerCase()`) khiến gõ không dấu không ra kết
 quả — đã vá trước khi lên web thật.
 
-**Phát hiện thêm 1 lỗi KHÔNG liên quan tới việc này, chưa sửa:** bước 12 (đăng xuất → vào lại
-`/admin` phải hỏi mật khẩu) **thất bại** — cookie phiên đăng nhập không bị xoá khi bấm "Đăng
-xuất", vào lại vẫn thấy trang quản trị luôn. Đã kiểm tra lại trên code CŨ (trước khi làm việc
-này) — lỗi có sẵn từ trước, không phải do thay đổi hôm nay gây ra. Nghĩa là ai đã đăng nhập
-`/admin` một lần trên máy/trình duyệt nào thì bấm "Đăng xuất" cũng không đăng xuất thật —
-**cần anh quyết định có ưu tiên sửa ngay không** (ảnh hưởng bảo mật nếu dùng chung máy).
+**Đính chính (2026-08-24):** lúc test bước 12 (đăng xuất) ban đầu tưởng phát hiện lỗi bảo mật —
+cookie phiên không bị xoá. Kiểm tra lại kỹ hơn (đợi đúng phản hồi máy chủ thay vì kiểm tra quá
+sớm) thì hoá ra **không có lỗi** — do cách test trước đó kiểm tra ngay khi máy chủ chưa kịp trả
+lời xong, không phải do code sai. Đăng xuất hoạt động đúng bình thường, không cần sửa gì.
 
 ### 2026-08-11 — Chốt hướng đi mới "cuốn sổ địa phương" (bàn thiết kế, chưa code)
 Cả phiên là bàn hướng, không động vào code. Kết quả: tài liệu mới
