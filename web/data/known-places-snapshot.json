@@ -35,6 +35,11 @@
     "address": "2 Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Bánh cuốn Minh Rạp",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Bảo tàng tỉnh Tuyên Quang",
     "type": "choi",
     "address": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang"
@@ -123,6 +128,11 @@
     "name": "Dê Phố (Tân Hòa)",
     "type": "an",
     "address": "Khu phố cổ, Tổ 16, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Đảo hoa cầu Tình Húc",
+    "type": "choi",
+    "address": null
   },
   {
     "name": "Đắng Cafe",
@@ -370,6 +380,11 @@
     "address": "371 Phạm Văn Đồng, Tổ 5, Phường Hưng Thành, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng Huấn Hổ",
+    "type": "an",
+    "address": "47 phố Chu văn An"
+  },
+  {
     "name": "Nhà hàng Huy Cá",
     "type": "an",
     "address": "Tổ 15, Phường Phan Thiết, TP Tuyên Quang"
@@ -515,6 +530,11 @@
     "address": "18 Nguyễn Trãi, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Quán bánh cuốn Thu Hợp",
+    "type": "an",
+    "address": "Số 39, đường Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Quán Bún số 10",
     "type": "an",
     "address": "Số 10 Hồng Thái, Tổ 8, Phường Phan Thiết, TP Tuyên Quang"
@@ -553,6 +573,11 @@
     "name": "Sky Cafe",
     "type": "an",
     "address": "155 đường Bình Thuận, TP Tuyên Quang"
+  },
+  {
+    "name": "Taxi Hoàng Ngân",
+    "type": "dilai",
+    "address": "Số nhà 122, đường Nguyễn Trãi, Tổ 11, Phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Taxi Mai Linh Tuyên Quang",
