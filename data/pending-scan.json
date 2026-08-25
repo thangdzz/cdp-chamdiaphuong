@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "name": "Vking Coffee - Tea",
+    "category_primary": "an",
+    "address_text": "70 đường Quang Trung, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Mắm Trà Chanh",
+    "category_primary": "an",
+    "address_text": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0353 707 661",
+    "opening_hours_text": "06:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["trà chanh"]
+  },
+  {
+    "name": "Mộc Trà Chanh",
+    "category_primary": "an",
+    "address_text": "78 Lê Lợi, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["trà chanh"]
+  },
+  {
+    "name": "Quán cá Sông Lô",
+    "category_primary": "an",
+    "address_text": "Tổ 27, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": "gần chân cầu Nông Tiến, ven sông Lô",
+    "phone": "0912 844 771",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["cá lăng"]
+  },
+  {
+    "name": "Disney Park (khu vui chơi trẻ em)",
+    "category_primary": "choi",
+    "address_text": "Số nhà 120, đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0912011918",
+    "opening_hours_text": "07:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Nhà vườn Thủy Viên 2",
+    "category_primary": "ngu",
+    "address_text": "Trung Việt 2, phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "087 969 8886",
+    "opening_hours_text": null,
+    "price_range_text": "khoảng 1.399.000đ/đêm (nguyên căn 4 người)",
+    "map_note": null
+  }
+]
