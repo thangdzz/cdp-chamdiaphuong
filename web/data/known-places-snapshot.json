@@ -20,6 +20,11 @@
     "address": "15 Nguyễn Văn Linh, TP Tuyên Quang"
   },
   {
+    "name": "Asahi BBQ Tuyên Quang",
+    "type": "an",
+    "address": "28 Đ. Chiến Thắng Sông Lô"
+  },
+  {
     "name": "Ẩm thực Hà Tuyên",
     "type": "an",
     "address": "54 đường Bình Than (bên hông phải TT Hội nghị)"
@@ -128,6 +133,11 @@
     "name": "Dê Phố (Tân Hòa)",
     "type": "an",
     "address": "Khu phố cổ, Tổ 16, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Disney Park (khu vui chơi trẻ em)",
+    "type": "choi",
+    "address": "Số nhà 120, đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Đảo hoa cầu Tình Húc",
@@ -285,11 +295,6 @@
     "address": "Tổ 19, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
-    "name": "Koi and You",
-    "type": "an",
-    "address": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, phường Phan Thiết, TP Tuyên Quang"
-  },
-  {
     "name": "Koi and You Tuyên Quang",
     "type": "an",
     "address": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang"
@@ -320,6 +325,11 @@
     "address": "169 Trần Phú, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Mắm Trà Chanh",
+    "type": "an",
+    "address": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
+  },
+  {
     "name": "Min Garden Coffee",
     "type": "an",
     "address": "103 phố Hà Tuyên"
@@ -333,6 +343,11 @@
     "name": "Mộc Restaurant",
     "type": "an",
     "address": "124 Trần Hưng Đạo, TP Tuyên Quang"
+  },
+  {
+    "name": "Mộc Trà Chanh",
+    "type": "an",
+    "address": "78 Lê Lợi, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Ngã 8 Quán - Ốc 1963",
@@ -500,6 +515,11 @@
     "address": "76 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Nhà vườn Thủy Viên 2",
+    "type": "ngu",
+    "address": "Trung Việt 2, phường An Tường, TP Tuyên Quang"
+  },
+  {
     "name": "Nướng Than Hoa Tuyên Quang",
     "type": "an",
     "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang"
@@ -538,6 +558,11 @@
     "name": "Quán Bún số 10",
     "type": "an",
     "address": "Số 10 Hồng Thái, Tổ 8, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Quán cá Sông Lô",
+    "type": "an",
+    "address": "Tổ 27, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Quán Mỳ cay Oppa",
@@ -623,6 +648,11 @@
     "name": "Thủy Mộc Quán (Cafe Cá Koi)",
     "type": "an",
     "address": "Tổ 3, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
+    "name": "Vking Coffee - Tea",
+    "type": "an",
+    "address": "70 đường Quang Trung, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Zhen Dong Tuyên Quang",
