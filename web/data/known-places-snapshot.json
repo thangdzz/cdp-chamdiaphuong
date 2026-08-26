@@ -115,9 +115,19 @@
     "address": "15 Đinh Tiên Hoàng, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Cơm Phở Hảo Trang",
+    "type": "an",
+    "address": "85 Xã Tắc, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Cuống's House",
     "type": "ngu",
     "address": "Tổ 1, phường Mỹ Lâm, TP Tuyên Quang"
+  },
+  {
+    "name": "Danh Khoa - Cho thuê xe tự lái",
+    "type": "dilai",
+    "address": "55 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "De' Paris Coffee",
@@ -315,6 +325,16 @@
     "address": "L259, khu đô thị Việt Mỹ, đường Trần Phú, TP Tuyên Quang"
   },
   {
+    "name": "Lẩu Nướng Khánh Ngọc",
+    "type": "an",
+    "address": "Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Mã Boss BBQ",
+    "type": "an",
+    "address": "99 Lý Nam Đế, TP Tuyên Quang"
+  },
+  {
     "name": "Mai Sơn - thuê xe máy",
     "type": "dilai",
     "address": "104 Nguyễn Trãi, TP Tuyên Quang"
@@ -353,6 +373,11 @@
     "name": "Ngã 8 Quán - Ốc 1963",
     "type": "an",
     "address": "232 Lý Nam Đế, TP Tuyên Quang"
+  },
+  {
+    "name": "Nghé Quán - Lẩu & Nướng",
+    "type": "an",
+    "address": "2, Tổ 26, Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Nguyệt Bún Bò Huế, Phở",
@@ -483,6 +508,11 @@
     "name": "Nhà Nghỉ Ngọc Điệp",
     "type": "ngu",
     "address": "12 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà Nghỉ Nguyệt Ánh",
+    "type": "ngu",
+    "address": "18 Tam Cờ, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Nhà Nghỉ Phương Nam",
@@ -648,6 +678,11 @@
     "name": "Thủy Mộc Quán (Cafe Cá Koi)",
     "type": "an",
     "address": "Tổ 3, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
+    "name": "Tiến Vũ Homestay",
+    "type": "ngu",
+    "address": "Phường An Tường, TP Tuyên Quang"
   },
   {
     "name": "Vking Coffee - Tea",
