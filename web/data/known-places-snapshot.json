@@ -10,6 +10,11 @@
     "address": "86 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "An Homestay Tuyên Quang",
+    "type": "ngu",
+    "address": "27 Bình Thuận, TP Tuyên Quang"
+  },
+  {
     "name": "An Kafe",
     "type": "an",
     "address": "04 Đinh Tiên Hoàng, Phường Tân Quang, TP Tuyên Quang"
@@ -55,6 +60,11 @@
     "address": "Số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Bin Cafe",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Cafe HELIO",
     "type": "an",
     "address": "Phường Phan Thiết, TP Tuyên Quang"
@@ -73,6 +83,11 @@
     "name": "Chùa An Vinh (An Vinh Thiền Tự)",
     "type": "choi",
     "address": "Tổ 7, phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
+    "name": "Chùa Phú Lâm",
+    "type": "choi",
+    "address": null
   },
   {
     "name": "Chuyện Coffee and more",
@@ -623,6 +638,11 @@
     "name": "Royal Restaurant",
     "type": "an",
     "address": "Đường Lý Thái Tổ, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Saturday - Trà Chanh Phố",
+    "type": "an",
+    "address": "Số 02 Hà Huy Tập, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Sky Cafe",
