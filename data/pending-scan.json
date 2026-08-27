@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "name": "Bin Cafe",
+    "category_primary": "an",
+    "address_text": null,
+    "near_landmark": "Phường Minh Xuân, TP Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": "07:00 - 22:59",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "An Homestay Tuyên Quang",
+    "category_primary": "ngu",
+    "address_text": "27 Bình Thuận, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "Từ khoảng 200.000đ/người/đêm",
+    "map_note": null
+  },
+  {
+    "name": "Saturday - Trà Chanh Phố",
+    "category_primary": "an",
+    "address_text": "Số 02 Hà Huy Tập, Phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0332625625",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["trà chanh"]
+  },
+  {
+    "name": "Chùa Phú Lâm",
+    "category_primary": "choi",
+    "address_text": null,
+    "near_landmark": "Phường Mỹ Lâm, TP Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Chùa cổ gần 800 năm tuổi, mới trùng tu và khánh thành lại năm 2025"
+  },
+  {
+    "name": "Tùng Lâm - Cho thuê xe tự lái",
+    "category_primary": "dilai",
+    "address_text": "546 đường Trường Chinh, Phường Ỷ La, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
