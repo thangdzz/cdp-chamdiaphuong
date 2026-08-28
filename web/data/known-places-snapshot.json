@@ -80,6 +80,11 @@
     "address": "375 Đường 17/8, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Chợ Tam Cờ",
+    "type": "choi",
+    "address": "62 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Chùa An Vinh (An Vinh Thiền Tự)",
     "type": "choi",
     "address": "Tổ 7, phường Hưng Thành, TP Tuyên Quang"
@@ -158,6 +163,11 @@
     "name": "Dê Phố (Tân Hòa)",
     "type": "an",
     "address": "Khu phố cổ, Tổ 16, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Ding Tea",
+    "type": "an",
+    "address": "334 Quang Trung, TP Tuyên Quang"
   },
   {
     "name": "Disney Park (khu vui chơi trẻ em)",
@@ -665,6 +675,11 @@
     "address": "10 Bình Thuận, Phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Taxi Thành Tuyên",
+    "type": "dilai",
+    "address": "285 Trần Phú, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Tân Việt Wonderland",
     "type": "choi",
     "address": "Tầng 1, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, Phường Phan Thiết, TP Tuyên Quang"
@@ -703,6 +718,11 @@
     "name": "Tiến Vũ Homestay",
     "type": "ngu",
     "address": "Phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Trà Sữa Hăo Chá",
+    "type": "an",
+    "address": "149 Tổ 13 Bình Thuận, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Vking Coffee - Tea",
