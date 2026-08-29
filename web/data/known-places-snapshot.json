@@ -225,6 +225,11 @@
     "address": "Số 87 Chiến Thắng Sông Lô, TP. Tuyên Quang, Tuyên Quang"
   },
   {
+    "name": "Hà Xạ - Bún Riêu Cua",
+    "type": "an",
+    "address": "419 Trường Chinh, Phường Ỷ La, TP Tuyên Quang"
+  },
+  {
     "name": "Hãng Taxi Sơn Trang",
     "type": "dilai",
     "address": "361 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -248,6 +253,11 @@
     "name": "Khách sạn Bảo Linh",
     "type": "ngu",
     "address": "169 Nguyễn Trãi, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Khách sạn Eden",
+    "type": "ngu",
+    "address": "72 Trần Phú, Phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Khách sạn Hà Tuyên",
@@ -605,6 +615,11 @@
     "address": "18 Nguyễn Trãi, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Quán Ẩm Thực Sài Gòn",
+    "type": "an",
+    "address": "216 Lý Nam Đế, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Quán bánh cuốn Thu Hợp",
     "type": "an",
     "address": "Số 39, đường Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang"
@@ -618,6 +633,11 @@
     "name": "Quán cá Sông Lô",
     "type": "an",
     "address": "Tổ 27, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Quán Cơm Văn Phòng Buffet 30 Món - Lão Đại",
+    "type": "an",
+    "address": "110 Xã Tắc, Phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Quán Mỳ cay Oppa",
@@ -638,6 +658,11 @@
     "name": "Relax Coffee",
     "type": "an",
     "address": "182 Nguyễn Văn Cừ"
+  },
+  {
+    "name": "Rosier Fresh Tea & Coffee",
+    "type": "an",
+    "address": "Lô 222, Khu đô thị Việt Mỹ, Phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Royal Palace Hotel / Royal Tuyên Quang Hotel",
