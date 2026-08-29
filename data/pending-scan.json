@@ -1,1 +1,54 @@
-[]
+[
+  {
+    "name": "Quán Ẩm Thực Sài Gòn",
+    "category_primary": "an",
+    "address_text": "216 Lý Nam Đế, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0369008668",
+    "opening_hours_text": "08:00 - 20:30",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Quán Cơm Văn Phòng Buffet 30 Món - Lão Đại",
+    "category_primary": "an",
+    "address_text": "110 Xã Tắc, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0827887766",
+    "opening_hours_text": "08:30 - 23:00",
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["sườn nướng"]
+  },
+  {
+    "name": "Khách sạn Eden",
+    "category_primary": "ngu",
+    "address_text": "72 Trần Phú, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": "Gần đền Hạ, chợ Tam Cờ",
+    "phone": "02073828666",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Rosier Fresh Tea & Coffee",
+    "category_primary": "an",
+    "address_text": "Lô 222, Khu đô thị Việt Mỹ, Phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0328221666",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Hà Xạ - Bún Riêu Cua",
+    "category_primary": "an",
+    "address_text": "419 Trường Chinh, Phường Ỷ La, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "15.000đ - 33.000đ",
+    "map_note": null,
+    "signature_dishes": ["bún riêu cua"]
+  }
+]
