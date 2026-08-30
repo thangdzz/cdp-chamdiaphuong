@@ -200,6 +200,11 @@
     "address": "Số 53 đường Chiến Thắng Sông Lô, tổ 4, phường Tân Quang, thành phố Tuyên Quang"
   },
   {
+    "name": "Đền Kiếp Bạc Tuyên Quang",
+    "type": "choi",
+    "address": "Tổ 4, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Đền Ỷ La (Đền Mẫu Ỷ La)",
     "type": "choi",
     "address": "Tổ 4, phường Ỷ La, TP Tuyên Quang"
@@ -415,6 +420,11 @@
     "address": "2, Tổ 26, Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Ngòi Xanh Ecolodge",
+    "type": "ngu",
+    "address": "Tổ 2, phường Mỹ Lâm, TP Tuyên Quang"
+  },
+  {
     "name": "Nguyệt Bún Bò Huế, Phở",
     "type": "an",
     "address": "197 Quang Trung, phường Tân Quang, TP Tuyên Quang"
@@ -588,6 +598,16 @@
     "name": "Nướng Than Hoa Tuyên Quang",
     "type": "an",
     "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Ốc Đảo Restaurant",
+    "type": "an",
+    "address": "275 Tân Hà, TP Tuyên Quang"
+  },
+  {
+    "name": "Ốc Minhon",
+    "type": "an",
+    "address": "Đường Đinh Tiên Hoàng, TP Tuyên Quang"
   },
   {
     "name": "Phở 10",
