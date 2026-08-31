@@ -1,5 +1,10 @@
 [
   {
+    "name": "68 Thành Tuyên - Buffet lẩu nướng",
+    "type": "an",
+    "address": "Số nhà 68, đường Lê Lợi 4, Tổ 16, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Alala Homestay",
     "type": "ngu",
     "address": "159 Nguyễn Trãi, TP Tuyên Quang"
@@ -33,6 +38,11 @@
     "name": "Ẩm thực Hà Tuyên",
     "type": "an",
     "address": "54 đường Bình Than (bên hông phải TT Hội nghị)"
+  },
+  {
+    "name": "Bản Mộc Coffee",
+    "type": "an",
+    "address": null
   },
   {
     "name": "Bánh cuốn Bà Hương",
@@ -230,6 +240,11 @@
     "address": "Số 87 Chiến Thắng Sông Lô, TP. Tuyên Quang, Tuyên Quang"
   },
   {
+    "name": "Golden BBQ - Buffet & Lẩu Nướng Hàn Quốc",
+    "type": "an",
+    "address": "Tầng 1, 87 Chiến Thắng Sông Lô, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Hà Xạ - Bún Riêu Cua",
     "type": "an",
     "address": "419 Trường Chinh, Phường Ỷ La, TP Tuyên Quang"
@@ -238,6 +253,11 @@
     "name": "Hãng Taxi Sơn Trang",
     "type": "dilai",
     "address": "361 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Hankuk Gogi BBQ",
+    "type": "an",
+    "address": "186 Lý Nam Đế, TP Tuyên Quang"
   },
   {
     "name": "Hẻm Quán",
@@ -368,6 +388,11 @@
     "name": "Lẩu Nướng Khánh Ngọc",
     "type": "an",
     "address": "Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Lẩu Thái Leng Keng",
+    "type": "an",
+    "address": "Số 3, Tổ 16, Phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Mã Boss BBQ",
