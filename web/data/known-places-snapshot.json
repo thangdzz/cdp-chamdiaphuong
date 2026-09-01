@@ -250,6 +250,11 @@
     "address": "419 Trường Chinh, Phường Ỷ La, TP Tuyên Quang"
   },
   {
+    "name": "Hải Sản Thúy Nga",
+    "type": "an",
+    "address": "Số 55, Tổ 25, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Hãng Taxi Sơn Trang",
     "type": "dilai",
     "address": "361 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -268,6 +273,11 @@
     "name": "Hiro Cafe",
     "type": "an",
     "address": "131 Trần Phú, TP. Tuyên Quang"
+  },
+  {
+    "name": "HiTang Hotpot & BBQ",
+    "type": "an",
+    "address": "Số 79 Phạm Văn Đồng, phường Hưng Thành, TP Tuyên Quang"
   },
   {
     "name": "Home Coffee",
@@ -385,6 +395,11 @@
     "address": "L259, khu đô thị Việt Mỹ, đường Trần Phú, TP Tuyên Quang"
   },
   {
+    "name": "Lẩu Nướng 1688 Grilled Hotpot",
+    "type": "an",
+    "address": "Tổ 14 Đinh Tiên Hoàng, TP Tuyên Quang"
+  },
+  {
     "name": "Lẩu Nướng Khánh Ngọc",
     "type": "an",
     "address": "Phường Tân Quang, TP Tuyên Quang"
@@ -433,6 +448,11 @@
     "name": "Mộc Trà Chanh",
     "type": "an",
     "address": "78 Lê Lợi, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Na Tuệ An Homestay",
+    "type": "ngu",
+    "address": "81 Võ Văn Kiệt, TP Tuyên Quang"
   },
   {
     "name": "Ngã 8 Quán - Ốc 1963",
@@ -763,6 +783,11 @@
     "name": "Thanh Trung Hotel",
     "type": "ngu",
     "address": "Số 5 Hồng Thái, Tổ 8, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "The Kien's Coffee",
+    "type": "an",
+    "address": "105 Nguyễn Trãi, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "The Sunday Cafe",
