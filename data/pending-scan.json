@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "name": "The Kien's Coffee",
+    "category_primary": "an",
+    "address_text": "105 Nguyễn Trãi, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Quán cà phê không gian cổ trang, có dịch vụ cho thuê trang phục và chụp ảnh"
+  },
+  {
+    "name": "Hải Sản Thúy Nga",
+    "category_primary": "an",
+    "address_text": "Số 55, Tổ 25, Phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "signature_dishes": ["tôm hấp bia", "cua rang me"],
+    "map_note": "Nhà hàng hải sản 3 tầng, có bãi đỗ ô tô rộng"
+  },
+  {
+    "name": "HiTang Hotpot & BBQ",
+    "category_primary": "an",
+    "address_text": "Số 79 Phạm Văn Đồng, phường Hưng Thành, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Nhà hàng lẩu nướng"
+  },
+  {
+    "name": "Lẩu Nướng 1688 Grilled Hotpot",
+    "category_primary": "an",
+    "address_text": "Tổ 14 Đinh Tiên Hoàng, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0395900659",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Nhà hàng lẩu nướng không khói"
+  },
+  {
+    "name": "Na Tuệ An Homestay",
+    "category_primary": "ngu",
+    "address_text": "81 Võ Văn Kiệt, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
