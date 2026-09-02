@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "name": "3B Quán - Bún Đậu Mẹt",
+    "category_primary": "an",
+    "address_text": "110 đường Xã Tắc, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0365203868",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["bún đậu mẹt"]
+  },
+  {
+    "name": "eNggO Gà rán Hàn Quốc",
+    "category_primary": "an",
+    "address_text": "27 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["gà rán Hàn Quốc"]
+  },
+  {
+    "name": "Trà Chanh Quê",
+    "category_primary": "an",
+    "address_text": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0353707661",
+    "opening_hours_text": "06:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Thiền viện Trúc Lâm Chính Pháp",
+    "category_primary": "choi",
+    "address_text": null,
+    "near_landmark": "Chân núi Dùm, phường Nông Tiến, TP Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": "07:00 - 17:00",
+    "price_range_text": null,
+    "map_note": "Nguồn chưa thống nhất địa chỉ chi tiết (có nơi ghi thuộc phường Nông Tiến, có nơi ghi xã Tràng Đà) nên để địa chỉ trống, chỉ ghi khu vực gần đúng."
+  },
+  {
+    "name": "Bách Thảo Ngân Hotel Resort",
+    "category_primary": "ngu",
+    "address_text": "Số 465 đường Lê Duẩn, Tổ dân phố Tân Hà 1, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": "Gần Công viên nước Bách Thảo Ngân",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Xanh SM Tuyên Quang (taxi điện)",
+    "category_primary": "dilai",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": "1900 2088",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Đặt xe qua ứng dụng Xanh SM hoặc vẫy xe trên đường; dịch vụ taxi điện hoạt động khắp TP Tuyên Quang từ 27/4."
+  },
+  {
+    "name": "Bãi đỗ xe Vincom Plaza Tuyên Quang",
+    "category_primary": "dilai",
+    "address_text": "260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": "Trong khuôn viên TTTM Vincom Plaza Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
