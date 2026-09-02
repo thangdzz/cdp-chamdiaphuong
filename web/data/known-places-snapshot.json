@@ -1,5 +1,10 @@
 [
   {
+    "name": "3B Quán - Bún Đậu Mẹt",
+    "type": "an",
+    "address": "110 đường Xã Tắc, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "68 Thành Tuyên - Buffet lẩu nướng",
     "type": "an",
     "address": "Số nhà 68, đường Lê Lợi 4, Tổ 16, Phường Tân Quang, TP Tuyên Quang"
@@ -38,6 +43,16 @@
     "name": "Ẩm thực Hà Tuyên",
     "type": "an",
     "address": "54 đường Bình Than (bên hông phải TT Hội nghị)"
+  },
+  {
+    "name": "Bách Thảo Ngân Hotel Resort",
+    "type": "ngu",
+    "address": "Số 465 đường Lê Duẩn, Tổ dân phố Tân Hà 1, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Bãi đỗ xe Vincom Plaza Tuyên Quang",
+    "type": "dilai",
+    "address": "260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Bản Mộc Coffee",
@@ -223,6 +238,11 @@
     "name": "Đô Đô Homestay",
     "type": "ngu",
     "address": "Số nhà 10A, Ngõ 136 Kim Quan, Tổ 4, Phường Ỷ La, TP Tuyên Quang"
+  },
+  {
+    "name": "eNggO Gà rán Hàn Quốc",
+    "type": "an",
+    "address": "27 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Feline Café",
@@ -795,6 +815,11 @@
     "address": "12 Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Thiền viện Trúc Lâm Chính Pháp",
+    "type": "choi",
+    "address": null
+  },
+  {
     "name": "Thuê xe máy Hùng Cường",
     "type": "dilai",
     "address": "Số 2, đường 17/8, phường Minh Xuân, thành phố Tuyên Quang"
@@ -823,6 +848,11 @@
     "name": "Vking Coffee - Tea",
     "type": "an",
     "address": "70 đường Quang Trung, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Xanh SM Tuyên Quang (taxi điện)",
+    "type": "dilai",
+    "address": null
   },
   {
     "name": "Zhen Dong Tuyên Quang",
