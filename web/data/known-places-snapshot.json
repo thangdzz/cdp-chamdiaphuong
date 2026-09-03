@@ -80,6 +80,11 @@
     "address": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "BBQ Pizza",
+    "type": "an",
+    "address": "66 Bình Thuận, TP Tuyên Quang"
+  },
+  {
     "name": "Bến xe Tuyên Quang",
     "type": "dilai",
     "address": "Số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
@@ -720,6 +725,11 @@
     "address": "Tổ 27, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Quán Cơm 95 - Cơm Bình Dân",
+    "type": "an",
+    "address": "95 Bình Thuận, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Quán Cơm Văn Phòng Buffet 30 Món - Lão Đại",
     "type": "an",
     "address": "110 Xã Tắc, Phường Tân Quang, TP Tuyên Quang"
@@ -743,6 +753,11 @@
     "name": "Relax Coffee",
     "type": "an",
     "address": "182 Nguyễn Văn Cừ"
+  },
+  {
+    "name": "Rice - Chuyện Của Gạo",
+    "type": "an",
+    "address": "Ngõ 280, Tổ 20, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Rosier Fresh Tea & Coffee",
