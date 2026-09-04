@@ -310,6 +310,16 @@
     "address": "Ngõ 280 Đường Tân Trào, Tổ 7, TP. Tuyên Quang, Tuyên Quang"
   },
   {
+    "name": "Homestay Âu Văn Đại",
+    "type": "ngu",
+    "address": "Thôn Phúc An, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
+    "name": "Homestay Nguyễn Văn Siểng",
+    "type": "ngu",
+    "address": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang"
+  },
+  {
     "name": "Khách sạn Bảo Linh",
     "type": "ngu",
     "address": "169 Nguyễn Trãi, Phường Tân Quang, TP Tuyên Quang"
@@ -695,6 +705,11 @@
     "address": "22 Tân Trào, phường Tân Quang, thành phố Tuyên Quang"
   },
   {
+    "name": "Phở Hùng",
+    "type": "an",
+    "address": "215 Trần Phú, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Phở Lý Quốc Sư (chi nhánh Tuyên Quang)",
     "type": "an",
     "address": null
@@ -778,6 +793,11 @@
     "name": "Saturday - Trà Chanh Phố",
     "type": "an",
     "address": "Số 02 Hà Huy Tập, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Siêu thị Sách tỉnh Tuyên Quang",
+    "type": "choi",
+    "address": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Sky Cafe",
