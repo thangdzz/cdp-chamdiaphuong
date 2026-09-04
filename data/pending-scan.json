@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "name": "Phở Hùng",
+    "category_primary": "an",
+    "address_text": "215 Trần Phú, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "30.000 - 40.000đ/bát",
+    "map_note": null,
+    "signature_dishes": ["phở bò"]
+  },
+  {
+    "name": "Homestay Nguyễn Văn Siểng",
+    "category_primary": "ngu",
+    "address_text": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0982388139",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Homestay Âu Văn Đại",
+    "category_primary": "ngu",
+    "address_text": "Thôn Phúc An, xã Lưỡng Vượng, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0982468938",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
