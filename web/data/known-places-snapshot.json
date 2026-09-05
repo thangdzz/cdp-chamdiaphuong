@@ -85,6 +85,11 @@
     "address": "66 Bình Thuận, TP Tuyên Quang"
   },
   {
+    "name": "Bebari Coffee Roastery",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Bến xe Tuyên Quang",
     "type": "dilai",
     "address": "Số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
@@ -315,6 +320,11 @@
     "address": "Thôn Phúc An, xã Lưỡng Vượng, TP Tuyên Quang"
   },
   {
+    "name": "Homestay Lê Quỳnh Trang",
+    "type": "ngu",
+    "address": "Tổ 34, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Homestay Nguyễn Văn Siểng",
     "type": "ngu",
     "address": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang"
@@ -408,6 +418,11 @@
     "name": "Khách sạn Vân Anh",
     "type": "ngu",
     "address": "Tổ 19, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Khu du lịch suối khoáng Mỹ Lâm",
+    "type": "choi",
+    "address": "Km12, phường Mỹ Lâm, TP Tuyên Quang"
   },
   {
     "name": "Koi and You Tuyên Quang",
@@ -795,6 +810,11 @@
     "address": "Số 02 Hà Huy Tập, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Sen Vàng BBQ",
+    "type": "an",
+    "address": "Số 28, đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Siêu thị Sách tỉnh Tuyên Quang",
     "type": "choi",
     "address": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang"
@@ -838,6 +858,11 @@
     "name": "Thanh Trung Hotel",
     "type": "ngu",
     "address": "Số 5 Hồng Thái, Tổ 8, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "The Food House",
+    "type": "an",
+    "address": "111 Nguyễn Trãi, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "The Kien's Coffee",
@@ -887,6 +912,11 @@
   {
     "name": "Xanh SM Tuyên Quang (taxi điện)",
     "type": "dilai",
+    "address": null
+  },
+  {
+    "name": "Xì Quách Quán",
+    "type": "an",
     "address": null
   },
   {
