@@ -100,6 +100,11 @@
     "address": null
   },
   {
+    "name": "Buffet Lẩu Nướng - Cò Thận",
+    "type": "an",
+    "address": "Số nhà 34, Tổ 16, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Cafe HELIO",
     "type": "an",
     "address": "Phường Phan Thiết, TP Tuyên Quang"
@@ -110,9 +115,19 @@
     "address": "134 đường Bình Thuận, phường Minh Xuân, TP. Tuyên Quang"
   },
   {
+    "name": "CGV Cinemas Vincom Plaza Tuyên Quang",
+    "type": "choi",
+    "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Cháo Ấu Tẩu",
     "type": "an",
     "address": "375 Đường 17/8, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Chill - Tiệm Trà Chanh Tuyên Quang",
+    "type": "an",
+    "address": null
   },
   {
     "name": "Chợ Tam Cờ",
@@ -825,6 +840,11 @@
     "address": "155 đường Bình Thuận, TP Tuyên Quang"
   },
   {
+    "name": "Sơn Trang Hotel",
+    "type": "ngu",
+    "address": "46 Ngõ 98 Song Hào, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Taxi Hoàng Ngân",
     "type": "dilai",
     "address": "Số nhà 122, đường Nguyễn Trãi, Tổ 11, Phường Tân Quang, TP Tuyên Quang"
@@ -843,6 +863,11 @@
     "name": "Taxi Thành Tuyên",
     "type": "dilai",
     "address": "285 Trần Phú, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Taxi Trang Vinh",
+    "type": "dilai",
+    "address": null
   },
   {
     "name": "Tân Việt Wonderland",
