@@ -105,6 +105,11 @@
     "address": "Số nhà 34, Tổ 16, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Cà Phê Cây Mít",
+    "type": "an",
+    "address": "Phường An Tường, TP Tuyên Quang"
+  },
+  {
     "name": "Cafe HELIO",
     "type": "an",
     "address": "Phường Phan Thiết, TP Tuyên Quang"
@@ -253,6 +258,11 @@
     "name": "Đền Kiếp Bạc Tuyên Quang",
     "type": "choi",
     "address": "Tổ 4, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Đền Mẫu Thượng (Đền Thượng)",
+    "type": "choi",
+    "address": "Xóm 14, xã Tràng Đà, TP Tuyên Quang"
   },
   {
     "name": "Đền Ỷ La (Đền Mẫu Ỷ La)",
@@ -423,6 +433,11 @@
     "name": "Khách Sạn Toàn Thắng",
     "type": "ngu",
     "address": "98 Trần Phú, tổ 35, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Khách sạn Tùng Dương",
+    "type": "ngu",
+    "address": "Tổ 26, phường Tân Hà, TP Tuyên Quang"
   },
   {
     "name": "Khách sạn Vạn Tuế",
@@ -770,6 +785,11 @@
     "address": "Tổ 27, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Quán cafe Linh Dương",
+    "type": "an",
+    "address": "Đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Quán Cơm 95 - Cơm Bình Dân",
     "type": "an",
     "address": "95 Bình Thuận, phường Tân Quang, TP Tuyên Quang"
@@ -828,6 +848,11 @@
     "name": "Sen Vàng BBQ",
     "type": "an",
     "address": "Số 28, đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "SERENITY COFFEE HOUSE",
+    "type": "an",
+    "address": "2 Lê Lợi"
   },
   {
     "name": "Siêu thị Sách tỉnh Tuyên Quang",
