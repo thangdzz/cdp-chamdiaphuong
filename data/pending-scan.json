@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "name": "Quán cafe Linh Dương",
+    "category_primary": "an",
+    "address_text": "Đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": "Gần Đền Hạ - Đền Kiếp Bạc",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "HoLu - Trà Chanh",
+    "category_primary": "an",
+    "address_text": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0353707661",
+    "opening_hours_text": "06:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["trà chanh"]
+  },
+  {
+    "name": "Cà Phê Cây Mít",
+    "category_primary": "an",
+    "address_text": "Phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Quán cà phê có cây mít cổ thụ mọc xuyên qua nhà, nổi tiếng trên báo chí, sai quả nhất vào mùa tháng 5-7"
+  },
+  {
+    "name": "Đền Mẫu Thượng (Đền Thượng)",
+    "category_primary": "choi",
+    "address_text": "Xóm 14, xã Tràng Đà, TP Tuyên Quang",
+    "near_landmark": "Dọc sông Lô",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Di tích lịch sử văn hóa quốc gia (xếp hạng 2015)"
+  },
+  {
+    "name": "Khách sạn Tùng Dương",
+    "category_primary": "ngu",
+    "address_text": "Tổ 26, phường Tân Hà, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "02073813409",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
