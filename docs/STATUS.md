@@ -67,9 +67,9 @@ anh + em quét (quyết định 2026-07-18).
   lên web qua GitHub Action — **tự động hoàn toàn từ 2026-08-04**, anh không cần copy-paste
   gì nữa, chỉ thỉnh thoảng vào `/admin` khi có mục chờ duyệt do nghi trùng/mâu thuẫn (xem
   DECISIONS.md).
-- Link thật: 👉 https://chamdiaphuong.io.vn (tên miền riêng, mua 2026-09-08 ở VinaHost —
-  **đang chờ trỏ DNS**, xem mục 2026-09-08 bên dưới). Địa chỉ cũ
-  https://web-five-xi-28.vercel.app vẫn chạy song song, không mất. Trang duyệt: `/admin`
+- Link thật: 👉 https://chamdiaphuong.io.vn (tên miền riêng, chạy từ 2026-09-08, có HTTPS).
+  Địa chỉ cũ https://web-five-xi-28.vercel.app vẫn chạy song song, không mất.
+  Trang duyệt: `/admin`
 - Code: 👉 github.com/thangdzz/cdp-chamdiaphuong (Public)
 
 ## Quy trình hằng ngày — anh cần làm gì (từ 2026-08-04: gần như không cần làm gì)
@@ -238,9 +238,19 @@ Anh đã mua tên miền `chamdiaphuong.io.vn` ở **VinaHost** (DNS đang do Vi
 **Đã làm (phía Vercel):** khai báo cả `chamdiaphuong.io.vn` và `www.chamdiaphuong.io.vn` vào
 dự án `thangdz1/web`. Trước đó dự án chưa gắn tên miền nào.
 
-**Còn chờ (anh tự làm ở VinaHost, em không có quyền truy cập):** thêm 2 bản ghi DNS
-loại **A** cùng trỏ về IP của Vercel `76.76.21.21` — một cho `@` (tên miền gốc), một cho
-`www`. Xong bước này Vercel tự cấp HTTPS miễn phí, web chạy ở địa chỉ mới.
+**Anh đã thêm DNS ở VinaHost ngay trong phiên:** 2 bản ghi loại **A** (`@` và `www`) cùng trỏ
+về IP của Vercel `76.76.21.21`. DNS lan truyền rất nhanh (dưới 5 phút), Vercel tự cấp chứng
+chỉ Let's Encrypt (hạn 07/12/2026, **tự gia hạn**, không phải nhớ).
+
+**Trạng thái đã kiểm tra xong — chạy đủ:**
+- `http://` tự chuyển sang `https://` (mã 308) cho cả tên miền gốc lẫn `www`
+- `https://chamdiaphuong.io.vn` và `https://www.chamdiaphuong.io.vn` đều trả 200, đúng nội
+  dung web (tiêu đề "Chạm Địa Phương – Ăn & Ngủ ở Tuyên Quang", máy chủ Vercel)
+
+**Việc nhỏ chưa làm (đã nêu, chờ anh quyết):** hiện `www.chamdiaphuong.io.vn` phục vụ nội
+dung **độc lập** chứ không chuyển hướng về tên miền gốc — Google có thể coi là 2 trang trùng
+nội dung, hơi bất lợi cho tìm kiếm. Cách sửa: vào Vercel → Settings → Domains, đặt `www`
+chuyển hướng (redirect) về `chamdiaphuong.io.vn`. Không gấp, không ảnh hưởng người dùng.
 
 **Không cần sửa code:** đã rà `web/app`, `web/lib`, `web/public` — **không chỗ nào ghi cứng
 địa chỉ web**, nên đổi tên miền không phải sửa code, không cần deploy lại.
