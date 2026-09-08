@@ -107,7 +107,7 @@ export default function LeHoiThanhTuyenPage() {
             <InfoRow
               date="20/9 (chủ nhật)"
               title={
-                'Đêm hội Thành Tuyên — sự kiện lớn nhất, khai mạc 20h00, chủ đề "Lung linh đêm hội trăng rằm", 40 mô hình đèn tiêu biểu diễn diễu, truyền hình trực tiếp'
+                'Đêm hội Thành Tuyên — sự kiện lớn nhất, khai mạc 20h00, chủ đề "Lung linh đêm hội trăng rằm", 45 mô hình đèn diễn diễu (40 mô hình được lựa chọn + 5 mô hình của đơn vị tài trợ), truyền hình trực tiếp'
               }
               place="Quảng trường Nguyễn Tất Thành, phường Minh Xuân"
             />

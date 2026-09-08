@@ -27,8 +27,15 @@ export default async function Home() {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <SiteHeader />
-        <p className="mb-6 text-sm text-zinc-500">
-          Chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang — bản thử nghiệm.
+
+        {/* Đầu trang nói bằng nhu cầu thật thay vì mô tả sản phẩm (NOTE-01 §2) — câu chữ do
+            anh chốt 2026-09-08. Trước đó chỉ có 1 dòng "Chỗ ăn, chỗ ngủ đáng tin... bản thử
+            nghiệm", người mới vào không hiểu "sổ" là gì và dùng để làm gì. */}
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+          Gom chỗ hay. Chia sẻ dễ dàng.
+        </h1>
+        <p className="mt-2 mb-6 text-sm leading-relaxed text-zinc-500">
+          Ăn · Chơi · Ngủ · Đi lại — tất cả trong một cuốn sổ địa phương.
         </p>
 
         <Link
@@ -44,13 +51,15 @@ export default async function Home() {
               sizes="(max-width: 640px) 100vw, 576px"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            {/* Lớp phủ phải đủ đậm tới giữa ảnh: chữ giờ 2 dòng (NOTE-01 §4.2 đổi sang câu
+                theo nhu cầu thật), dòng dưới từng đè lên vùng sáng của mô hình đèn nên khó đọc. */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-4">
               <p className="text-lg font-medium tracking-tight text-white">
-                Lễ hội Thành Tuyên 2026
+                Đi Thành Tuyên 20/9?
               </p>
               <p className="text-sm text-white/90">
-                19 – 25/9/2026 · Xem chi tiết lễ hội →
+                Chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ quanh khu lễ hội →
               </p>
             </div>
           </div>

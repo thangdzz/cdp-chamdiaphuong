@@ -536,3 +536,33 @@ toàn bộ quyền quản lý DNS, và dễ hoàn tác nếu cần.
 **Vì sao:** Trước đó `www` phục vụ nội dung độc lập — Google có thể coi là 2 trang trùng nội
 dung, chia nhỏ điểm tìm kiếm. Vercel CLI không có lệnh này, phải gọi thẳng REST API
 `PATCH /v9/projects/{projectId}/domains/{domain}` (chi tiết ở STATUS.md 2026-09-08).
+
+## 2026-09-08 — Copy đầu trang: câu do anh tự viết, không dùng phương án nào trong NOTE-01
+
+**Bối cảnh:** [10-NOTE-01-Product-UX.md](10-NOTE-01-Product-UX.md) §2.1 đưa 5 phương án
+headline (A–E, khuyến nghị A) để thay dòng cũ *"Chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang —
+bản thử nghiệm"*.
+
+**Quyết định:** Dùng câu **anh tự viết**, không lấy phương án nào trong 5 cái:
+> **Gom chỗ hay. Chia sẻ dễ dàng.**
+> Ăn · Chơi · Ngủ · Đi lại — tất cả trong một cuốn sổ địa phương.
+
+**Vì sao:** Ngắn và cân đối hơn các phương án trong NOTE — headline nói **hành động** (gom /
+chia sẻ) thay vì liệt kê nhu cầu, dòng phụ mới liệt kê 4 nhóm. Vẫn giữ được chữ "sổ địa
+phương" để người mới hiểu sản phẩm là gì, đúng mục tiêu của NOTE §2.1.
+
+**Cũng bỏ luôn chữ "bản thử nghiệm"** ở đầu trang — web đã có tên miền riêng và dữ liệu thật,
+tự gọi mình là bản thử nghiệm làm giảm niềm tin không cần thiết.
+
+## 2026-09-08 — Banner lễ hội dẫn theo nhu cầu, chưa dẫn vào sổ mẫu
+
+**Quyết định:** Đổi chữ trên banner lễ hội từ *"19 – 25/9/2026 · Xem chi tiết lễ hội →"* sang
+*"Đi Thành Tuyên 20/9? · Chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ quanh khu lễ hội →"*
+(NOTE-01 §4.2), nhưng **vẫn dẫn vào trang `/le-hoi-thanh-tuyen`** chứ chưa dẫn vào sổ mẫu.
+**Vì sao:** NOTE muốn CTA "Xem sổ Thành Tuyên 20/9", nhưng **sổ mẫu chưa tồn tại** (việc 4
+của P0, chưa làm). Đổi chữ trước vẫn có giá trị ngay (nói đúng thứ khách cần), đổi đích sau
+khi có sổ chỉ là sửa 1 dòng link.
+
+**Đánh đổi:** trong lúc chờ sổ mẫu, chữ banner hứa nhiều hơn thứ trang đích đang có (trang lễ
+hội có lịch sự kiện + vài lưu ý, chưa gom sẵn danh sách chỗ gửi xe/ăn tối). Chấp nhận trong
+ngắn hạn vì lễ hội chỉ còn 11 ngày; nếu sổ mẫu không kịp thì nên đổi lại chữ cho khớp.

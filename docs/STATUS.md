@@ -230,7 +230,48 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-08 (mới nhất) — Tên miền riêng chamdiaphuong.io.vn
+### 2026-09-08 (sau, mới nhất) — NOTE-01 P0 việc 1–3: copy đầu trang + lễ hội
+
+Anh thêm [10-NOTE-01-Product-UX.md](10-NOTE-01-Product-UX.md) (định vị sản phẩm, homepage,
+thẻ địa điểm, ảnh — 13 mục, có thứ tự triển khai P0/P1/P2) và yêu cầu triển khai. Anh chọn bắt
+đầu bằng nhóm rẻ/nhanh nhất: **việc 1–3 của P0**.
+
+**Đối chiếu trước khi code — nhiều thứ NOTE đề xuất thì đã có sẵn:**
+- Ngày lễ hội (19–25/9), Đêm hội 20/9 20h00, chủ đề "Lung linh đêm hội trăng rằm":
+  trang `/le-hoi-thanh-tuyen` **đã đúng hết**; `app/occupancy.js` cũng đã đặt cao điểm 19–25/9
+- NOTE §6.1 "không để Gọi ngay nổi bật ở lớp card ngoài": **đã đúng** — nút gọi chỉ hiện khi
+  bung thẻ
+- NOTE §7.3 hiển thị tuổi ảnh + ảnh menu zoom được: **đã làm 2026-08-24**
+
+**Đã làm:**
+1. **Copy đầu trang** (`app/page.js`) — thay dòng "Chỗ ăn, chỗ ngủ đáng tin... bản thử nghiệm"
+   bằng headline + subheadline **anh tự viết** (không chọn phương án A–E nào trong NOTE):
+   *"Gom chỗ hay. Chia sẻ dễ dàng."* / *"Ăn · Chơi · Ngủ · Đi lại — tất cả trong một cuốn sổ
+   địa phương."*
+2. **Lễ hội** — sửa "40 mô hình đèn" → **45** (40 được lựa chọn + 5 của đơn vị tài trợ), theo
+   thông tin họp báo 08/09/2026 ghi trong NOTE §4.1. Festival nông sản/OCOP trang đã có sẵn.
+3. **Banner lễ hội đổi sang câu theo nhu cầu thật** (NOTE §4.2): *"Đi Thành Tuyên 20/9? · Chỗ
+   gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ quanh khu lễ hội →"* thay cho *"19 – 25/9/2026 ·
+   Xem chi tiết lễ hội →"*. **Lỗi bắt được khi xem ảnh chụp thật:** chữ mới dài thành 2 dòng,
+   dòng dưới đè lên vùng sáng của mô hình đèn nên khó đọc — đã tăng độ đậm lớp phủ
+   (`from-black/70 via-black/10` → `from-black/85 via-black/45`).
+
+**Chưa làm — CTA "Xem sổ Thành Tuyên 20/9" (NOTE §4.2):** banner vẫn dẫn vào trang
+`/le-hoi-thanh-tuyen` như cũ, vì **sổ mẫu chưa tồn tại** (việc 4 của P0). Làm sổ mẫu xong thì
+đổi đích của banner là hết.
+
+**2 chỗ vướng đã báo anh, chưa xử lý:**
+- **Khối "Bạn đang cần gì?" (NOTE §3)** — mục "Đi cùng gia đình" sẽ ra danh sách **rỗng**:
+  đếm dữ liệu thật thì chỉ **10 chỗ** (trên ~122) có bất kỳ đồng thuận nào, và **không chỗ nào**
+  có dữ liệu "phù hợp với ai" (mới có gửi xe 9 chỗ, lối vào 5, không gian 1).
+- **Phân loại ảnh 7 loại (NOTE §7.2)** — đụng đúng cấu trúc vừa làm 24/08 (hiện chỉ 2 loại:
+  `photos` mảng chuỗi + `menuPhotos` mảng object). Làm đủ 7 loại là **thiết kế lại**, không
+  phải thêm vào.
+
+**Còn chờ anh quyết:** ai biên tập sổ mẫu · ảnh 7 loại làm luôn hay thêm dần · tính năng xác
+nhận số điện thoại (NOTE §6.2–6.5) có làm đợt này không.
+
+### 2026-09-08 — Tên miền riêng chamdiaphuong.io.vn
 
 Anh đã mua tên miền `chamdiaphuong.io.vn` ở **VinaHost** (DNS đang do VinaHost quản lý:
 `ns3.vinahost.vn` / `ns4.vinahost.vn`).

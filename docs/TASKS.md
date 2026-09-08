@@ -110,3 +110,7 @@
 - [x] **Gắn tên miền riêng `chamdiaphuong.io.vn`**: khai báo vào Vercel, trỏ 2 bản ghi A ở
       VinaHost, HTTPS tự cấp (Let's Encrypt, tự gia hạn)
 - [x] Đặt `www` chuyển hướng 308 về tên miền gốc (tránh Google coi là 2 trang trùng nội dung)
+- [x] Bổ sung `DECISIONS.md` (6 mục từ 23/08 → 08/09) + tạo `TASKS.md` (file này)
+- [x] **NOTE-01 P0 việc 1–3** — copy đầu trang mới ("Gom chỗ hay. Chia sẻ dễ dàng."), sửa số
+      mô hình đèn 40 → 45, banner lễ hội đổi sang câu theo nhu cầu thật ("Đi Thành Tuyên
+      20/9?") + tăng độ đậm lớp phủ cho chữ dễ đọc
