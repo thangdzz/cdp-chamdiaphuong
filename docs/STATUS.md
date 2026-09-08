@@ -247,10 +247,15 @@ chỉ Let's Encrypt (hạn 07/12/2026, **tự gia hạn**, không phải nhớ).
 - `https://chamdiaphuong.io.vn` và `https://www.chamdiaphuong.io.vn` đều trả 200, đúng nội
   dung web (tiêu đề "Chạm Địa Phương – Ăn & Ngủ ở Tuyên Quang", máy chủ Vercel)
 
-**Việc nhỏ chưa làm (đã nêu, chờ anh quyết):** hiện `www.chamdiaphuong.io.vn` phục vụ nội
-dung **độc lập** chứ không chuyển hướng về tên miền gốc — Google có thể coi là 2 trang trùng
-nội dung, hơi bất lợi cho tìm kiếm. Cách sửa: vào Vercel → Settings → Domains, đặt `www`
-chuyển hướng (redirect) về `chamdiaphuong.io.vn`. Không gấp, không ảnh hưởng người dùng.
+**Đã đặt `www` chuyển hướng về tên miền gốc** (mã 308 — chuyển hướng vĩnh viễn, chuẩn cho
+Google). Trước đó `www` phục vụ nội dung độc lập, Google có thể coi là 2 trang trùng nội dung.
+Vercel CLI không có lệnh này, phải gọi thẳng REST API:
+`PATCH /v9/projects/{projectId}/domains/www.chamdiaphuong.io.vn` với
+`{"redirect":"chamdiaphuong.io.vn","redirectStatusCode":308}` (token lấy từ file đăng nhập sẵn
+của Vercel CLI ở `~/Library/Application Support/com.vercel.cli/auth.json`). Đã kiểm tra: đường
+dẫn con cũng giữ nguyên khi chuyển hướng (`www.../le-hoi-thanh-tuyen` →
+`chamdiaphuong.io.vn/le-hoi-thanh-tuyen`), tên miền chính và địa chỉ `.vercel.app` cũ đều
+không bị ảnh hưởng.
 
 **Không cần sửa code:** đã rà `web/app`, `web/lib`, `web/public` — **không chỗ nào ghi cứng
 địa chỉ web**, nên đổi tên miền không phải sửa code, không cần deploy lại.
