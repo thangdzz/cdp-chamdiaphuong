@@ -64,7 +64,10 @@ async function applyDecision(id, decision) {
     }
 
     if (item.contributorId) {
-      await addContributorPoints(item.contributorId, POINTS[item.type] ?? 0);
+      // Báo đóng cửa ăn mức riêng, cao nhất (NOTEBOOK-DESIGN.md) — không dùng chung mức
+      // `correction` với sửa địa chỉ/SĐT/giá nữa.
+      const points = item.fields?.closed ? POINTS.closed : (POINTS[item.type] ?? 0);
+      await addContributorPoints(item.contributorId, points);
     }
     item.status = "approved";
   } else {

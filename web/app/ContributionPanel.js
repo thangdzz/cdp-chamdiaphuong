@@ -178,6 +178,17 @@ export function ContributionPanel({ place, onDone }) {
     await ensureProfileThenRun({ type: "correction", fields, note });
   }
 
+  // Lối đi riêng cho "đã đóng cửa" — chỉ gửi đúng cờ `closed` (+ ghi chú nếu có), không kèm
+  // field nào khác, nên không cần khách điền gì cả.
+  async function handleClosedSubmit(e) {
+    e.preventDefault();
+    await ensureProfileThenRun({
+      type: "correction",
+      fields: { closed: true },
+      note: note || null,
+    });
+  }
+
   async function handleDuplicateSubmit(e) {
     e.preventDefault();
     if (!duplicateOfName.trim()) return;
@@ -363,6 +374,17 @@ export function ContributionPanel({ place, onDone }) {
           >
             Báo trùng với chỗ khác
           </button>
+          {/* Báo đóng cửa là dữ liệu quý nhất của cả sản phẩm (NOTEBOOK-DESIGN.md dòng 31 và
+              271 — đúng thứ Google giữ sai lâu nhất), nhưng trước đây chỉ là 1 ô tích nằm CUỐI
+              form "Thêm thông tin", phải cuộn qua 6 ô nhập mới thấy. Giờ có lối vào riêng ngay
+              ở menu. Ô tích cũ vẫn giữ, cho ai đang điền dở mới nhớ ra. */}
+          <button
+            type="button"
+            onClick={() => setMode("closedForm")}
+            className="w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700"
+          >
+            Báo chỗ này đã đóng cửa
+          </button>
           {place.type === "an" ? (
             <>
               <label
@@ -481,6 +503,35 @@ export function ContributionPanel({ place, onDone }) {
           <div className="flex gap-2">
             <button type="submit" disabled={busy} className={btnPrimary}>
               {busy ? "Đang gửi..." : "Gửi góp ý"}
+            </button>
+            <button type="button" onClick={close} className={btnGhost}>
+              Huỷ
+            </button>
+          </div>
+        </form>
+      )}
+
+      {mode === "closedForm" && (
+        <form onSubmit={handleClosedSubmit} className="flex flex-col gap-2">
+          <p className="text-sm text-zinc-700">
+            Báo &quot;{place.name}&quot; đã đóng cửa hoặc không còn hoạt động?
+          </p>
+          <p className="text-xs text-zinc-500">
+            Hệ thống sẽ kiểm tra lại trước khi gỡ khỏi danh sách. Đây là thông tin có giá trị
+            nhất với người sau.
+          </p>
+          <textarea
+            className={inputClass}
+            placeholder="Bạn biết thêm gì không? (tuỳ chọn — VD: đã chuyển sang địa chỉ khác)"
+            maxLength={200}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={2}
+          />
+          {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
+          <div className="flex gap-2">
+            <button type="submit" disabled={busy} className={btnPrimary}>
+              {busy ? "Đang gửi..." : "Xác nhận đã đóng cửa"}
             </button>
             <button type="button" onClick={close} className={btnGhost}>
               Huỷ

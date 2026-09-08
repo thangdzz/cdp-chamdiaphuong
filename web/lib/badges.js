@@ -134,6 +134,9 @@ export const POINTS = {
   correction: 5,
   photo: 10,
   note: 5,
+  // Báo đóng cửa trả cao nhất — dữ liệu quý nhất của cả sản phẩm, đúng thứ Google giữ sai lâu
+  // nhất (NOTEBOOK-DESIGN.md dòng 265 và 271). Trước đây bị tính chung mức `correction` (5đ).
+  closed: 15,
 };
 
 export function getCategory(categoryId) {

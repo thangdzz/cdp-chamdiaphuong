@@ -610,3 +610,24 @@ liệu test riêng", lần này bổ sung vế còn thiếu: **cách XOÁ cũng 
 
 **Đánh đổi:** có thể còn sót vài bản ghi test trong dữ liệu thật. Chấp nhận — chúng vô hại
 (hồ sơ 1 điểm không ảnh hưởng gì tới thứ khách nhìn thấy), còn xoá nhầm thì không lấy lại được.
+
+## 2026-09-08 — Báo đóng cửa: lối vào riêng + trả đúng 15 điểm
+
+**Bối cảnh:** anh bấm thử và không tìm thấy chỗ báo quán đã đóng cửa. Kiểm chứng: chức năng có
+nhưng là 1 ô tích nằm **cuối** form "Thêm thông tin", phải cuộn qua 6 ô nhập mới thấy; menu
+"Bổ sung" không có lựa chọn nào về đóng cửa. Kiểm tra tiếp thì điểm cũng sai: code cộng
+`POINTS.correction` = 5đ, trong khi [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) dòng 265 chốt
+**+15** và dòng 271 gọi đây là *"dữ liệu quý nhất của cả sản phẩm"*.
+
+**Quyết định:** Thêm lựa chọn **"Báo chỗ này đã đóng cửa"** ngay ở menu Bổ sung, dẫn vào màn
+xác nhận **không có ô nào bắt buộc** (1 nút xác nhận + ô ghi chú tuỳ chọn). Thêm
+`POINTS.closed = 15`, áp riêng cho góp ý có cờ `closed`.
+**Vì sao:** đây là **lý do tồn tại số 1** của CDP so với Google Maps (NOTEBOOK-DESIGN dòng 31:
+*"Google giữ thông tin chết — quán đóng cửa lâu rồi vẫn hiện đang mở"*). Bắt khách đi qua form
+"Thêm thông tin" rồi cuộn hết 6 ô mới báo được là mâu thuẫn trực tiếp với định vị sản phẩm.
+
+**Giữ lại ô tích cũ** trong form "Thêm thông tin" — ai đang điền dở mới nhớ ra vẫn báo được
+ngay tại chỗ, không phải quay ra làm lại.
+
+**Đánh đổi:** menu Bổ sung dài thêm 1 dòng (4 lựa chọn thay vì 3). Chấp nhận — đổi lại hành
+động giá trị nhất có lối đi thẳng.

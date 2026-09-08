@@ -230,7 +230,48 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-08 (sau nữa, mới nhất) — Xác nhận số điện thoại (NOTE-01 §6)
+### 2026-09-08 (cuối, mới nhất) — Báo đóng cửa: thêm lối vào + trả đúng 15 điểm
+
+**Anh phát hiện khi bấm thử:** bung thẻ → "Bổ sung" → **không có nút nào để báo quán đã đóng
+cửa**.
+
+Kiểm chứng: chức năng **có tồn tại** nhưng bị giấu rất sâu — phải bấm "Bổ sung" → chọn "Thêm
+thông tin (địa chỉ, khu vực, SĐT, giá...)" → cuộn qua **6 ô nhập + ô ghi chú** → mới thấy ô
+tích *"Chỗ này đã đóng cửa"*. Menu "Bổ sung" chỉ có 3 lựa chọn, không có lựa chọn nào về đóng
+cửa.
+
+**Lỗi thứ hai phát hiện khi kiểm chứng:** [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) dòng 265
+ghi *"Báo đóng cửa, xác nhận đúng — **+15**"*, dòng 271 *"trả **cao nhất**, dữ liệu quý nhất
+của cả sản phẩm"*, dòng 31 xếp *"Google giữ thông tin chết"* là **điểm mạnh nhất của CDP**.
+Nhưng code đang cộng **5 điểm** (dùng chung mức `POINTS.correction` với sửa địa chỉ/SĐT).
+
+→ Nghịch lý: thứ được thiết kế là quý nhất và trả cao nhất thì thực tế **giấu sâu nhất, trả
+thấp nhất**.
+
+**Đã sửa cả 2:**
+1. `app/ContributionPanel.js` — thêm lựa chọn **"Báo chỗ này đã đóng cửa"** ngay ở menu Bổ
+   sung, dẫn vào màn xác nhận gọn: **0 ô bắt buộc**, chỉ 1 nút "Xác nhận đã đóng cửa" + ô ghi
+   chú tuỳ chọn (VD "đã chuyển sang địa chỉ khác"). Ô tích cũ trong form "Thêm thông tin" vẫn
+   giữ, cho ai đang điền dở mới nhớ ra.
+2. `lib/badges.js` + `app/admin/suggestionActions.js` — thêm `POINTS.closed = 15`, khi duyệt
+   thì góp ý có cờ `closed` ăn mức riêng thay vì mức `correction`.
+
+**Kiểm thử:** 5/5 test giao diện (nút có ngay ở menu · màn xác nhận không bắt điền ô nào ·
+gửi thành công) · dữ liệu gửi lên đúng dạng `{closed: true}` + ghi chú, **không kèm ô rỗng
+nào** (`submitCorrection` lọc sạch null/rỗng nên không có nguy cơ ghi đè dữ liệu cũ thành
+trống) · duyệt thử trên **địa điểm test tự tạo** (không đụng quán thật, theo quy tắc
+2026-08-24): chỗ bị gỡ đúng + người báo được **đúng 15 điểm**. Build/lint sạch.
+
+**Dọn dữ liệu test:** lần này xoá **theo đúng ID đã ghi lại lúc tạo** (đúng quy tắc mới ghi ở
+DECISIONS.md hôm nay) — xác nhận không sót place/contributor/suggestion test nào, 201 địa điểm
+nguyên vẹn.
+
+**⚠️ 1 hồ sơ chưa xử lý, cố ý để lại:** `c-9a001e02-...` ("Người ẩn danh", 1 điểm, tạo
+15:31 hôm nay) **rất có thể** là do lần chạy test giao diện của em tạo ra, nhưng **không chắc
+tuyệt đối** (khách thật vừa vào web cũng tạo hồ sơ y hệt). Theo đúng quy tắc mới — không chắc
+thì để lại — nên **không xoá**. Hồ sơ thừa 1 điểm không ảnh hưởng gì tới thứ khách nhìn thấy.
+
+### 2026-09-08 (sau nữa) — Xác nhận số điện thoại (NOTE-01 §6)
 
 **Bối cảnh:** 201 địa điểm, **85 chỗ có số điện thoại, 0 chỗ từng được ai xác nhận**. Số điện
 thoại trước đây **chưa từng hiện dạng chữ** ở đâu — khách chỉ có đúng 1 nút gọi (icon), không

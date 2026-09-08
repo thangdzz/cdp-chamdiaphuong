@@ -114,6 +114,9 @@
 - [x] **NOTE-01 P0 việc 1–3** — copy đầu trang mới ("Gom chỗ hay. Chia sẻ dễ dàng."), sửa số
       mô hình đèn 40 → 45, banner lễ hội đổi sang câu theo nhu cầu thật ("Đi Thành Tuyên
       20/9?") + tăng độ đậm lớp phủ cho chữ dễ đọc
+- [x] **Báo đóng cửa** — thêm lối vào riêng ở menu "Bổ sung" (trước đây là ô tích giấu cuối
+      form, phải cuộn qua 6 ô nhập mới thấy) + trả đúng **15 điểm** như NOTEBOOK-DESIGN đã chốt
+      (trước đây chỉ 5 điểm)
 - [x] **NOTE-01 P0 việc 5–7 — xác nhận số điện thoại**: khối "Liên hệ" trong thẻ bung (số hiện
       dạng chữ lần đầu tiên), nhãn 3 trạng thái xác nhận, nút Tìm số trên Google, Số đúng / Số
       sai (+1 điểm lần đầu, chống bấm khống), dọn dữ liệu xác nhận khi xoá/gộp chỗ
