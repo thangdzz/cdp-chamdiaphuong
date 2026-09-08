@@ -67,7 +67,9 @@ anh + em quét (quyết định 2026-07-18).
   lên web qua GitHub Action — **tự động hoàn toàn từ 2026-08-04**, anh không cần copy-paste
   gì nữa, chỉ thỉnh thoảng vào `/admin` khi có mục chờ duyệt do nghi trùng/mâu thuẫn (xem
   DECISIONS.md).
-- Link thật: 👉 https://web-five-xi-28.vercel.app · Trang duyệt: `/admin`
+- Link thật: 👉 https://chamdiaphuong.io.vn (tên miền riêng, mua 2026-09-08 ở VinaHost —
+  **đang chờ trỏ DNS**, xem mục 2026-09-08 bên dưới). Địa chỉ cũ
+  https://web-five-xi-28.vercel.app vẫn chạy song song, không mất. Trang duyệt: `/admin`
 - Code: 👉 github.com/thangdzz/cdp-chamdiaphuong (Public)
 
 ## Quy trình hằng ngày — anh cần làm gì (từ 2026-08-04: gần như không cần làm gì)
@@ -228,7 +230,27 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-08-24 (sau, mới nhất) — Sửa zoom ảnh trong khối xem ảnh toàn màn hình
+### 2026-09-08 (mới nhất) — Tên miền riêng chamdiaphuong.io.vn
+
+Anh đã mua tên miền `chamdiaphuong.io.vn` ở **VinaHost** (DNS đang do VinaHost quản lý:
+`ns3.vinahost.vn` / `ns4.vinahost.vn`).
+
+**Đã làm (phía Vercel):** khai báo cả `chamdiaphuong.io.vn` và `www.chamdiaphuong.io.vn` vào
+dự án `thangdz1/web`. Trước đó dự án chưa gắn tên miền nào.
+
+**Còn chờ (anh tự làm ở VinaHost, em không có quyền truy cập):** thêm 2 bản ghi DNS
+loại **A** cùng trỏ về IP của Vercel `76.76.21.21` — một cho `@` (tên miền gốc), một cho
+`www`. Xong bước này Vercel tự cấp HTTPS miễn phí, web chạy ở địa chỉ mới.
+
+**Không cần sửa code:** đã rà `web/app`, `web/lib`, `web/public` — **không chỗ nào ghi cứng
+địa chỉ web**, nên đổi tên miền không phải sửa code, không cần deploy lại.
+
+**1 chỗ dùng địa chỉ cũ, chưa cần đổi:** `.github/workflows/ingest-from-scan.yml` dòng 53 gọi
+`https://web-five-xi-28.vercel.app/api/ingest/submit`. Địa chỉ cũ vẫn chạy song song vĩnh
+viễn nên routine quét hằng ngày **không bị ảnh hưởng**. Đổi sang tên miền mới là việc dọn dẹp
+tuỳ chọn, làm sau cũng được.
+
+### 2026-08-24 — Sửa zoom ảnh trong khối xem ảnh toàn màn hình
 
 Anh báo: zoom ảnh (chụm 2 ngón) "không mượt, không chuẩn, nhảy ra zoom cả trang web". Kiểm
 tra `PhotoGallery` (`web/app/PlaceExplorer.js`) thì component này **chưa hề có code xử lý
