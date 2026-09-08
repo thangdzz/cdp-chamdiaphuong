@@ -230,7 +230,53 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-08 (sau, mới nhất) — NOTE-01 P0 việc 1–3: copy đầu trang + lễ hội
+### 2026-09-08 (sau nữa, mới nhất) — Xác nhận số điện thoại (NOTE-01 §6)
+
+**Bối cảnh:** 201 địa điểm, **85 chỗ có số điện thoại, 0 chỗ từng được ai xác nhận**. Số điện
+thoại trước đây **chưa từng hiện dạng chữ** ở đâu — khách chỉ có đúng 1 nút gọi (icon), không
+đọc/copy được số và không biết số còn đúng hay không.
+
+**Khác NOTE-01 §6.1 theo quyết định của anh:** vẫn **giữ nút Gọi** thay vì ẩn tới khi đủ xác
+nhận (áp ngay sẽ làm 85/85 nút gọi biến mất khi chưa ai kịp xác nhận). Thay vào đó nói thật
+độ tin cậy bằng nhãn, và khi chưa ai xác nhận thì đưa luôn nút "Tìm số trên Google".
+
+**Đã làm — 3 file mới + 3 file sửa:**
+- `lib/phoneConfirmations.js` — hash `place_phone_confirmations:{placeId}`, field
+  `{số đã chuẩn hoá}:{anonId}`. **Số nằm trong khoá** nên khi địa điểm đổi số, phiếu cho số cũ
+  tự động không tính cho số mới (NOTE §6.4) mà vẫn giữ lịch sử. Chuẩn hoá số trước khi làm
+  khoá ("096 283 7837" = "0962.837.837"). Phiếu quá 12 tháng bỏ hẳn.
+- `app/phoneActions.js` — tự tạo hồ sơ ẩn danh im lặng nếu khách chưa có (giống check-in,
+  không hỏi biệt danh). Thưởng **+1 điểm, chỉ lần đầu cho mỗi (số, người)**; bấm lại/đổi ý
+  không cộng thêm.
+- `app/PhoneBlock.js` — khối "Liên hệ": số dạng chữ + nhãn 3 trạng thái (chưa ai xác nhận /
+  N người đã xác nhận / có báo cáo số không đúng) + nút Gọi · Tìm số trên Google · Số đúng ·
+  Số sai. Báo sai **mới hơn** lần xác nhận gần nhất thì cảnh báo được ưu tiên.
+- `app/PlaceExplorer.js` — gắn khối vào thẻ bung, **bỏ icon gọi cũ** (tránh 2 nút gọi trùng).
+- `app/admin/actions.js` + `app/admin/mergeActions.js` — dọn `place_phone_confirmations` khi
+  xoá/gộp chỗ, cùng chỗ đang dọn check-in và câu trả lời.
+
+**Sửa 1 chỗ suýt vi phạm quy tắc màu của chính dự án** (phát hiện khi xem ảnh chụp thật, không
+phải khi đọc code): nhãn "N người đã xác nhận" ban đầu dùng xanh lá — nhưng SPEC-giao-dien §4
+đã chốt **xanh lá dành riêng cho "Còn mở"**; nhãn cảnh báo dùng hổ phách thì **quá giống cam
+CDP**, nhìn dễ tưởng là màu thương hiệu. Đổi: xác nhận → xám, cảnh báo → đỏ.
+
+**Kiểm thử:** 10/10 test tầng dữ liệu (gọi thẳng lib, không qua giao diện) · 11/11 test giao
+diện Playwright khổ điện thoại · console sạch · build/lint sạch (chỉ còn 1 lỗi cũ đã biết).
+
+**⚠️ Sự cố khi dọn dữ liệu test — đã xảy ra, không khôi phục được:** lệnh dọn cuối dùng tiêu
+chí **chung chung** (`nickname === "Người ẩn danh"` và điểm ≤ 1) thay vì xoá đúng `anonId` test
+đã biết. Nhưng "Người ẩn danh" **chính là tên mặc định của khách thật** khi họ bấm check-in
+(hệ thống tự tạo hồ sơ im lặng), và 1 điểm đúng bằng điểm của người check-in lần đầu. **Đã xoá
+3 hồ sơ**: 1 chắc chắn là của lần chạy test thứ hai, **2 cái còn lại không xác định được** là
+test cũ hay khách thật.
+- **Mất:** biệt danh + mã khôi phục + 1 điểm của tối đa 2 người; họ quay lại bằng máy cũ sẽ
+  không cộng điểm được nữa (`addContributorPoints` trả `null` khi không tìm thấy hồ sơ).
+- **KHÔNG mất:** mọi đóng góp vẫn nguyên — 7 lượt check-in, các phiếu bấm chọn, góp ý đã gửi.
+  Dữ liệu khách nhìn thấy không ảnh hưởng gì.
+- **Còn nguyên:** "Thợ ảnh điện thoại" (109đ), "Người ẩn danh" (59đ), "Thánh ăn" (0đ).
+- Quy tắc rút ra đã ghi vào [DECISIONS.md](DECISIONS.md) 2026-09-08.
+
+### 2026-09-08 (sau) — NOTE-01 P0 việc 1–3: copy đầu trang + lễ hội
 
 Anh thêm [10-NOTE-01-Product-UX.md](10-NOTE-01-Product-UX.md) (định vị sản phẩm, homepage,
 thẻ địa điểm, ảnh — 13 mục, có thứ tự triển khai P0/P1/P2) và yêu cầu triển khai. Anh chọn bắt

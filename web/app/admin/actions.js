@@ -19,6 +19,7 @@ import {
 import { placeFromFormData } from "@/lib/placeForm";
 import { removeLatestCheckin } from "@/lib/checkins";
 import { removePlaceAnswers } from "@/lib/answers";
+import { removePhoneConfirmations } from "@/lib/phoneConfirmations";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -123,6 +124,7 @@ export async function deleteLive(formData) {
   await setLivePlaces(live.filter((p) => p.id !== id));
   await removeLatestCheckin(id);
   await removePlaceAnswers(id);
+  await removePhoneConfirmations(id);
 
   revalidatePath("/admin");
   revalidatePath("/");

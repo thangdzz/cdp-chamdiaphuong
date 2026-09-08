@@ -13,7 +13,8 @@ import { formatPriceCompact } from "@/lib/priceFormat";
 import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
-import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon, PhoneIcon } from "./Icon";
+import { PhoneBlock } from "./PhoneBlock";
+import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
 // SPEC-chang-3.md §5.
@@ -546,6 +547,8 @@ function PlaceCard({ place }) {
               </div>
             )}
 
+            <PhoneBlock place={place} />
+
             {(metaRows.length > 0 || extraLines.length > 0) && (
               <div className="flex flex-col gap-1.5">
                 {metaRows.map(({ icon: RowIcon, text }, i) => (
@@ -574,16 +577,9 @@ function PlaceCard({ place }) {
         >
           Chỉ đường
         </a>
-        {expanded && place.phone && (
-          <a
-            href={`tel:${place.phone}`}
-            aria-label="Gọi ngay"
-            title="Gọi ngay"
-            className="cdp-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600"
-          >
-            <PhoneIcon size={16} />
-          </a>
-        )}
+        {/* Nút gọi cũ ở đây đã bỏ — số điện thoại giờ nằm trong khối "Liên hệ" của thẻ bung
+            (PhoneBlock), kèm nhãn nói rõ số đã được ai xác nhận chưa. Giữ cả 2 sẽ thành 2 nút
+            gọi trùng nhau, và nút cũ thì không nói được gì về độ tin cậy của số. */}
         {mounted && (
           <>
             <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />

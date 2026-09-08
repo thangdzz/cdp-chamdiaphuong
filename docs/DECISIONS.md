@@ -566,3 +566,47 @@ khi có sổ chỉ là sửa 1 dòng link.
 **Đánh đổi:** trong lúc chờ sổ mẫu, chữ banner hứa nhiều hơn thứ trang đích đang có (trang lễ
 hội có lịch sự kiện + vài lưu ý, chưa gom sẵn danh sách chỗ gửi xe/ăn tối). Chấp nhận trong
 ngắn hạn vì lễ hội chỉ còn 11 ngày; nếu sổ mẫu không kịp thì nên đổi lại chữ cho khớp.
+
+## 2026-09-08 — Xác nhận số điện thoại: giữ nút Gọi, nói thật độ tin cậy bằng nhãn
+
+**Bối cảnh:** NOTE-01 §6.1 đề xuất **không** để nút Gọi nổi bật, chỉ hiện nút Gọi rõ khi số
+đạt ngưỡng tin cậy (≥2 xác nhận độc lập, không có báo sai mới hơn). Lý do NOTE đưa ra hợp lý:
+click-to-call tạo cảm giác CDP xác nhận số đó, mà sai số làm mất niềm tin nhanh hơn thiếu số.
+
+**Quyết định (khác NOTE):** **Vẫn giữ nút Gọi ở cả 3 trạng thái**, kèm nhãn nói rõ số đã được
+ai xác nhận chưa. Khi chưa ai xác nhận (hoặc đang có báo sai) thì hiện thêm nút **"Tìm số trên
+Google"** để khách tự kiểm chứng.
+**Vì sao:** số liệu thật lúc quyết định — **85 chỗ có số, 0 chỗ được xác nhận**. Áp ngưỡng
+ngay sẽ làm **toàn bộ 85 nút gọi biến mất trong cùng một ngày**, trong khi chưa ai kịp xác
+nhận cái nào. Mất tính năng đang dùng được là thiệt hại thấy ngay, còn lợi ích về niềm tin thì
+chỉ đến dần. Nói thật bằng chữ ("Chưa ai xác nhận số này") đạt đúng mục tiêu của NOTE §9
+("thông tin nào chưa chắc thì nói rõ chưa chắc") mà không phải gỡ tính năng.
+
+**Đơn giản hoá so với NOTE §6.5:** không dùng trọng số giảm dần theo thời gian như
+`voteWeight()` ở `lib/answers.js`, chỉ **bỏ hẳn phiếu quá 12 tháng** rồi đếm số người.
+**Vì sao:** nhãn hiển thị là số người nguyên ("3 người đã xác nhận") — trọng số phân số không
+thể hiện ra được, chỉ làm logic khó hiểu mà không đổi thứ khách nhìn thấy.
+
+**Không đổi:** không ghi đè trường `phone` từ dữ liệu xác nhận (đúng NOTE §6.4) — báo sai chỉ
+hiện cảnh báo, việc sửa số vẫn đi qua luồng góp ý + admin duyệt đã có.
+
+## 2026-09-08 — Dọn dữ liệu test: chỉ xoá theo ID chính xác, không theo tiêu chí chung
+
+**Bối cảnh:** sau khi test tính năng xác nhận số điện thoại, lệnh dọn cuối cùng xoá hồ sơ theo
+tiêu chí **chung chung**: `nickname === "Người ẩn danh"` và điểm ≤ 1. Nhưng đó **chính là hình
+dạng hồ sơ của khách thật** vừa check-in lần đầu (hệ thống tự tạo hồ sơ im lặng, không hỏi
+biệt danh — SPEC-chang-1.md §2.3, và +1 điểm cho lượt check-in). Kết quả: xoá 3 hồ sơ, **2
+trong đó không xác định được là test hay khách thật**, không khôi phục được.
+
+**Quyết định:** Khi dọn dữ liệu test, **chỉ được xoá theo đúng ID đã biết** (anonId/placeId cụ
+thể ghi lại lúc tạo), **cấm** xoá theo tiêu chí suy đoán kiểu "tên mặc định", "điểm thấp",
+"tạo gần đây". Nếu không nhớ chính xác ID đã tạo thì để lại, báo cho anh — dữ liệu thừa vô hại
+hơn nhiều so với xoá nhầm dữ liệu thật.
+
+**Vì sao:** dữ liệu do luồng tự động sinh ra (hồ sơ ẩn danh) **trông giống hệt** dữ liệu test,
+không có cờ nào phân biệt. Đây là lần thứ hai cùng một kiểu sai trong 2 tuần — lần trước là
+gộp nhầm 2 quán thật khi test công cụ gộp (xem mục 2026-08-24). Quy tắc cũ chỉ nói "tạo dữ
+liệu test riêng", lần này bổ sung vế còn thiếu: **cách XOÁ cũng phải chính xác như cách tạo**.
+
+**Đánh đổi:** có thể còn sót vài bản ghi test trong dữ liệu thật. Chấp nhận — chúng vô hại
+(hồ sơ 1 điểm không ảnh hưởng gì tới thứ khách nhìn thấy), còn xoá nhầm thì không lấy lại được.
