@@ -426,3 +426,113 @@ xem STATUS.md).
 A vừa quét được thông tin cập nhật hơn), admin phải tự bấm nút "A: ..." cho từng ô muốn lấy,
 thay vì được điền sẵn. Chấp nhận được — admin luôn thấy cả 2 cột A/B để so sánh, không mất
 thông tin nào, chỉ đổi giá trị mặc định điền sẵn.
+
+## 2026-08-23 — `/admin` mục "Đang công khai": danh sách tìm kiếm/lọc thay vì mở sẵn mọi form
+
+**Bối cảnh:** mục "Đang công khai" mở sẵn **122 form sửa cùng lúc** (mỗi chỗ 1 form), trang
+nặng và không tìm nổi chỗ cần sửa.
+
+**Quyết định:** Đổi thành danh sách gọn + ô tìm kiếm (không cần gõ dấu) + tab lọc theo loại
+(Ăn/Chơi/Ngủ/Đi lại, có số đếm); bấm "Sửa" mới mở form, **chỉ 1 form mở tại 1 thời điểm**.
+**Vì sao:** Số địa điểm chỉ tăng theo thời gian (39 → 122 trong 1 tháng), cách cũ càng ngày
+càng không dùng được. Tìm kiếm không dấu vì admin gõ nhanh trên điện thoại.
+
+**Ghi chú kỹ thuật:** phải tách `Field`/`PlaceForm` ra file riêng (`PlaceFormFields.js`) vì
+`page.js` là Server Component có `next/headers` — Client Component không import trực tiếp từ
+đó được.
+
+## 2026-08-24 — Món đặc trưng: chia nhỏ, làm 2 nguồn trước, hoãn nguồn "khách gõ"
+
+**Quyết định:** Trong 3 nguồn của [SPEC-chang-5.md §2.2](SPEC-chang-5.md), lượt này chỉ làm
+**nguồn 1** (hiện món AI quét sẵn, dạng nhãn tĩnh) và **nguồn 2** (ảnh menu). Hoãn **nguồn 3**
+(ô gõ món cho khách + bấm chọn theo luật đồng thuận Chặng 2) sang lượt sau, bàn thiết kế
+riêng.
+**Vì sao:** Nguồn 3 cần một **tầng dữ liệu mới**: danh sách lựa chọn **động theo từng chỗ**,
+khác hẳn `lib/questions.js` (danh sách câu hỏi/đáp án cố định viết cứng trong code). Gộp vào
+cùng lượt sẽ thành thay đổi lớn, khó kiểm soát — trái nguyên tắc "làm từng việc nhỏ".
+
+**Quyết định:** Ảnh menu lưu ở mảng **riêng** `place.menuPhotos`, mỗi phần tử là object
+`{url, addedAt}`; **không** đụng `place.photos` (giữ nguyên mảng chuỗi URL như cũ).
+**Vì sao:** Cần mang theo ngày khách gửi để hiện tuổi ảnh (xem quyết định ngay dưới). Đổi cấu
+trúc `photos` đang chạy sẽ có rủi ro vỡ những chỗ khác đang đọc nó, trong khi thêm mảng song
+song thì không ảnh hưởng gì.
+
+**Quyết định:** Hiện **tuổi ảnh menu** ngay cạnh khối ảnh ("Ảnh menu · khách gửi 3 tháng
+trước").
+**Vì sao:** [SPEC-chang-5.md §2.3](SPEC-chang-5.md) đã chốt **không ghi giá từng món** vì giá
+là thứ cũ nhanh nhất — nhưng ảnh menu lại chụp **nguyên bảng giá**, mà ảnh 6 tháng trước trông
+y hệt ảnh hôm qua. Không sửa được chuyện ảnh cũ, nhưng phải nói thật tuổi của nó.
+
+**Quyết định:** Công cụ gộp trùng lặp phải xử lý `menuPhotos` y như `photos` (gộp 2 bên, admin
+bỏ tick ảnh không giữ).
+**Vì sao:** Nếu bỏ sót, gộp 2 chỗ sẽ làm **mất im lặng** toàn bộ ảnh menu của bên bị xoá —
+không ai biết để phàn nàn.
+
+## 2026-08-24 — Quy tắc kiểm thử: KHÔNG dùng dữ liệu thật đang công khai để test hành động không hoàn tác được
+
+**Bối cảnh:** khi test công cụ gộp trùng lặp, đã lấy **2 chỗ thật đang công khai** (`an-02`
+"Dê Phố (Tân Hòa)" và `an-03` "Nhà hàng Dũng Cá" — 2 quán hoàn toàn khác nhau) để giả lập
+tình huống "nghi trùng", rồi **bấm nút Gộp thật** → xoá mất `an-03` khỏi web, kèm check-in và
+dữ liệu đồng thuận gắn với nó. Khôi phục được nhờ `data/known-places-snapshot.json` đã commit
+sẵn trong repo, nhưng chỉ khôi phục được tên/loại/địa chỉ.
+
+**Quyết định:** Từ nay, mọi kiểm thử chạm tới hành động **ghi/xoá không hoàn tác dễ** (gộp,
+xoá chỗ, duyệt góp ý) phải tạo **dữ liệu test riêng** (id/tên rõ ràng là test, vd
+`test-merge-a`/`test-merge-b`) rồi xoá hẳn sau khi xong — không mượn dữ liệu thật, kể cả khi
+"chắc chỗ đó không ai để ý".
+**Vì sao:** Dữ liệu thật đã công khai là thứ khách đang nhìn thấy; một lần bấm nhầm là mất
+luôn cả lịch sử check-in/đồng thuận gắn với id đó, không có bản sao lưu đầy đủ nào để phục
+hồi (snapshot chỉ có tên/loại/địa chỉ).
+
+**Đánh đổi:** tốn thêm vài phút tạo/dọn dữ liệu test mỗi lần. Chấp nhận — rẻ hơn nhiều so với
+hỏng dữ liệu thật.
+
+## 2026-08-24 — Zoom ảnh: tự xử lý cử chỉ chạm, zoom quanh tâm ảnh
+
+**Bối cảnh:** khối xem ảnh toàn màn hình (`PhotoGallery`) **chưa hề có code zoom**; chụm 2
+ngón bị trình duyệt hiểu thành zoom **cả trang** (kéo giãn luôn nút đóng, thanh ảnh nhỏ...).
+Đặc biệt cản trở với ảnh menu vừa làm — khách cần zoom để đọc giá.
+
+**Quyết định:** Đặt `touch-action: none` **chỉ trên vùng ảnh chính**, không đặt lên cả lớp
+phủ — để thanh ảnh nhỏ phía dưới vẫn vuốt ngang bằng cử chỉ mặc định của trình duyệt.
+**Vì sao:** Chặn trình duyệt tự zoom đúng chỗ cần chặn, không phá những chỗ đang chạy tốt.
+
+**Quyết định:** Pinch **zoom quanh tâm ảnh**, không đuổi theo đúng điểm 2 ngón đang chụm
+(kiểu Google Photos). Giới hạn 1x–4x, double-tap đổi nhanh 1x⇄2.5x.
+**Vì sao:** Zoom bám đúng điểm chụm cần tính toán tọa độ phức tạp hơn nhiều; zoom quanh tâm
+cộng với kéo xem đã đủ giải quyết nhu cầu thật (đọc rõ ảnh menu/chi tiết ảnh).
+
+**Quyết định:** Quyết định "đây là chạm hay kéo" dựa vào **quãng đường di chuyển thực tế lúc
+buông tay**, không dựa vào mức zoom lúc bắt đầu chạm.
+**Vì sao:** Cách đầu (dựa vào mức zoom) tạo lỗi thật: khi đang zoom, **mọi** cú chạm 1 ngón
+đều bị hiểu ngay là "bắt đầu kéo", nên double-tap để zoom ra lại **không bao giờ được kiểm
+tra tới** — người dùng kẹt ở mức zoom, không thoát ra được bằng cử chỉ quen thuộc.
+
+## 2026-09-03 — Ngừng theo dõi git cho `.claude/settings*` (đã lộ secret)
+
+**Quyết định:** Thêm `.claude/settings.json` và `.claude/settings.local.json` vào
+`.gitignore`, gỡ `settings.json` khỏi git (`git rm --cached`), **giữ nguyên file trên máy**.
+**Vì sao:** 2 file này từng chứa secret bị lộ trên repo Public (`ADMIN_PASSWORD`,
+`CRON_SECRET` — **đã đổi giá trị mới**). Đây là bước dọn để không lặp lại: file cấu hình cục
+bộ của Claude Code tự tích luỹ lệnh đã cho phép, dễ vô tình kèm secret.
+
+**Chưa làm:** **lịch sử git cũ vẫn còn nội dung 2 file** (kể cả CRON_SECRET cũ). Xoá khỏi
+lịch sử phải viết lại toàn bộ lịch sử repo — chưa làm, và không cần gấp vì secret đã đổi.
+
+## 2026-09-08 — Tên miền riêng chamdiaphuong.io.vn
+
+**Quyết định:** `https://chamdiaphuong.io.vn` là **địa chỉ chính thức** của web; giữ
+`web-five-xi-28.vercel.app` chạy song song, **không gỡ**.
+**Vì sao:** Tên miền cũ khó nhớ, khó đọc cho người Tuyên Quang khi chia sẻ miệng. Giữ địa chỉ
+cũ vì GitHub Action quét dữ liệu hằng ngày đang gọi API qua địa chỉ đó
+(`.github/workflows/ingest-from-scan.yml`) — gỡ là gãy luồng quét.
+
+**Quyết định:** Trỏ DNS bằng **2 bản ghi A** (`@` và `www` → `76.76.21.21`) ở VinaHost, thay
+vì đổi nameserver sang Vercel.
+**Vì sao:** Chỉ thêm 2 dòng, giữ nguyên phần DNS còn lại ở VinaHost — ít rủi ro hơn chuyển
+toàn bộ quyền quản lý DNS, và dễ hoàn tác nếu cần.
+
+**Quyết định:** `www.chamdiaphuong.io.vn` **chuyển hướng 308** (vĩnh viễn) về tên miền gốc.
+**Vì sao:** Trước đó `www` phục vụ nội dung độc lập — Google có thể coi là 2 trang trùng nội
+dung, chia nhỏ điểm tìm kiếm. Vercel CLI không có lệnh này, phải gọi thẳng REST API
+`PATCH /v9/projects/{projectId}/domains/{domain}` (chi tiết ở STATUS.md 2026-09-08).
