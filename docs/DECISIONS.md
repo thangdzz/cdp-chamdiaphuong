@@ -699,3 +699,45 @@ thẳng chữ **"0"** ra màn hình (số 0 là giá trị "giả" trong JavaScr
 **Vì sao:** ảnh bìa có thể là **ảnh menu** (xem thứ tự ưu tiên ở `lib/cover.js`), trong khi
 gallery của thẻ chạy trên mảng `photos`. Bấm vào ảnh menu mà mở ra một ảnh khác hẳn thì tệ hơn
 là không bấm được. Muốn xem ảnh thì bung thẻ ra đã có khối "Ảnh địa điểm" đầy đủ.
+
+## 2026-09-09 — Xe ghép: admin điền 2 thứ, khách bấm chọn 5 thứ
+
+**Quyết định:** Thêm `transportSubtype` cho nhóm Đi lại (7 loại). Với xe ghép, chia đôi việc
+điền dữ liệu:
+- **Admin điền trong `/admin`:** Loại xe (`vehicleSeats`), Tuyến chính (`mainRoute`).
+- **Khách bấm chọn (đồng thuận, không qua duyệt):** Hình thức, Điểm đón, Điểm trả, Đặt trước,
+  Hành lý.
+
+**Vì sao:** đúng cách NOTE-04 §5 tách 2 cơ chế. Loại xe và tuyến là thông tin **cố định của
+nhà xe** — quét được, hiếm khi đổi, và khách vãng lai cũng không rõ bằng chính nhà xe. Còn
+điểm đón/hành lý/đặt trước là thứ **đi rồi mới biết thật**, để khách bấm thì dữ liệu tự sống.
+Đưa hết cho admin sẽ thành gánh nặng gọi hỏi từng nhà xe; đưa hết cho khách thì chỗ mới thêm
+sẽ trống trơn.
+
+**Cũng sửa:** xe ghép thôi bị hỏi "Gửi xe ở đâu?", "Lối vào thế nào?", "Giờ nào đông?" — đó là
+field của quán ăn, ép dùng chung là sai (NOTE-04 §2). Và mọi chỗ Đi lại đã chọn loại thì thôi
+hỏi "Đây là chỗ gì?" vì admin đã trả lời rồi, mà bộ đáp án cũ còn thiếu hẳn "Xe ghép".
+
+**Đánh đổi đã nhận:** 3 ô riêng của Đi lại trong `/admin` chỉ hiện khi chỗ đó **đang** là Đi
+lại. Đổi loại hình sang Đi lại thì phải Lưu rồi mở lại mới thấy. Đổi loại là việc hiếm, không
+đáng bắt cả form phải chạy JavaScript chỉ vì nó.
+
+## 2026-09-09 — Mẹo: bấm chọn trước, gõ là ngoại lệ
+
+**Quyết định:** Trong khối "Bạn biết gì thêm về chỗ này?", chọn ngữ cảnh xong thì hiện bộ đáp
+án bấm chọn của câu hỏi tương ứng, KHÔNG mở ô gõ. Ô gõ chỉ mở 3 trường hợp: đáp án cần làm rõ
+("Bãi gần, mất phí" → "Bãi nào?"), khách bấm "Không có ý nào đúng — để tôi tự viết", hoặc ngữ
+cảnh không có câu hỏi nào (Di chuyển, Khác).
+**Vì sao:** trước đây hệ thống có 2 cơ chế chạy song song mà không biết nhau — chip "Gửi xe"
+dẫn khách đi gõ tay, trong khi ở cuối chính thẻ đó đã có câu "Gửi xe ở đâu?" với đúng các đáp
+án ấy. Khách phải gõ lại thứ chỉ cần bấm, lại còn phải chờ duyệt mới hiện (NOTE-04 §3).
+
+**Kèm 2 thay đổi để không sinh lỗi mới:**
+1. Bộ nút đáp án tách ra `app/QuestionOptions.js` dùng chung, thay vì chép thành 2 bản dễ trôi
+   lệch nhau về sau.
+2. Câu nào khối Mẹo đang bày sẵn thì khối hỏi cuối thẻ bỏ qua đúng câu đó — nếu không, "Gửi
+   xe" (vừa là chip đầu tiên, vừa là câu hỏi đầu tiên) sẽ hiện **2 lần trên cùng một màn hình**.
+
+**Đánh đổi:** giờ phải chọn ngữ cảnh rồi ô gõ mới hiện, tốn thêm 1 chạm cho người chỉ muốn gõ.
+Chấp nhận: đó chính là thứ làm cả thay đổi này có tác dụng, và mọi mẹo mới từ nay đều có ngữ
+cảnh nên hiện được dạng field.

@@ -144,10 +144,26 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
   address, ward, localArea, phone,
   priceMin, priceMax, priceUnit,
   priceText,                        // LUÔN tự tính, không nhận gõ tay
+  coverPhoto,                       // ảnh bìa admin chọn — xem lib/cover.js
+  photos: [url],                    // mảng chuỗi, KHÔNG có ngày gửi
+  menuPhotos: [{ url, addedAt }],   // có ngày, để nói thật tuổi bảng giá
+  signatureDishes: [ten],           // chỉ với type "an"
+
+  // Chỉ với type "dilai" — xem lib/transport.js (NOTE-04 §1–§2)
+  transportSubtype,                 // "xe-ghep" | "taxi" | "xe-khach" | "xe-buyt"
+                                    // | "thue-xe" | "diem-don-tra" | "bai-xe" | null
+  vehicleSeats,                     // admin điền, VD "7 chỗ"
+  mainRoute,                        // admin điền, VD "Tuyên Quang ↔ Hà Nội"
+
   confidenceScore, sourceCount,
   lastUpdatedAt, autoPublished
 }
 ```
+
+**`transportSubtype` quyết định HỎI CÂU NÀO** (`getQuestionsForType(type, subtype)` trong
+`lib/questions.js`): xe ghép được 5 câu riêng và thôi bị hỏi "Gửi xe ở đâu?" / "Lối vào thế
+nào?"; mọi chỗ Đi lại đã chọn loại đều thôi bị hỏi "Đây là chỗ gì?". Trường này để rỗng thì
+mọi thứ chạy y như trước khi có nó.
 
 **Quy tắc bất di bất dịch:** `priceText` không bao giờ nhận chữ gõ tay — luôn tính từ
 `priceMin/priceMax/priceUnit` qua `formatPriceText()` (`lib/priceFormat.js`). Lý do ở
@@ -176,7 +192,12 @@ web/
 │   ├── checkinActions.js    (48)  Server Action cho CheckinButton — gọi lib/checkins.js
 │   │                              + lib/contributors.js + lib/pointsCap.js (trần chung
 │   │                              30đ/ngày, thêm ở Chặng 2)
-│   ├── QuestionPrompt.js   (179)  Chặng 2: khối hỏi 1 câu bấm chọn tại 1 thời điểm
+│   ├── QuestionPrompt.js   (152)  Chặng 2: khối hỏi 1 câu bấm chọn tại 1 thời điểm.
+│   │                              Bỏ qua câu mà khối Mẹo đang bày sẵn (tránh hỏi 2 lần)
+│   ├── QuestionOptions.js   (95)  ⭐ Bộ nút đáp án của 1 câu hỏi — DÙNG CHUNG cho
+│   │                              QuestionPrompt (hỏi tuần tự cuối thẻ) và NoteInput
+│   │                              (khách tự chọn ngữ cảnh). Ô gõ làm rõ chỉ hiện khi
+│   │                              đáp án cần (NOTE-04 §4)
 │   ├── PlaceFacts.js        (41)  Chặng 2: khối hiển thị kết quả đã đồng thuận (thuần
 │   │                              server, không "use client")
 │   ├── answerActions.js     (54)  Server Action cho QuestionPrompt — gọi lib/answers.js
@@ -274,6 +295,10 @@ web/
 │   │                              theo thứ tự cover sổ → collage 3 chỗ đầu → cover chỗ đầu
 │   │                              → ảnh mặc định. Gom về đây để thẻ / trang địa điểm /
 │   │                              Open Graph luôn hiện CÙNG một ảnh
+│   ├── transport.js         (42)  ⭐ `transportSubtype` cho nhóm Đi lại (7 loại) +
+│   │                              transportSummary() -> "Xe ghép · 7 chỗ". Admin điền
+│   │                              Loại xe / Tuyến chính; Điểm đón / Hành lý... để khách
+│   │                              bấm chọn (NOTE-04 §1–§2, §5)
 │   ├── siteUrl.js           (17)  Hằng số tên miền chính + placeShareUrl/notebookShareUrl —
 │   │                              mọi link ĐEM ĐI CHIA SẺ dựng từ đây, không dùng
 │   │                              window.location.origin (sẽ mang địa chỉ đang mở)

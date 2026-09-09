@@ -1,5 +1,6 @@
 import { formatPriceText } from "./priceFormat.js";
 import { assertValidPlaceType } from "./placeTypes.js";
+import { isValidTransportSubtype } from "./transport.js";
 
 // Đọc dữ liệu địa điểm từ 1 <form> (dùng chung cho "Đang công khai", "Chờ duyệt" thủ công,
 // và "Hàng chờ duyệt tự động" — cả 3 nơi đều sửa/nhập theo đúng field này).
@@ -14,6 +15,11 @@ export function placeFromFormData(formData) {
   const priceMin = toNumberOrNull(formData.get("priceMin")?.toString());
   const priceMax = toNumberOrNull(formData.get("priceMax")?.toString());
   const priceUnit = toTextOrNull(formData.get("priceUnit")?.toString());
+
+  // Loại hình Đi lại (NOTE-04 §1). Giá trị lạ -> null chứ không ném lỗi như assertValidPlaceType:
+  // đây là trường phụ, sai thì coi như chưa chọn, không đáng làm hỏng cả lượt lưu.
+  const subtypeRaw = toTextOrNull(formData.get("transportSubtype")?.toString());
+  const transportSubtype = isValidTransportSubtype(subtypeRaw) ? subtypeRaw : null;
 
   return {
     name: (formData.get("name") ?? "").toString().trim(),
@@ -32,5 +38,10 @@ export function placeFromFormData(formData) {
     // Ảnh bìa do admin chọn (lib/cover.js ưu tiên trường này hơn photos[0]). Rỗng = để web
     // tự chọn, KHÔNG phải xoá ảnh — ảnh vẫn nằm nguyên trong `photos`.
     coverPhoto: toTextOrNull(formData.get("coverPhoto")?.toString()),
+    transportSubtype,
+    // 2 thông tin cố định của nhà xe, admin điền (anh chốt 2026-09-09) — thứ khách đi rồi mới
+    // biết thì để bấm chọn, xem lib/transport.js.
+    vehicleSeats: toTextOrNull(formData.get("vehicleSeats")?.toString()),
+    mainRoute: toTextOrNull(formData.get("mainRoute")?.toString()),
   };
 }

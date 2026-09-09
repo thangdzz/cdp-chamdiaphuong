@@ -17,6 +17,7 @@ import {
 import { noteContextLabel } from "@/lib/notes";
 import { placeShareUrl } from "@/lib/siteUrl";
 import { placeCover } from "@/lib/cover";
+import { transportSummary } from "@/lib/transport";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
@@ -37,7 +38,10 @@ export function PlaceDetail({ place }) {
   const coverPhoto = placeCover(place);
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const compactPrice = formatPriceCompact(place);
-  const subtitle = [typeLabel(place.type), place.ward].filter(Boolean).join(" · ");
+  // Đi lại đã chọn loại -> "Xe ghép · 7 chỗ · Minh Xuân"; các loại khác giữ nguyên như cũ.
+  const subtitle = [transportSummary(place) ?? typeLabel(place.type), place.ward]
+    .filter(Boolean)
+    .join(" · ");
   const newestMenuPhotoAt =
     menuPhotos.length > 0
       ? menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
@@ -79,6 +83,7 @@ export function PlaceDetail({ place }) {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight leading-snug text-zinc-900">{place.name}</h1>
         {subtitle && <p className="mt-1 text-[13px] text-zinc-500">{subtitle}</p>}
+        {place.mainRoute && <p className="mt-1 text-sm text-zinc-700">{place.mainRoute}</p>}
       </div>
 
       {photos.length > 0 && (
@@ -136,7 +141,7 @@ export function PlaceDetail({ place }) {
         )}
       </div>
 
-      <PlaceFacts type={place.type} consensus={place.consensus} />
+      <PlaceFacts type={place.type} subtype={place.transportSubtype} consensus={place.consensus} />
 
       {signatureDishes.length > 0 && (
         <div>

@@ -108,10 +108,10 @@ function isCredited(question, consensus, vote) {
 // Chọn đúng 1 câu để hỏi (§3.2). Chỉ chạy khi khách bung 1 thẻ cụ thể (không chạy cho mọi
 // chỗ lúc tải trang) — 1 HGETALL (phiếu) + 1 HGET (đồng thuận) + 1 pipeline EXISTS (đã bấm
 // "Không rõ" chưa, gộp N lệnh độc lập vào 1 lượt gọi mạng) cho mỗi lần khách bung thẻ.
-export async function getNextQuestion({ type, placeId, anonId }) {
+export async function getNextQuestion({ type, placeId, anonId, subtype = null }) {
   if (await hasReachedDailyCap(anonId, placeId)) return null;
 
-  const questions = getQuestionsForType(type);
+  const questions = getQuestionsForType(type, subtype);
   const [votes, placeConsensus] = await Promise.all([
     getVotesForPlace(placeId),
     redis.hget(CONSENSUS_KEY, placeId),

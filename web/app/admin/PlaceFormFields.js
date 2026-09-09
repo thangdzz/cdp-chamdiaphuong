@@ -1,5 +1,6 @@
 import { formatPriceText } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { TRANSPORT_SUBTYPES } from "@/lib/transport";
 
 // Tách riêng khỏi page.js (Server Component, có import next/headers) để LivePlacesManager.js
 // (Client Component) dùng chung được — Client Component không được import trực tiếp từ 1
@@ -52,6 +53,36 @@ export function PlaceForm({ place, children }) {
       <p className="mt-2 text-xs text-zinc-500">
         Giá sẽ hiển thị cho khách: <span className="font-medium text-zinc-700">{preview}</span>
       </p>
+
+      {/* Ô riêng cho nhóm "Đi lại" (NOTE-04 §1–§2). Chỉ hiện khi chỗ này ĐANG là Đi lại — form
+          không chạy JavaScript nên đổi ô "Loại hình" sang Đi lại thì phải Lưu rồi mở lại mới
+          thấy 3 ô này. Đổi loại là việc hiếm, không đáng đánh đổi bằng việc bắt cả form phải
+          chạy client. */}
+      {place.type === "dilai" && (
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-zinc-50 p-2 sm:grid-cols-3">
+          <label className="flex flex-col gap-1 text-xs text-zinc-500">
+            Loại hình Đi lại
+            <select
+              name="transportSubtype"
+              defaultValue={place.transportSubtype ?? ""}
+              className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
+            >
+              <option value="">— chưa rõ —</option>
+              {TRANSPORT_SUBTYPES.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Field label="Loại xe (VD: 4 chỗ, 7 chỗ)" name="vehicleSeats" defaultValue={place.vehicleSeats} />
+          <Field
+            label="Tuyến chính (VD: Tuyên Quang ↔ Hà Nội)"
+            name="mainRoute"
+            defaultValue={place.mainRoute}
+          />
+        </div>
+      )}
 
       {/* Chọn ảnh bìa — mặc định web lấy ảnh khách gửi SỚM NHẤT, không có gì đảm bảo nó đại
           diện tốt cho chỗ đó. Ảnh bìa là ảnh khách thấy đầu tiên trên thẻ, trên trang địa

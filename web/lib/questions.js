@@ -1,12 +1,20 @@
 // Bộ câu hỏi bấm chọn (Chặng 2) — SPEC-chang-2.md §2. Thêm/bớt câu hoặc thêm loại địa điểm
 // mới (Chặng 3: "choi"/"dilai", xem lib/placeTypes.js) chỉ sửa file này, không rải if/else
 // nơi khác.
+//
+// Ba khoá tuỳ chọn để lọc theo `transportSubtype` (NOTE-04 §1–§2, xem lib/transport.js):
+//   subtypes: [...]          -> CHỈ hỏi cho các subtype này
+//   skipSubtypes: [...]      -> KHÔNG hỏi cho các subtype này (câu chung nhưng vô nghĩa với nó)
+//   supersededBySubtype      -> thôi hỏi ngay khi admin đã chọn subtype (admin biết chắc hơn)
 
 export const QUESTIONS = [
   // --- Dùng chung mọi loại (§2.1) ---
   {
     id: "parking",
     scope: "all",
+    // Xe ghép đón tận nơi thì khách không gửi xe ở đâu cả — hỏi là ép dùng field của quán ăn
+    // (NOTE-04 §2 dòng cuối).
+    skipSubtypes: ["xe-ghep"],
     icon: "🅿️",
     label: "Gửi xe",
     text: "Gửi xe ở đâu?",
@@ -26,6 +34,7 @@ export const QUESTIONS = [
   {
     id: "entrance",
     scope: "all",
+    skipSubtypes: ["xe-ghep"], // xe ghép không có "cửa" để vào
     icon: "🚪",
     label: "Lối vào",
     text: "Lối vào thế nào?",
@@ -45,6 +54,8 @@ export const QUESTIONS = [
   {
     id: "busy_hours",
     scope: "all",
+    // "Giờ nào đông?" không hợp với xe ghép — câu "Lúc nào có xe?" bên dưới mới đúng thứ cần biết.
+    skipSubtypes: ["xe-ghep"],
     icon: "🕐",
     label: "Giờ đông",
     text: "Giờ nào đông?",
@@ -239,6 +250,9 @@ export const QUESTIONS = [
   {
     id: "transport_kind",
     scope: "dilai",
+    // Admin đã chọn `transportSubtype` thì thôi hỏi khách — admin biết chắc hơn, và bộ đáp án
+    // dưới đây cũng thiếu hẳn "Xe ghép" (NOTE-04 §1).
+    supersededBySubtype: true,
     icon: "🚌",
     label: "Loại hình",
     text: "Đây là chỗ gì?",
@@ -291,10 +305,130 @@ export const QUESTIONS = [
       { value: "blocked", label: "Bị chặn/đổi lộ trình" },
     ],
   },
+
+  // --- Riêng "Đi lại → Xe ghép" (NOTE-04 §2) ---
+  // 5 câu đúng theo danh sách field ở §2 mà khách đi rồi mới biết thật. Loại xe và Tuyến
+  // chính KHÔNG nằm đây — đó là 2 ô admin tự điền (xem lib/transport.js).
+  {
+    id: "ride_form",
+    scope: "dilai",
+    subtypes: ["xe-ghep"],
+    icon: "🚐",
+    label: "Hình thức",
+    text: "Nhà xe này chạy kiểu gì?",
+    multi: true,
+    options: [
+      { value: "shared", label: "Ghép khách" },
+      { value: "whole", label: "Bao cả xe" },
+    ],
+  },
+  {
+    id: "pickup",
+    scope: "dilai",
+    subtypes: ["xe-ghep"],
+    icon: "📍",
+    label: "Điểm đón",
+    text: "Đón khách ở đâu?",
+    multi: false,
+    options: [
+      { value: "door", label: "Đón tận nơi" },
+      { value: "fixed", label: "Điểm cố định" },
+      {
+        value: "depends",
+        label: "Tuỳ tuyến",
+        followUp: { label: "Tuỳ thế nào?", maxLength: 60 },
+      },
+    ],
+  },
+  {
+    id: "dropoff",
+    scope: "dilai",
+    subtypes: ["xe-ghep"],
+    icon: "🏁",
+    label: "Điểm trả",
+    text: "Trả khách ở đâu?",
+    multi: false,
+    options: [
+      { value: "door", label: "Trả tận nơi" },
+      { value: "fixed", label: "Điểm cố định" },
+      {
+        value: "depends",
+        label: "Tuỳ tuyến",
+        followUp: { label: "Tuỳ thế nào?", maxLength: 60 },
+      },
+    ],
+  },
+  {
+    id: "booking_needed",
+    scope: "dilai",
+    subtypes: ["xe-ghep"],
+    icon: "📅",
+    label: "Đặt trước",
+    text: "Có cần đặt trước không?",
+    multi: false,
+    options: [
+      { value: "required", label: "Phải đặt trước" },
+      { value: "recommended", label: "Nên đặt trước" },
+      { value: "walkin", label: "Gọi là đi được" },
+    ],
+  },
+  {
+    id: "luggage",
+    scope: "dilai",
+    subtypes: ["xe-ghep"],
+    icon: "🧳",
+    label: "Hành lý",
+    text: "Hành lý thế nào?",
+    multi: false,
+    options: [
+      { value: "free", label: "Thoải mái" },
+      { value: "limited", label: "Gọn thôi" },
+      { value: "extra_fee", label: "Cồng kềnh tính thêm phí" },
+    ],
+  },
 ];
 
-export function getQuestionsForType(type) {
-  return QUESTIONS.filter((q) => q.scope === "all" || q.scope === type);
+/**
+ * Câu hỏi áp dụng cho một địa điểm.
+ * @param {string} type loại chính (an/choi/ngu/dilai)
+ * @param {string|null} subtype `transportSubtype` nếu có — không truyền thì hành xử y như cũ,
+ *   nên mọi nơi gọi cũ vẫn chạy đúng.
+ */
+export function getQuestionsForType(type, subtype = null) {
+  return QUESTIONS.filter((q) => {
+    if (q.scope !== "all" && q.scope !== type) return false;
+    if (q.subtypes && !q.subtypes.includes(subtype)) return false;
+    if (subtype && q.skipSubtypes?.includes(subtype)) return false;
+    if (subtype && q.supersededBySubtype) return false;
+    return true;
+  });
+}
+
+// Ngữ cảnh mẹo nào đã có sẵn câu hỏi bấm chọn (NOTE-04 §3–§4). Khách chọn "Gửi xe" thì đưa
+// thẳng bộ đáp án của câu "Gửi xe ở đâu?" ra bấm, thay vì bắt gõ lại đúng thứ đã có nút —
+// "chọn là mặc định, gõ là ngoại lệ". Lấy câu ĐẦU TIÊN hợp với loại địa điểm đang xem, nên
+// câu riêng của từng loại phải xếp TRƯỚC câu dùng chung: ở một chỗ Chơi, "Lúc nào đi đẹp
+// nhất?" đúng ý "thời điểm" hơn hẳn câu chung "Giờ nào đông?".
+// Ngữ cảnh không có tên ở đây (Di chuyển, Khác) thì mở thẳng ô gõ.
+const CONTEXT_QUESTION_IDS = {
+  "gui-xe": ["parking"],
+  "loi-vao": ["entrance"],
+  "thoi-diem": ["best_time", "available_when", "busy_hours"],
+  // Chỉ `payment` — `price_style` nói về cách RA GIÁ (niêm yết/trả giá/đồng hồ), không phải
+  // cách trả tiền, nên không thuộc ngữ cảnh này.
+  "thanh-toan": ["payment"],
+  "tien-ich": ["amenities_an", "amenities_ngu", "facilities"],
+};
+
+export function getQuestionForContext(contextId, type, subtype = null) {
+  const ids = CONTEXT_QUESTION_IDS[contextId];
+  if (!ids) return null;
+  const available = getQuestionsForType(type, subtype);
+  for (const id of ids) {
+    const found = available.find((q) => q.id === id);
+    if (found) return found;
+  }
+  return null;
 }
 
 export function getQuestion(id) {

@@ -15,6 +15,7 @@ import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 import { PhoneBlock } from "./PhoneBlock";
 import { placeCover } from "@/lib/cover";
+import { transportSummary } from "@/lib/transport";
 import { SharePlaceButton } from "./SharePlaceButton";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
@@ -408,6 +409,9 @@ function PlaceCard({ place }) {
   // Bắt đầu bằng giá trị máy chủ, đổi ngay tại chỗ khi khách vừa bấm "Tôi vừa đến, vẫn mở"
   // (SPEC-chang-1.md §2.2: dòng trên thẻ phải đổi ngay, không chờ tải lại trang).
   const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
+  // Câu hỏi mà khối Mẹo đang bày sẵn -> QuestionPrompt ở cuối thẻ bỏ qua đúng câu đó, tránh
+  // hỏi 2 lần trên cùng 1 màn hình (hay xảy ra: "Gửi xe" vừa là chip đầu vừa là câu hỏi đầu).
+  const [noteQuestionId, setNoteQuestionId] = useState(null);
 
   const showOccupancy = OCCUPANCY_LABEL_TYPES.has(place.type);
 
@@ -443,9 +447,14 @@ function PlaceCard({ place }) {
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
   const shortAddress = formatShortAddress(place.address);
+  // Chỗ Đi lại đã chọn loại thì dòng phụ nói "Xe ghép · 7 chỗ" thay cho địa chỉ (NOTE-04 §2):
+  // với một nhà xe, địa chỉ "TP. Tuyên Quang" gần như vô dụng, còn loại xe và tuyến mới là
+  // thứ khách cần. Địa chỉ đầy đủ vẫn còn nguyên trong khối bung bên dưới.
+  const transportLine = transportSummary(place);
   // §6c mục 2: dòng phụ dưới tên đã hiện địa chỉ rút gọn — nếu rút gọn không bớt được gì
   // (bằng hệt địa chỉ đầy đủ) thì đừng lặp lại y nguyên ở khối bung bên dưới.
-  const showFullAddress = Boolean(place.address) && shortAddress !== place.address;
+  const showFullAddress =
+    Boolean(place.address) && (transportLine !== null || shortAddress !== place.address);
   const metaRows = buildMetaRows(place, lodgingKind, showFullAddress);
   const extraLines = buildExtraLines(place, lodgingKind);
 
@@ -454,7 +463,10 @@ function PlaceCard({ place }) {
   return (
     <li id={place.id} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
-      <p className="mt-1 text-[13px] text-zinc-500">{shortAddress}</p>
+      <p className="mt-1 text-[13px] text-zinc-500">{transportLine ?? shortAddress}</p>
+      {transportLine && place.mainRoute && (
+        <p className="mt-0.5 text-[13px] text-zinc-700">{place.mainRoute}</p>
+      )}
 
       <p className="mt-5 flex items-baseline gap-1">
         {compactPrice ? (
@@ -483,7 +495,7 @@ function PlaceCard({ place }) {
           <div className="flex flex-col gap-5 text-sm text-zinc-700">
             <PersonalNote place={place} />
 
-            <PlaceFacts type={place.type} consensus={place.consensus} />
+            <PlaceFacts type={place.type} subtype={place.transportSubtype} consensus={place.consensus} />
 
             {signatureDishes.length > 0 && (
               <div>
@@ -501,7 +513,7 @@ function PlaceCard({ place }) {
               </div>
             )}
 
-            <NoteInput place={place} />
+            <NoteInput place={place} onActiveQuestion={setNoteQuestionId} />
 
             {photos.length > 0 && (
               <div>
@@ -653,7 +665,7 @@ function PlaceCard({ place }) {
         </button>
       </div>
 
-      {mounted && <QuestionPrompt place={place} />}
+      {mounted && <QuestionPrompt place={place} hideQuestionId={noteQuestionId} />}
 
       {galleryIndex !== null && (
         <PhotoGallery

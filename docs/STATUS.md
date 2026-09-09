@@ -230,7 +230,27 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (mới nhất) — Rà lại 3 NOTE, dọn nốt P0 còn sót
+### 2026-09-09 (mới nhất) — NOTE 04 P0: Mẹo bấm chọn + Xe ghép
+
+**1. Mẹo: bấm chọn thay vì bắt gõ lại.** Web đang có 2 cơ chế chạy song song mà không biết
+nhau — chip "Gửi xe" ở khối Mẹo dẫn khách đi gõ tay, trong khi ở cuối chính thẻ đó đã có câu
+"Gửi xe ở đâu?" với đúng các đáp án ấy. Giờ chọn ngữ cảnh xong là hiện luôn bộ nút để bấm 1
+phát (vào đồng thuận ngay, không cần duyệt). Ô gõ chỉ mở khi thật sự cần.
+
+**2. Xe ghép có field riêng.** Thêm `transportSubtype` (7 loại) cho nhóm Đi lại. "Xe ghép Anh
+Huy" trước đây bị hỏi "Gửi xe ở đâu?", "Lối vào thế nào?", "Đây là chỗ gì? → Bến xe / Thuê xe
+/ Điểm taxi / Bãi gửi xe" (không ô nào đúng). Giờ thẻ hiện `Xe ghép · 7 chỗ` /
+`Tuyên Quang ↔ Hà Nội` và được hỏi đúng 5 câu của nó. Đã điền dữ liệu thật cho chỗ này.
+
+Chia việc điền: **anh** điền Loại xe + Tuyến chính trong `/admin`; **khách** bấm chọn Hình
+thức / Điểm đón / Điểm trả / Đặt trước / Hành lý (xem [DECISIONS.md](DECISIONS.md)).
+
+**Còn lại của NOTE 04 (đều là P1–P2, chưa làm):** chọn nhiều địa điểm cùng lúc, tạo Sổ / tạo
+Lộ trình từ selection mode, reorder trước khi lưu, map route, khoảng cách giữa các điểm. 6
+subtype còn lại (taxi, xe khách, thuê xe...) mới có tên, chưa có bộ câu hỏi riêng — chúng dùng
+bộ câu hỏi chung như trước, không hỏng gì.
+
+### 2026-09-09 (trước đó) — Rà lại 3 NOTE, dọn nốt P0 còn sót
 
 Đọc lại `10-NOTE-01`, `11-NOTE-02`, `12-NOTE-03` rồi đối chiếu với code đang chạy. Kết quả:
 **NOTE 11 xong gần hết**, NOTE 10 và NOTE 12 mỗi file còn vài chỗ P0 sót lại. Đã làm nốt 5

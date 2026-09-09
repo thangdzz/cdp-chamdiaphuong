@@ -3,25 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchNextQuestion, submitQuestionAnswer, submitSkip } from "./answerActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
+import { QuestionOptions } from "./QuestionOptions";
 
 // Khối hỏi 1 câu tại 1 thời điểm (SPEC-chang-2.md §3.1). Giống CheckinButton.js: chưa có hồ
 // sơ ẩn danh thì tự tạo im lặng ngay lúc bấm (không phải lúc chỉ xem câu hỏi).
-export function QuestionPrompt({ place }) {
+// `hideQuestionId`: khối Mẹo phía trên đang bày sẵn đúng câu này rồi (xem NoteInput.js) —
+// hỏi lại lần nữa ngay dưới cùng một thẻ thì nhìn như hỏng.
+export function QuestionPrompt({ place, hideQuestionId = null }) {
   const [question, setQuestion] = useState(null);
   const [loaded, setLoaded] = useState(false);
-  const [selected, setSelected] = useState([]);
-  const [followUpText, setFollowUpText] = useState("");
   const [thanks, setThanks] = useState(null);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
 
   useEffect(() => {
     const local = loadLocalContributor();
-    fetchNextQuestion({ anonId: local?.anonId, placeId: place.id, type: place.type }).then((res) => {
+    fetchNextQuestion({
+      anonId: local?.anonId,
+      placeId: place.id,
+      type: place.type,
+      subtype: place.transportSubtype ?? null,
+    }).then((res) => {
       setQuestion(res.question);
       setLoaded(true);
     });
-  }, [place.id, place.type]);
+  }, [place.id, place.type, place.transportSubtype]);
 
   function saveProfileIfNew(newProfile, local) {
     if (!newProfile) return;
@@ -56,26 +62,6 @@ export function QuestionPrompt({ place }) {
     }
   }
 
-  async function handleOptionClick(opt) {
-    if (busy) return;
-    if (question.multi) {
-      setSelected((prev) =>
-        prev.includes(opt.value) ? prev.filter((v) => v !== opt.value) : [...prev, opt.value]
-      );
-      return;
-    }
-    if (opt.followUp) {
-      setSelected([opt.value]);
-      return;
-    }
-    await handleAnswer(opt.value);
-  }
-
-  async function handleFollowUpSubmit() {
-    if (selected.length === 0) return;
-    await handleAnswer(selected[0], followUpText.trim() || null);
-  }
-
   async function handleSkip() {
     if (busyRef.current || !question) return;
     busyRef.current = true;
@@ -87,11 +73,11 @@ export function QuestionPrompt({ place }) {
         placeId: place.id,
         questionId: question.id,
         type: place.type,
+        subtype: place.transportSubtype ?? null,
       });
       saveProfileIfNew(result.newProfile, local);
+      // key={question.id} ở QuestionOptions lo việc xoá lựa chọn dở dang của câu vừa bỏ qua.
       setQuestion(result.nextQuestion ?? null);
-      setSelected([]);
-      setFollowUpText("");
     } finally {
       setBusy(false);
       busyRef.current = false;
@@ -108,72 +94,25 @@ export function QuestionPrompt({ place }) {
     );
   }
 
-  const pendingFollowUp = !question.multi
-    ? question.options.find((o) => o.value === selected[0] && o.followUp)
-    : null;
-
-  if (pendingFollowUp) {
-    return (
-      <div className="cdp-fade-in border-t border-zinc-100 pt-5">
-        <p className="mb-2 text-sm text-zinc-700">{pendingFollowUp.followUp.label}</p>
-        <div className="flex gap-2">
-          <input
-            className="flex-1 rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
-            maxLength={pendingFollowUp.followUp.maxLength}
-            value={followUpText}
-            onChange={(e) => setFollowUpText(e.target.value)}
-          />
-          <button
-            type="button"
-            disabled={busy}
-            onClick={handleFollowUpSubmit}
-            className="cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
-          >
-            Gửi
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (question.id === hideQuestionId) return null;
 
   return (
     <div className="cdp-fade-in border-t border-zinc-100 pt-5">
-      <p className="mb-2 text-sm text-zinc-700">{question.text}</p>
-      <div className="flex flex-wrap gap-2">
-        {question.options.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            disabled={busy}
-            onClick={() => handleOptionClick(opt)}
-            className={`cdp-pressable min-h-11 cursor-pointer rounded-lg px-3 text-sm font-medium disabled:cursor-default disabled:opacity-50 ${
-              question.multi && selected.includes(opt.value)
-                ? "bg-zinc-900 text-white"
-                : "bg-zinc-100 text-zinc-700"
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-        {question.multi && (
-          <button
-            type="button"
-            disabled={busy || selected.length === 0}
-            onClick={() => handleAnswer(selected)}
-            className="cdp-pressable min-h-11 cursor-pointer rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
-          >
-            Xong
-          </button>
-        )}
-      </div>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={handleSkip}
-        className="mt-2 cursor-pointer text-xs text-zinc-400 underline disabled:cursor-default disabled:opacity-50"
+      <QuestionOptions
+        key={question.id}
+        question={question}
+        busy={busy}
+        onAnswer={handleAnswer}
       >
-        Không rõ
-      </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={handleSkip}
+          className="mt-2 cursor-pointer text-xs text-zinc-400 underline disabled:cursor-default disabled:opacity-50"
+        >
+          Không rõ
+        </button>
+      </QuestionOptions>
     </div>
   );
 }

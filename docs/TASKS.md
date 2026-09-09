@@ -143,3 +143,20 @@
   - Nút Chia sẻ / Lưu sổ chuyển lên ngay dưới tên sổ, không còn nằm cuối trang (NOTE-03 §6)
   - Lời mời gửi ảnh menu mới khi menu đã quá 3 tháng (NOTE-01 §7.4)
   - Trang địa điểm thêm nút "Xem thêm N ảnh menu" cho khớp thẻ trang chủ
+
+## 2026-09-09 (NOTE 04)
+
+- [x] **P0 việc 1 — Mẹo bấm chọn thay vì bắt gõ lại**: chọn ngữ cảnh xong, ngữ cảnh nào đã có
+      sẵn câu hỏi bấm chọn thì đưa luôn bộ đáp án ra bấm (1 chạm → đồng thuận, không cần duyệt).
+      Ô gõ chỉ mở khi đáp án cần làm rõ, khi bấm "Không có ý nào đúng", hoặc khi ngữ cảnh không
+      có câu hỏi nào (Di chuyển / Khác)
+- [x] Tách `app/QuestionOptions.js` dùng chung cho khối Mẹo và câu hỏi cuối thẻ, để 2 nơi không
+      trôi lệch nhau
+- [x] Chống hỏi trùng: câu khối Mẹo đang bày sẵn thì cuối thẻ bỏ qua đúng câu đó
+- [x] **P0 việc 2 — `transportSubtype`** (7 loại), admin chọn trong `/admin`
+- [x] **P0 việc 3 — field cho Xe ghép**: admin điền Loại xe + Tuyến chính; khách bấm chọn Hình
+      thức / Điểm đón / Điểm trả / Đặt trước / Hành lý; thẻ hiện `Xe ghép · 7 chỗ` +
+      `Tuyên Quang ↔ Hà Nội`
+- [x] Xe ghép thôi bị hỏi những câu vô nghĩa (Gửi xe, Lối vào, Giờ đông, "Đây là chỗ gì?");
+      mọi chỗ Đi lại đã chọn loại đều thôi bị hỏi "Đây là chỗ gì?"
+- [x] Điền loại hình cho "Xe ghép Anh Huy" (xe ghép · 7 chỗ · Tuyên Quang ↔ Hà Nội)

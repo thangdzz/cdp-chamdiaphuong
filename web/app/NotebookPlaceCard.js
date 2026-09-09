@@ -4,6 +4,7 @@ import { useState } from "react";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { transportSummary } from "@/lib/transport";
 import { placeCover } from "@/lib/cover";
 import { noteContextLabel } from "@/lib/notes";
 import { PlaceFacts } from "./PlaceFacts";
@@ -31,8 +32,9 @@ export function NotebookPlaceCard({ item }) {
   // NOTE-03 §3: card compact gồm ảnh · tên · LOẠI · khu vực · giá · ghi chú. Trước đây chỉ có
   // tên + khu vực, nên lướt một cuốn sổ 6 chỗ là 6 khối chữ trông giống hệt nhau — ảnh nhỏ và
   // loại hình là 2 thứ giúp nhận ra nhanh nhất chỗ nào là chỗ nào.
+  // Chỗ "Đi lại" đã chọn loại thì nói rõ "Xe ghép · 7 chỗ" thay vì chỉ "Đi lại" (NOTE-04 §2).
   const typeLabel = PLACE_TYPES.find((t) => t.id === place.type)?.label ?? null;
-  const subtitle = [typeLabel, place.ward].filter(Boolean).join(" · ");
+  const subtitle = [transportSummary(place) ?? typeLabel, place.ward].filter(Boolean).join(" · ");
   const cover = placeCover(place);
 
   return (
@@ -64,7 +66,7 @@ export function NotebookPlaceCard({ item }) {
 
       {expanded && (
         <div className="mt-5 flex flex-col gap-5 text-sm text-zinc-700">
-          <PlaceFacts type={place.type} consensus={place.consensus} />
+          <PlaceFacts type={place.type} subtype={place.transportSubtype} consensus={place.consensus} />
 
           {signatureDishes.length > 0 && (
             <div>
