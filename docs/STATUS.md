@@ -230,7 +230,31 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (sau, mới nhất) — NOTE-03 P0: tách bạch 2 loại ghi chú + mẹo có ngữ cảnh
+### 2026-09-09 (cuối, mới nhất) — Sửa lỗi: link chia sẻ mang địa chỉ cũ
+
+**Anh báo:** bung thẻ, bấm "Chia sẻ" thì copy ra link cũ, không phải tên miền mới mua.
+
+**Nguyên nhân:** cả **4 chỗ** tạo link chia sẻ đều dựng từ `window.location.origin` — tức lấy
+đúng địa chỉ đang mở. Anh mở web bằng bookmark cũ (`web-five-xi-28.vercel.app`) nên link chia
+sẻ ra cũng mang địa chỉ cũ. **Không chỉ nút Chia sẻ địa điểm** — chia sẻ Sổ (2 chỗ:
+`NotebookOwnerActions.js`, trang sửa sổ) và nút Chia sẻ trên trang địa điểm cũng dính y hệt.
+
+**Lỗi liên quan phát hiện khi sửa:** dự án **chưa khai báo `metadataBase`**, nên ảnh Open Graph
+dùng đường dẫn tương đối cũng bám host đang mở — bot Zalo/Facebook quét link cũ sẽ lấy ảnh
+preview mang địa chỉ cũ. Cùng một gốc vấn đề.
+
+**Đã sửa:** thêm `lib/siteUrl.js` giữ **một hằng số tên miền chính** (`SITE_URL`) +
+`placeShareUrl()` / `notebookShareUrl()`; cả 4 chỗ chia sẻ dùng chung, không còn chỗ nào đọc
+`window.location`. Thêm `metadataBase` vào `app/layout.js`.
+
+Cố ý hard-code thay vì đọc biến môi trường: giá trị gần như không đổi, còn để ở biến môi
+trường thì mỗi lần thiếu cấu hình là link chia sẻ lại sai **âm thầm**, rất khó phát hiện.
+
+**Kiểm thử:** mở web bằng `localhost:3055` (không phải tên miền chính) → bấm Chia sẻ ở cả thẻ
+lẫn trang địa điểm → link copy ra đều là `https://chamdiaphuong.io.vn/dia-diem/...`. Ảnh OG mặc
+định cũng đã bám tên miền chính. Build/lint sạch.
+
+### 2026-09-09 (sau) — NOTE-03 P0: tách bạch 2 loại ghi chú + mẹo có ngữ cảnh
 
 **C1. Tách bạch "Mẹo địa phương" và "Ghi chú trong sổ"** (NOTE-03 §1.C, §7 P0) — trang sửa sổ
 đổi nhãn *"Ghi chú riêng cho chỗ này"* → **"Ghi chú trong sổ — chỉ gắn với sổ này, không hiện

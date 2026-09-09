@@ -129,3 +129,5 @@
       (riêng của sổ, không lên trang địa điểm); mẹo có ngữ cảnh 7 lựa chọn và hiện dạng field
       thay vì bình luận; trang xem Sổ thêm collage ảnh + metadata "N địa điểm · Nhóm chính";
       Open Graph của Sổ dùng cùng mẫu đó
+- [x] **Sửa lỗi link chia sẻ mang địa chỉ cũ** — gom về `lib/siteUrl.js` (hằng số tên miền
+      chính), sửa cả 4 chỗ chia sẻ (địa điểm + sổ) và thêm `metadataBase` cho ảnh Open Graph

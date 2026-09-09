@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { saveNotebookAsMine, checkNotebookOwnership } from "./notebookActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
+import { notebookShareUrl } from "@/lib/siteUrl";
 
 // Đáy trang xem sổ (SPEC-chang-4.md §3.2, §3.4). Trước đây luôn hiện 2 nút "Lưu sổ này thành
 // sổ của tôi" / "Tự tạo sổ của riêng bạn" bất kể ai xem — gây nhầm khi chính CHỦ SỔ tự xem
@@ -53,7 +54,7 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
 
   async function copyLink() {
     if (itemCount === 0) return; // §9: sổ trống thì đừng cho gửi link
-    const url = `${window.location.origin}/so/${slug}`;
+    const url = notebookShareUrl(slug);
     try {
       await navigator.clipboard.writeText(url);
       setCopyLabel("✓ Đã sao chép");

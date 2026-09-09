@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { placeShareUrl } from "@/lib/siteUrl";
 
 // Chia sẻ MỘT địa điểm — luôn trỏ tới trang địa điểm riêng `/dia-diem/{id}`, không bao giờ
 // mượn link Sổ (NOTE-02 §1). Ưu tiên hộp chia sẻ của máy (Zalo/Messenger...), máy nào không
@@ -9,7 +10,7 @@ export function SharePlaceButton({ place }) {
   const [label, setLabel] = useState("Chia sẻ");
 
   async function handleShare() {
-    const url = `${window.location.origin}/dia-diem/${place.id}`;
+    const url = placeShareUrl(place.id);
     if (navigator.share) {
       try {
         await navigator.share({ title: place.name, url });

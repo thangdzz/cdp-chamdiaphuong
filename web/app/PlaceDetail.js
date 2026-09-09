@@ -9,6 +9,7 @@ import { PhoneBlock } from "./PhoneBlock";
 import { AddToNotebook } from "./AddToNotebook";
 import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
 import { noteContextLabel } from "@/lib/notes";
+import { placeShareUrl } from "@/lib/siteUrl";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
@@ -37,7 +38,7 @@ export function PlaceDetail({ place }) {
       : null;
 
   async function handleShare() {
-    const url = window.location.href;
+    const url = placeShareUrl(place.id);
     const shareData = { title: place.name, text: subtitle, url };
     if (navigator.share) {
       try {

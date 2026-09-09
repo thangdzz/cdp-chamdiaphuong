@@ -13,6 +13,7 @@ import {
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { SiteHeader } from "@/app/SiteHeader";
+import { notebookShareUrl } from "@/lib/siteUrl";
 
 // Chỉ chủ sổ mới vào được (SPEC-chang-4.md §3.3) — getNotebookForEdit tự kiểm tra ownership
 // ở server, trang này chỉ điều hướng về trang xem khi không phải chủ sổ, không tự chặn.
@@ -115,7 +116,7 @@ export default function EditNotebookPage({ params }) {
 
   async function copyLink() {
     if (!notebook || notebook.items.length === 0) return; // §9: sổ trống thì đừng cho gửi link
-    const url = `${window.location.origin}/so/${slug}`;
+    const url = notebookShareUrl(slug);
     try {
       await navigator.clipboard.writeText(url);
       setCopyLabel("✓ Đã sao chép");
