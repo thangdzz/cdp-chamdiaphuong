@@ -130,6 +130,11 @@
     "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Chang's Restaurant",
+    "type": "an",
+    "address": "Khu ẩm thực, Tổ 2, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Cháo Ấu Tẩu",
     "type": "an",
     "address": "375 Đường 17/8, Phường Phan Thiết, TP Tuyên Quang"
@@ -605,6 +610,11 @@
     "address": "371 Phạm Văn Đồng, Tổ 5, Phường Hưng Thành, TP Tuyên Quang"
   },
   {
+    "name": "Nhà Hàng Gốc Tếch Huyền Minh",
+    "type": "an",
+    "address": "Số 87 Nguyễn Văn Cừ, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Huấn Hổ",
     "type": "an",
     "address": "47 phố Chu văn An"
@@ -630,6 +640,11 @@
     "address": "Đường Nguyễn Hữu Thọ, phường Minh Xuân, TP. Tuyên Quang"
   },
   {
+    "name": "Nhà Hàng Nhiên Hiên",
+    "type": "an",
+    "address": "Số 112 Điện Biên Phủ, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Thành Tín",
     "type": "an",
     "address": "Khu ẩm thực mới Xuân Hoà, Tổ 2, Phường Minh Xuân, TP Tuyên Quang"
@@ -643,6 +658,11 @@
     "name": "Nhà hàng Ven Hồ",
     "type": "an",
     "address": "Tổ 14, Phường Tân Quang, TP Tuyên Quang (đối diện hồ Tân Quang)"
+  },
+  {
+    "name": "Nhà Hàng Vua Gà (Tuyên Quang)",
+    "type": "an",
+    "address": null
   },
   {
     "name": "Nhà Khách Kim Bình",
