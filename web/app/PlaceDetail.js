@@ -7,7 +7,13 @@ import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
 import { PhoneBlock } from "./PhoneBlock";
 import { AddToNotebook } from "./AddToNotebook";
-import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
+import {
+  PhotoGallery,
+  confidenceLabel,
+  formatDate,
+  formatRelativeAge,
+  staleMenuAgeMonths,
+} from "./PlaceExplorer";
 import { noteContextLabel } from "@/lib/notes";
 import { placeShareUrl } from "@/lib/siteUrl";
 import { placeCover } from "@/lib/cover";
@@ -32,12 +38,12 @@ export function PlaceDetail({ place }) {
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const compactPrice = formatPriceCompact(place);
   const subtitle = [typeLabel(place.type), place.ward].filter(Boolean).join(" · ");
-  const newestMenuPhotoAge =
+  const newestMenuPhotoAt =
     menuPhotos.length > 0
-      ? formatRelativeAge(
-          menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
-        )
+      ? menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
       : null;
+  const newestMenuPhotoAge = formatRelativeAge(newestMenuPhotoAt);
+  const staleMenuMonths = staleMenuAgeMonths(newestMenuPhotoAt);
 
   async function handleShare() {
     const url = placeShareUrl(place.id);
@@ -145,7 +151,7 @@ export function PlaceDetail({ place }) {
         </div>
       )}
 
-      {menuPhotos.length > 0 && (
+      {menuPhotos.length > 3 && (
         <div>
           <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh menu · khách gửi {newestMenuPhotoAge}</p>
           <div className="flex gap-2">
@@ -161,6 +167,21 @@ export function PlaceDetail({ place }) {
               </button>
             ))}
           </div>
+          {menuPhotos.length > 3 && (
+            <button
+              type="button"
+              onClick={() => setMenuGalleryIndex(3)}
+              className="mt-1.5 cursor-pointer text-[13px] text-zinc-500 underline"
+            >
+              Xem thêm {menuPhotos.length - 3} ảnh →
+            </button>
+          )}
+          {/* !== null chứ không phải `staleMenuMonths &&` — xem chú thích ở PlaceExplorer.js */}
+          {staleMenuMonths !== null && (
+            <p className="mt-1.5 text-[13px] text-zinc-400">
+              Menu này đã {staleMenuMonths} tháng. Bạn có ảnh mới hơn?
+            </p>
+          )}
         </div>
       )}
 

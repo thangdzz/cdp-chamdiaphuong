@@ -110,12 +110,16 @@ export default async function NotebookViewPage({ params }) {
           </div>
         )}
 
-        <header className="mb-6">
+        <header className="mb-4">
           <h1 className="text-xl font-medium tracking-tight text-zinc-900">{notebook.title}</h1>
           <p className="mt-1 text-[13px] text-zinc-500">
             {notebookSummary(itemsWithNotes)} · cập nhật {formatRelativeDays(notebook.updatedAt)}
           </p>
         </header>
+
+        {/* NOTE-03 §6: thứ tự là cover → tên → metadata → CTA → danh sách. CTA nằm ở đây chứ
+            không phải cuối trang (xem chú thích trong NotebookOwnerActions.js). */}
+        <NotebookOwnerActions slug={slug} itemCount={items.length} />
 
         {itemsWithNotes.length === 0 ? (
           <p className="text-sm text-zinc-500">Sổ này chưa có chỗ nào.</p>
@@ -139,8 +143,6 @@ export default async function NotebookViewPage({ params }) {
             )}
           </ul>
         )}
-
-        <NotebookOwnerActions slug={slug} itemCount={items.length} />
       </main>
     </div>
   );

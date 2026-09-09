@@ -678,3 +678,24 @@ buộc phải có ảnh, không có thì Zalo/Facebook hiện ô trống xấu. 
 **Vì sao:** trưng ảnh lễ hội lên đầu một cuốn sổ toàn quán cafe là **nói sai về nội dung sổ** —
 cùng lý do với việc bỏ nhãn loại khi sổ trộn nhiều nhóm (quyết định cùng ngày).
 
+
+## 2026-09-09 — Ngưỡng "menu đã cũ" đặt ở 3 tháng
+
+**Quyết định:** Ảnh menu quá **3 tháng** thì hiện thêm dòng mời *"Menu này đã N tháng. Bạn có
+ảnh mới hơn?"* (`STALE_MENU_MONTHS` trong `app/PlaceExplorer.js`).
+**Vì sao:** đây là CTA theo ngữ cảnh mà NOTE-01 §7.4 yêu cầu — nói rõ khách đang giúp việc gì,
+thay cho lời mời chung chung. Chọn 3 tháng vì đó là quãng đủ dài để quán kịp đổi giá nhưng
+chưa dài tới mức bảng giá thành vô dụng. Dưới ngưỡng thì **ẩn hẳn**, không nói gì — nhắc quá
+sớm sẽ thành nhiễu và làm khách nghi ngờ cả những menu còn tốt.
+
+**Bẫy đã gặp khi làm:** viết `{staleMenuMonths && (...)}` thì khi giá trị bằng `0`, React in
+thẳng chữ **"0"** ra màn hình (số 0 là giá trị "giả" trong JavaScript nhưng vẫn là thứ vẽ
+được). Đã đổi sang so sánh `!== null`. Phát hiện được vì lúc kiểm thử có hạ tạm ngưỡng xuống 0
+để xem dòng mời vẽ ra sao — cách thử này an toàn hơn hẳn việc tạo dữ liệu giả trong Redis.
+
+## 2026-09-09 — Ảnh nhỏ trên thẻ Sổ cố ý KHÔNG bấm được
+
+**Quyết định:** Ảnh nhận diện ở thẻ trong Sổ là ảnh tĩnh, không mở gallery khi bấm.
+**Vì sao:** ảnh bìa có thể là **ảnh menu** (xem thứ tự ưu tiên ở `lib/cover.js`), trong khi
+gallery của thẻ chạy trên mảng `photos`. Bấm vào ảnh menu mà mở ra một ảnh khác hẳn thì tệ hơn
+là không bấm được. Muốn xem ảnh thì bung thẻ ra đã có khối "Ảnh địa điểm" đầy đủ.

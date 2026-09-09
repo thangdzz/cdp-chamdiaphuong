@@ -7,7 +7,10 @@ import { saveNotebookAsMine, checkNotebookOwnership } from "./notebookActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { notebookShareUrl } from "@/lib/siteUrl";
 
-// Đáy trang xem sổ (SPEC-chang-4.md §3.2, §3.4). Trước đây luôn hiện 2 nút "Lưu sổ này thành
+// Khối hành động của trang xem sổ (SPEC-chang-4.md §3.2, §3.4). Từ 2026-09-09 nằm NGAY DƯỚI
+// tên sổ thay vì cuối trang (NOTE-03 §6 xếp CTA ở bậc 5, trên danh sách): chủ sổ mở link ra
+// chủ yếu là để gửi đi, mà nút gửi nằm cuối thì phải cuộn hết cả cuốn sổ mới thấy.
+// Trước đây luôn hiện 2 nút "Lưu sổ này thành
 // sổ của tôi" / "Tự tạo sổ của riêng bạn" bất kể ai xem — gây nhầm khi chính CHỦ SỔ tự xem
 // sổ của mình (2 lựa chọn đó đều vô nghĩa lúc đó). Giờ chỉ hiện đúng 1 nút theo đúng người
 // đang xem: chủ sổ → "Sao chép link" + "Sửa sổ này"; người khác → "Lưu sổ này thành sổ của
@@ -68,7 +71,7 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
 
   if (isOwner) {
     return (
-      <div className="mt-6 flex flex-col gap-2">
+      <div className="mb-6 flex flex-col gap-2">
         <button
           type="button"
           disabled={itemCount === 0}
@@ -88,7 +91,7 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
   }
 
   return (
-    <div className="mt-6">
+    <div className="mb-6">
       <button
         type="button"
         disabled={busy}

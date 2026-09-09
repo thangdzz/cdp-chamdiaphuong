@@ -137,3 +137,9 @@
 - [x] **Tách bạch ảnh bìa địa điểm và ảnh bìa Sổ** (`lib/cover.js`) — admin chọn được ảnh bìa
       cho từng địa điểm trong `/admin`; 5 chỗ trước đây tự lấy `photos[0]` nay dùng chung, nên
       preview khi chia sẻ khớp ảnh khách đang thấy
+- [x] **Dọn nốt P0 còn sót của NOTE 10/12** (sau khi rà lại 3 NOTE, 2026-09-09):
+  - Mẹo địa phương trong thẻ Sổ hiện dạng field như trang địa điểm (trước đây vẫn là "💡 …")
+  - Thẻ trong Sổ thêm ảnh nhỏ + loại hình (NOTE-03 §3 card compact)
+  - Nút Chia sẻ / Lưu sổ chuyển lên ngay dưới tên sổ, không còn nằm cuối trang (NOTE-03 §6)
+  - Lời mời gửi ảnh menu mới khi menu đã quá 3 tháng (NOTE-01 §7.4)
+  - Trang địa điểm thêm nút "Xem thêm N ảnh menu" cho khớp thẻ trang chủ

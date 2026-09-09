@@ -114,6 +114,17 @@ export function formatRelativeAge(iso) {
   return `${Math.floor(diffDays / 365)} năm trước`;
 }
 
+// Ảnh menu chụp nguyên bảng giá, mà ảnh 6 tháng trước trông y hệt ảnh hôm qua — đó là lý do
+// SPEC-chang-5.md §2.3 chốt không ghi giá từng món. Quá 3 tháng thì mời khách gửi ảnh mới,
+// nói rõ đang giúp việc gì thay vì lời mời chung chung (NOTE-01 §7.4).
+// Trả null khi còn mới (hoặc ngày hỏng -> NaN) để nơi gọi ẩn hẳn dòng mời.
+const STALE_MENU_MONTHS = 3;
+export function staleMenuAgeMonths(iso) {
+  if (!iso) return null;
+  const months = Math.floor((Date.now() - new Date(iso).getTime()) / (30 * 86400000));
+  return months >= STALE_MENU_MONTHS ? months : null;
+}
+
 // Dòng "Còn mở · xác nhận N ngày trước" trên thẻ — SPEC-chang-1.md §2.1. Trên 90 ngày (hoặc
 // chưa ai xác nhận bao giờ) trả về null để component không hiện gì (bỏ hẳn khỏi DOM, không
 // giữ chỗ như nhãn "còn chỗ" cũ).
@@ -423,12 +434,12 @@ function PlaceCard({ place }) {
   const photos = place.photos ?? [];
   const menuPhotos = place.menuPhotos ?? [];
   const coverPhoto = placeCover(place);
-  const newestMenuPhotoAge =
+  const newestMenuPhotoAt =
     menuPhotos.length > 0
-      ? formatRelativeAge(
-          menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
-        )
+      ? menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
       : null;
+  const newestMenuPhotoAge = formatRelativeAge(newestMenuPhotoAt);
+  const staleMenuMonths = staleMenuAgeMonths(newestMenuPhotoAt);
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const lodgingKind = place.type === "ngu" ? inferLodgingKind(place.name) : null;
   const shortAddress = formatShortAddress(place.address);
@@ -568,6 +579,13 @@ function PlaceCard({ place }) {
                   >
                     Xem thêm {menuPhotos.length - 3} ảnh →
                   </button>
+                )}
+                {/* So sánh với null, KHÔNG viết `{staleMenuMonths && ...}` — số 0 là giá trị
+                    "giả" trong JavaScript nhưng React lại in thẳng chữ "0" ra màn hình. */}
+                {staleMenuMonths !== null && (
+                  <p className="mt-1.5 text-[13px] text-zinc-400">
+                    Menu này đã {staleMenuMonths} tháng. Bạn có ảnh mới hơn?
+                  </p>
                 )}
               </div>
             )}

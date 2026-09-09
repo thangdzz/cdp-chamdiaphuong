@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
+import { PLACE_TYPES } from "@/lib/placeTypes";
+import { placeCover } from "@/lib/cover";
+import { noteContextLabel } from "@/lib/notes";
 import { PlaceFacts } from "./PlaceFacts";
 import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
 
@@ -25,21 +28,38 @@ export function NotebookPlaceCard({ item }) {
       : null;
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const compactPrice = formatPriceCompact(place);
+  // NOTE-03 §3: card compact gồm ảnh · tên · LOẠI · khu vực · giá · ghi chú. Trước đây chỉ có
+  // tên + khu vực, nên lướt một cuốn sổ 6 chỗ là 6 khối chữ trông giống hệt nhau — ảnh nhỏ và
+  // loại hình là 2 thứ giúp nhận ra nhanh nhất chỗ nào là chỗ nào.
+  const typeLabel = PLACE_TYPES.find((t) => t.id === place.type)?.label ?? null;
+  const subtitle = [typeLabel, place.ward].filter(Boolean).join(" · ");
+  const cover = placeCover(place);
 
   return (
     <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
-      <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
-      {place.ward && <p className="mt-1 text-[13px] text-zinc-500">{place.ward}</p>}
-      <p className="mt-5 flex items-baseline gap-1">
-        {compactPrice ? (
-          <>
-            <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>
-            <span className="text-xs text-zinc-400">{compactPrice.unitText}</span>
-          </>
-        ) : (
-          <span className="text-base font-normal text-zinc-400">Chưa cập nhật giá</span>
+      <div className="flex gap-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
+          {subtitle && <p className="mt-1 text-[13px] text-zinc-500">{subtitle}</p>}
+          <p className="mt-3 flex items-baseline gap-1">
+            {compactPrice ? (
+              <>
+                <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>
+                <span className="text-xs text-zinc-400">{compactPrice.unitText}</span>
+              </>
+            ) : (
+              <span className="text-base font-normal text-zinc-400">Chưa cập nhật giá</span>
+            )}
+          </p>
+        </div>
+        {cover && (
+          // Cố ý KHÔNG bấm được: ảnh ở đây để nhận diện chỗ, còn xem ảnh thì đã có khối "Ảnh
+          // địa điểm" sau khi bung. Ảnh bìa có thể là ảnh menu (xem lib/cover.js), bấm vào mà
+          // mở gallery ảnh thường sẽ nhảy sang một ảnh khác hẳn ảnh vừa bấm.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={cover} alt="" className="h-20 w-20 shrink-0 rounded-lg bg-zinc-100 object-cover" />
         )}
-      </p>
+      </div>
       {item.note && <p className="mt-3 text-sm text-zinc-700">💬 {item.note}</p>}
 
       {expanded && (
@@ -62,14 +82,25 @@ export function NotebookPlaceCard({ item }) {
             </div>
           )}
 
+          {/* NOTE-03 §1.B: mẹo đã duyệt hiện dạng FIELD ("Gửi xe — ..."), không phải bình luận.
+              Trước đây chỗ này in "💡 {text}" nên CÙNG một mẹo mở ở trang địa điểm thì thành
+              field, mở trong Sổ lại thành dòng bình luận. Mẹo cũ (trước 2026-09-09) chưa có
+              ngữ cảnh -> vẫn dùng 💡 để không thành dòng chữ trần, giống cách NoteInput làm. */}
           {place.notes?.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {place.notes.slice(0, 3).map((n) => (
-                <p key={n.id}>
-                  <span className="mr-1">💡</span>
-                  {n.text}
-                </p>
-              ))}
+            <div>
+              <p className="mb-1.5 text-[13px] text-zinc-500">Mẹo địa phương</p>
+              <div className="flex flex-col gap-2">
+                {place.notes.slice(0, 3).map((n) => (
+                  <p key={n.id}>
+                    {noteContextLabel(n.context) ? (
+                      <span className="mr-1.5 font-medium text-zinc-900">{noteContextLabel(n.context)}</span>
+                    ) : (
+                      <span className="mr-1">💡</span>
+                    )}
+                    {n.text}
+                  </p>
+                ))}
+              </div>
             </div>
           )}
 

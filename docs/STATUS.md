@@ -230,7 +230,31 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (cuối cùng, mới nhất) — Metadata card + tách bạch ảnh bìa
+### 2026-09-09 (mới nhất) — Rà lại 3 NOTE, dọn nốt P0 còn sót
+
+Đọc lại `10-NOTE-01`, `11-NOTE-02`, `12-NOTE-03` rồi đối chiếu với code đang chạy. Kết quả:
+**NOTE 11 xong gần hết**, NOTE 10 và NOTE 12 mỗi file còn vài chỗ P0 sót lại. Đã làm nốt 5
+việc nhỏ (chi tiết ở [TASKS.md](TASKS.md)):
+
+- Mẹo địa phương trong thẻ Sổ hiện **dạng field** như trang địa điểm — trước đây cùng một mẹo
+  mở ở trang địa điểm thì thành "**Gửi xe** — …", mở trong Sổ lại thành "💡 …" như bình luận
+- Thẻ trong Sổ thêm **ảnh nhỏ + loại hình** — trước đây lướt một cuốn sổ 6 chỗ là 6 khối chữ
+  trông giống hệt nhau
+- Nút **Chia sẻ / Lưu sổ** chuyển lên ngay dưới tên sổ (trước nằm cuối trang, chủ sổ phải cuộn
+  hết cả cuốn mới thấy nút gửi)
+- Ảnh menu quá **3 tháng** thì mời khách gửi ảnh mới
+- Trang địa điểm thêm nút **"Xem thêm N ảnh menu"** cho khớp thẻ trang chủ
+
+**Còn treo, cần anh quyết (xem mục "Câu hỏi/vướng mắc đang mở"):** khối Lễ hội ở trang chủ
+đang hứa "chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ" nhưng bấm vào lại ra **lịch sự kiện**.
+Lễ hội khai mạc **19/9**.
+
+**Còn thiếu so với spec, chưa làm (đều là P1):** khối "Bạn đang cần gì?" và 2 nút CTA đầu
+trang chủ (NOTE-01 §2.2–§3), sổ mẫu, phân loại ảnh 7 nhóm, tuổi ảnh thường, map cho Sổ,
+`mode: list | route`, `primaryCategory + tags`, field động cho Di tích. Trang địa điểm cũng
+chưa có **giờ mở cửa** (chưa có trường dữ liệu nào cho nó).
+
+### 2026-09-09 (trước đó) — Metadata card + tách bạch ảnh bìa
 
 **1. Metadata trên card — chỉ hiện thứ có dữ liệu thật.** Chỗ duy nhất còn lấp chỗ trống là
 `NotebookPlaceCard.js` (thẻ trong Sổ): luôn in "Chưa rõ ngày cập nhật", "Độ tin cậy chưa đánh
@@ -1733,3 +1757,10 @@ Anh yêu cầu 2 việc lớn cùng lúc:
   chờ khách góp ý dần.
 - Mật khẩu `/admin` hiện khá đơn giản — nên đổi khi làm Giai đoạn 5b (bảo mật đầy đủ).
 - Repo GitHub đang Public — có thể đổi lại Private sau nếu tìm được cách cấp quyền đúng.
+- **Khối Lễ hội ở trang chủ đang hứa một đằng, dẫn một nẻo** (phát hiện 2026-09-09, hạn 19/9):
+  banner viết "Chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ quanh khu lễ hội →" nhưng bấm vào
+  ra `/le-hoi-thanh-tuyen` — trang lịch sự kiện, không có chỗ nào trong 4 thứ vừa hứa. Hai
+  hướng: (a) sửa câu cho khớp trang đích — nhanh, nhưng trang chủ mất điểm vào duy nhất dẫn
+  tới nội dung có ích cho dịp lễ hội; (b) làm 1 sổ mẫu "Thành Tuyên tối 20/9" — banner đúng
+  như đã hứa và mở luôn được CTA "Xem sổ gợi ý" (NOTE-01 §2.2, §11 việc 3–4). Anh đã hoãn sổ
+  mẫu ngày 08/09 với lý do "1 chỗ chất lượng vẫn hơn", nên cần anh quyết lại trước 19/9.
