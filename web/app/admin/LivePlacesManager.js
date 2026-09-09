@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { transportSummary } from "@/lib/transport";
 import { stripDiacritics } from "@/lib/ingestion/normalize";
 import { Field, PlaceForm } from "./PlaceFormFields";
 import { updateLive, deleteLive } from "./actions";
@@ -124,8 +125,12 @@ export function LivePlacesManager({ live }) {
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-zinc-900">{place.name}</p>
+                  {/* Chỗ Đi lại đã chọn loại thì ghi rõ "Xe ghép · 7 chỗ" — nhìn danh sách là
+                      biết ngay chỗ nào còn trơ mỗi chữ "Đi lại", tức là chưa phân loại. */}
                   <p className="truncate text-xs text-zinc-500">
-                    {PLACE_TYPES.find((t) => t.id === place.type)?.label ?? place.type}
+                    {transportSummary(place) ??
+                      PLACE_TYPES.find((t) => t.id === place.type)?.label ??
+                      place.type}
                     {place.ward ? ` · ${place.ward}` : ""}
                   </p>
                 </div>
