@@ -631,3 +631,26 @@ ngay tại chỗ, không phải quay ra làm lại.
 
 **Đánh đổi:** menu Bổ sung dài thêm 1 dòng (4 lựa chọn thay vì 3). Chấp nhận — đổi lại hành
 động giá trị nhất có lối đi thẳng.
+
+## 2026-09-09 — Mẹo địa phương gắn ngữ cảnh, hiển thị như field
+
+**Quyết định:** Thêm trường `context` cho mẹo địa phương (7 lựa chọn: Gửi xe · Lối vào · Thời
+điểm · Di chuyển · Thanh toán · Tiện ích · Khác), **chọn trước khi gõ**, và hiển thị mẹo đã
+duyệt dưới dạng **field** (`**Gửi xe** — Tối lễ hội nên gửi phía sau chợ`) thay vì một dòng
+chữ có icon 💡.
+**Vì sao:** đúng NOTE-03 §1.B — mẹo phải giúp người sau làm được **một việc cụ thể**. Gắn ngữ
+cảnh khiến người viết tự nghĩ theo hướng đó, và khiến người đọc quét nhanh được đúng thứ họ
+cần. Quan trọng hơn: hiển thị dạng field **chặn bằng cấu trúc** việc mẹo trôi dần thành bình
+luận/review — đúng nguyên tắc gốc của dự án (chặn bằng cấu trúc, không bằng nội quy).
+
+**Không migration:** note cũ đọc ra `context = null` và hiện y như trước (có icon 💡). Không
+động vào dữ liệu đã duyệt.
+
+## 2026-09-09 — Nhóm chính của Sổ: bỏ nhãn khi sổ trộn quá nhiều loại
+
+**Quyết định:** Metadata của Sổ (cả trên trang lẫn trong preview chia sẻ) hiện
+`N địa điểm · Nhóm chính`, trong đó nhóm chính là loại xuất hiện nhiều nhất — nhưng **chỉ gán
+nhãn khi loại đó chiếm ≥ 50%** số địa điểm; dưới ngưỡng thì chỉ hiện `N địa điểm`.
+**Vì sao:** NOTE-03 §5 muốn preview cho thấy sổ là "tập hợp có chủ đích". Một sổ 2 Ăn + 2 Ngủ
++ 1 Chơi mà gán đại nhãn "Ăn" là **nói sai về nội dung sổ** — thà không nói còn hơn nói sai,
+đúng nguyên tắc "thông tin nào chưa chắc thì nói rõ chưa chắc" (NOTE-01 §9).

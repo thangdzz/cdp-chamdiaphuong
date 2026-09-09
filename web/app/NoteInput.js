@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { submitTip, reportNoteAction } from "./noteActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
+import { NOTE_CONTEXTS, noteContextLabel } from "@/lib/notes";
 
 const NOTE_MAX_LENGTH = 120;
 
@@ -14,6 +15,7 @@ export function NoteInput({ place }) {
   const [reportedIds, setReportedIds] = useState([]);
   const [text, setText] = useState("");
   const [festivalOnly, setFestivalOnly] = useState(false);
+  const [context, setContext] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | busy | sent
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -37,6 +39,7 @@ export function NoteInput({ place }) {
       questionId: "tip",
       text,
       festivalOnly,
+      context,
     });
     if (result.newProfile) {
       saveLocalContributor({
@@ -54,6 +57,7 @@ export function NoteInput({ place }) {
     setStatus("sent");
     setText("");
     setFestivalOnly(false);
+    setContext(null);
   }
 
   // Tối đa 3 mẹo hiện trên thẻ — nhiều hơn dễ rối, thẻ không phải nơi đọc hết mọi mẹo
@@ -67,7 +71,13 @@ export function NoteInput({ place }) {
           {visibleNotes.map((note) => (
             <div key={note.id} className="flex items-start justify-between gap-2">
               <p>
-                <span className="mr-1">💡</span>
+                {noteContextLabel(note.context) ? (
+                  <span className="mr-1.5 font-medium text-zinc-900">
+                    {noteContextLabel(note.context)}
+                  </span>
+                ) : (
+                  <span className="mr-1">💡</span>
+                )}
                 {note.text}
               </p>
               <button
@@ -90,6 +100,24 @@ export function NoteInput({ place }) {
       ) : (
         <div className="flex flex-col gap-1.5">
           <p className="text-[13px] text-zinc-500">Bạn có mẹo gì cho chỗ này không?</p>
+          {/* NOTE-03 §1.B: chọn ngữ cảnh TRƯỚC khi gõ — "chọn là mặc định, gõ là ngoại lệ".
+              Chọn xong mẹo sẽ hiện dạng field ("Gửi xe — ...") chứ không phải dòng bình luận. */}
+          <div className="flex flex-wrap gap-1.5">
+            {NOTE_CONTEXTS.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setContext(context === c.id ? null : c.id)}
+                className={`cdp-pressable cursor-pointer rounded-full border px-2.5 py-1 text-xs ${
+                  context === c.id
+                    ? "border-zinc-400 bg-zinc-100 font-medium text-zinc-900"
+                    : "border-zinc-200 text-zinc-500"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
           <textarea
             value={text}
             maxLength={NOTE_MAX_LENGTH}

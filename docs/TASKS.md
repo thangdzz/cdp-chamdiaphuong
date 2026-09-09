@@ -125,3 +125,7 @@
 - [x] **NOTE-02 xong** — route mới `/dia-diem/{id}`: trang một địa điểm có Open Graph riêng
       (tên · loại · khu vực · ảnh), bố cục phẳng không bọc card, CTA Chỉ đường / + Vào sổ /
       Chia sẻ; nút Chia sẻ trên thẻ trang chủ trỏ đúng trang địa điểm thay vì mượn link sổ
+- [x] **NOTE-03 P0** — tách bạch "Mẹo địa phương" (công khai, phải duyệt) và "Ghi chú trong sổ"
+      (riêng của sổ, không lên trang địa điểm); mẹo có ngữ cảnh 7 lựa chọn và hiện dạng field
+      thay vì bình luận; trang xem Sổ thêm collage ảnh + metadata "N địa điểm · Nhóm chính";
+      Open Graph của Sổ dùng cùng mẫu đó

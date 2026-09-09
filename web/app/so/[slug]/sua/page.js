@@ -249,9 +249,15 @@ function NoteEditor({ placeId, initialNote, onSave }) {
 
   return (
     <div className="mt-2">
+      {/* NOTE-03 §1.C và §7 P0: gọi đúng tên "Ghi chú trong sổ" và nói rõ nó KHÔNG lên trang
+          địa điểm — trước đây tên "Ghi chú riêng cho chỗ này" dễ khiến khách tưởng đang viết
+          nội dung công khai cho địa điểm (thứ đó là "Mẹo địa phương", phải qua admin duyệt). */}
+      <p className="mb-1 text-xs text-zinc-500">
+        Ghi chú trong sổ — chỉ gắn với sổ này, không hiện trên trang địa điểm.
+      </p>
       <input
         className="w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900"
-        placeholder="Ghi chú riêng cho chỗ này (tối đa 140 ký tự)"
+        placeholder="VD: Tối thứ Bảy thử chỗ này trước (tối đa 140 ký tự)"
         maxLength={NOTE_MAX_LENGTH}
         value={value}
         disabled={busy}

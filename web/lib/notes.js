@@ -5,6 +5,29 @@ import { redis } from "./redis.js";
 // admin duyệt (§7 quy tắc 1), nên cấu trúc lưu tách hẳn khỏi places:live.
 const PUBLISHED_KEY = "place_notes:published"; // hash, field = placeId, value = mảng JSON
 const QUEUE_KEY = "place_notes:queue"; // mảng chờ duyệt
+
+// Mẹo địa phương phải giúp người sau làm được MỘT VIỆC CỤ THỂ (NOTE-03 §1.B). Bắt chọn ngữ
+// cảnh trước khi gõ vừa đúng nguyên tắc "chọn là mặc định, gõ là ngoại lệ", vừa cho phép hiển
+// thị mẹo dưới dạng FIELD ("Gửi xe — ...") thay vì như một dòng bình luận.
+// Note cũ (trước 2026-09-09) không có context — đọc ra `null` và hiện như trước, KHÔNG cần
+// migration.
+export const NOTE_CONTEXTS = [
+  { id: "gui-xe", label: "Gửi xe" },
+  { id: "loi-vao", label: "Lối vào" },
+  { id: "thoi-diem", label: "Thời điểm" },
+  { id: "di-chuyen", label: "Di chuyển" },
+  { id: "thanh-toan", label: "Thanh toán" },
+  { id: "tien-ich", label: "Tiện ích" },
+  { id: "khac", label: "Khác" },
+];
+
+export function noteContextLabel(contextId) {
+  return NOTE_CONTEXTS.find((c) => c.id === contextId)?.label ?? null;
+}
+
+export function isValidNoteContext(contextId) {
+  return NOTE_CONTEXTS.some((c) => c.id === contextId);
+}
 const REPORTS_TTL_SECONDS = 90 * 24 * 60 * 60;
 
 // Ghi chú "chỉ đúng dịp lễ hội" tự ẩn sau ngày này, không xoá (SPEC §7 quy tắc 5) — admin
@@ -64,6 +87,7 @@ export async function approveNote(queueItemId) {
   published.push({
     id: item.id,
     text: item.text,
+    context: item.context ?? null, // note cũ không có -> null, hiển thị như trước
     festivalOnly: item.festivalOnly,
     approvedAt: new Date().toISOString(),
     reports: 0,

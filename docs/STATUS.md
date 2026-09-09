@@ -230,7 +230,39 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (mới nhất) — NOTE-01 xong P0 + NOTE-02 xong: trang địa điểm riêng
+### 2026-09-09 (sau, mới nhất) — NOTE-03 P0: tách bạch 2 loại ghi chú + mẹo có ngữ cảnh
+
+**C1. Tách bạch "Mẹo địa phương" và "Ghi chú trong sổ"** (NOTE-03 §1.C, §7 P0) — trang sửa sổ
+đổi nhãn *"Ghi chú riêng cho chỗ này"* → **"Ghi chú trong sổ — chỉ gắn với sổ này, không hiện
+trên trang địa điểm."** Tên cũ dễ khiến khách tưởng đang viết nội dung công khai cho địa điểm
+(thứ đó là "Mẹo địa phương", bắt buộc qua admin duyệt).
+
+**C2. Mẹo địa phương có ngữ cảnh** (§1.B) — thêm trường `context` với 7 lựa chọn (Gửi xe · Lối
+vào · Thời điểm · Di chuyển · Thanh toán · Tiện ích · Khác):
+- `lib/notes.js`: hằng số `NOTE_CONTEXTS` + `noteContextLabel()` + `isValidNoteContext()`;
+  `approveNote()` mang context sang bản đã duyệt. **Note cũ không có context → đọc ra `null`,
+  hiện y như trước, không cần migration.**
+- `app/NoteInput.js`: chọn ngữ cảnh **trước** khi gõ (đúng "chọn là mặc định, gõ là ngoại lệ")
+- `app/noteActions.js`: **không tin dữ liệu client** — context lạ thì bỏ về `null`
+- Hiển thị **dạng field** (**Gửi xe** — nội dung) ở cả thẻ trang chủ lẫn trang địa điểm,
+  không phải dòng bình luận, không tên người viết (§1.B, NOTE-02 §7)
+- `/admin`: thẻ duyệt hiện thêm ngữ cảnh để admin biết mẹo nói về việc gì
+
+**C3–C4. Trang xem Sổ + preview khi chia sẻ Sổ** (§5, §6, §13):
+- Thêm **collage 3 ảnh đầu** lên đầu trang sổ (chưa có trường cover riêng — đó là P1)
+- Metadata đổi từ "N chỗ" sang **"N địa điểm · Nhóm chính"** (VD `5 địa điểm · Ăn`); sổ trộn
+  quá nhiều loại (không loại nào chiếm ≥50%) thì **bỏ hẳn nhãn loại** thay vì liệt kê dài
+- Open Graph của sổ dùng luôn mẫu này, thay cho mô tả chung chung cũ
+
+**Kiểm thử đầu-cuối:** gửi mẹo chọn ngữ cảnh "Gửi xe" → lưu đúng `context: "gui-xe"` trong
+hàng chờ → `/admin` hiện ngữ cảnh trong thẻ duyệt → duyệt → mẹo hiện **dạng field** ở cả trang
+địa điểm lẫn thẻ trang chủ. Console sạch, build/lint sạch. Dọn dữ liệu test **theo đúng ID đã
+ghi lại** (note + hồ sơ), xác nhận không sót.
+
+**Chưa làm (đều là P1 theo §15):** `mode: list | route`, map cho sổ, đánh số stop,
+`primaryCategory + tags`, dynamic fields cho Di tích. Sổ mẫu (NOTE-01 P0 việc 4) anh vẫn hoãn.
+
+### 2026-09-09 — NOTE-01 xong P0 + NOTE-02 xong: trang địa điểm riêng
 
 Anh đưa thêm 2 tài liệu ([11-NOTE-02](11-NOTE-02-Share-Place.md),
 [12-NOTE-03](12-NOTE-03-Notebook-Route-Content.md)) và yêu cầu làm tuần tự: hoàn thành NOTE-01

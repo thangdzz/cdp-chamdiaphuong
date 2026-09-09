@@ -7,7 +7,7 @@ import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { getSuggestions } from "@/lib/suggestions";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { getAdminNotebookStats } from "@/lib/notebooks";
-import { getNoteQueue } from "@/lib/notes";
+import { getNoteQueue, noteContextLabel } from "@/lib/notes";
 import {
   login,
   logout,
@@ -219,6 +219,7 @@ function NoteCard({ item, placeName }) {
       <p className="mt-2 text-sm font-medium text-zinc-800">{placeName}</p>
       <p className="mt-1 text-xs text-zinc-500">
         {NOTE_QUESTION_LABEL[item.questionId] ?? item.questionId ?? "Mẹo tự do"}
+        {noteContextLabel(item.context) ? ` · ${noteContextLabel(item.context)}` : ""}
       </p>
       <p className="mt-1 text-sm text-zinc-700">💬 {item.text}</p>
       {item.festivalOnly && (

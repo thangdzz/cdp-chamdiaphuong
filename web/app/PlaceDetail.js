@@ -8,6 +8,7 @@ import { PlaceFacts } from "./PlaceFacts";
 import { PhoneBlock } from "./PhoneBlock";
 import { AddToNotebook } from "./AddToNotebook";
 import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
+import { noteContextLabel } from "@/lib/notes";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
@@ -181,6 +182,9 @@ export function PlaceDetail({ place }) {
           <div className="flex flex-col gap-2">
             {place.notes.map((n) => (
               <p key={n.id} className="text-sm leading-relaxed text-zinc-700">
+                {noteContextLabel(n.context) && (
+                  <span className="mr-1.5 font-medium text-zinc-900">{noteContextLabel(n.context)}</span>
+                )}
                 {n.text}
               </p>
             ))}

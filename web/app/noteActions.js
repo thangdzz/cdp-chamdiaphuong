@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createContributor } from "@/lib/contributors";
 import { checkNoteText } from "@/lib/noteFilters";
 import { checkNoteWithAi } from "@/lib/noteAiCheck";
-import { getNoteQueue, pushNoteToQueue, countPendingNotesForContributor, findDuplicateNote, reportNote } from "@/lib/notes";
+import { getNoteQueue, pushNoteToQueue, countPendingNotesForContributor, findDuplicateNote, reportNote, isValidNoteContext } from "@/lib/notes";
 
 const NOTE_MAX_LENGTH = 120;
 const MAX_PENDING_PER_CONTRIBUTOR = 3; // SPEC-chang-5.md §7 quy tắc 3
@@ -23,7 +23,7 @@ async function ensureProfile(anonId) {
 
 // "Mẹo tự do" (SPEC-chang-5.md §2.1) — luôn phải qua duyệt, không có ngoại lệ (§7 quy tắc 1).
 // Điểm +5 chỉ cộng SAU KHI admin duyệt (quy tắc 2), không cộng ở đây.
-export async function submitTip({ anonId, placeId, questionId, text, festivalOnly }) {
+export async function submitTip({ anonId, placeId, questionId, text, festivalOnly, context }) {
   if (!placeId || !questionId) return { ok: false, error: "Thiếu thông tin." };
 
   const filterError = checkNoteText(text ?? "", NOTE_MAX_LENGTH);
@@ -61,6 +61,9 @@ export async function submitTip({ anonId, placeId, questionId, text, festivalOnl
       placeId,
       questionId,
       text: cleanText,
+      // Server Action gọi được trực tiếp bất kể giao diện — không tin dữ liệu từ client,
+      // context lạ thì bỏ về null thay vì lưu bừa (đúng cách answers.js đang kiểm đáp án).
+      context: isValidNoteContext(context) ? context : null,
       festivalOnly: !!festivalOnly,
       contributorId: currentAnonId,
       at: new Date().toISOString(),

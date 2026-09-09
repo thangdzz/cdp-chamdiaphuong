@@ -5,14 +5,35 @@ import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
 import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
 import { SiteHeader } from "@/app/SiteHeader";
+import { PLACE_TYPES } from "@/lib/placeTypes";
 
 export const dynamic = "force-dynamic";
 
 const SITE_NAME = "Chạm Địa Phương";
 const FALLBACK_OG_IMAGE = "/images/le-hoi-thanh-tuyen-2026.jpg";
 
-function ogDescription(itemCount) {
-  return `${itemCount} chỗ · Cuốn sổ ăn/chơi/ngủ/đi lại Tuyên Quang — ${SITE_NAME}`;
+// NOTE-03 §5: preview phải cho người nhận hiểu đây là một tập hợp CÓ CHỦ ĐÍCH ("5 địa điểm ·
+// Cafe"), không phải mô tả chung chung về sản phẩm. Nhóm chính = loại xuất hiện nhiều nhất
+// trong sổ; sổ trộn nhiều loại thì bỏ hẳn phần loại thay vì liệt kê dài.
+function dominantTypeLabel(items) {
+  const counts = {};
+  for (const it of items) {
+    const type = it.place?.type;
+    if (type) counts[type] = (counts[type] ?? 0) + 1;
+  }
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  if (!top) return null;
+  const [type, count] = top;
+  if (count / items.length < 0.5) return null; // trộn quá nhiều loại -> không gán nhãn
+  return PLACE_TYPES.find((t) => t.id === type)?.label ?? null;
+}
+
+function notebookSummary(items) {
+  return [`${items.length} địa điểm`, dominantTypeLabel(items)].filter(Boolean).join(" · ");
+}
+
+function ogDescription(items) {
+  return `${notebookSummary(items)} · ${SITE_NAME}`;
 }
 
 // Bắt buộc trang này chạy được không cần đăng nhập, không cần localStorage — người nhận link
@@ -24,7 +45,7 @@ export async function generateMetadata({ params }) {
 
   const items = await resolveNotebookItems(notebook.items);
   const firstPhoto = items.find((it) => it.place?.photos?.length)?.place.photos[0];
-  const description = ogDescription(notebook.items.length);
+  const description = ogDescription(items);
 
   return {
     title: `${notebook.title} — ${SITE_NAME}`,
@@ -59,16 +80,37 @@ export default async function NotebookViewPage({ params }) {
     item.deleted ? item : { ...item, place: { ...item.place, notes: filterVisibleNotes(allNotes[item.placeId] ?? []) } }
   );
 
+  const collagePhotos = itemsWithNotes
+    .map((it) => it.place?.photos?.[0])
+    .filter(Boolean)
+    .slice(0, 3);
+
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <NotebookViewTracker slug={slug} />
         <SiteHeader />
 
+        {/* NOTE-03 §6 + §13: cover dạng collage 3 ảnh đầu (chưa có trường cover riêng — đó là
+            P1), rồi mới tới tên sổ và metadata "N địa điểm · Nhóm chính". */}
+        {collagePhotos.length > 0 && (
+          <div className="mb-3 flex gap-1 overflow-hidden rounded-xl">
+            {collagePhotos.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={i}
+                src={src}
+                alt=""
+                className={`h-32 object-cover ${collagePhotos.length === 1 ? "w-full" : "flex-1"}`}
+              />
+            ))}
+          </div>
+        )}
+
         <header className="mb-6">
           <h1 className="text-xl font-medium tracking-tight text-zinc-900">{notebook.title}</h1>
           <p className="mt-1 text-[13px] text-zinc-500">
-            {itemsWithNotes.length} chỗ · cập nhật {formatRelativeDays(notebook.updatedAt)}
+            {notebookSummary(itemsWithNotes)} · cập nhật {formatRelativeDays(notebook.updatedAt)}
           </p>
         </header>
 
