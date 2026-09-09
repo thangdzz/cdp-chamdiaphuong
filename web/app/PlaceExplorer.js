@@ -14,6 +14,7 @@ import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 import { PhoneBlock } from "./PhoneBlock";
+import { placeCover } from "@/lib/cover";
 import { SharePlaceButton } from "./SharePlaceButton";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
@@ -421,6 +422,7 @@ function PlaceCard({ place }) {
   const checkinLabel = formatCheckinAge(lastCheckinAt);
   const photos = place.photos ?? [];
   const menuPhotos = place.menuPhotos ?? [];
+  const coverPhoto = placeCover(place);
   const newestMenuPhotoAge =
     menuPhotos.length > 0
       ? formatRelativeAge(
@@ -502,7 +504,7 @@ function PlaceCard({ place }) {
                   className="block w-full cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photos[0]} alt="" className="h-44 w-full object-cover" />
+                  <img src={coverPhoto} alt="" className="h-44 w-full object-cover" />
                 </button>
                 {photos.length > 1 && (
                   <div className="mt-1.5 flex gap-1.5">

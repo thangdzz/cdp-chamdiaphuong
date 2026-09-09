@@ -10,6 +10,7 @@ import { AddToNotebook } from "./AddToNotebook";
 import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
 import { noteContextLabel } from "@/lib/notes";
 import { placeShareUrl } from "@/lib/siteUrl";
+import { placeCover } from "@/lib/cover";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
@@ -27,6 +28,7 @@ export function PlaceDetail({ place }) {
 
   const photos = place.photos ?? [];
   const menuPhotos = place.menuPhotos ?? [];
+  const coverPhoto = placeCover(place);
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
   const compactPrice = formatPriceCompact(place);
   const subtitle = [typeLabel(place.type), place.ward].filter(Boolean).join(" · ");
@@ -81,7 +83,7 @@ export function PlaceDetail({ place }) {
             className="block w-full cursor-pointer overflow-hidden rounded-xl bg-zinc-100"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photos[0]} alt="" className="h-56 w-full object-cover" />
+            <img src={coverPhoto} alt="" className="h-56 w-full object-cover" />
           </button>
           {photos.length > 1 && (
             <div className="mt-1.5 flex gap-1.5">

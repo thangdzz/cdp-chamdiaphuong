@@ -654,3 +654,27 @@ nhãn khi loại đó chiếm ≥ 50%** số địa điểm; dưới ngưỡng t
 **Vì sao:** NOTE-03 §5 muốn preview cho thấy sổ là "tập hợp có chủ đích". Một sổ 2 Ăn + 2 Ngủ
 + 1 Chơi mà gán đại nhãn "Ăn" là **nói sai về nội dung sổ** — thà không nói còn hơn nói sai,
 đúng nguyên tắc "thông tin nào chưa chắc thì nói rõ chưa chắc" (NOTE-01 §9).
+
+## 2026-09-09 — Ảnh bìa: `coverPhoto` do admin chọn được ưu tiên hơn `photos[0]`
+
+**Quyết định:** Thêm trường `coverPhoto` cho địa điểm, admin chọn trong form sửa ở `/admin`.
+Mọi nơi hiển thị ảnh đại diện đi qua `placeCover()` trong `lib/cover.js`, ưu tiên `coverPhoto`
+trước rồi mới tới `photos[0]`.
+**Vì sao:** `photos[0]` chỉ có nghĩa là "ảnh khách gửi lên sớm nhất" — không có gì đảm bảo nó
+đại diện tốt cho chỗ đó. Ảnh này là thứ khách thấy đầu tiên trên thẻ, trên trang địa điểm, và
+trong preview khi chia sẻ ra Zalo/Facebook, nên đáng để admin có quyền chọn.
+
+**Bỏ chọn = để web tự lấy ảnh đầu**, KHÔNG phải xoá ảnh — ảnh vẫn nằm nguyên trong `photos`.
+
+**Cũng gom luôn `notebookCover()` vào cùng file:** trước đây mỗi chỗ tự chọn ảnh theo cách
+riêng (thẻ lấy `photos[0]`, OG sổ lấy "ảnh đầu tiên tìm thấy", collage lấy kiểu khác) nên ảnh
+trong preview có thể **khác** ảnh khách đang nhìn thấy — cùng một thứ mà 3 nơi hiểu 3 kiểu.
+
+## 2026-09-09 — Trang Sổ chưa có ảnh thì bỏ hẳn khối ảnh, không dùng ảnh mặc định
+
+**Quyết định:** Ảnh mặc định (`FALLBACK_COVER`) **chỉ dùng cho preview khi share** — nơi bắt
+buộc phải có ảnh, không có thì Zalo/Facebook hiện ô trống xấu. Còn trên trang Sổ, sổ chưa có
+ảnh nào thì **bỏ hẳn khối ảnh**.
+**Vì sao:** trưng ảnh lễ hội lên đầu một cuốn sổ toàn quán cafe là **nói sai về nội dung sổ** —
+cùng lý do với việc bỏ nhãn loại khi sổ trộn nhiều nhóm (quyết định cùng ngày).
+

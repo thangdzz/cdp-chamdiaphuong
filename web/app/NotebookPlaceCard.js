@@ -131,13 +131,20 @@ export function NotebookPlaceCard({ item }) {
             </div>
           )}
 
+          {/* Chỉ hiện thứ CÓ dữ liệu thật. Trước đây 3 dòng cuối luôn hiện kể cả khi trống
+              ("Chưa rõ ngày cập nhật", "Độ tin cậy chưa đánh giá", "Đối chiếu chưa rõ nguồn")
+              — vừa chiếm chỗ vừa không giúp khách quyết định gì, lại làm dữ liệu trông tệ hơn
+              thực tế. Thẻ ở trang chủ đã bỏ kiểu lấp chỗ trống này từ 2026-08-21
+              (SPEC-giao-dien.md §6c mục 1), thẻ trong Sổ giờ theo cho khớp.
+              Riêng GIÁ vẫn giữ "Chưa cập nhật giá" ở khối trên — giá là thứ khách cần để
+              quyết định đi hay không, im lặng ở đó gây hiểu nhầm là miễn phí/rẻ. */}
           <p className="text-[13px] leading-5 text-zinc-500">
             {[
               place.address,
               [place.localArea, place.ward].filter(Boolean).join(", ") || null,
-              formatDate(place.lastUpdatedAt) ? `Cập nhật ${formatDate(place.lastUpdatedAt)}` : "Chưa rõ ngày cập nhật",
-              `Độ tin cậy ${confidenceLabel(place.confidenceScore) ?? "chưa đánh giá"}`,
-              `Đối chiếu ${place.sourceCount ?? "chưa rõ"} nguồn`,
+              formatDate(place.lastUpdatedAt) ? `Cập nhật ${formatDate(place.lastUpdatedAt)}` : null,
+              confidenceLabel(place.confidenceScore) ? `Độ tin cậy ${confidenceLabel(place.confidenceScore)}` : null,
+              place.sourceCount ? `Đối chiếu ${place.sourceCount} nguồn` : null,
               place.note,
             ]
               .filter(Boolean)

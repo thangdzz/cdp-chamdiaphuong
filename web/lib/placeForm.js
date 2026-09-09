@@ -29,5 +29,8 @@ export function placeFromFormData(formData) {
     // priceText luôn tự tính từ priceMin/priceMax/priceUnit — không nhận gõ tay, để
     // tránh lệch định dạng (ví dụ "35000" so với "35.000 đ").
     priceText: formatPriceText({ priceMin, priceMax, priceUnit }),
+    // Ảnh bìa do admin chọn (lib/cover.js ưu tiên trường này hơn photos[0]). Rỗng = để web
+    // tự chọn, KHÔNG phải xoá ảnh — ảnh vẫn nằm nguyên trong `photos`.
+    coverPhoto: toTextOrNull(formData.get("coverPhoto")?.toString()),
   };
 }

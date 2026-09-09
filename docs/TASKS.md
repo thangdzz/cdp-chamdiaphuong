@@ -131,3 +131,9 @@
       Open Graph của Sổ dùng cùng mẫu đó
 - [x] **Sửa lỗi link chia sẻ mang địa chỉ cũ** — gom về `lib/siteUrl.js` (hằng số tên miền
       chính), sửa cả 4 chỗ chia sẻ (địa điểm + sổ) và thêm `metadataBase` cho ảnh Open Graph
+- [x] **Metadata card chỉ hiện dữ liệu thật** — thẻ trong Sổ bỏ "Chưa rõ ngày cập nhật" /
+      "Độ tin cậy chưa đánh giá" / "Đối chiếu chưa rõ nguồn"; giữ "Chưa cập nhật giá" vì giá
+      cần cho quyết định
+- [x] **Tách bạch ảnh bìa địa điểm và ảnh bìa Sổ** (`lib/cover.js`) — admin chọn được ảnh bìa
+      cho từng địa điểm trong `/admin`; 5 chỗ trước đây tự lấy `photos[0]` nay dùng chung, nên
+      preview khi chia sẻ khớp ảnh khách đang thấy

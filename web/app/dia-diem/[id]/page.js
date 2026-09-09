@@ -4,13 +4,13 @@ import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { placeCover, FALLBACK_COVER } from "@/lib/cover";
 import { PlaceDetail } from "@/app/PlaceDetail";
 import { SiteHeader } from "@/app/SiteHeader";
 
 export const dynamic = "force-dynamic";
 
 const SITE_NAME = "Chạm Địa Phương";
-const FALLBACK_OG_IMAGE = "/images/le-hoi-thanh-tuyen-2026.jpg";
 
 // Share MỘT địa điểm phải mở đúng trang địa điểm, không được mượn trang Sổ giả làm sổ 1 chỗ
 // (NOTE-02 §1). Dùng thẳng `id` làm đường dẫn — chưa có slug cho địa điểm, và NOTE-02 §11 nói
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
   // NOTE-02 §3: preview chỉ gồm tên, loại + khu vực, ảnh, thương hiệu. KHÔNG đưa số điện
   // thoại, mô tả dài, hay field chưa chắc chắn vào preview.
   const subtitle = subtitleOf(place);
-  const cover = place.photos?.[0] ?? place.menuPhotos?.[0]?.url ?? FALLBACK_OG_IMAGE;
+  const cover = placeCover(place) ?? FALLBACK_COVER;
   const description = [subtitle, SITE_NAME].filter(Boolean).join(" · ");
 
   return {

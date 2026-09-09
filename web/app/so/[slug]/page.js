@@ -6,11 +6,11 @@ import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
 import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
 import { SiteHeader } from "@/app/SiteHeader";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { notebookCover, FALLBACK_COVER } from "@/lib/cover";
 
 export const dynamic = "force-dynamic";
 
 const SITE_NAME = "Chạm Địa Phương";
-const FALLBACK_OG_IMAGE = "/images/le-hoi-thanh-tuyen-2026.jpg";
 
 // NOTE-03 §5: preview phải cho người nhận hiểu đây là một tập hợp CÓ CHỦ ĐÍCH ("5 địa điểm ·
 // Cafe"), không phải mô tả chung chung về sản phẩm. Nhóm chính = loại xuất hiện nhiều nhất
@@ -44,7 +44,9 @@ export async function generateMetadata({ params }) {
   if (!notebook) return { title: `Không tìm thấy sổ — ${SITE_NAME}` };
 
   const items = await resolveNotebookItems(notebook.items);
-  const firstPhoto = items.find((it) => it.place?.photos?.length)?.place.photos[0];
+  // Preview khi share sổ dùng CÙNG thứ tự ưu tiên với ảnh hiện trên trang (lib/cover.js),
+  // để ảnh người nhận thấy trong preview khớp ảnh họ thấy khi mở link.
+  const cover = notebookCover(notebook, items);
   const description = ogDescription(items);
 
   return {
@@ -53,7 +55,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: notebook.title,
       description,
-      images: [firstPhoto ?? FALLBACK_OG_IMAGE],
+      images: [cover.photos[0]],
     },
   };
 }
@@ -80,10 +82,11 @@ export default async function NotebookViewPage({ params }) {
     item.deleted ? item : { ...item, place: { ...item.place, notes: filterVisibleNotes(allNotes[item.placeId] ?? []) } }
   );
 
-  const collagePhotos = itemsWithNotes
-    .map((it) => it.place?.photos?.[0])
-    .filter(Boolean)
-    .slice(0, 3);
+  const cover = notebookCover(notebook, itemsWithNotes);
+  // Chỉ vẽ khối ảnh khi sổ có ảnh THẬT — sổ chưa có ảnh nào thì bỏ hẳn thay vì trưng ảnh lễ
+  // hội mặc định lên đầu trang (ảnh mặc định chỉ dành cho preview khi share, nơi bắt buộc
+  // phải có ảnh).
+  const collagePhotos = cover.photos.filter((src) => src !== FALLBACK_COVER);
 
   return (
     <div className="flex flex-1 justify-center">

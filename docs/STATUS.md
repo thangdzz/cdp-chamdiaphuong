@@ -230,7 +230,43 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (cuối, mới nhất) — Sửa lỗi: link chia sẻ mang địa chỉ cũ
+### 2026-09-09 (cuối cùng, mới nhất) — Metadata card + tách bạch ảnh bìa
+
+**1. Metadata trên card — chỉ hiện thứ có dữ liệu thật.** Chỗ duy nhất còn lấp chỗ trống là
+`NotebookPlaceCard.js` (thẻ trong Sổ): luôn in "Chưa rõ ngày cập nhật", "Độ tin cậy chưa đánh
+giá", "Đối chiếu chưa rõ nguồn" kể cả khi không có dữ liệu. Thẻ ở trang chủ đã bỏ kiểu này từ
+2026-08-21 nhưng thẻ trong Sổ bị sót. Giờ **ẩn hẳn** khi trống.
+**Giữ nguyên "Chưa cập nhật giá"** — giá là thứ khách cần để quyết định đi hay không, im lặng
+ở đó dễ bị hiểu nhầm là rẻ/miễn phí. Đúng yêu cầu "chỉ hiện Chưa rõ khi thực sự cần cho quyết
+định".
+
+**2. Tách bạch ảnh bìa địa điểm và ảnh bìa Sổ** — file mới `lib/cover.js`:
+- `placeCover(place)`: **`coverPhoto` (admin chọn) → `photos[0]` → ảnh menu → null**. Trước
+  đây mọi nơi lấy đại `photos[0]` = "ảnh khách gửi sớm nhất", không có gì đảm bảo nó đại diện
+  tốt (có thể ảnh tối, chụp lệch, hoặc ảnh món trong khi cần ảnh mặt tiền).
+- `notebookCover(nb, items)`: **cover riêng của sổ → collage 3 chỗ đầu → cover chỗ đầu → ảnh
+  mặc định**. Trường `notebook.cover` chưa có UI đặt (P1 theo NOTE-03 §7) nhưng hàm đã đọc sẵn.
+- **Admin chọn ảnh bìa** ngay trong form sửa địa điểm đã có (`PlaceFormFields.js` +
+  `lib/placeForm.js`): danh sách ảnh của chỗ đó (gồm cả ảnh menu, cho quán chưa có ảnh mặt
+  tiền), bỏ chọn = để web tự lấy ảnh đầu. **Không xoá ảnh nào**, chỉ đánh dấu ảnh nào làm bìa.
+- Nối **5 chỗ** trước đây tự lấy `photos[0]` về dùng chung 2 hàm này: thẻ trang chủ, trang địa
+  điểm, Open Graph địa điểm, Open Graph Sổ, collage trang Sổ → preview khi chia sẻ giờ **luôn
+  khớp** ảnh khách đang nhìn thấy.
+- Trang Sổ chưa có ảnh nào thì **bỏ hẳn khối ảnh** thay vì trưng ảnh lễ hội mặc định; ảnh mặc
+  định chỉ dùng cho preview khi share (nơi bắt buộc phải có ảnh).
+
+**3. Kiểm tra share 1 địa điểm** (theo yêu cầu): xác nhận **không có chỗ nào** dùng Sổ 1 item
+làm trang đích. 4 chỗ tạo link chia sẻ đều đúng — 2 chỗ địa điểm dùng `placeShareUrl()` →
+`/dia-diem/{id}`, 2 chỗ sổ dùng `notebookShareUrl()` → `/so/{slug}`.
+
+**Kiểm thử:** 8/8 test logic chọn bìa (ưu tiên coverPhoto, fallback theo đúng thứ tự, sổ 1 ảnh
+không collage, sổ chưa có ảnh ra ảnh mặc định) · đổi bìa thật qua `/admin` → HTML trang địa
+điểm và ảnh Open Graph đều đổi theo · thẻ trong Sổ xác nhận **không còn** 3 chuỗi lấp chỗ
+trống · metadata sổ hiện đúng `3 địa điểm · Ăn · cập nhật 2 tuần trước`. Build/lint sạch.
+**Đã khôi phục** ảnh bìa của "Khách sạn Mường Thanh Grand" về như trước test (chỉ đụng đúng
+`ngu-01`, xoá hẳn trường `coverPhoto` vừa đặt).
+
+### 2026-09-09 (cuối) — Sửa lỗi: link chia sẻ mang địa chỉ cũ
 
 **Anh báo:** bung thẻ, bấm "Chia sẻ" thì copy ra link cũ, không phải tên miền mới mua.
 

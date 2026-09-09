@@ -266,6 +266,17 @@ web/
 │   ├── badges.js           (167)  10 lĩnh vực × 5 bậc, ngưỡng điểm 0/5/20/50/100
 │   ├── contributors.js     (120)  Hồ sơ ẩn danh, mã khôi phục, cộng điểm
 │   ├── suggestions.js       (58)  Hàng chờ góp ý + chặn gửi trùng ăn điểm
+│   ├── phoneConfirmations.js(106) Xác nhận số điện thoại: place_phone_confirmations:{placeId},
+│   │                              field "{số đã chuẩn hoá}:{anonId}" — đổi số thì phiếu cũ
+│   │                              tự hết hiệu lực (NOTE-01 §6.4)
+│   ├── cover.js             (44)  ⭐ Chọn ảnh bìa dùng chung: placeCover() ưu tiên
+│   │                              `coverPhoto` (admin chọn) hơn photos[0]; notebookCover()
+│   │                              theo thứ tự cover sổ → collage 3 chỗ đầu → cover chỗ đầu
+│   │                              → ảnh mặc định. Gom về đây để thẻ / trang địa điểm /
+│   │                              Open Graph luôn hiện CÙNG một ảnh
+│   ├── siteUrl.js           (17)  Hằng số tên miền chính + placeShareUrl/notebookShareUrl —
+│   │                              mọi link ĐEM ĐI CHIA SẺ dựng từ đây, không dùng
+│   │                              window.location.origin (sẽ mang địa chỉ đang mở)
 │   └── ingestion/
 │       ├── schema.js        (72)  ⭐ Hằng số + JSDoc định nghĩa shape dữ liệu
 │       ├── normalize.js     (87)  Chuẩn hoá bản ghi thô về NormalizedPlace. category_primary
