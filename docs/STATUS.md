@@ -230,7 +230,47 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-08 (cuối, mới nhất) — Báo đóng cửa: thêm lối vào + trả đúng 15 điểm
+### 2026-09-09 (mới nhất) — NOTE-01 xong P0 + NOTE-02 xong: trang địa điểm riêng
+
+Anh đưa thêm 2 tài liệu ([11-NOTE-02](11-NOTE-02-Share-Place.md),
+[12-NOTE-03](12-NOTE-03-Notebook-Route-Content.md)) và yêu cầu làm tuần tự: hoàn thành NOTE-01
+→ NOTE-02 → NOTE-03. Chặng A và B đã xong.
+
+**Chặng A — NOTE-01 P0 việc 8 (việc cuối cùng của P0; việc 4 "sổ mẫu" anh đã hoãn):**
+- Khối ảnh trong thẻ bung: đổi từ 3 ô vuông 64px bằng nhau sang **1 ảnh cover lớn + thumbnail
+  nhỏ + nút "Xem tất cả N ảnh"** (NOTE-01 §7.3). Ảnh là thứ giúp khách nhận ra đúng chỗ khi
+  tới nơi, ô 64px quá nhỏ để làm được việc đó.
+- CTA gửi ảnh nói rõ đang giúp việc gì (§7.4): chỗ chưa có ảnh → dòng mời *"Chỗ này chưa có
+  ảnh..."* + nhãn menu đổi thành *"Gửi ảnh đầu tiên cho chỗ này"*; chỗ đã có ảnh → *"Gửi ảnh
+  mới — giúp người sau dễ nhận ra chỗ"*.
+- **Cố ý không làm** phân loại ảnh 7 loại (§7.2) và tuổi ảnh cho ảnh thường — cả hai nằm ở
+  **P1** (§11 mục 10 và 11), không thuộc P0.
+
+**Chặng B — NOTE-02 (share một địa điểm), làm mới hoàn toàn** vì trước đó dự án **không có
+route địa điểm nào**:
+- Route mới **`/dia-diem/{id}`** (anh chốt đường dẫn tiếng Việt cho nhất quán với `/so`,
+  `/ghi-chu`). Dùng thẳng `id`, không đổi schema chỉ để có URL đẹp (đúng §11).
+- `app/dia-diem/[id]/page.js` (Server Component) lo dữ liệu + **Open Graph**: tên · `Loại ·
+  Khu vực` · ảnh cover · CDP. **Không** đưa số điện thoại/mô tả dài vào preview (§3).
+- `app/PlaceDetail.js` (client) lo bố cục **phẳng, không bọc card** — chính trang đã là trang
+  địa điểm (§10). Thứ tự theo §5. Tái dùng nguyên `PlaceFacts`, `PhoneBlock`, `PhotoGallery`,
+  `AddToNotebook`, `formatPriceCompact`, `mapsUrl`.
+- `SiteHeader` thêm chế độ `quiet`: hạ cấp thị giác 2 nút cá nhân ở trang mở từ link chia sẻ
+  (§9) — vẫn giữ nút, chỉ bỏ nền và làm nhạt chữ.
+- `app/SharePlaceButton.js` (mới): nút **Chia sẻ** trên thẻ trang chủ, ưu tiên hộp chia sẻ của
+  máy, không hỗ trợ thì copy link — **luôn trỏ `/dia-diem/{id}`, không bao giờ mượn link sổ**
+  (đúng nguyên tắc gốc §1: share 1 địa điểm không được giả lập bằng sổ có 1 chỗ).
+
+**Kiểm thử:** 9/9 mục — trang mở được (200), id không có thật trả 404 đúng, thẻ OG đúng mẫu
+(`Ăn · Minh Xuân · Chạm Địa Phương`, không lộ số điện thoại), chỗ có ảnh thì OG lấy đúng ảnh
+thật, tên địa điểm là `h1`, không dính chữ "Sổ của tôi · 1 chỗ", đủ 3 CTA, link copy từ thẻ
+trang chủ trỏ đúng `/dia-diem/{id}`. Console sạch, build/lint sạch. Không đụng dữ liệu thật
+nên không phải dọn gì.
+
+**Chặng C (NOTE-03 P0) chưa làm** — 5 việc: tách bạch "Mẹo địa phương" / "Ghi chú trong sổ",
+mẹo có context, trang xem Sổ gọn hơn, share preview riêng cho Sổ.
+
+### 2026-09-08 (cuối) — Báo đóng cửa: thêm lối vào + trả đúng 15 điểm
 
 **Anh phát hiện khi bấm thử:** bung thẻ → "Bổ sung" → **không có nút nào để báo quán đã đóng
 cửa**.

@@ -186,6 +186,15 @@ web/
 │   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh)
 │   ├── AddToNotebook.js   (156)  Chặng 4: nút "+ Thêm vào sổ" trên thẻ — chưa có sổ nào thì
 │   │                              tự tạo luôn, có rồi thì hiện menu chọn
+│   ├── PhoneBlock.js      (139)  Khối "Liên hệ": số dạng chữ + nhãn xác nhận + nút Gọi /
+│   │                              Tìm số trên Google / Số đúng / Số sai (NOTE-01 §6)
+│   ├── phoneActions.js     (44)  Server Action cho PhoneBlock — gọi lib/phoneConfirmations.js
+│   ├── SharePlaceButton.js (38)  Nút "Chia sẻ" trên thẻ — luôn trỏ /dia-diem/{id}, KHÔNG
+│   │                              mượn link sổ (NOTE-02 §1)
+│   ├── PlaceDetail.js     (218)  ⭐ Nội dung trang một địa điểm (client) — bố cục phẳng,
+│   │                              KHÔNG bọc card như trang chủ (NOTE-02 §10)
+│   ├── dia-diem/[id]/page.js (78) Trang một địa điểm — Server Component để generateMetadata
+│   │                              (Open Graph) chạy được khi share ra Zalo/Facebook
 │   ├── NotebookOwnerActions.js(59) Chặng 4: đáy trang xem sổ — "Lưu sổ này thành sổ của tôi"
 │   ├── NotebookViewTracker.js(19) Chặng 4: không render gì, chỉ báo lượt xem thật (client,
 │   │                              né bot Zalo/Facebook quét link — xem §2)

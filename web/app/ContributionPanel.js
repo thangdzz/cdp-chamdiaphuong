@@ -63,6 +63,12 @@ const btnPrimary = "cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-
 const btnGhost = "cdp-pressable cursor-pointer rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700";
 
 export function ContributionPanel({ place, onDone }) {
+  // NOTE-01 §7.4: lời mời gửi ảnh nói rõ khách đang giúp việc gì, khác nhau tuỳ chỗ đã có
+  // ảnh hay chưa — "Thêm ảnh" chung chung không cho khách lý do nào để bấm.
+  const hasPhotos = (place.photos ?? []).length > 0;
+  const photoInvite = hasPhotos
+    ? "Gửi ảnh mới — giúp người sau dễ nhận ra chỗ"
+    : "Gửi ảnh đầu tiên cho chỗ này";
   const [mode, setMode] = useState("idle");
   const [fields, setFields] = useState({
     address: "",
@@ -407,7 +413,7 @@ export function ContributionPanel({ place, onDone }) {
                   busy ? "opacity-50" : "cursor-pointer"
                 }`}
               >
-                {busy ? "Đang gửi..." : "Ảnh khác (món ăn, không gian...)"}
+                {busy ? "Đang gửi..." : `${photoInvite} (món ăn, không gian...)`}
                 <input
                   type="file"
                   accept="image/*"
@@ -424,7 +430,7 @@ export function ContributionPanel({ place, onDone }) {
                 busy ? "opacity-50" : "cursor-pointer"
               }`}
             >
-              {busy ? "Đang gửi..." : "Thêm ảnh"}
+              {busy ? "Đang gửi..." : photoInvite}
               <input
                 type="file"
                 accept="image/*"

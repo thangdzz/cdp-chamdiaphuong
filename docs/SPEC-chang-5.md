@@ -27,13 +27,53 @@ Tuỳ chọn **"Chỉ đúng trong dịp lễ hội"** → tự ẩn sau ngày k
 25/09/2026, để trong hằng số sửa được). Loại thông tin có hạn sử dụng là thứ Google Maps vĩnh
 viễn không chứa được — và nó **tự dọn rác**, không cần ai đi xoá.
 
-### 2.2 Nên gọi món gì (chỉ với `type === "an"`)
+### 2.2 Món đặc trưng (chỉ với `type === "an"`)
 
-Ô gõ **40 ký tự**, chỉ tên món. Đây là câu áp dụng cơ chế **"gõ hôm nay → thành lựa chọn
-ngày mai"** ([NOTEBOOK-DESIGN §4](NOTEBOOK-DESIGN.md) cách 2):
+> **Sửa lớn 2026-08-20.** Bản gốc chỉ có một nguồn: khách gõ, rồi tích luỹ thành lựa chọn
+> cho người sau. Điểm yếu là **khởi động lạnh** — với 25–100 chỗ và vài chục người dùng,
+> phần lớn địa điểm sẽ không bao giờ có "người thứ nhất" chịu gõ. Cơ chế tích luỹ chỉ chạy
+> được ở chỗ đã đông người, mà chỗ đã đông thì thường đã có thông tin rồi — nó giúp sai chỗ.
+>
+> Nay dùng **ba nguồn**, xếp theo thứ tự đóng góp.
 
-- Người đầu tiên: ô gõ trống
-- Từ người thứ hai: hiện các món đã được duyệt dưới dạng **nút bấm** + ô gõ để thêm món mới
+**Nguồn 1 — AI quét sẵn lúc thu thập (quan trọng nhất).**
+Routine hằng ngày đã đọc fanpage, Google Maps, báo địa phương. Món đặc trưng thường nằm ngay
+trong tên hoặc mô tả ("Phở Vinh" → phở · "Vịt Bầu Minh Hương" → vịt bầu · "Bánh Gai Chiêm
+Hóa" → bánh gai). Cần:
+
+- Thêm trường `signature_dishes` (mảng, **tối đa 3 chuỗi**) vào `NormalizedPlace` trong
+  `lib/ingestion/schema.js` — hiện **chưa có chỗ nào chứa món**, nên routine có tìm được
+  cũng không biết đổ vào đâu
+- Cập nhật lệnh routine để trích ra
+- Đổ sang `places:live` qua `toLivePlace.js`
+
+Nhờ vậy **người dùng đầu tiên đã thấy sẵn nút bấm**, không phải gõ.
+
+**Nguồn 2 — ảnh menu.**
+Luồng gửi ảnh đã có sẵn từ 18/07 (nén ở trình duyệt, lưu Vercel Blob `cdp-photos`, duyệt
+trong `/admin`). Chỉ cần thêm **một loại ảnh mới: "Ảnh menu"**.
+
+Khách chụp một phát là xong — ít công hơn gõ chữ nhiều. Và ảnh menu thường **hữu ích hơn cả
+danh sách món**: có cả giá, và là bằng chứng chứ không phải lời kể.
+
+**Nguồn 3 — khách gõ (lớp cuối).**
+Ô gõ **40 ký tự**, chỉ tên món. Dành cho chỗ hai nguồn trên không phủ được.
+
+- Chỗ đã có món (từ AI hoặc người trước): hiện các món dưới dạng **nút bấm** + ô gõ thêm
+- Bấm nút món có sẵn = **một phiếu bấm chọn**, đi theo luật đồng thuận Chặng 2, **không cần
+  duyệt**. Chỉ món gõ mới cần duyệt
+
+### 2.3 Hai điều KHÔNG làm
+
+**Không ghi giá từng món.** Giá là thứ cũ nhanh nhất trong mọi loại dữ liệu — mà "thông tin
+còn sống" chính là thứ CDP đang bán. Một menu sai giá phá đúng lời hứa cốt lõi. Giá của chỗ
+đã có sẵn một ô riêng trong `places:live`.
+
+**Không làm menu đầy đủ. Tối đa 3 món, gọi là "món đặc trưng".** Menu đầy đủ thì thành bản
+sao app giao đồ ăn. Ngoài ra phở quán chỉ có 1–2 món trong khi nhà hàng có 50 — hỏi "nên gọi
+món gì" ở nhà hàng gần như vô nghĩa, nên khung 3 món đặc trưng đúng hơn cho cả hai.
+
+Chỉ áp dụng cho `type === "an"`. Ngủ / Chơi / Đi lại không có câu này.
 
 ```
 Người khác gọi:  [phở bò tái] [bún chả] [+ món khác]

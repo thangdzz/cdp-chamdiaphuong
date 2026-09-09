@@ -32,6 +32,18 @@ một chỗ.
 | `entrance` | Lối vào thế nào? | 1 đáp án | `street` Mặt đường dễ thấy · `alley` Trong ngõ · `upstairs` Trên tầng · `diff_sign` Biển hiệu khác tên · `shared` Chung cửa với chỗ khác |
 | `busy_hours` | Giờ nào đông? | nhiều đáp án | `morning` Sáng 6–8h · `noon` Trưa 11–13h · `afternoon` Chiều · `evening` Tối 18–21h · `late` Khuya · `weekend` Cuối tuần · `festival` Dịp lễ hội |
 | `payment` | Trả tiền kiểu gì? | nhiều đáp án | `cash` Tiền mặt · `transfer` Chuyển khoản · `qr` Quét QR · `card` Thẻ |
+| `festival_distance` | Cách khu lễ hội bao xa? | 1 đáp án | `at_venue` Ngay khu lễ hội · `walk_10` Đi bộ 5–10 phút · `walk_20` Đi bộ 15–20 phút · `need_ride` Cần đi xe |
+
+> **Thêm 2026-08-19** (sau khi đọc `docs/reference/de-xuat-so-2-...md`). Câu
+> `festival_distance` là câu hỏi **số 1** của khách đi lễ hội, và dự án hiện **không có bất
+> kỳ thông tin khoảng cách nào** — `places:live` không có toạ độ.
+>
+> Cố ý làm dạng bấm chọn thay vì toạ độ thật: không cần thu thập lat/lng cho từng chỗ, không
+> cần bản đồ, chạy thẳng trên cỗ máy đồng thuận đã có. "Khu lễ hội" hiểu là khu vực Quảng
+> trường Nguyễn Tất Thành và tuyến diễu hành quanh đó.
+>
+> Nếu Chặng 2 đã code xong khi đọc dòng này: chỉ cần thêm 1 mục vào `lib/questions.js`,
+> không phải sửa logic nào khác.
 
 ### 2.2 Riêng "Ăn" (`type === "an"`)
 

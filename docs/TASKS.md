@@ -120,3 +120,8 @@
 - [x] **NOTE-01 P0 việc 5–7 — xác nhận số điện thoại**: khối "Liên hệ" trong thẻ bung (số hiện
       dạng chữ lần đầu tiên), nhãn 3 trạng thái xác nhận, nút Tìm số trên Google, Số đúng / Số
       sai (+1 điểm lần đầu, chống bấm khống), dọn dữ liệu xác nhận khi xoá/gộp chỗ
+- [x] **NOTE-01 P0 việc 8** — khối ảnh đổi sang 1 cover lớn + thumbnail + "Xem tất cả N ảnh";
+      lời mời gửi ảnh nói rõ đang giúp việc gì (khác nhau tuỳ chỗ đã có ảnh hay chưa)
+- [x] **NOTE-02 xong** — route mới `/dia-diem/{id}`: trang một địa điểm có Open Graph riêng
+      (tên · loại · khu vực · ảnh), bố cục phẳng không bọc card, CTA Chỉ đường / + Vào sổ /
+      Chia sẻ; nút Chia sẻ trên thẻ trang chủ trỏ đúng trang địa điểm thay vì mượn link sổ

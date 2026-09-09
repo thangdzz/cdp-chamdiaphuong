@@ -4,6 +4,11 @@
 > này còn xa và phụ thuộc số liệu thật sau lễ hội. **Đọc lại và sửa trước khi code.**
 > Xem [NOTEBOOK-DESIGN.md §8](NOTEBOOK-DESIGN.md).
 
+> 📌 **Anh muốn bàn lại phần tài khoản/đăng nhập ở Cowork trước khi code chặng này**
+> (ghi nhận 2026-08-17, sau khi xong Chặng 4). Spec dưới đây là điểm khởi đầu để bàn, không
+> phải bản chốt. Ba việc cần bàn: chọn kênh gửi OTP (§3) · có nên cho đăng nhập bằng Zalo
+> thay vì OTP không · quan hệ giữa tài khoản mới và hồ sơ ẩn danh đang chạy (§5).
+
 ---
 
 ## 1. Làm gì, trong một câu

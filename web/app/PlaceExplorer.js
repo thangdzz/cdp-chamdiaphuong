@@ -14,6 +14,7 @@ import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 import { PhoneBlock } from "./PhoneBlock";
+import { SharePlaceButton } from "./SharePlaceButton";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
@@ -492,29 +493,51 @@ function PlaceCard({ place }) {
             {photos.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh địa điểm</p>
-                <div className="flex gap-2">
-                  {photos.slice(0, 3).map((src, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setGalleryIndex(i)}
-                      className="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-                {photos.length > 3 && (
-                  <button
-                    type="button"
-                    onClick={() => setGalleryIndex(3)}
-                    className="cursor-pointer mt-1.5 text-[13px] text-zinc-500 underline"
-                  >
-                    Xem thêm {photos.length - 3} ảnh →
-                  </button>
+                {/* NOTE-01 §7.3: 1 ảnh cover lớn + thumbnail nhỏ bên dưới, thay cho 3 ô vuông
+                    64px bằng nhau. Ảnh là thứ giúp khách NHẬN RA đúng chỗ khi tới nơi, ô 64px
+                    quá nhỏ để làm được việc đó. */}
+                <button
+                  type="button"
+                  onClick={() => setGalleryIndex(0)}
+                  className="block w-full cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photos[0]} alt="" className="h-44 w-full object-cover" />
+                </button>
+                {photos.length > 1 && (
+                  <div className="mt-1.5 flex gap-1.5">
+                    {photos.slice(1, 3).map((src, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setGalleryIndex(i + 1)}
+                        className="h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                    {photos.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setGalleryIndex(3)}
+                        className="h-14 shrink-0 cursor-pointer rounded-lg bg-zinc-100 px-3 text-[13px] font-medium text-zinc-600"
+                      >
+                        Xem tất cả {photos.length} ảnh
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
+            )}
+
+            {/* NOTE-01 §7.4: lời mời nói rõ khách đang giúp việc gì, thay cho CTA chung chung.
+                Chỉ hiện khi chỗ chưa có ảnh nào — chỗ đã có ảnh thì lời mời nằm ngay trong
+                menu "Bổ sung" (xem ContributionPanel), không cần thêm dòng chiếm chỗ ở đây. */}
+            {photos.length === 0 && (
+              <p className="text-[13px] text-zinc-400">
+                Chỗ này chưa có ảnh. Bạn có ảnh không? Một ảnh giúp người sau dễ nhận ra chỗ.
+              </p>
             )}
 
             {menuPhotos.length > 0 && (
@@ -584,6 +607,7 @@ function PlaceCard({ place }) {
           <>
             <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
             <AddToNotebook place={place} />
+            <SharePlaceButton place={place} />
             <ContributionPanel place={place} />
           </>
         )}
