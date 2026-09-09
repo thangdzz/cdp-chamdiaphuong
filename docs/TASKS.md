@@ -160,3 +160,21 @@
 - [x] Xe ghép thôi bị hỏi những câu vô nghĩa (Gửi xe, Lối vào, Giờ đông, "Đây là chỗ gì?");
       mọi chỗ Đi lại đã chọn loại đều thôi bị hỏi "Đây là chỗ gì?"
 - [x] Điền loại hình cho "Xe ghép Anh Huy" (xe ghép · 7 chỗ · Tuyên Quang ↔ Hà Nội)
+
+## 2026-09-09 (NOTE 05)
+
+- [x] **P0 việc 1–2 — câu hỏi và CTA theo `transportSubtype`**: `getQuestionsForType(type,
+      subtype, filledFields)` + `primaryAction(place)` trong `lib/transport.js`
+- [x] **P0 việc 3 — xe ghép**: 8 câu đúng ngữ cảnh (Đón / Trả / Giờ chạy / Loại xe / Đặt trước
+      / Hành lý / Trên xe có / Hình thức), bỏ hẳn Gửi xe · Lối vào · Giờ đông
+- [x] **P0 việc 4 — xe khách**: dùng chung bộ trên, thêm câu Ghế ngồi hay giường nằm
+- [x] **P0 việc 5 — copy khối đóng góp**: "Bạn biết thêm về **dịch vụ** này?" (xe ghép) /
+      "**nhà xe** này?" (xe khách); chip đổi theo loại hình
+- [x] **P0 việc 6 — one-tap**: mọi đáp án bấm là ghi phiếu ngay; chỉ "Điểm cố định" / "Cả hai"
+      mới mở ô gõ vị trí
+- [x] CTA: xe ghép → "Liên hệ đặt xe" (cuộn tới khối Liên hệ, không gọi thẳng); chưa có số →
+      "Tìm số nhà xe"; xe khách → "Liên hệ nhà xe"; bãi xe / điểm đón trả giữ "Chỉ đường"
+- [x] **Sửa lỗi**: id `booking` trùng giữa câu "Đặt phòng qua đâu?" (Ngủ) và câu đặt xe mới —
+      phiếu gửi lên sẽ bị kiểm tra nhầm bộ đáp án rồi từ chối. Đổi thành `ride_booking`
+- [x] **Sửa lỗi cũ**: khối ảnh menu ở trang địa điểm đang là `menuPhotos.length > 3` nên không
+      bao giờ hiện (lỗi do lệnh khôi phục sed đổi nhầm cả 2 dòng hôm 09/09)

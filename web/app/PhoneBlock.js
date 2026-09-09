@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { confirmPhone, fetchPhoneStatus } from "./phoneActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { PhoneIcon } from "./Icon";
+import { findPhoneOnGoogleUrl } from "@/lib/transport";
 
 // Khối "Liên hệ" trong thẻ đã bung (NOTE-01 §6.2). Trước đây số điện thoại KHÔNG hề hiện dạng
 // chữ ở đâu — khách chỉ có đúng 1 nút gọi, không đọc/copy được số, và không có cách nào biết
@@ -73,9 +74,6 @@ export function PhoneBlock({ place }) {
   const line = statusLine(state?.status, state?.confirmCount ?? 0);
   // Chưa ai xác nhận hoặc đang có báo sai -> mời khách tự kiểm chứng bằng Google (NOTE-01 §6.3).
   const showGoogle = !state || state.status === "none" || state.status === "disputed";
-  const googleQuery = encodeURIComponent(
-    `${place.name} ${place.ward ?? ""} Tuyên Quang số điện thoại`.replace(/\s+/g, " ").trim()
-  );
 
   return (
     <div>
@@ -107,7 +105,7 @@ export function PhoneBlock({ place }) {
 
         {showGoogle && (
           <a
-            href={`https://www.google.com/search?q=${googleQuery}`}
+            href={findPhoneOnGoogleUrl(place)}
             target="_blank"
             rel="noopener noreferrer"
             className={btnClass}

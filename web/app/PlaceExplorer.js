@@ -15,13 +15,17 @@ import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 import { PhoneBlock } from "./PhoneBlock";
 import { placeCover } from "@/lib/cover";
-import { transportSummary } from "@/lib/transport";
+import { transportSummary, primaryAction, findPhoneOnGoogleUrl, adminFilledFields } from "@/lib/transport";
 import { SharePlaceButton } from "./SharePlaceButton";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
 // SPEC-chang-3.md §5.
 const OCCUPANCY_LABEL_TYPES = new Set(["an", "ngu"]);
+
+// Nút CTA chính của thẻ — 1 kiểu duy nhất, chỉ đổi chữ và hành vi theo loại hình (NOTE-05 §6).
+const ctaClass =
+  "cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]";
 
 const PRICE_BUCKETS = [
   { id: "all", label: "Tất cả mức giá" },
@@ -459,6 +463,17 @@ function PlaceCard({ place }) {
   const extraLines = buildExtraLines(place, lodgingKind);
 
   const compactPrice = formatPriceCompact(place);
+  const action = primaryAction(place);
+
+  // "Liên hệ đặt xe" không gọi thẳng — nó bung thẻ rồi đưa khách xuống khối "Liên hệ", nơi có
+  // nhãn đã ai xác nhận số chưa (NOTE-05 §7: số điện thoại ở CDP luôn chỉ là số tham khảo,
+  // không được biến nút Gọi thành CTA chính). Chờ 300ms cho khối bung xong mới cuộn.
+  function showContact() {
+    if (!expanded) toggleExpanded();
+    setTimeout(() => {
+      document.getElementById(`lien-he-${place.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  }
 
   return (
     <li id={place.id} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-5 shadow-sm">
@@ -495,7 +510,12 @@ function PlaceCard({ place }) {
           <div className="flex flex-col gap-5 text-sm text-zinc-700">
             <PersonalNote place={place} />
 
-            <PlaceFacts type={place.type} subtype={place.transportSubtype} consensus={place.consensus} />
+            <PlaceFacts
+              type={place.type}
+              subtype={place.transportSubtype}
+              filledFields={adminFilledFields(place)}
+              consensus={place.consensus}
+            />
 
             {signatureDishes.length > 0 && (
               <div>
@@ -602,7 +622,9 @@ function PlaceCard({ place }) {
               </div>
             )}
 
-            <PhoneBlock place={place} />
+            <div id={`lien-he-${place.id}`}>
+              <PhoneBlock place={place} />
+            </div>
 
             {(metaRows.length > 0 || extraLines.length > 0) && (
               <div className="flex flex-col gap-1.5">
@@ -624,14 +646,33 @@ function PlaceCard({ place }) {
       )}
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        <a
-          href={mapsUrl(place)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]"
-        >
-          Chỉ đường
-        </a>
+        {/* CTA chính đổi theo loại hình Đi lại (NOTE-05 §6): với xe ghép / xe khách thì
+            "Chỉ đường" là nút vô nghĩa — địa chỉ nhà xe không phải nơi khách cần tới. */}
+        {action.kind === "directions" && (
+          <a
+            href={mapsUrl(place)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ctaClass}
+          >
+            {action.label}
+          </a>
+        )}
+        {action.kind === "google" && (
+          <a
+            href={findPhoneOnGoogleUrl(place)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ctaClass}
+          >
+            {action.label}
+          </a>
+        )}
+        {action.kind === "contact" && (
+          <button type="button" onClick={showContact} className={`${ctaClass} cursor-pointer`}>
+            {action.label}
+          </button>
+        )}
         {/* Nút gọi cũ ở đây đã bỏ — số điện thoại giờ nằm trong khối "Liên hệ" của thẻ bung
             (PhoneBlock), kèm nhãn nói rõ số đã được ai xác nhận chưa. Giữ cả 2 sẽ thành 2 nút
             gọi trùng nhau, và nút cũ thì không nói được gì về độ tin cậy của số. */}

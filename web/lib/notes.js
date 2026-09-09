@@ -19,7 +19,30 @@ export const NOTE_CONTEXTS = [
   { id: "thanh-toan", label: "Thanh toán" },
   { id: "tien-ich", label: "Tiện ích" },
   { id: "khac", label: "Khác" },
+
+  // Riêng dịch vụ đi xe (NOTE-05 §8). Để chung một danh sách để noteContextLabel() đọc được
+  // nhãn của MỌI mẹo đã lưu, kể cả khi chỗ đó sau này bị đổi loại hình.
+  { id: "diem-don", label: "Điểm đón" },
+  { id: "diem-tra", label: "Điểm trả" },
+  { id: "gio-chay", label: "Giờ chạy" },
+  { id: "loai-xe", label: "Loại xe" },
+  { id: "dat-xe", label: "Đặt xe" },
+  { id: "hanh-ly", label: "Hành lý" },
 ];
+
+// "Gửi xe / Lối vào" vô nghĩa với một nhà xe ghép, còn "Điểm đón / Giờ chạy" thì vô nghĩa với
+// quán ăn — nên danh sách chip phải đổi theo loại hình (NOTE-05 §8).
+const DEFAULT_CONTEXT_IDS = ["gui-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "tien-ich", "khac"];
+const RIDE_CONTEXT_IDS = ["diem-don", "diem-tra", "gio-chay", "loai-xe", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"];
+const RIDE_SUBTYPES = new Set(["xe-ghep", "xe-khach"]);
+
+export function noteContextsForPlace(place) {
+  const ids =
+    place?.type === "dilai" && RIDE_SUBTYPES.has(place.transportSubtype)
+      ? RIDE_CONTEXT_IDS
+      : DEFAULT_CONTEXT_IDS;
+  return ids.map((id) => NOTE_CONTEXTS.find((c) => c.id === id)).filter(Boolean);
+}
 
 export function noteContextLabel(contextId) {
   return NOTE_CONTEXTS.find((c) => c.id === contextId)?.label ?? null;

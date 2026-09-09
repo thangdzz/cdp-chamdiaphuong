@@ -6,15 +6,17 @@
 //   subtypes: [...]          -> CHỈ hỏi cho các subtype này
 //   skipSubtypes: [...]      -> KHÔNG hỏi cho các subtype này (câu chung nhưng vô nghĩa với nó)
 //   supersededBySubtype      -> thôi hỏi ngay khi admin đã chọn subtype (admin biết chắc hơn)
+//   supersededByField: "x"   -> thôi hỏi khi admin đã điền ô `x` của địa điểm đó
 
 export const QUESTIONS = [
   // --- Dùng chung mọi loại (§2.1) ---
   {
     id: "parking",
     scope: "all",
-    // Xe ghép đón tận nơi thì khách không gửi xe ở đâu cả — hỏi là ép dùng field của quán ăn
-    // (NOTE-04 §2 dòng cuối).
-    skipSubtypes: ["xe-ghep"],
+    // Dịch vụ đi xe thì khách không gửi xe ở đâu cả — hỏi là ép dùng field của quán ăn
+    // (NOTE-04 §2 dòng cuối, NOTE-05 §5). Bến/điểm đón vật lý (diem-don-tra, bai-xe) thì vẫn
+    // hỏi bình thường vì ở đó gửi xe là chuyện có thật.
+    skipSubtypes: ["xe-ghep", "xe-khach"],
     icon: "🅿️",
     label: "Gửi xe",
     text: "Gửi xe ở đâu?",
@@ -34,7 +36,7 @@ export const QUESTIONS = [
   {
     id: "entrance",
     scope: "all",
-    skipSubtypes: ["xe-ghep"], // xe ghép không có "cửa" để vào
+    skipSubtypes: ["xe-ghep", "xe-khach"], // dịch vụ đi xe không có "cửa" để vào
     icon: "🚪",
     label: "Lối vào",
     text: "Lối vào thế nào?",
@@ -54,8 +56,8 @@ export const QUESTIONS = [
   {
     id: "busy_hours",
     scope: "all",
-    // "Giờ nào đông?" không hợp với xe ghép — câu "Lúc nào có xe?" bên dưới mới đúng thứ cần biết.
-    skipSubtypes: ["xe-ghep"],
+    // "Giờ nào đông?" không hợp với dịch vụ đi xe — câu "Xe thường chạy khi nào?" mới đúng.
+    skipSubtypes: ["xe-ghep", "xe-khach"],
     icon: "🕐",
     label: "Giờ đông",
     text: "Giờ nào đông?",
@@ -280,6 +282,9 @@ export const QUESTIONS = [
   {
     id: "available_when",
     scope: "dilai",
+    // Xe ghép / xe khách dùng câu "Xe thường chạy khi nào?" riêng bên dưới, chi tiết hơn hẳn
+    // (theo chuyến cố định / cần hỏi trước...) — giữ cả hai là hỏi 2 lần cùng một chuyện.
+    skipSubtypes: ["xe-ghep", "xe-khach"],
     icon: "🕐",
     label: "Lúc nào có xe",
     text: "Lúc nào có xe?",
@@ -306,9 +311,13 @@ export const QUESTIONS = [
     ],
   },
 
-  // --- Riêng "Đi lại → Xe ghép" (NOTE-04 §2) ---
-  // 5 câu đúng theo danh sách field ở §2 mà khách đi rồi mới biết thật. Loại xe và Tuyến
-  // chính KHÔNG nằm đây — đó là 2 ô admin tự điền (xem lib/transport.js).
+  // --- Riêng "Đi lại → Xe ghép" và "Xe khách" (NOTE-05 §4–§5) ---
+  // Với dịch vụ đi xe, khách quan tâm đón/trả ở đâu, chạy giờ nào, đặt xe thế nào — chứ không
+  // phải gửi xe hay lối vào. Mỗi câu dưới đây đều có nút bấm sẵn: bấm là ghi phiếu ngay, chỉ
+  // mở ô gõ khi đáp án cần làm rõ (NOTE-05 §10).
+  // KHÔNG đưa "Không rõ" vào options: nút "Không rõ" đã có sẵn ở khối hỏi cuối thẻ và nó BỎ
+  // QUA câu hỏi, không ghi phiếu — đưa vào đây sẽ thành một đáp án đi vào đồng thuận, tức là
+  // "nhiều người đồng thuận rằng không ai biết".
   {
     id: "ride_form",
     scope: "dilai",
@@ -325,65 +334,127 @@ export const QUESTIONS = [
   {
     id: "pickup",
     scope: "dilai",
-    subtypes: ["xe-ghep"],
-    icon: "📍",
-    label: "Điểm đón",
-    text: "Đón khách ở đâu?",
+    subtypes: ["xe-ghep", "xe-khach"],
+    icon: "🚐",
+    label: "Đón",
+    text: "Đón khách thế nào?",
     multi: false,
     options: [
       { value: "door", label: "Đón tận nơi" },
-      { value: "fixed", label: "Điểm cố định" },
-      {
-        value: "depends",
-        label: "Tuỳ tuyến",
-        followUp: { label: "Tuỳ thế nào?", maxLength: 60 },
-      },
+      { value: "fixed", label: "Điểm cố định", followUp: { label: "Điểm đón ở đâu?", maxLength: 60 } },
+      { value: "both", label: "Cả hai", followUp: { label: "Điểm đón cố định ở đâu?", maxLength: 60 } },
     ],
   },
   {
     id: "dropoff",
     scope: "dilai",
-    subtypes: ["xe-ghep"],
-    icon: "🏁",
-    label: "Điểm trả",
-    text: "Trả khách ở đâu?",
+    subtypes: ["xe-ghep", "xe-khach"],
+    icon: "📍",
+    label: "Trả",
+    text: "Trả khách thế nào?",
     multi: false,
     options: [
       { value: "door", label: "Trả tận nơi" },
-      { value: "fixed", label: "Điểm cố định" },
-      {
-        value: "depends",
-        label: "Tuỳ tuyến",
-        followUp: { label: "Tuỳ thế nào?", maxLength: 60 },
-      },
+      { value: "fixed", label: "Điểm cố định", followUp: { label: "Điểm trả ở đâu?", maxLength: 60 } },
+      { value: "both", label: "Cả hai", followUp: { label: "Điểm trả cố định ở đâu?", maxLength: 60 } },
     ],
   },
   {
-    id: "booking_needed",
+    id: "schedule",
     scope: "dilai",
-    subtypes: ["xe-ghep"],
-    icon: "📅",
-    label: "Đặt trước",
-    text: "Có cần đặt trước không?",
+    subtypes: ["xe-ghep", "xe-khach"],
+    icon: "🕐",
+    label: "Chạy",
+    text: "Xe thường chạy khi nào?",
     multi: false,
     options: [
-      { value: "required", label: "Phải đặt trước" },
-      { value: "recommended", label: "Nên đặt trước" },
-      { value: "walkin", label: "Gọi là đi được" },
+      { value: "fixed_trips", label: "Theo chuyến cố định" },
+      { value: "all_day", label: "Có xe cả ngày" },
+      { value: "morning", label: "Chủ yếu buổi sáng" },
+      { value: "afternoon", label: "Chủ yếu buổi chiều" },
+      { value: "evening", label: "Chủ yếu buổi tối" },
+      { value: "ask", label: "Cần hỏi trước" },
+    ],
+  },
+  {
+    id: "vehicle_type",
+    scope: "dilai",
+    subtypes: ["xe-ghep", "xe-khach"],
+    // Admin đã điền ô "Loại xe" thì thôi hỏi — nhà xe biết chắc hơn khách, và câu trả lời đã
+    // nằm ngay dòng đầu thẻ ("Xe ghép · 7 chỗ"). Hỏi lại là hỏi thứ đang hiện trước mắt.
+    supersededByField: "vehicleSeats",
+    icon: "🚗",
+    label: "Loại xe",
+    text: "Thường dùng loại xe nào?",
+    multi: false,
+    options: [
+      { value: "4", label: "4 chỗ" },
+      { value: "7", label: "7 chỗ" },
+      { value: "9_16", label: "9–16 chỗ" },
+      { value: "mixed", label: "Nhiều loại xe" },
+    ],
+  },
+  {
+    // KHÔNG đặt tên "booking" — id đó đã thuộc câu "Đặt phòng qua đâu?" của nhóm Ngủ, mà
+    // getQuestion(id) lấy câu ĐẦU TIÊN khớp id nên phiếu gửi lên sẽ bị kiểm tra nhầm theo bộ
+    // đáp án của Ngủ rồi bị từ chối. Mỗi id phải là duy nhất trong cả file.
+    id: "ride_booking",
+    scope: "dilai",
+    subtypes: ["xe-ghep", "xe-khach"],
+    icon: "📅",
+    label: "Đặt trước",
+    // Chữ chung cho cả xe ghép (đặt xe) và xe khách (đặt vé) — không cần 2 câu riêng.
+    text: "Cần đặt trước không?",
+    multi: false,
+    options: [
+      { value: "should_book", label: "Nên đặt trước" },
+      { value: "last_minute", label: "Có thể gọi sát giờ" },
+      { value: "depends", label: "Tuỳ chuyến" },
     ],
   },
   {
     id: "luggage",
     scope: "dilai",
-    subtypes: ["xe-ghep"],
+    subtypes: ["xe-ghep", "xe-khach"],
     icon: "🧳",
     label: "Hành lý",
     text: "Hành lý thế nào?",
     multi: false,
     options: [
-      { value: "free", label: "Thoải mái" },
-      { value: "limited", label: "Gọn thôi" },
-      { value: "extra_fee", label: "Cồng kềnh tính thêm phí" },
+      { value: "normal", label: "Hành lý thông thường" },
+      { value: "bulky", label: "Nhận đồ cồng kềnh" },
+      { value: "ask", label: "Cần hỏi trước" },
+    ],
+  },
+  {
+    id: "vehicle_amenities",
+    scope: "dilai",
+    subtypes: ["xe-ghep", "xe-khach"],
+    icon: "✨",
+    label: "Trên xe có",
+    text: "Trên xe có gì?",
+    multi: true,
+    // NOTE-05 §4 có liệt kê "Đón tận nơi / Trả tận nơi" trong tiện ích, nhưng 2 thứ đó đã là
+    // câu hỏi riêng ở trên — để lại đây sẽ thành hỏi 2 lần cùng một chuyện (§4 dòng cuối:
+    // "chỉ đưa lựa chọn có ý nghĩa với subtype").
+    options: [
+      { value: "aircon", label: "Điều hoà" },
+      { value: "kid_seat", label: "Ghế trẻ em" },
+      { value: "pet", label: "Chở thú cưng" },
+    ],
+  },
+  {
+    id: "coach_seat",
+    scope: "dilai",
+    subtypes: ["xe-khach"],
+    icon: "🛏️",
+    label: "Chỗ ngồi",
+    text: "Ghế ngồi hay giường nằm?",
+    multi: false,
+    options: [
+      { value: "seat", label: "Ghế ngồi" },
+      { value: "bed", label: "Giường nằm" },
+      { value: "both", label: "Có cả hai" },
     ],
   },
 ];
@@ -394,12 +465,13 @@ export const QUESTIONS = [
  * @param {string|null} subtype `transportSubtype` nếu có — không truyền thì hành xử y như cũ,
  *   nên mọi nơi gọi cũ vẫn chạy đúng.
  */
-export function getQuestionsForType(type, subtype = null) {
+export function getQuestionsForType(type, subtype = null, filledFields = []) {
   return QUESTIONS.filter((q) => {
     if (q.scope !== "all" && q.scope !== type) return false;
     if (q.subtypes && !q.subtypes.includes(subtype)) return false;
     if (subtype && q.skipSubtypes?.includes(subtype)) return false;
     if (subtype && q.supersededBySubtype) return false;
+    if (q.supersededByField && filledFields.includes(q.supersededByField)) return false;
     return true;
   });
 }
@@ -411,19 +483,28 @@ export function getQuestionsForType(type, subtype = null) {
 // nhất?" đúng ý "thời điểm" hơn hẳn câu chung "Giờ nào đông?".
 // Ngữ cảnh không có tên ở đây (Di chuyển, Khác) thì mở thẳng ô gõ.
 const CONTEXT_QUESTION_IDS = {
+  // Ngữ cảnh riêng của dịch vụ đi xe (NOTE-05 §8) — chỉ hiện với xe ghép / xe khách, xem
+  // noteContextsForPlace() trong lib/notes.js.
+  "diem-don": ["pickup"],
+  "diem-tra": ["dropoff"],
+  "gio-chay": ["schedule"],
+  "loai-xe": ["vehicle_type"],
+  "dat-xe": ["ride_booking"],
+  "hanh-ly": ["luggage"],
+
   "gui-xe": ["parking"],
   "loi-vao": ["entrance"],
   "thoi-diem": ["best_time", "available_when", "busy_hours"],
   // Chỉ `payment` — `price_style` nói về cách RA GIÁ (niêm yết/trả giá/đồng hồ), không phải
   // cách trả tiền, nên không thuộc ngữ cảnh này.
   "thanh-toan": ["payment"],
-  "tien-ich": ["amenities_an", "amenities_ngu", "facilities"],
+  "tien-ich": ["vehicle_amenities", "amenities_an", "amenities_ngu", "facilities"],
 };
 
-export function getQuestionForContext(contextId, type, subtype = null) {
+export function getQuestionForContext(contextId, type, subtype = null, filledFields = []) {
   const ids = CONTEXT_QUESTION_IDS[contextId];
   if (!ids) return null;
-  const available = getQuestionsForType(type, subtype);
+  const available = getQuestionsForType(type, subtype, filledFields);
   for (const id of ids) {
     const found = available.find((q) => q.id === id);
     if (found) return found;

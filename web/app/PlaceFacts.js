@@ -11,10 +11,10 @@ function formatValue(question, value) {
 
 // Khối "thuộc tính" đúc từ đồng thuận (SPEC-chang-2.md §3.3) — thuần hiển thị, không cần
 // "use client". consensus = 1 field của place_answers:consensus (đã đọc sẵn ở page.js).
-export function PlaceFacts({ type, consensus, subtype = null }) {
+export function PlaceFacts({ type, consensus, subtype = null, filledFields = [] }) {
   if (!consensus) return null;
 
-  const rows = getQuestionsForType(type, subtype)
+  const rows = getQuestionsForType(type, subtype, filledFields)
     .map((question) => {
       const c = consensus[question.id];
       if (!c || !c.value || (Array.isArray(c.value) && c.value.length === 0)) return null;

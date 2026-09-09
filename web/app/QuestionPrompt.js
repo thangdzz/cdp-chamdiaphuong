@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchNextQuestion, submitQuestionAnswer, submitSkip } from "./answerActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { QuestionOptions } from "./QuestionOptions";
+import { adminFilledFields } from "@/lib/transport";
 
 // Khối hỏi 1 câu tại 1 thời điểm (SPEC-chang-2.md §3.1). Giống CheckinButton.js: chưa có hồ
 // sơ ẩn danh thì tự tạo im lặng ngay lúc bấm (không phải lúc chỉ xem câu hỏi).
@@ -16,6 +17,10 @@ export function QuestionPrompt({ place, hideQuestionId = null }) {
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
 
+  // useMemo để mảng này giữ nguyên identity giữa các lần render — nếu tạo mới mỗi lần thì
+  // effect bên dưới sẽ chạy lại liên tục.
+  const filledFields = useMemo(() => adminFilledFields(place), [place]);
+
   useEffect(() => {
     const local = loadLocalContributor();
     fetchNextQuestion({
@@ -23,11 +28,12 @@ export function QuestionPrompt({ place, hideQuestionId = null }) {
       placeId: place.id,
       type: place.type,
       subtype: place.transportSubtype ?? null,
+      filledFields,
     }).then((res) => {
       setQuestion(res.question);
       setLoaded(true);
     });
-  }, [place.id, place.type, place.transportSubtype]);
+  }, [place.id, place.type, place.transportSubtype, filledFields]);
 
   function saveProfileIfNew(newProfile, local) {
     if (!newProfile) return;
@@ -74,6 +80,7 @@ export function QuestionPrompt({ place, hideQuestionId = null }) {
         questionId: question.id,
         type: place.type,
         subtype: place.transportSubtype ?? null,
+        filledFields,
       });
       saveProfileIfNew(result.newProfile, local);
       // key={question.id} ở QuestionOptions lo việc xoá lựa chọn dở dang của câu vừa bỏ qua.

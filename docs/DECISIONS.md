@@ -741,3 +741,37 @@ dẫn khách đi gõ tay, trong khi ở cuối chính thẻ đó đã có câu "
 **Đánh đổi:** giờ phải chọn ngữ cảnh rồi ô gõ mới hiện, tốn thêm 1 chạm cho người chỉ muốn gõ.
 Chấp nhận: đó chính là thứ làm cả thay đổi này có tác dụng, và mọi mẹo mới từ nay đều có ngữ
 cảnh nên hiện được dạng field.
+
+## 2026-09-09 — Đi lại: câu hỏi và CTA đổi theo `transportSubtype`
+
+**Quyết định:** `primaryCategory` quyết định bộ field lớn, `transportSubtype` quyết định câu
+hỏi và CTA cụ thể (NOTE-05 §2). Ba khoá khai báo trong `lib/questions.js` (`subtypes`,
+`skipSubtypes`, `supersededBySubtype`) cộng thêm `supersededByField`, và `primaryAction()`
+trong `lib/transport.js`.
+**Vì sao:** một bộ câu hỏi chung cho cả nhóm Đi lại làm nhà xe ghép bị hỏi "Gửi xe ở đâu?",
+"Lối vào thế nào?" — field của quán ăn. Và "Chỉ đường" tới địa chỉ nhà xe là nút vô nghĩa:
+đó là nơi họ đăng ký, không phải nơi khách cần tới.
+
+**Ba lựa chọn có cân nhắc:**
+
+1. **"Loại xe" vừa là ô admin vừa là câu hỏi.** NOTE-04 anh đã chốt admin điền `vehicleSeats`,
+   nhưng NOTE-05 §14 lại đòi có câu hỏi "Loại xe". Giải: thêm `supersededByField` — câu hỏi tồn
+   tại cho chỗ admin chưa điền, và **im lặng** ngay khi admin đã điền. Hỏi khách thứ đang hiện
+   ngay dòng đầu thẻ là đúng kiểu thừa mà NOTE-05 muốn dẹp.
+
+2. **KHÔNG đưa "Không rõ" vào options** dù NOTE-05 §4 có liệt kê. Nút "Không rõ" sẵn có ở khối
+   hỏi cuối thẻ **bỏ qua** câu hỏi chứ không ghi phiếu. Biến nó thành một đáp án thật sẽ tạo ra
+   đồng thuận kiểu "nhiều người đồng ý rằng không ai biết" — vô nghĩa và còn lấn át đáp án thật.
+
+3. **Bỏ "Đón tận nơi / Trả tận nơi" khỏi nhóm Tiện ích xe** dù NOTE-05 §4 có liệt kê — 2 thứ đó
+   đã là câu hỏi riêng, để lại là hỏi 2 lần cùng một chuyện (§4 dòng cuối: "chỉ đưa lựa chọn có
+   ý nghĩa với subtype").
+
+**Chỗ chưa có số điện thoại:** CTA "Liên hệ đặt xe" sẽ dẫn vào khối trống, nên đổi thành **"Tìm
+số nhà xe"** mở thẳng Google. Thà đưa khách tới chỗ tìm được số còn hơn một nút bấm vào chẳng
+có gì. "Xe ghép Anh Huy" đang đúng trường hợp này.
+
+**Bẫy đã gặp:** id `booking` bị trùng giữa câu "Đặt phòng qua đâu?" (nhóm Ngủ) và câu đặt xe
+mới thêm. `getQuestion(id)` lấy câu ĐẦU TIÊN khớp id, nên phiếu đặt xe gửi lên sẽ bị kiểm tra
+theo bộ đáp án của Ngủ rồi bị từ chối im lặng. Đã đổi thành `ride_booking`.
+**Quy tắc từ nay:** id câu hỏi phải duy nhất trong toàn `lib/questions.js`, kể cả khác `scope`.

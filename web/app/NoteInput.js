@@ -4,8 +4,9 @@ import { useRef, useState } from "react";
 import { submitTip, reportNoteAction } from "./noteActions";
 import { submitQuestionAnswer } from "./answerActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
-import { NOTE_CONTEXTS, noteContextLabel } from "@/lib/notes";
+import { noteContextsForPlace, noteContextLabel } from "@/lib/notes";
 import { getQuestionForContext } from "@/lib/questions";
+import { adminFilledFields, contributionPrompt } from "@/lib/transport";
 import { QuestionOptions } from "./QuestionOptions";
 
 const NOTE_MAX_LENGTH = 120;
@@ -35,8 +36,12 @@ export function NoteInput({ place, onActiveQuestion }) {
   const [status, setStatus] = useState("idle"); // idle | busy | sent
   const [errorMessage, setErrorMessage] = useState(null);
 
+  // Chip và câu mời đổi theo loại hình: hỏi một nhà xe ghép về "Gửi xe / Lối vào" là sai
+  // ngữ cảnh, và gọi nó là "chỗ này" cũng sai — nó không phải một chỗ để đến (NOTE-05 §8–§9).
+  const contexts = noteContextsForPlace(place);
+  const filledFields = adminFilledFields(place);
   const contextQuestion = context
-    ? getQuestionForContext(context, place.type, place.transportSubtype ?? null)
+    ? getQuestionForContext(context, place.type, place.transportSubtype ?? null, filledFields)
     : null;
 
   function pickContext(id) {
@@ -45,7 +50,9 @@ export function NoteInput({ place, onActiveQuestion }) {
     setTyping(false);
     setAnswerThanks(null);
     setErrorMessage(null);
-    const question = next ? getQuestionForContext(next, place.type, place.transportSubtype ?? null) : null;
+    const question = next
+      ? getQuestionForContext(next, place.type, place.transportSubtype ?? null, filledFields)
+      : null;
     onActiveQuestion?.(question?.id ?? null);
   }
 
@@ -170,10 +177,10 @@ export function NoteInput({ place, onActiveQuestion }) {
         </p>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <p className="text-[13px] text-zinc-500">Bạn biết gì thêm về chỗ này?</p>
+          <p className="text-[13px] text-zinc-500">{contributionPrompt(place)}</p>
           {/* NOTE-03 §1.B: chọn ngữ cảnh TRƯỚC — "chọn là mặc định, gõ là ngoại lệ". */}
           <div className="flex flex-wrap gap-1.5">
-            {NOTE_CONTEXTS.map((c) => (
+            {contexts.map((c) => (
               <button
                 key={c.id}
                 type="button"

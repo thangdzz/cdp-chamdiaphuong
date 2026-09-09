@@ -160,10 +160,24 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
 }
 ```
 
-**`transportSubtype` quyết định HỎI CÂU NÀO** (`getQuestionsForType(type, subtype)` trong
-`lib/questions.js`): xe ghép được 5 câu riêng và thôi bị hỏi "Gửi xe ở đâu?" / "Lối vào thế
-nào?"; mọi chỗ Đi lại đã chọn loại đều thôi bị hỏi "Đây là chỗ gì?". Trường này để rỗng thì
-mọi thứ chạy y như trước khi có nó.
+**`transportSubtype` quyết định HỎI CÂU NÀO và CTA CHÍNH** (NOTE-05 §2). Bốn khoá khai báo
+trong `lib/questions.js`, không rải if/else nơi khác:
+
+| Khoá | Nghĩa |
+|---|---|
+| `subtypes: [...]` | CHỈ hỏi cho các subtype này |
+| `skipSubtypes: [...]` | Câu chung nhưng vô nghĩa với subtype này |
+| `supersededBySubtype` | Thôi hỏi ngay khi admin đã chọn subtype |
+| `supersededByField: "x"` | Thôi hỏi khi admin đã điền ô `x` (VD `vehicleSeats`) |
+
+Xe ghép / xe khách có bộ câu riêng (Đón · Trả · Giờ chạy · Loại xe · Đặt trước · Hành lý ·
+Trên xe có) và thôi bị hỏi "Gửi xe ở đâu?" / "Lối vào thế nào?" / "Giờ nào đông?". CTA chính
+lấy từ `primaryAction()` trong `lib/transport.js`. Trường này để rỗng thì mọi thứ chạy y như
+trước khi có nó.
+
+**Quy tắc:** id câu hỏi phải DUY NHẤT trong toàn `lib/questions.js`, kể cả khác `scope` —
+`getQuestion(id)` lấy câu đầu tiên khớp id, trùng id là phiếu bị kiểm tra nhầm bộ đáp án rồi
+từ chối im lặng (đã dính 1 lần với `booking`, xem DECISIONS 2026-09-09).
 
 **Quy tắc bất di bất dịch:** `priceText` không bao giờ nhận chữ gõ tay — luôn tính từ
 `priceMin/priceMax/priceUnit` qua `formatPriceText()` (`lib/priceFormat.js`). Lý do ở
@@ -295,10 +309,13 @@ web/
 │   │                              theo thứ tự cover sổ → collage 3 chỗ đầu → cover chỗ đầu
 │   │                              → ảnh mặc định. Gom về đây để thẻ / trang địa điểm /
 │   │                              Open Graph luôn hiện CÙNG một ảnh
-│   ├── transport.js         (42)  ⭐ `transportSubtype` cho nhóm Đi lại (7 loại) +
-│   │                              transportSummary() -> "Xe ghép · 7 chỗ". Admin điền
-│   │                              Loại xe / Tuyến chính; Điểm đón / Hành lý... để khách
-│   │                              bấm chọn (NOTE-04 §1–§2, §5)
+│   ├── transport.js        (100)  ⭐ `transportSubtype` cho nhóm Đi lại (7 loại).
+│   │                              transportSummary() -> "Xe ghép · 7 chỗ";
+│   │                              primaryAction() -> CTA theo subtype (xe ghép/xe khách =
+│   │                              Liên hệ, chưa có số = Tìm số trên Google, còn lại = Chỉ
+│   │                              đường); contributionPrompt() -> "dịch vụ/nhà xe này";
+│   │                              adminFilledFields() -> ô admin đã điền thì thôi hỏi khách
+│   │                              (NOTE-04 §1–§2, NOTE-05 §2, §6, §9)
 │   ├── siteUrl.js           (17)  Hằng số tên miền chính + placeShareUrl/notebookShareUrl —
 │   │                              mọi link ĐEM ĐI CHIA SẺ dựng từ đây, không dùng
 │   │                              window.location.origin (sẽ mang địa chỉ đang mở)

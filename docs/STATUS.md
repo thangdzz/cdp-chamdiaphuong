@@ -230,7 +230,28 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (mới nhất) — NOTE 04 P0: Mẹo bấm chọn + Xe ghép
+### 2026-09-09 (mới nhất) — NOTE 05 P0: câu hỏi và CTA theo loại hình Đi lại
+
+Nhóm Đi lại vẫn đang dùng bộ câu hỏi và nút bấm của quán ăn. Đã sửa:
+
+- **Xe ghép / Xe khách có bộ câu hỏi riêng** — Đón khách thế nào · Trả khách thế nào · Xe
+  thường chạy khi nào · Loại xe · Đặt trước · Hành lý · Trên xe có gì. Bỏ hẳn Gửi xe · Lối vào
+  · Giờ nào đông.
+- **CTA chính không còn là "Chỉ đường"** — xe ghép thành **Liên hệ đặt xe** (bấm vào là bung
+  thẻ và cuộn tới khối Liên hệ có nhãn tin cậy, KHÔNG gọi thẳng). Chỗ chưa có số thì thành
+  **Tìm số nhà xe**, mở Google. Bãi xe / điểm đón trả vẫn "Chỉ đường".
+- **Chip góp ý và câu mời đổi theo loại hình** — "Bạn biết thêm về **dịch vụ** này?" thay cho
+  "chỗ này", chip là Điểm đón · Điểm trả · Giờ chạy · Loại xe · Đặt xe · Thanh toán · Hành lý.
+- Giữ nguyên "bấm là mặc định, gõ là ngoại lệ": chỉ "Điểm cố định" / "Cả hai" mới mở ô gõ.
+
+**Hai lỗi sửa kèm:** id `booking` trùng giữa câu Đặt phòng (Ngủ) và câu đặt xe mới — phiếu gửi
+lên sẽ bị từ chối im lặng. Và khối ảnh menu ở trang địa điểm đang là `> 3` nên không bao giờ
+hiện (lỗi do lệnh khôi phục hôm nay đổi nhầm cả 2 dòng).
+
+**Còn lại của NOTE 05 (P1):** taxi, xe buýt, thuê xe, điểm đón/trả vẫn dùng bộ câu hỏi chung
+và CTA "Chỉ đường" như trước — chưa hỏng gì, chỉ là chưa đúng ngữ cảnh bằng.
+
+### 2026-09-09 (trước đó) — NOTE 04 P0: Mẹo bấm chọn + Xe ghép
 
 **1. Mẹo: bấm chọn thay vì bắt gõ lại.** Web đang có 2 cơ chế chạy song song mà không biết
 nhau — chip "Gửi xe" ở khối Mẹo dẫn khách đi gõ tay, trong khi ở cuối chính thẻ đó đã có câu

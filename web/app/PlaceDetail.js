@@ -17,12 +17,20 @@ import {
 import { noteContextLabel } from "@/lib/notes";
 import { placeShareUrl } from "@/lib/siteUrl";
 import { placeCover } from "@/lib/cover";
-import { transportSummary } from "@/lib/transport";
+import {
+  transportSummary,
+  primaryAction,
+  findPhoneOnGoogleUrl,
+  adminFilledFields,
+} from "@/lib/transport";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
 // bản thân trang này đã là trang địa điểm, bọc thêm card sẽ thành "trang → sổ → card → nội
 // dung" (NOTE-02 §10). Thứ tự khối theo NOTE-02 §5.
+
+const ctaClass =
+  "cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]";
 
 function typeLabel(type) {
   return PLACE_TYPES.find((t) => t.id === type)?.label ?? null;
@@ -32,6 +40,12 @@ export function PlaceDetail({ place }) {
   const [galleryIndex, setGalleryIndex] = useState(null);
   const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   const [copyLabel, setCopyLabel] = useState("Chia sẻ");
+  const action = primaryAction(place);
+
+  // Trang này không có gì để bung — chỉ cần cuộn tới khối "Liên hệ" đã hiện sẵn bên dưới.
+  function showContact() {
+    document.getElementById(`lien-he-${place.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   const photos = place.photos ?? [];
   const menuPhotos = place.menuPhotos ?? [];
@@ -141,7 +155,12 @@ export function PlaceDetail({ place }) {
         )}
       </div>
 
-      <PlaceFacts type={place.type} subtype={place.transportSubtype} consensus={place.consensus} />
+      <PlaceFacts
+        type={place.type}
+        subtype={place.transportSubtype}
+        filledFields={adminFilledFields(place)}
+        consensus={place.consensus}
+      />
 
       {signatureDishes.length > 0 && (
         <div>
@@ -156,7 +175,7 @@ export function PlaceDetail({ place }) {
         </div>
       )}
 
-      {menuPhotos.length > 3 && (
+      {menuPhotos.length > 0 && (
         <div>
           <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh menu · khách gửi {newestMenuPhotoAge}</p>
           <div className="flex gap-2">
@@ -190,7 +209,9 @@ export function PlaceDetail({ place }) {
         </div>
       )}
 
-      <PhoneBlock place={place} />
+      <div id={`lien-he-${place.id}`}>
+        <PhoneBlock place={place} />
+      </div>
 
       {metaRows.length > 0 && (
         <div className="flex flex-col gap-1.5">
@@ -222,14 +243,21 @@ export function PlaceDetail({ place }) {
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        <a
-          href={mapsUrl(place)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]"
-        >
-          Chỉ đường
-        </a>
+        {/* CTA chính theo loại hình Đi lại (NOTE-05 §6) — xem chú thích ở PlaceExplorer.js */}
+        {action.kind === "contact" ? (
+          <button type="button" onClick={showContact} className={`${ctaClass} cursor-pointer`}>
+            {action.label}
+          </button>
+        ) : (
+          <a
+            href={action.kind === "google" ? findPhoneOnGoogleUrl(place) : mapsUrl(place)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ctaClass}
+          >
+            {action.label}
+          </a>
+        )}
         <AddToNotebook place={place} />
         <button
           type="button"
