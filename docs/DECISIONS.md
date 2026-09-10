@@ -864,3 +864,32 @@ nếu là xe máy thì anh đổi lại trong `/admin`.
 **Bài học ghi lại:** code đúng mà dữ liệu trống thì người dùng thấy y như chưa làm gì. Từ nay
 thêm trường mới nào mà giao diện phụ thuộc vào nó, phải điền dữ liệu cho các chỗ hiện có ngay
 trong cùng lượt, hoặc nói rõ "chưa thấy đổi cho tới khi điền" chứ không chỉ ghi "việc của anh".
+
+## 2026-09-10 — Đảo quyết định: Lộ trình TÁCH khỏi Sổ thành thực thể riêng
+
+**Quyết định:** Theo `CDP_P1-P8_PostDong_LoTrinh_Prompt.md` §P4, Lộ trình (Route) trở thành
+thực thể độc lập, KHÔNG còn là `notebook.mode = "route"`.
+
+**Điều này đảo ngược 2 quyết định trước:**
+- NOTE-03 §2 và NOTE-04 §15: *"Không tạo hai hệ thống tách biệt Sổ và Lộ trình. Dùng một
+  model: `notebook.mode`"*
+- Chính code em làm 2026-09-10 (công tắc "Sổ thường / Lộ trình" trong trang Sửa sổ)
+
+**Vì sao đảo:** khi lộ trình có thêm **giờ dự kiến từng điểm**, **phương tiện**, **thời lượng**,
+**ghi chú theo chặng**, thì nó khác Sổ về CẤU TRÚC chứ không còn là cách hiển thị. Nhồi mấy
+trường đó vào item của Sổ sẽ để lại một đống trường rỗng cho mọi cuốn sổ thường.
+
+**Đánh đổi anh đã nhận khi chọn:** tốn 1–2 phiên, và bài Lễ hội Thành Tuyên (P1: timeline động)
+sẽ **không kịp sửa trước 19/9** — đúng tuần đông khách nhất. Công tắc "Sổ thường / Lộ trình"
+vừa làm sẽ bị bỏ.
+
+**Việc phải làm khi tách:**
+1. `lib/routes.js` mới: `route:{slug}` + stop có `plannedAt`, `durationMinutes`, `transportMode`, `note`
+2. Bỏ `notebook.mode` và công tắc trong trang Sửa sổ (chưa ai dùng — chưa có sổ nào bật)
+3. Trang xem/sửa lộ trình riêng, tách khỏi `/so/{slug}`
+4. Chia sẻ bằng **bản chụp** (`route_share:{token}`) — P6; kéo theo P5 miễn phí
+5. Nút "Mở toàn bộ lộ trình trên Google Maps" (ghép waypoint từ tên + địa chỉ)
+
+**Chưa làm được:** khoảng cách/thời gian từng chặng (P7). **0/210 địa điểm có toạ độ** —
+`mapsUrl()` hiện chỉ ghép tên + địa chỉ thành câu tìm kiếm. Cần geocode trước, và nên geocode
+theo nhu cầu (chỉ chỗ nào vào lộ trình) thay vì cả 210 chỗ.
