@@ -255,6 +255,11 @@
     "address": "tổ 17, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Đền Cấm",
+    "type": "choi",
+    "address": "Xóm 16, xã Tràng Đà, TP Tuyên Quang"
+  },
+  {
     "name": "Đền Đôi Cô",
     "type": "choi",
     "address": "Tổ 10, phường Nông Tiến, TP Tuyên Quang"
@@ -495,11 +500,6 @@
     "address": "L259, khu đô thị Việt Mỹ, đường Trần Phú, TP Tuyên Quang"
   },
   {
-    "name": "Lẩu Nướng 1688 Grilled Hotpot",
-    "type": "an",
-    "address": "Tổ 14 Đinh Tiên Hoàng, TP Tuyên Quang"
-  },
-  {
     "name": "Lẩu Nướng Khánh Ngọc",
     "type": "an",
     "address": "Phường Tân Quang, TP Tuyên Quang"
@@ -580,6 +580,11 @@
     "address": "Số 18, tổ 19, ngõ Ngô Gia Khảm, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng 89 Lẩu - Nướng",
+    "type": "an",
+    "address": "Tổ 14, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Ẩm Thực Việt",
     "type": "an",
     "address": "Đường Lý Thái Tổ, tổ 17, phường Phan Thiết, TP Tuyên Quang"
@@ -600,6 +605,11 @@
     "address": "Tổ 10, Phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Nhà Hàng Dân Tộc Quán",
+    "type": "an",
+    "address": "130 đường Minh Thanh, Tổ 25, phường Tân Hà, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Dũng Cá",
     "type": "an",
     "address": "Tổ 4, Phường Tân Quang, TP Tuyên Quang"
@@ -608,6 +618,11 @@
     "name": "Nhà hàng Đầu Bò",
     "type": "an",
     "address": "371 Phạm Văn Đồng, Tổ 5, Phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà Hàng Gia Linh",
+    "type": "an",
+    "address": "Tổ 3, phường Minh Xuân, TP Tuyên Quang (đường Chiến Thắng Sông Lô)"
   },
   {
     "name": "Nhà Hàng Gốc Tếch Huyền Minh",
@@ -658,6 +673,11 @@
     "name": "Nhà hàng Ven Hồ",
     "type": "an",
     "address": "Tổ 14, Phường Tân Quang, TP Tuyên Quang (đối diện hồ Tân Quang)"
+  },
+  {
+    "name": "Nhà hàng View Buffet lẩu - nướng hải sản",
+    "type": "an",
+    "address": "KĐT Việt Mỹ"
   },
   {
     "name": "Nhà Hàng Vua Gà (Tuyên Quang)",
@@ -875,11 +895,6 @@
     "address": "Đường Lý Thái Tổ, Phường Tân Quang, TP Tuyên Quang"
   },
   {
-    "name": "Saturday - Trà Chanh Phố",
-    "type": "an",
-    "address": "Số 02 Hà Huy Tập, Phường Phan Thiết, TP Tuyên Quang"
-  },
-  {
     "name": "Sáu Được - Cháo Dinh Dưỡng",
     "type": "an",
     "address": "42 Xã Tắc, TP Tuyên Quang"
@@ -923,6 +938,11 @@
     "name": "Taxi Tâm Đức",
     "type": "dilai",
     "address": "10 Bình Thuận, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Taxi Thành Tín",
+    "type": "dilai",
+    "address": "Phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Taxi Thành Tuyên",
@@ -1013,6 +1033,11 @@
     "name": "Xanh SM Tuyên Quang (taxi điện)",
     "type": "dilai",
     "address": null
+  },
+  {
+    "name": "Xe ghép Anh Huy",
+    "type": "dilai",
+    "address": "TP. Tuyên Quang"
   },
   {
     "name": "Xì Quách Quán",
