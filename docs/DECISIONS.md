@@ -893,3 +893,28 @@ vừa làm sẽ bị bỏ.
 **Chưa làm được:** khoảng cách/thời gian từng chặng (P7). **0/210 địa điểm có toạ độ** —
 `mapsUrl()` hiện chỉ ghép tên + địa chỉ thành câu tìm kiếm. Cần geocode trước, và nên geocode
 theo nhu cầu (chỉ chỗ nào vào lộ trình) thay vì cả 210 chỗ.
+
+## 2026-09-10 — Chặng A: 4 lựa chọn khi tách Lộ trình
+
+**1. Giờ dự kiến lưu "HH:MM", KHÔNG kèm ngày.** Một lộ trình "Ăn tối → gửi xe → Đêm hội" dùng
+lại được cho bất kỳ ngày nào. Ngày cụ thể (nếu cần) là việc của Post gắn lộ trình đó — chưa
+làm. Thêm ngày sau này không phá dữ liệu cũ.
+
+**2. Điểm dừng có thể KHÔNG phải địa điểm của CDP.** `customTitle` thay cho `placeId` —
+"Khách sạn của tôi", "Nhà bạn Nam". Chính ví dụ của §P4 bắt đầu bằng "Khách sạn", mà khách sạn
+đó thường không có trong danh bạ. Thiếu cái này thì lộ trình thật không dựng được.
+
+**3. Điểm nhận diện bằng VỊ TRÍ trong mảng, không phải `placeId`.** Một lộ trình được phép đi
+qua cùng một chỗ 2 lần (ăn sáng rồi tối quay lại), và điểm tự đặt tên thì không có `placeId`.
+
+**4. Chia sẻ = tạo BẢN CHỤP mới, không phải link tới bản gốc** (§P6). Đánh đổi: chủ sửa lộ
+trình xong phải bấm "Chia sẻ" lần nữa mới có link mới. **Đã nói rõ câu này ngay dưới link** —
+im lặng thì chủ tưởng link cũ tự cập nhật theo.
+
+**Chưa làm được — thiếu dữ liệu gốc:** khoảng cách và thời gian từng chặng (§P7 "1,8 km ·
+khoảng 6 phút"). **0/210 địa điểm có toạ độ.** Nút "Mở toàn bộ lộ trình trên Google Maps" thì
+chạy được vì Google tự tra từ tên + địa chỉ.
+
+**Điểm cần để ý:** đầu trang chưa có link tới "Lộ trình của tôi" — 2 nút hiện có đã chật màn
+hình điện thoại. Tạm dùng link chéo ở trang `/so`. Nếu anh thấy khó tìm thì phải rút gọn nhãn
+3 nút ("Ghi chú · Sổ · Lộ trình").

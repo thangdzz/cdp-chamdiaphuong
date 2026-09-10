@@ -14,17 +14,9 @@ const MAX_ITEMS_PER_NOTEBOOK = 30;
 const MAX_TITLE_LENGTH = 60;
 const MAX_NOTE_LENGTH = 140;
 
-// Sổ thường và Lộ trình dùng CHUNG một model, chỉ khác `mode` (NOTE-03 §2) — không tạo entity
-// Route riêng. Sổ cũ không có trường này -> đọc ra "list", đúng hành vi trước giờ, không cần
-// migration.
-export const NOTEBOOK_MODES = [
-  { id: "list", label: "Sổ thường", hint: "Một tập hợp chỗ hay, không cần thứ tự." },
-  { id: "route", label: "Lộ trình", hint: "Có thứ tự đi: điểm 1 → 2 → 3." },
-];
-
-export function notebookModeOf(notebook) {
-  return notebook?.mode === "route" ? "route" : "list";
-}
+// Sổ = BỘ SƯU TẬP địa điểm, không bắt buộc thứ tự. Lộ trình là thực thể RIÊNG ở lib/routes.js
+// (đảo quyết định 2026-09-10 theo CDP_P1-P8 §P4) — trước đó lộ trình từng là `notebook.mode`,
+// trường đó đã bỏ. Sổ cũ còn sót `mode` trong dữ liệu thì không ai đọc tới, vô hại.
 const STATS_KEY = "notebook:stats";
 const TOTAL_COUNT_KEY = "notebook:count:total";
 
@@ -149,16 +141,6 @@ export async function updateNotebookTitle({ anonId, slug, title }) {
   return { ok: true };
 }
 
-export async function updateNotebookMode({ anonId, slug, mode }) {
-  const notebook = await getNotebook(slug);
-  if (!assertOwner(notebook, anonId)) return { ok: false, error: "Không tìm thấy sổ." };
-  if (!NOTEBOOK_MODES.some((m) => m.id === mode)) return { ok: false, error: "Kiểu sổ không hợp lệ." };
-  notebook.mode = mode;
-  notebook.updatedAt = new Date().toISOString();
-  await redis.set(notebookKey(slug), notebook);
-  return { ok: true };
-}
-
 export async function reorderItems({ anonId, slug, orderedPlaceIds }) {
   const notebook = await getNotebook(slug);
   if (!assertOwner(notebook, anonId)) return { ok: false, error: "Không tìm thấy sổ." };
@@ -188,8 +170,6 @@ export async function copyNotebook({ sourceSlug, newOwnerAnonId }) {
     const notebook = {
       slug,
       title: source.title,
-      // Chép một lộ trình phải ra lộ trình — thiếu dòng này thì bản sao mất thứ tự đi.
-      mode: notebookModeOf(source),
       ownerAnonId: newOwnerAnonId,
       items: source.items.map((it) => ({ ...it })),
       copiedFrom: sourceSlug,

@@ -218,3 +218,19 @@
 - [x] **Điền loại hình cho 14 chỗ Đi lại còn lại** — 8 taxi, 3 thuê xe máy, 1 thuê ô tô tự lái,
       1 bến xe, 1 bãi đỗ. Đây là nguyên nhân chính khiến anh không thấy gì đổi: code đúng nhưng
       chỗ nào chưa chọn loại hình thì hệ thống không có căn cứ để đổi
+
+## 2026-09-10 (Chặng A — tách Lộ trình)
+
+- [x] **`lib/routes.js`** — Lộ trình thành thực thể riêng `route:{slug}`. Mỗi điểm có giờ dự
+      kiến · thời lượng · ghi chú chặng; cả lộ trình có phương tiện. Điểm có thể là địa điểm
+      CDP **hoặc điểm tự đặt tên** ("Khách sạn của tôi")
+- [x] **`lib/routeShare.js`** — chia sẻ bằng BẢN CHỤP (§P6): sửa/xoá lộ trình gốc thì link đã
+      gửi vẫn mở đúng nội dung cũ. Kéo theo §P5 (chia sẻ không cần lưu/đặt tên trước)
+- [x] **`lib/mapsUrl.js`** — `routeMapsUrl()` ghép waypoint (§P7 gđ1). Cắt bớt và **nói thật**
+      khi quá 11 điểm, không im lặng bỏ điểm
+- [x] 4 trang mới: `/lo-trinh` · `/lo-trinh/{slug}` · `/lo-trinh/{slug}/sua` ·
+      `/lo-trinh/xem/{token}` (bản đã chia sẻ)
+- [x] **Bỏ `notebook.mode`** — Sổ quay lại đúng nghĩa "bộ sưu tập". 0 cuốn sổ đang bật chế độ
+      lộ trình nên không mất dữ liệu của ai
+- [x] Lối vào: "Tạo lộ trình từ sổ này" ở trang Sổ; nút trên thẻ đổi thành "+ Sổ / Lộ trình"
+      và cho chọn cả hai; link chéo giữa 2 trang danh sách

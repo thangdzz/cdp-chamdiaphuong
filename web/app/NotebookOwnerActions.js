@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { saveNotebookAsMine, checkNotebookOwnership } from "./notebookActions";
+import { createRouteFromNotebookAction } from "./routeActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { notebookShareUrl } from "@/lib/siteUrl";
 
@@ -25,6 +26,7 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const [copyLabel, setCopyLabel] = useState("Sao chép link");
+  const [routeLabel, setRouteLabel] = useState("Tạo lộ trình từ sổ này");
 
   useEffect(() => {
     const local = loadLocalContributor();
@@ -49,6 +51,28 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
       if (result.ok) {
         router.push(`/so/${result.slug}/sua`);
       }
+    } finally {
+      setBusy(false);
+      busyRef.current = false;
+    }
+  }
+
+  // §P4: Sổ là bộ sưu tập, Lộ trình là chuyến đi có thứ tự. Đây là lối đi tự nhiên giữa hai
+  // cái: ai đã gom sẵn một cuốn sổ thì không phải bấm lại từng chỗ. SỔ GỐC KHÔNG ĐỔI.
+  async function makeRoute() {
+    if (busyRef.current || itemCount === 0) return;
+    busyRef.current = true;
+    setBusy(true);
+    setRouteLabel("Đang tạo...");
+    try {
+      const local = loadLocalContributor();
+      const result = await createRouteFromNotebookAction({ anonId: local?.anonId, slug });
+      if (result.ok) {
+        router.push(`/lo-trinh/${result.slug}/sua`);
+        return;
+      }
+      setRouteLabel(result.error ?? "Chưa tạo được");
+      setTimeout(() => setRouteLabel("Tạo lộ trình từ sổ này"), 2500);
     } finally {
       setBusy(false);
       busyRef.current = false;
@@ -86,6 +110,14 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
         >
           Sửa sổ này
         </Link>
+        <button
+          type="button"
+          disabled={busy || itemCount === 0}
+          onClick={makeRoute}
+          className="cdp-pressable w-full cursor-pointer rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 disabled:cursor-default disabled:opacity-40"
+        >
+          {routeLabel}
+        </button>
       </div>
     );
   }

@@ -20,7 +20,12 @@ export default function MyNotebooksPage() {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <SiteHeader />
-        <h1 className="mb-6 text-xl font-medium tracking-tight text-zinc-900">Sổ của tôi</h1>
+        <div className="mb-6 flex items-baseline justify-between gap-2">
+          <h1 className="text-xl font-medium tracking-tight text-zinc-900">Sổ của tôi</h1>
+          <Link href="/lo-trinh" className="text-[13px] text-zinc-500 underline">
+            Lộ trình của tôi →
+          </Link>
+        </div>
 
         {notebooks === null && <p className="text-sm text-zinc-500">Đang tải...</p>}
 

@@ -330,6 +330,13 @@ web/
 │   │                              vehicleTypesOf() -> loại xe (đọc được cả ô chữ tự do cũ);
 │   │                              adminFilledFields() -> ô admin đã điền thì thôi hỏi khách
 │   │                              (NOTE-04 §1–§2, NOTE-05 §2/§6/§9, NOTE-06 §1/§8/§10)
+│   ├── routes.js           (280)  ⭐ Lộ trình — thực thể RIÊNG, không phải trạng thái của Sổ
+│   │                              (CDP_P1-P8 §P4). `route:{slug}` + `routes:by-owner:{anonId}`.
+│   │                              Mỗi điểm: giờ dự kiến · thời lượng · ghi chú chặng, và có
+│   │                              thể là điểm TỰ ĐẶT TÊN thay vì địa điểm CDP
+│   ├── routeShare.js        (95)  ⭐ Chia sẻ bằng BẢN CHỤP (§P6) — `route_share:{token}` đóng
+│   │                              băng nội dung lúc bấm. Sửa/xoá lộ trình gốc thì link đã gửi
+│   │                              vẫn mở đúng thứ được gửi
 │   ├── siteUrl.js           (17)  Hằng số tên miền chính + placeShareUrl/notebookShareUrl —
 │   │                              mọi link ĐEM ĐI CHIA SẺ dựng từ đây, không dùng
 │   │                              window.location.origin (sẽ mang địa chỉ đang mở)

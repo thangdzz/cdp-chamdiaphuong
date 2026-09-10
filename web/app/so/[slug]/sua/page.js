@@ -9,11 +9,9 @@ import {
   updateNotebookItemNote,
   removePlaceFromNotebook,
   reorderNotebookItems,
-  setNotebookMode,
 } from "@/app/notebookActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
-import { NOTEBOOK_MODES } from "@/lib/notebooks";
 import { SiteHeader } from "@/app/SiteHeader";
 import { notebookShareUrl } from "@/lib/siteUrl";
 
@@ -74,24 +72,6 @@ export default function EditNotebookPage({ params }) {
       }));
     }
     return result;
-  }
-
-  // Đổi Sổ thường <-> Lộ trình. Đổi trên màn hình trước rồi mới gọi máy chủ, để bấm là thấy
-  // ngay — hỏng thì trả về giá trị cũ (cùng cách saveTitle đang làm).
-  async function changeMode(mode) {
-    if (busyRef.current || mode === notebook.mode) return;
-    const previous = notebook.mode;
-    setNotebook((nb) => ({ ...nb, mode }));
-    busyRef.current = true;
-    setBusy(true);
-    try {
-      const local = loadLocalContributor();
-      const result = await setNotebookMode({ anonId: local?.anonId, slug, mode });
-      if (!result.ok) setNotebook((nb) => ({ ...nb, mode: previous }));
-    } finally {
-      setBusy(false);
-      busyRef.current = false;
-    }
   }
 
   async function removeItem(placeId) {
@@ -168,33 +148,6 @@ export default function EditNotebookPage({ params }) {
           />
         </div>
 
-        {/* NOTE-03 §2: Sổ thường và Lộ trình dùng chung một model, chỉ khác cách hiển thị —
-            bật lên là các chỗ được đánh số theo đúng thứ tự đang sắp, tắt đi là về như cũ.
-            Không đụng gì vào danh sách chỗ. */}
-        <div className="mt-5">
-          <p className="mb-1.5 text-[13px] text-zinc-500">Kiểu sổ</p>
-          <div className="flex gap-1.5">
-            {NOTEBOOK_MODES.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                disabled={busy}
-                onClick={() => changeMode(m.id)}
-                className={`cdp-pressable flex-1 cursor-pointer rounded-lg border px-3 py-2 text-left disabled:opacity-50 ${
-                  notebook.mode === m.id
-                    ? "border-zinc-400 bg-zinc-100"
-                    : "border-zinc-200 bg-white"
-                }`}
-              >
-                <span className={`block text-sm ${notebook.mode === m.id ? "font-medium text-zinc-900" : "text-zinc-700"}`}>
-                  {m.label}
-                </span>
-                <span className="mt-0.5 block text-xs text-zinc-500">{m.hint}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {notebook.items.length === 0 ? (
           <p className="mt-6 text-sm text-zinc-500">
             Sổ chưa có chỗ nào. Về trang chủ, bấm &quot;+ Thêm vào sổ&quot; trên 1 chỗ bất kỳ.
@@ -204,13 +157,7 @@ export default function EditNotebookPage({ params }) {
             {notebook.items.map((item, index) => (
               <li key={item.placeId} className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-start gap-2">
-                    {notebook.mode === "route" && (
-                      <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-medium text-white">
-                        {index + 1}
-                      </span>
-                    )}
-                    <div className="min-w-0">
+                  <div className="min-w-0">
                     <p className={`text-lg font-medium tracking-tight ${item.deleted ? "text-zinc-400" : "text-zinc-900"}`}>
                       {item.deleted ? item.nameSnapshot : item.place?.name}
                     </p>
@@ -219,7 +166,6 @@ export default function EditNotebookPage({ params }) {
                     ) : (
                       <p className="text-[13px] text-zinc-500">{getPlaceTypeLabel(item.place?.type)}</p>
                     )}
-                    </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
                     <button

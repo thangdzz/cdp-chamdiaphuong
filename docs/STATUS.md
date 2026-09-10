@@ -230,6 +230,30 @@ nhất".
 
 ## Cập nhật gần nhất
 
+### 2026-09-10 (mới nhất) — Chặng A: Lộ trình tách khỏi Sổ
+
+Theo `CDP_P1-P8_PostDong_LoTrinh_Prompt.md` §P4–§P7. **Đảo quyết định cũ**: lộ trình không còn
+là `notebook.mode` mà là thực thể riêng.
+
+- **Sổ** = bộ sưu tập chỗ hay, không cần thứ tự (đúng nghĩa ban đầu)
+- **Lộ trình** = đi theo thứ tự, mỗi điểm có **giờ dự kiến · thời lượng · ghi chú chặng**, cả
+  lộ trình có **phương tiện**. Điểm có thể là địa điểm CDP **hoặc tự đặt tên** ("Khách sạn của
+  tôi") — lộ trình thật hay bắt đầu từ chỗ không có trong danh bạ
+- **Chia sẻ bằng bản chụp**: bấm chia sẻ là đóng băng nội dung lúc đó. Sau này anh sửa, xoá
+  điểm, thậm chí **xoá cả lộ trình**, link đã gửi vẫn mở ra đúng thứ người ta nhận được
+- **Nút "Mở toàn bộ lộ trình trên Google Maps"** — CDP lo kế hoạch, Google lo đường
+
+4 trang mới: `/lo-trinh` · `/lo-trinh/{slug}` · `/lo-trinh/{slug}/sua` · `/lo-trinh/xem/{token}`.
+
+**Cách tạo lộ trình:** mở một cuốn sổ đã gom sẵn → **"Tạo lộ trình từ sổ này"** (sổ gốc không
+đổi). Hoặc trên thẻ bất kỳ, nút cũ "+ Vào sổ" nay là **"+ Sổ / Lộ trình"**, chọn được cả hai.
+
+**Chưa làm được:** khoảng cách/thời gian từng chặng (§P7) — **0/210 địa điểm có toạ độ**. Cần
+geocode trước, nên geocode theo nhu cầu chứ không phải cả 210 chỗ.
+
+**Còn lại của tài liệu:** P1 timeline động cho bài lễ hội · P2 sửa card trang chủ · P3
+Interactive Plan · Post Engine · Content Monitor · Google Routes API.
+
 ### 2026-09-10 — NOTE 06 P0: gom Đi lại thành 4 nhóm, hoàn thiện Dịch vụ đón khách
 
 Nhóm "Đi lại" trộn những thứ hành xử khác hẳn nhau — gọi một hãng taxi và đi tới một bãi đỗ xe
