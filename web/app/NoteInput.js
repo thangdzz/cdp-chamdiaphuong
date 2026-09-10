@@ -40,6 +40,8 @@ export function NoteInput({ place, onActiveQuestion }) {
   // ngữ cảnh, và gọi nó là "chỗ này" cũng sai — nó không phải một chỗ để đến (NOTE-05 §8–§9).
   const family = transportFamilyOf(place);
   const contexts = noteContextsForPlace(place, family);
+  // Ví dụ mờ trong ô gõ đổi theo ngữ cảnh đang chọn — xem NOTE_CONTEXTS trong lib/notes.js.
+  const activeContext = contexts.find((c) => c.id === context);
   const filledFields = adminFilledFields(place);
   const contextQuestion = context
     ? getQuestionForContext(context, place.type, place.transportSubtype ?? null, filledFields, family)
@@ -234,7 +236,7 @@ export function NoteInput({ place, onActiveQuestion }) {
                 value={text}
                 maxLength={NOTE_MAX_LENGTH}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="VD: Gửi xe ở ngõ cạnh số 12"
+                placeholder={activeContext?.hint ?? "VD: Nghỉ thứ Hai hằng tuần"}
                 rows={2}
                 className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
               />

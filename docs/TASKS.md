@@ -196,3 +196,6 @@
 - [x] Thêm ô "Khu vực phục vụ" (`serviceArea`) — thứ taxi/thuê xe cần, tuyến chính thì không
 - [x] CTA: taxi → "Xem thông tin gọi xe", thuê xe có lái → "Liên hệ thuê xe"; bến xe / bãi xe /
       điểm đón trả / thuê xe tự lái giữ "Chỉ đường" (đúng — đó là chỗ khách phải tới thật)
+- [x] **Ví dụ trong ô gõ mẹo đổi theo ngữ cảnh** (anh phát hiện 2026-09-10): chọn "Loại xe" mà
+      ví dụ vẫn là "VD: Gửi xe ở ngõ cạnh số 12". Mỗi ngữ cảnh trong 14 ngữ cảnh nay có ví dụ
+      riêng, đặt cạnh nhãn trong `NOTE_CONTEXTS` để không lệch nhau

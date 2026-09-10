@@ -11,24 +11,28 @@ const QUEUE_KEY = "place_notes:queue"; // mảng chờ duyệt
 // thị mẹo dưới dạng FIELD ("Gửi xe — ...") thay vì như một dòng bình luận.
 // Note cũ (trước 2026-09-09) không có context — đọc ra `null` và hiện như trước, KHÔNG cần
 // migration.
+// `hint` là ví dụ mờ trong ô gõ, ĐỔI THEO ngữ cảnh vừa chọn. Trước đây mọi ngữ cảnh đều dùng
+// chung câu "VD: Gửi xe ở ngõ cạnh số 12", nên chọn "Loại xe" xong lại thấy ví dụ về gửi xe —
+// vừa lạc đề vừa dễ làm khách gõ nhầm nội dung. Mỗi ví dụ phải là một mẹo giúp người sau LÀM
+// ĐƯỢC MỘT VIỆC cụ thể (NOTE-03 §1.B), không phải mô tả lại chính cái nhãn.
 export const NOTE_CONTEXTS = [
-  { id: "gui-xe", label: "Gửi xe" },
-  { id: "loi-vao", label: "Lối vào" },
-  { id: "thoi-diem", label: "Thời điểm" },
-  { id: "di-chuyen", label: "Di chuyển" },
-  { id: "thanh-toan", label: "Thanh toán" },
-  { id: "tien-ich", label: "Tiện ích" },
-  { id: "khac", label: "Khác" },
+  { id: "gui-xe", label: "Gửi xe", hint: "VD: Tối lễ hội nên gửi xe phía sau chợ" },
+  { id: "loi-vao", label: "Lối vào", hint: "VD: Cửa nhỏ, đi qua cổng sắt xanh cạnh số 12" },
+  { id: "thoi-diem", label: "Thời điểm", hint: "VD: Trưa cuối tuần rất đông, nên đến trước 11h" },
+  { id: "di-chuyen", label: "Di chuyển", hint: "VD: Từ quảng trường đi bộ 5 phút theo đường Trần Phú" },
+  { id: "thanh-toan", label: "Thanh toán", hint: "VD: Chỉ nhận tiền mặt, không quẹt thẻ" },
+  { id: "tien-ich", label: "Tiện ích", hint: "VD: Có chỗ ngồi ngoài trời, wifi khoẻ" },
+  { id: "khac", label: "Khác", hint: "VD: Nghỉ thứ Hai hằng tuần" },
 
   // Riêng dịch vụ đi xe (NOTE-05 §8). Để chung một danh sách để noteContextLabel() đọc được
   // nhãn của MỌI mẹo đã lưu, kể cả khi chỗ đó sau này bị đổi loại hình.
-  { id: "diem-don", label: "Điểm đón" },
-  { id: "diem-tra", label: "Điểm trả" },
-  { id: "gio-chay", label: "Giờ chạy" },
-  { id: "loai-xe", label: "Loại xe" },
-  { id: "dat-xe", label: "Đặt xe" },
-  { id: "hanh-ly", label: "Hành lý" },
-  { id: "cach-goi", label: "Cách gọi" },
+  { id: "diem-don", label: "Điểm đón", hint: "VD: Đón ở đầu cầu Nông Tiến, gọi trước 15 phút" },
+  { id: "diem-tra", label: "Điểm trả", hint: "VD: Trả tận nhà trong nội thành Hà Nội" },
+  { id: "gio-chay", label: "Giờ chạy", hint: "VD: Chuyến sớm nhất 5h, chuyến cuối 18h" },
+  { id: "loai-xe", label: "Loại xe", hint: "VD: Xe 4 chỗ và 7 chỗ, có cả xe Limousine" },
+  { id: "dat-xe", label: "Đặt xe", hint: "VD: Cuối tuần nên đặt trước 1 ngày" },
+  { id: "hanh-ly", label: "Hành lý", hint: "VD: Nhận chở xe máy, tính thêm phí" },
+  { id: "cach-goi", label: "Cách gọi", hint: "VD: Gọi tổng đài nhanh hơn gọi số lái xe" },
 ];
 
 // "Gửi xe / Lối vào" vô nghĩa với một nhà xe ghép, còn "Điểm đón / Giờ chạy" thì vô nghĩa với
