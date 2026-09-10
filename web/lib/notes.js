@@ -33,6 +33,13 @@ export const NOTE_CONTEXTS = [
   { id: "dat-xe", label: "Đặt xe", hint: "VD: Cuối tuần nên đặt trước 1 ngày" },
   { id: "hanh-ly", label: "Hành lý", hint: "VD: Nhận chở xe máy, tính thêm phí" },
   { id: "cach-goi", label: "Cách gọi", hint: "VD: Gọi tổng đài nhanh hơn gọi số lái xe" },
+
+  // Riêng thuê xe tự lái và bãi/bến xe (NOTE-06 §11)
+  { id: "dat-coc", label: "Đặt cọc", hint: "VD: Cọc 2 triệu, trả lại đủ khi giao xe" },
+  { id: "giay-to", label: "Giấy tờ", hint: "VD: Chỉ cần CCCD, không giữ bằng lái" },
+  { id: "nhan-xe", label: "Nhận xe", hint: "VD: Giao xe tận khách sạn, không tính thêm tiền" },
+  { id: "phi-gui-xe", label: "Phí gửi xe", hint: "VD: Xe máy 5.000đ/lượt, ô tô 20.000đ" },
+  { id: "trong-xe", label: "Trông xe", hint: "VD: Có trông qua đêm, lấy xe trước 6h sáng" },
 ];
 
 // "Gửi xe / Lối vào" vô nghĩa với một nhà xe ghép, còn "Điểm đón / Giờ chạy" thì vô nghĩa với
@@ -42,6 +49,12 @@ const DEFAULT_CONTEXT_IDS = ["gui-xe", "loi-vao", "thoi-diem", "di-chuyen", "tha
 
 const FAMILY_CONTEXT_IDS = {
   "pickup-service": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
+  // Cửa hàng thuê xe: khách vẫn tới tận nơi nên giữ "Lối vào", nhưng thứ quyết định thuê được
+  // hay không là cọc / giấy tờ / cách giao xe.
+  "self-drive": ["loai-xe", "dat-coc", "giay-to", "nhan-xe", "loi-vao", "thoi-diem", "thanh-toan", "khac"],
+  // Bãi / bến xe: chỗ vật lý thật, nên giữ Lối vào + Thời điểm; bỏ "Gửi xe" vì chính nó là
+  // chỗ gửi xe, thay bằng phí và chuyện trông qua đêm.
+  "transport-place": ["phi-gui-xe", "trong-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "khac"],
 };
 
 const SUBTYPE_CONTEXT_IDS = {
@@ -49,6 +62,8 @@ const SUBTYPE_CONTEXT_IDS = {
   // thêm "Cách gọi" (tổng đài / app / vẫy dọc đường) theo NOTE-06 §6.
   taxi: ["loai-xe", "cach-goi", "gio-chay", "dat-xe", "thanh-toan", "tien-ich", "khac"],
   "xe-khach": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
+  // Điểm đón/trả chỉ là chỗ đứng chờ, không giữ xe -> dùng lại bộ chung.
+  "diem-don-tra": ["gui-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "khac"],
 };
 
 // Cùng một ngữ cảnh nhưng ở chỗ khác nhau thì ví dụ phải khác: "Tiện ích" ở quán ăn là wifi
@@ -92,6 +107,7 @@ const HINTS_BY_FAMILY = {
     khac: "VD: Đóng cổng lúc 22h",
   },
   "self-drive": {
+    "loai-xe": "VD: Có xe số và xe ga, xe tay côn phải đặt trước",
     "thoi-diem": "VD: Cuối tuần hết xe sớm, nên gọi giữ trước",
     "thanh-toan": "VD: Đặt cọc tiền mặt hoặc giữ giấy tờ",
     "tien-ich": "VD: Có kèm mũ bảo hiểm và áo mưa",

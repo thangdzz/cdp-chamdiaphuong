@@ -22,7 +22,11 @@ export const QUESTIONS = [
     // Dịch vụ đón khách và xe khách thì khách không gửi xe ở đâu cả — hỏi là ép dùng field
     // của quán ăn (NOTE-04 §2 dòng cuối, NOTE-05 §5). Bến xe / điểm đón / bãi xe và các hàng
     // cho thuê xe tự lái thì vẫn hỏi bình thường: đó là chỗ khách tới thật.
-    skipFamilies: ["pickup-service"],
+    // Bỏ cho cả 3 nhóm: dịch vụ đón khách không có chỗ để gửi, cửa hàng thuê xe thì khách
+    // đi RA bằng xe chứ không gửi xe lại, còn bãi/bến xe thì chính nó LÀ chỗ gửi xe — hỏi
+    // thành vòng tròn, mà đáp án lại toàn chữ của quán ăn ("Bãi riêng của quán", "Vỉa hè
+    // cạnh quán"). Bãi/bến xe có câu "Gửi xe mất bao nhiêu?" riêng bên dưới.
+    skipFamilies: ["pickup-service", "self-drive", "transport-place"],
     skipSubtypes: ["xe-khach"],
     icon: "🅿️",
     label: "Gửi xe",
@@ -278,6 +282,9 @@ export const QUESTIONS = [
   {
     id: "price_style",
     scope: "dilai",
+    // Bãi/bến xe đã có câu "Gửi xe mất bao nhiêu?" cụ thể hơn hẳn, và "Theo đồng hồ" thì chỉ
+    // đúng với taxi.
+    skipFamilies: ["transport-place"],
     icon: "💳",
     label: "Giá",
     text: "Giá thế nào?",
@@ -292,9 +299,9 @@ export const QUESTIONS = [
     id: "available_when",
     scope: "dilai",
     // Dịch vụ đón khách và xe khách có câu giờ riêng bên dưới, chi tiết hơn hẳn — giữ cả hai
-    // là hỏi 2 lần cùng một chuyện.
+    // là hỏi 2 lần cùng một chuyện. Bãi gửi xe thì không có "xe" nào để chờ cả.
     skipFamilies: ["pickup-service"],
-    skipSubtypes: ["xe-khach"],
+    skipSubtypes: ["xe-khach", "bai-xe"],
     icon: "🕐",
     label: "Lúc nào có xe",
     text: "Lúc nào có xe?",
@@ -331,7 +338,7 @@ export const QUESTIONS = [
   {
     id: "vehicle_types",
     scope: "dilai",
-    families: ["pickup-service"],
+    families: ["pickup-service", "self-drive"],
     subtypes: ["xe-khach"],
     // multi: một nhà xe chạy đồng thời 4 chỗ và 7 chỗ là chuyện thường. Đồng thuận tính
     // TỪNG loại một, không có loại nào "thắng" rồi ẩn loại khác (NOTE-06 §8).
@@ -531,6 +538,105 @@ export const QUESTIONS = [
       { value: "km", label: "Theo km" },
     ],
   },
+  // --- Tự lái: thuê ô tô / thuê xe máy (NOTE-06 §11) ------------------------------------
+  // Khách tới tận cửa hàng lấy xe, nên vẫn hỏi lối vào / giờ đông như chỗ vật lý. Cái khác
+  // hẳn là cọc, giấy tờ và cách giao xe — 3 thứ quyết định có thuê được hay không.
+  {
+    id: "rental_deposit",
+    scope: "dilai",
+    families: ["self-drive"],
+    icon: "💰",
+    label: "Đặt cọc",
+    text: "Đặt cọc thế nào?",
+    multi: false,
+    options: [
+      { value: "cash", label: "Cọc tiền" },
+      { value: "papers", label: "Giữ giấy tờ" },
+      { value: "either", label: "Cọc tiền hoặc giữ giấy tờ" },
+      { value: "none", label: "Không cần cọc" },
+    ],
+  },
+  {
+    id: "rental_papers",
+    scope: "dilai",
+    families: ["self-drive"],
+    icon: "🪪",
+    label: "Giấy tờ",
+    text: "Cần giấy tờ gì?",
+    multi: true,
+    options: [
+      { value: "id", label: "CCCD" },
+      { value: "licence", label: "Bằng lái" },
+      { value: "residence", label: "Sổ hộ khẩu" },
+      { value: "none", label: "Không cần giấy tờ" },
+    ],
+  },
+  {
+    id: "rental_handover",
+    scope: "dilai",
+    families: ["self-drive"],
+    icon: "🔑",
+    label: "Nhận xe",
+    text: "Nhận xe thế nào?",
+    multi: false,
+    options: [
+      { value: "shop", label: "Đến cửa hàng lấy" },
+      { value: "delivery", label: "Giao tận nơi" },
+      { value: "both", label: "Cả hai" },
+    ],
+  },
+
+  // --- Điểm giao thông: bến xe / bãi xe / điểm đón trả (NOTE-06 §11) ---------------------
+  {
+    id: "parking_fee",
+    scope: "dilai",
+    families: ["transport-place"],
+    // Điểm đón/trả chỉ là chỗ đứng chờ xe, không phải bãi giữ xe.
+    skipSubtypes: ["diem-don-tra"],
+    icon: "🎫",
+    label: "Phí gửi xe",
+    text: "Gửi xe mất bao nhiêu?",
+    multi: false,
+    options: [
+      { value: "free", label: "Miễn phí" },
+      { value: "per_turn", label: "Có phí theo lượt" },
+      { value: "per_hour", label: "Tính theo giờ" },
+      { value: "per_day", label: "Tính theo ngày" },
+    ],
+  },
+  {
+    id: "parking_accepts",
+    scope: "dilai",
+    families: ["transport-place"],
+    // Điểm đón/trả chỉ là chỗ đứng chờ xe, không phải bãi giữ xe.
+    skipSubtypes: ["diem-don-tra"],
+    icon: "🛵",
+    label: "Nhận trông",
+    text: "Nhận trông xe gì?",
+    multi: true,
+    options: [
+      { value: "motorbike", label: "Xe máy" },
+      { value: "car", label: "Ô tô" },
+      { value: "bicycle", label: "Xe đạp" },
+    ],
+  },
+  {
+    id: "parking_overnight",
+    scope: "dilai",
+    families: ["transport-place"],
+    // Điểm đón/trả chỉ là chỗ đứng chờ xe, không phải bãi giữ xe.
+    skipSubtypes: ["diem-don-tra"],
+    icon: "🌙",
+    label: "Qua đêm",
+    text: "Có trông qua đêm không?",
+    multi: false,
+    options: [
+      { value: "yes", label: "Có trông qua đêm" },
+      { value: "no", label: "Chỉ trông ban ngày" },
+      { value: "ask", label: "Cần hỏi trước" },
+    ],
+  },
+
   {
     id: "coach_seat",
     scope: "dilai",
@@ -595,6 +701,11 @@ const CONTEXT_QUESTION_IDS = {
   "dat-xe": ["ride_booking"],
   "hanh-ly": ["luggage"],
   "cach-goi": ["taxi_hail"],
+  "dat-coc": ["rental_deposit"],
+  "giay-to": ["rental_papers"],
+  "nhan-xe": ["rental_handover"],
+  "phi-gui-xe": ["parking_fee"],
+  "trong-xe": ["parking_overnight", "parking_accepts"],
 
   "gui-xe": ["parking"],
   "loi-vao": ["entrance"],

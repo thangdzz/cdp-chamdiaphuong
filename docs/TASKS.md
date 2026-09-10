@@ -207,3 +207,14 @@
       xem đánh số ①②③ theo đúng thứ tự đang sắp, mô tả và preview đổi thành "N điểm · Ăn + Chơi".
       Bản sao Sổ mang theo `mode`. **Không** hiện khoảng cách/thời gian giữa các điểm — chưa có
       nguồn dữ liệu, §4 cấm bịa
+- [x] **Hoàn thiện nốt Tự lái + Điểm giao thông** (anh phát hiện 2026-09-10: "trừ xe ghép ra thì
+      chưa thấy thay đổi"). NOTE-06 §12 xếp 2 nhóm này vào "chưa làm chặng này", nhưng để lại
+      thì 6 chỗ vẫn dùng bộ câu hỏi của quán ăn:
+  - Tự lái: Loại xe · **Đặt cọc** · **Giấy tờ** · **Nhận xe**
+  - Điểm giao thông: **Phí gửi xe** · **Nhận trông xe gì** · **Trông qua đêm**
+  - Bỏ câu "Gửi xe ở đâu?" khỏi cả 3 nhóm không phải quán — đáp án của nó ("Bãi riêng của
+    quán", "Vỉa hè cạnh quán") là chữ của quán ăn, mà hỏi ngay tại một bãi gửi xe thì thành
+    vòng tròn
+- [x] **Điền loại hình cho 14 chỗ Đi lại còn lại** — 8 taxi, 3 thuê xe máy, 1 thuê ô tô tự lái,
+      1 bến xe, 1 bãi đỗ. Đây là nguyên nhân chính khiến anh không thấy gì đổi: code đúng nhưng
+      chỗ nào chưa chọn loại hình thì hệ thống không có căn cứ để đổi

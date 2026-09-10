@@ -840,3 +840,27 @@ cần migration. Giá trị lạ cũng về "list" chứ không làm vỡ trang.
 chỗ cùng lúc → Tạo lộ trình" (NOTE-04 §6–§9): nhanh hơn khi gom 5–6 chỗ, nhưng nếu chưa có
 đánh số thì bấm "Tạo lộ trình" vẫn chỉ đẻ ra một danh sách không thứ tự. Thứ tự mới là thứ làm
 cái link gửi đi có giá trị.
+
+## 2026-09-10 — Làm sớm Tự lái + Điểm giao thông, dù NOTE-06 xếp vào "chưa làm"
+
+**Quyết định:** Hoàn thiện luôn câu hỏi + chip cho `self-drive` (thuê ô tô/xe máy tự lái) và
+`transport-place` (bến xe · điểm đón/trả · bãi xe), dù NOTE-06 §12 xếp cả hai vào "chưa hoàn
+thiện ở chặng này".
+**Vì sao:** để lại thì 6/15 chỗ Đi lại vẫn dùng bộ câu hỏi của quán ăn. Cụ thể là hỏi
+"Gửi xe ở đâu?" ngay tại một **bãi gửi xe** — vòng tròn — mà bộ đáp án lại toàn chữ của quán
+("Bãi riêng của quán", "Vỉa hè cạnh quán"). Anh phát hiện đúng chỗ này. Đã có sẵn cách khai
+báo theo family nên mỗi nhóm chỉ tốn thêm 3 câu hỏi khai báo, không phải dựng gì mới.
+
+Câu "Gửi xe ở đâu?" nay bỏ cho **cả 3 nhóm** không phải chỗ ăn/ngủ/chơi: dịch vụ đón khách
+(không có chỗ để gửi), cửa hàng thuê xe (khách đi RA bằng xe), bãi/bến xe (chính nó là chỗ gửi
+xe — thay bằng "Gửi xe mất bao nhiêu?").
+
+**Cũng điền loại hình cho 14 chỗ Đi lại còn lại.** Đây mới là nguyên nhân chính khiến anh không
+thấy gì đổi: code đúng từ hôm qua, nhưng 14/15 chỗ chưa chọn loại hình nên hệ thống không có
+căn cứ nào để đổi câu hỏi hay CTA. Phân loại suy từ tên, chắc chắn với 13 chỗ; riêng "Danh Khoa
+- Cho thuê xe tự lái" em đoán là **thuê ô tô** (chữ "xe tự lái" ở Tuyên Quang thường là ô tô) —
+nếu là xe máy thì anh đổi lại trong `/admin`.
+
+**Bài học ghi lại:** code đúng mà dữ liệu trống thì người dùng thấy y như chưa làm gì. Từ nay
+thêm trường mới nào mà giao diện phụ thuộc vào nó, phải điền dữ liệu cho các chỗ hiện có ngay
+trong cùng lượt, hoặc nói rõ "chưa thấy đổi cho tới khi điền" chứ không chỉ ghi "việc của anh".

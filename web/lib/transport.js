@@ -128,6 +128,7 @@ const FAMILY_NOUNS = {
   "pickup-service": "dịch vụ",
   "scheduled-route": "nhà xe",
   "transport-place": "địa điểm",
+  "self-drive": "cửa hàng",
 };
 const SUBTYPE_NOUNS = {
   "diem-don-tra": "điểm",
