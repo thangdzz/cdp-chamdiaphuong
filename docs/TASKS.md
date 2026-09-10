@@ -199,3 +199,6 @@
 - [x] **Ví dụ trong ô gõ mẹo đổi theo ngữ cảnh** (anh phát hiện 2026-09-10): chọn "Loại xe" mà
       ví dụ vẫn là "VD: Gửi xe ở ngõ cạnh số 12". Mỗi ngữ cảnh trong 14 ngữ cảnh nay có ví dụ
       riêng, đặt cạnh nhãn trong `NOTE_CONTEXTS` để không lệch nhau
+- [x] **Ví dụ còn đổi theo LOẠI CHỖ nữa**: "Tiện ích" ở quán ăn là wifi, trên xe là điều hoà,
+      ở bãi đỗ là mái che; "Giờ chạy" của xe ghép là giờ chuyến, của taxi là giờ tổng đài trực.
+      3 tầng ưu tiên (subtype → family → loại chính → mặc định), phủ đủ 90 tổ hợp

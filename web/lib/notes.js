@@ -51,12 +51,89 @@ const SUBTYPE_CONTEXT_IDS = {
   "xe-khach": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
 };
 
+// Cùng một ngữ cảnh nhưng ở chỗ khác nhau thì ví dụ phải khác: "Tiện ích" ở quán ăn là wifi
+// và chỗ ngồi, ở trên xe là điều hoà và ghế trẻ em; "Giờ chạy" của xe ghép là giờ chuyến, của
+// taxi là giờ tổng đài trực. Khai theo 3 tầng, hẹp thắng rộng — cùng cách với câu hỏi và CTA
+// (lib/questions.js, lib/transport.js) để 3 nơi không lệch nhau.
+const HINTS_BY_SUBTYPE = {
+  taxi: {
+    "loai-xe": "VD: Chủ yếu xe 4 chỗ, gọi trước mới có xe 7 chỗ",
+    "gio-chay": "VD: Tổng đài trực 24/7, khuya vẫn gọi được xe",
+    "dat-xe": "VD: Giờ cao điểm gọi tổng đài phải chờ khá lâu",
+    "cach-goi": "VD: Gọi tổng đài nhanh hơn hẳn gọi số lái xe",
+    khac: "VD: Có nhận chở ra sân bay Nội Bài",
+  },
+  "thue-xe-co-lai": {
+    "gio-chay": "VD: Nhận chạy cả đêm nếu báo trước",
+    "dat-xe": "VD: Đi tỉnh nên đặt trước 2–3 ngày",
+    khac: "VD: Giá đi tỉnh đã gồm tiền ăn ở của lái xe",
+  },
+};
+
+const HINTS_BY_FAMILY = {
+  "pickup-service": {
+    "thanh-toan": "VD: Trả tiền mặt cho lái xe, có nhận chuyển khoản",
+    "tien-ich": "VD: Xe có điều hoà, báo trước thì có ghế trẻ em",
+    khac: "VD: Có nhận chở hàng kèm khách",
+  },
+  "scheduled-route": {
+    "loai-xe": "VD: Tuyến này chạy xe 29 chỗ, có cả giường nằm",
+    "thoi-diem": "VD: Giờ tan tầm xe rất đông, nên đi sớm hơn",
+    "thanh-toan": "VD: Mua vé trên xe, có nhận chuyển khoản",
+    "tien-ich": "VD: Xe có điều hoà, wifi và nước uống",
+    khac: "VD: Có nhận gửi hàng theo xe",
+  },
+  // 3 nhóm dưới chưa hoàn thiện câu hỏi/CTA (NOTE-06 §11), nhưng ví dụ trong ô gõ thì sửa
+  // được ngay — để một bãi đỗ xe gợi ý "wifi khoẻ" thì sai hẳn ngữ cảnh.
+  "transport-place": {
+    "thoi-diem": "VD: Dịp lễ hội đông từ chiều, nên tới sớm",
+    "thanh-toan": "VD: Thu tiền mặt tại chỗ, có xé vé giữ xe",
+    "tien-ich": "VD: Có mái che, có bảo vệ trông ban đêm",
+    khac: "VD: Đóng cổng lúc 22h",
+  },
+  "self-drive": {
+    "thoi-diem": "VD: Cuối tuần hết xe sớm, nên gọi giữ trước",
+    "thanh-toan": "VD: Đặt cọc tiền mặt hoặc giữ giấy tờ",
+    "tien-ich": "VD: Có kèm mũ bảo hiểm và áo mưa",
+    khac: "VD: Cần CCCD và bằng lái khi thuê",
+  },
+};
+
+const HINTS_BY_TYPE = {
+  ngu: {
+    "thoi-diem": "VD: Cuối tuần dịp lễ hội hết phòng từ sớm",
+    "tien-ich": "VD: Có thang máy, nước nóng ổn định",
+    khac: "VD: Nhận khách sau 22h nếu gọi báo trước",
+  },
+  choi: {
+    "thoi-diem": "VD: Chiều muộn vắng người, chụp ảnh đẹp",
+    "tien-ich": "VD: Có nhà vệ sinh sạch, chỗ ngồi có mái",
+    khac: "VD: Trời mưa là đóng cửa sớm",
+  },
+};
+
+/**
+ * Ngữ cảnh mẹo hợp với một địa điểm, kèm ví dụ mờ đã chọn đúng theo chỗ đó.
+ * @returns {{id: string, label: string, hint: string}[]}
+ */
 export function noteContextsForPlace(place, family = null) {
   const ids =
     (place?.type === "dilai" &&
       (SUBTYPE_CONTEXT_IDS[place.transportSubtype] ?? FAMILY_CONTEXT_IDS[family])) ||
     DEFAULT_CONTEXT_IDS;
-  return ids.map((id) => NOTE_CONTEXTS.find((c) => c.id === id)).filter(Boolean);
+
+  return ids
+    .map((id) => {
+      const context = NOTE_CONTEXTS.find((c) => c.id === id);
+      if (!context) return null;
+      const hint =
+        HINTS_BY_SUBTYPE[place?.transportSubtype]?.[id] ??
+        HINTS_BY_FAMILY[family]?.[id] ??
+        HINTS_BY_TYPE[place?.type]?.[id] ??
+        context.hint;
+      return { ...context, hint };
+    })
+    .filter(Boolean);
 }
 
 export function noteContextLabel(contextId) {
