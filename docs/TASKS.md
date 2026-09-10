@@ -178,3 +178,21 @@
       phiếu gửi lên sẽ bị kiểm tra nhầm bộ đáp án rồi từ chối. Đổi thành `ride_booking`
 - [x] **Sửa lỗi cũ**: khối ảnh menu ở trang địa điểm đang là `menuPhotos.length > 3` nên không
       bao giờ hiện (lỗi do lệnh khôi phục sed đổi nhầm cả 2 dòng hôm 09/09)
+
+## 2026-09-10 (NOTE 06)
+
+- [x] **P0 việc 1–2 — taxonomy 4 family**: `TRANSPORT_FAMILIES` + 11 subtype gán family trong
+      `lib/transport.js`; ô chọn trong `/admin` nhóm theo family bằng `<optgroup>`
+- [x] **P0 việc 3 — refactor theo family trước, subtype override sau**: thêm khoá `families` /
+      `skipFamilies` cho `lib/questions.js`; `noteContextsForPlace()` và `primaryAction()` cũng
+      khai theo family rồi mới override — không còn if/else rải rác
+- [x] **P0 việc 4–6 — hoàn thiện Dịch vụ đón khách**: bộ nền chung cho xe ghép / taxi / thuê xe
+      có lái; taxi bỏ điểm đón–điểm trả–hành lý, thêm "Cách gọi" + "Hoạt động lúc nào (24/7)";
+      thuê xe có lái thêm "Đi tỉnh" + "Tính giá theo chuyến/ngày/km"
+- [x] **P0 việc 7 — Loại xe đa giá trị**: `vehicleTypes` (mảng) thay ô chữ tự do; đồng thuận
+      đếm RIÊNG từng loại, không loại nào "thắng" rồi ẩn loại khác; thẻ hiện "Taxi · 4 chỗ · 7 chỗ"
+- [x] **P0 việc 8 — tương thích ngược**: `thue-xe` cũ vẫn hợp lệ (ẩn khỏi ô chọn), ô chữ tự do
+      `vehicleSeats` cũ vẫn đọc được, chỗ Đi lại chưa chọn loại giữ nguyên bộ câu hỏi cũ
+- [x] Thêm ô "Khu vực phục vụ" (`serviceArea`) — thứ taxi/thuê xe cần, tuyến chính thì không
+- [x] CTA: taxi → "Xem thông tin gọi xe", thuê xe có lái → "Liên hệ thuê xe"; bến xe / bãi xe /
+      điểm đón trả / thuê xe tự lái giữ "Chỉ đường" (đúng — đó là chỗ khách phải tới thật)

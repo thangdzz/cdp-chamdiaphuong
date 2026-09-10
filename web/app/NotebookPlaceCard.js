@@ -4,7 +4,7 @@ import { useState } from "react";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
-import { transportSummary } from "@/lib/transport";
+import { transportSummary, transportFamilyOf } from "@/lib/transport";
 import { placeCover } from "@/lib/cover";
 import { noteContextLabel } from "@/lib/notes";
 import { PlaceFacts } from "./PlaceFacts";
@@ -66,7 +66,12 @@ export function NotebookPlaceCard({ item }) {
 
       {expanded && (
         <div className="mt-5 flex flex-col gap-5 text-sm text-zinc-700">
-          <PlaceFacts type={place.type} subtype={place.transportSubtype} consensus={place.consensus} />
+          <PlaceFacts
+            type={place.type}
+            subtype={place.transportSubtype}
+            family={transportFamilyOf(place)}
+            consensus={place.consensus}
+          />
 
           {signatureDishes.length > 0 && (
             <div>

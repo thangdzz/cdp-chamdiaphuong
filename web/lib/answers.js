@@ -71,14 +71,23 @@ function voteWeight(atIso) {
 function computeConsensus(question, votes) {
   if (votes.length === 0) return null;
 
+  // Câu nhiều lựa chọn: mỗi đáp án được cân RIÊNG và đứng độc lập — không có đáp án nào
+  // "thắng" rồi ẩn đáp án khác (NOTE-06 §8). Một nhà xe chạy đồng thời 4 chỗ và 7 chỗ thì cả
+  // hai cùng hiện, ai xác nhận loại nào chỉ tính cho loại đó.
   if (question.multi) {
     const weight = {};
+    const counts = {};
     for (const v of votes) {
-      for (const opt of v.answer ?? []) weight[opt] = (weight[opt] ?? 0) + voteWeight(v.at);
+      for (const opt of v.answer ?? []) {
+        weight[opt] = (weight[opt] ?? 0) + voteWeight(v.at);
+        counts[opt] = (counts[opt] ?? 0) + 1;
+      }
     }
     const accepted = Object.keys(weight).filter((opt) => weight[opt] >= 2);
     if (accepted.length === 0) return null;
-    return { value: accepted, votes: votes.length, weak: false };
+    // `counts` chỉ giữ đáp án đã được chấp nhận, để nơi hiển thị nói được "4 chỗ (3 người)".
+    const acceptedCounts = Object.fromEntries(accepted.map((opt) => [opt, counts[opt]]));
+    return { value: accepted, votes: votes.length, weak: false, counts: acceptedCounts };
   }
 
   const weight = {};

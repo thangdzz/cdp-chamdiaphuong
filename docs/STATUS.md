@@ -230,7 +230,36 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-09 (mới nhất) — NOTE 05 P0: câu hỏi và CTA theo loại hình Đi lại
+### 2026-09-10 — NOTE 06 P0: gom Đi lại thành 4 nhóm, hoàn thiện Dịch vụ đón khách
+
+Nhóm "Đi lại" trộn những thứ hành xử khác hẳn nhau — gọi một hãng taxi và đi tới một bãi đỗ xe
+chẳng có gì chung ngoài chữ "đi lại". Đã chia thành **4 nhóm cha (family)**:
+
+| Nhóm | Gồm | Trạng thái |
+|---|---|---|
+| **Dịch vụ đón khách** | Xe ghép · Taxi · Thuê xe có lái | ✅ hoàn thiện đợt này |
+| Theo tuyến | Xe khách · Xe buýt | xe khách đã có bộ câu hỏi từ NOTE-05 |
+| Điểm giao thông | Bến xe · Điểm đón/trả · Bãi xe | mới có tên nhóm |
+| Tự lái | Thuê ô tô · Thuê xe máy | mới có tên nhóm |
+
+- **Câu hỏi/chip/CTA khai theo nhóm cha trước, từng loại chỉ sửa phần khác biệt.** Thêm loại
+  mới sau này chỉ là thêm 1 dòng khai báo.
+- **Taxi** bỏ điểm đón/điểm trả/hành lý (taxi đón đúng chỗ khách đứng), thêm "Cách gọi"
+  (tổng đài · app · vẫy dọc đường) và "Hoạt động lúc nào" (24/7). CTA: **Xem thông tin gọi xe**.
+- **Thuê xe có lái** thêm "Có nhận đi tỉnh không" và "Tính giá theo chuyến/ngày/km".
+  CTA: **Liên hệ thuê xe**.
+- **Loại xe giờ chọn được nhiều** (4 chỗ + 7 chỗ + 9–16 chỗ...), và cộng đồng xác nhận
+  **riêng từng loại** — không có loại nào "thắng" rồi ẩn loại khác. Thẻ hiện
+  "Taxi · 4 chỗ · 7 chỗ".
+- Thêm ô **Khu vực phục vụ** cho taxi/thuê xe (tuyến chính thì không hợp).
+
+**Không cần chuyển dữ liệu.** Ô chữ tự do cũ ("7 chỗ") vẫn đọc được nguyên; lưu lại một chỗ
+trong `/admin` là tự dọn sang kiểu mới. Giá trị "Thuê xe" cũ vẫn hợp lệ, chỉ ẩn khỏi ô chọn.
+
+**Còn lại (P1):** hoàn thiện Theo tuyến (xe buýt), Điểm giao thông, Tự lái. 14/15 chỗ Đi lại
+vẫn chưa được chọn loại hình — anh điền dần trong `/admin`, chưa điền thì chạy y như trước.
+
+### 2026-09-09 — NOTE 05 P0: câu hỏi và CTA theo loại hình Đi lại
 
 Nhóm Đi lại vẫn đang dùng bộ câu hỏi và nút bấm của quán ăn. Đã sửa:
 

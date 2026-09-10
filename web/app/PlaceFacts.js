@@ -1,20 +1,30 @@
 import { getQuestionsForType } from "@/lib/questions";
 
-function formatValue(question, value) {
-  if (question.multi) {
-    return value
-      .map((v) => question.options.find((o) => o.value === v)?.label ?? v)
-      .join(" · ");
-  }
+function optionLabel(question, value) {
   return question.options.find((o) => o.value === value)?.label ?? value;
+}
+
+// `showCounts` (hiện chỉ bật cho "Loại xe") kèm số người xác nhận SAU TỪNG giá trị, đúng ý
+// NOTE-06 §8: "4 chỗ → 3 xác nhận, 7 chỗ → 5 xác nhận". Không bật mặc định cho mọi câu nhiều
+// lựa chọn vì "Tiền mặt (3) · Chuyển khoản (2)" chỉ làm thẻ rối chứ không giúp quyết định gì.
+function formatValue(question, consensus) {
+  const { value, counts } = consensus;
+  if (!question.multi) return optionLabel(question, value);
+  return value
+    .map((v) => {
+      const label = optionLabel(question, v);
+      const n = question.showCounts ? counts?.[v] : null;
+      return n ? `${label} (${n})` : label;
+    })
+    .join(" · ");
 }
 
 // Khối "thuộc tính" đúc từ đồng thuận (SPEC-chang-2.md §3.3) — thuần hiển thị, không cần
 // "use client". consensus = 1 field của place_answers:consensus (đã đọc sẵn ở page.js).
-export function PlaceFacts({ type, consensus, subtype = null, filledFields = [] }) {
+export function PlaceFacts({ type, consensus, subtype = null, filledFields = [], family = undefined }) {
   if (!consensus) return null;
 
-  const rows = getQuestionsForType(type, subtype, filledFields)
+  const rows = getQuestionsForType(type, subtype, filledFields, family)
     .map((question) => {
       const c = consensus[question.id];
       if (!c || !c.value || (Array.isArray(c.value) && c.value.length === 0)) return null;
@@ -30,7 +40,7 @@ export function PlaceFacts({ type, consensus, subtype = null, filledFields = [] 
         <div key={question.id} className={c.weak ? "opacity-60" : ""}>
           <span className="mr-1">{question.icon}</span>
           <span className="text-zinc-500">{question.label}: </span>
-          <span>{formatValue(question, c.value)}</span>
+          <span>{formatValue(question, c)}</span>
           {c.weak && (
             <span className="ml-1.5 text-xs text-zinc-400">({c.votes} người cho biết)</span>
           )}

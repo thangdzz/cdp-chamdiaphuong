@@ -15,7 +15,14 @@ import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 import { PhoneBlock } from "./PhoneBlock";
 import { placeCover } from "@/lib/cover";
-import { transportSummary, primaryAction, findPhoneOnGoogleUrl, adminFilledFields } from "@/lib/transport";
+import {
+  transportSummary,
+  transportDetailLine,
+  transportFamilyOf,
+  primaryAction,
+  findPhoneOnGoogleUrl,
+  adminFilledFields,
+} from "@/lib/transport";
 import { SharePlaceButton } from "./SharePlaceButton";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
@@ -455,6 +462,7 @@ function PlaceCard({ place }) {
   // với một nhà xe, địa chỉ "TP. Tuyên Quang" gần như vô dụng, còn loại xe và tuyến mới là
   // thứ khách cần. Địa chỉ đầy đủ vẫn còn nguyên trong khối bung bên dưới.
   const transportLine = transportSummary(place);
+  const transportDetail = transportDetailLine(place);
   // §6c mục 2: dòng phụ dưới tên đã hiện địa chỉ rút gọn — nếu rút gọn không bớt được gì
   // (bằng hệt địa chỉ đầy đủ) thì đừng lặp lại y nguyên ở khối bung bên dưới.
   const showFullAddress =
@@ -479,8 +487,8 @@ function PlaceCard({ place }) {
     <li id={place.id} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
       <p className="mt-1 text-[13px] text-zinc-500">{transportLine ?? shortAddress}</p>
-      {transportLine && place.mainRoute && (
-        <p className="mt-0.5 text-[13px] text-zinc-700">{place.mainRoute}</p>
+      {transportLine && transportDetail && (
+        <p className="mt-0.5 text-[13px] text-zinc-700">{transportDetail}</p>
       )}
 
       <p className="mt-5 flex items-baseline gap-1">
@@ -513,6 +521,7 @@ function PlaceCard({ place }) {
             <PlaceFacts
               type={place.type}
               subtype={place.transportSubtype}
+              family={transportFamilyOf(place)}
               filledFields={adminFilledFields(place)}
               consensus={place.consensus}
             />

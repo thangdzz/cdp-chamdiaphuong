@@ -19,6 +19,8 @@ import { placeShareUrl } from "@/lib/siteUrl";
 import { placeCover } from "@/lib/cover";
 import {
   transportSummary,
+  transportDetailLine,
+  transportFamilyOf,
   primaryAction,
   findPhoneOnGoogleUrl,
   adminFilledFields,
@@ -97,7 +99,9 @@ export function PlaceDetail({ place }) {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight leading-snug text-zinc-900">{place.name}</h1>
         {subtitle && <p className="mt-1 text-[13px] text-zinc-500">{subtitle}</p>}
-        {place.mainRoute && <p className="mt-1 text-sm text-zinc-700">{place.mainRoute}</p>}
+        {transportDetailLine(place) && (
+          <p className="mt-1 text-sm text-zinc-700">{transportDetailLine(place)}</p>
+        )}
       </div>
 
       {photos.length > 0 && (
@@ -158,6 +162,7 @@ export function PlaceDetail({ place }) {
       <PlaceFacts
         type={place.type}
         subtype={place.transportSubtype}
+        family={transportFamilyOf(place)}
         filledFields={adminFilledFields(place)}
         consensus={place.consensus}
       />

@@ -149,31 +149,44 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
   menuPhotos: [{ url, addedAt }],   // có ngày, để nói thật tuổi bảng giá
   signatureDishes: [ten],           // chỉ với type "an"
 
-  // Chỉ với type "dilai" — xem lib/transport.js (NOTE-04 §1–§2)
-  transportSubtype,                 // "xe-ghep" | "taxi" | "xe-khach" | "xe-buyt"
-                                    // | "thue-xe" | "diem-don-tra" | "bai-xe" | null
-  vehicleSeats,                     // admin điền, VD "7 chỗ"
+  // Chỉ với type "dilai" — xem lib/transport.js (NOTE-04 §1–§2, NOTE-06 §1)
+  transportSubtype,                 // 1 trong 11 id ở TRANSPORT_SUBTYPES; family suy ra từ
+                                    // đây, KHÔNG lưu riêng (xem DECISIONS 2026-09-10)
+  vehicleTypes: ["4", "7"],         // admin tích, NHIỀU giá trị cùng lúc (NOTE-06 §8)
+  vehicleSeats,                     // ô chữ tự do CŨ ("7 chỗ") — chỉ còn đọc, không còn ô nhập
   mainRoute,                        // admin điền, VD "Tuyên Quang ↔ Hà Nội"
+  serviceArea,                      // admin điền, VD "TP Tuyên Quang và lân cận"
 
   confidenceScore, sourceCount,
   lastUpdatedAt, autoPublished
 }
 ```
 
-**`transportSubtype` quyết định HỎI CÂU NÀO và CTA CHÍNH** (NOTE-05 §2). Bốn khoá khai báo
-trong `lib/questions.js`, không rải if/else nơi khác:
+### Nhóm Đi lại: family quyết định, subtype override
+
+4 family (NOTE-06 §1) — `transportFamilyOf(place)` suy ra từ subtype:
+
+| Family | Subtype | Trạng thái |
+|---|---|---|
+| `pickup-service` | Xe ghép · Taxi · Thuê xe có lái | ✅ đã hoàn thiện |
+| `scheduled-route` | Xe khách · Xe buýt | xe khách có bộ câu hỏi, xe buýt chưa |
+| `transport-place` | Bến xe · Điểm đón/trả · Bãi xe | mới có taxonomy, CTA "Chỉ đường" |
+| `self-drive` | Thuê ô tô · Thuê xe máy | mới có taxonomy |
+
+Sáu khoá khai báo trong `lib/questions.js`, không rải if/else nơi khác:
 
 | Khoá | Nghĩa |
 |---|---|
-| `subtypes: [...]` | CHỈ hỏi cho các subtype này |
-| `skipSubtypes: [...]` | Câu chung nhưng vô nghĩa với subtype này |
+| `families: [...]` | Câu NỀN của cả family |
+| `subtypes: [...]` | Câu riêng, hẹp hơn family |
+| `skipFamilies: [...]` | Câu chung nhưng vô nghĩa với cả family này |
+| `skipSubtypes: [...]` | Như trên nhưng cho 1 subtype |
 | `supersededBySubtype` | Thôi hỏi ngay khi admin đã chọn subtype |
-| `supersededByField: "x"` | Thôi hỏi khi admin đã điền ô `x` (VD `vehicleSeats`) |
+| `supersededByField: "x"` | Thôi hỏi khi admin đã điền ô `x` (VD `vehicleTypes`) |
 
-Xe ghép / xe khách có bộ câu riêng (Đón · Trả · Giờ chạy · Loại xe · Đặt trước · Hành lý ·
-Trên xe có) và thôi bị hỏi "Gửi xe ở đâu?" / "Lối vào thế nào?" / "Giờ nào đông?". CTA chính
-lấy từ `primaryAction()` trong `lib/transport.js`. Trường này để rỗng thì mọi thứ chạy y như
-trước khi có nó.
+Có `families` hoặc `subtypes` là câu HẸP — khớp 1 trong 2 là được hỏi. CTA lấy từ
+`primaryAction()`, chip góp ý từ `noteContextsForPlace()` — cả hai cũng khai theo family rồi
+mới override theo subtype. Để `transportSubtype` rỗng thì mọi thứ chạy y như trước khi có nó.
 
 **Quy tắc:** id câu hỏi phải DUY NHẤT trong toàn `lib/questions.js`, kể cả khác `scope` —
 `getQuestion(id)` lấy câu đầu tiên khớp id, trùng id là phiếu bị kiểm tra nhầm bộ đáp án rồi
@@ -309,13 +322,14 @@ web/
 │   │                              theo thứ tự cover sổ → collage 3 chỗ đầu → cover chỗ đầu
 │   │                              → ảnh mặc định. Gom về đây để thẻ / trang địa điểm /
 │   │                              Open Graph luôn hiện CÙNG một ảnh
-│   ├── transport.js        (100)  ⭐ `transportSubtype` cho nhóm Đi lại (7 loại).
-│   │                              transportSummary() -> "Xe ghép · 7 chỗ";
-│   │                              primaryAction() -> CTA theo subtype (xe ghép/xe khách =
-│   │                              Liên hệ, chưa có số = Tìm số trên Google, còn lại = Chỉ
-│   │                              đường); contributionPrompt() -> "dịch vụ/nhà xe này";
+│   ├── transport.js        (185)  ⭐ Taxonomy Đi lại: 4 family × 11 subtype. Family là lớp
+│   │                              NỀN cho câu hỏi/chip/CTA, subtype chỉ override.
+│   │                              transportSummary() -> "Taxi · 4 chỗ · 7 chỗ";
+│   │                              transportDetailLine() -> tuyến chính hoặc khu vực phục vụ;
+│   │                              primaryAction() -> CTA; contributionPrompt() -> danh xưng;
+│   │                              vehicleTypesOf() -> loại xe (đọc được cả ô chữ tự do cũ);
 │   │                              adminFilledFields() -> ô admin đã điền thì thôi hỏi khách
-│   │                              (NOTE-04 §1–§2, NOTE-05 §2, §6, §9)
+│   │                              (NOTE-04 §1–§2, NOTE-05 §2/§6/§9, NOTE-06 §1/§8/§10)
 │   ├── siteUrl.js           (17)  Hằng số tên miền chính + placeShareUrl/notebookShareUrl —
 │   │                              mọi link ĐEM ĐI CHIA SẺ dựng từ đây, không dùng
 │   │                              window.location.origin (sẽ mang địa chỉ đang mở)

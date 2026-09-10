@@ -775,3 +775,47 @@ có gì. "Xe ghép Anh Huy" đang đúng trường hợp này.
 mới thêm. `getQuestion(id)` lấy câu ĐẦU TIÊN khớp id, nên phiếu đặt xe gửi lên sẽ bị kiểm tra
 theo bộ đáp án của Ngủ rồi bị từ chối im lặng. Đã đổi thành `ride_booking`.
 **Quy tắc từ nay:** id câu hỏi phải duy nhất trong toàn `lib/questions.js`, kể cả khác `scope`.
+
+## 2026-09-10 — Đi lại: 4 family, family là lớp nền và subtype chỉ override
+
+**Quyết định:** Gom nhóm Đi lại thành 4 family (`pickup-service`, `scheduled-route`,
+`transport-place`, `self-drive`) theo NOTE-06 §1. Câu hỏi, chip góp ý và CTA đều khai theo
+family trước, subtype nào cần khác thì override — trong `lib/questions.js` là 2 khoá mới
+`families` / `skipFamilies`, trong `lib/transport.js` là `FAMILY_ACTIONS` / `SUBTYPE_ACTIONS`
+và `FAMILY_NOUNS` / `SUBTYPE_NOUNS`.
+**Vì sao:** đã có 3 loại dịch vụ đón khách dùng chung gần hết bộ câu hỏi. Khai riêng cho từng
+subtype là chép 3 lần, sửa 1 chỗ quên 2 chỗ. Thêm loại mới giờ chỉ là thêm 1 dòng vào
+`TRANSPORT_SUBTYPES`, không phải sửa if/else ở nơi khác (§14).
+
+**KHÔNG lưu `transportFamily` vào từng địa điểm** dù NOTE-06 §2 có đề xuất. Mỗi subtype thuộc
+đúng 1 family, nên lưu cả 2 là tạo sẵn khả năng lệch nhau — dự án này đã 2 lần bị dữ liệu ghi
+đè âm thầm vì kiểu lưu trùng. Family suy ra từ subtype bằng `transportFamilyOf()`; muốn lưu
+thật thì chỉ cần sửa đúng hàm đó. Ô chọn trong `/admin` vẫn nhóm theo family bằng `<optgroup>`
+nên anh vẫn thấy rõ 4 nhóm, mà chỉ phải chọn 1 ô.
+
+**Taxi giữ "Xem thông tin gọi xe", không đổi thành "Gọi/Đặt taxi" khi số đủ tin cậy** như
+§6 đề xuất. Mức tin cậy nằm ở `place_phone_confirmations`, mỗi chỗ một lệnh Redis riêng — đọc
+cho cả trang chủ là vỡ quy tắc "3 lệnh/lượt xem trang chủ" ở ARCHITECTURE; còn đọc phía khách
+thì nhãn nút sẽ nhảy chữ sau khi trang đã hiện. "Xem thông tin gọi xe" luôn đúng, và bấm vào
+là thấy ngay nhãn đã có mấy người xác nhận.
+
+## 2026-09-10 — Loại xe: nhiều giá trị, xác nhận độc lập từng loại
+
+**Quyết định:** `vehicleSeats` (ô chữ tự do "7 chỗ") → `vehicleTypes` (mảng id: `["4","7"]`).
+Admin tích nhiều ô; khách bấm chọn nhiều đáp án. Đồng thuận đếm **riêng từng loại**, loại nào
+đủ 2 phiếu là hiện, không có loại nào "thắng" rồi ẩn loại khác (NOTE-06 §8).
+**Vì sao:** một nhà xe chạy đồng thời 4 chỗ và 7 chỗ là chuyện thường. Ô chữ tự do thì máy
+không đọc được để lọc, còn câu hỏi 1-đáp-án thì ép nói dối.
+
+`computeConsensus` cho câu nhiều lựa chọn nay trả thêm `counts` — số người xác nhận từng giá
+trị. Chỉ câu "Loại xe" bật `showCounts` để hiện ra ("4 chỗ (3) · 7 chỗ (5)"); các câu nhiều lựa
+chọn khác không bật vì "Tiền mặt (3) · Chuyển khoản (2)" chỉ làm thẻ rối chứ không giúp quyết
+định gì.
+
+**Chuyển dữ liệu — KHÔNG chạy script:**
+- `vehicleTypesOf()` đọc được cả 2: có `vehicleTypes` thì dùng, không thì dò số trong ô chữ cũ
+  ("7 chỗ" → `["7"]`). Chỗ cũ hiện đúng ngay, không cần ai đụng vào.
+- Lưu một chỗ Đi lại trong `/admin` là dọn luôn ô chữ cũ của nó (`vehicleSeats: null`) — chuyển
+  dần theo lúc anh sửa, không có lúc nào tồn tại 2 nguồn cùng nói về một thứ.
+- Giá trị subtype cũ `thue-xe` vẫn hợp lệ (xếp vào family `self-drive`) nhưng **ẩn khỏi ô chọn**
+  — chỗ nào còn giá trị đó thì chọn lại "Thuê ô tô tự lái" hoặc "Thuê xe máy".

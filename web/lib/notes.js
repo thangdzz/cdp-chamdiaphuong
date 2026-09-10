@@ -28,19 +28,30 @@ export const NOTE_CONTEXTS = [
   { id: "loai-xe", label: "Loại xe" },
   { id: "dat-xe", label: "Đặt xe" },
   { id: "hanh-ly", label: "Hành lý" },
+  { id: "cach-goi", label: "Cách gọi" },
 ];
 
 // "Gửi xe / Lối vào" vô nghĩa với một nhà xe ghép, còn "Điểm đón / Giờ chạy" thì vô nghĩa với
-// quán ăn — nên danh sách chip phải đổi theo loại hình (NOTE-05 §8).
+// quán ăn — nên danh sách chip đổi theo family, subtype nào cần khác thì override (NOTE-05 §8,
+// NOTE-06 §9). Cùng cách khai báo với lib/questions.js để 2 bên không lệch nhau.
 const DEFAULT_CONTEXT_IDS = ["gui-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "tien-ich", "khac"];
-const RIDE_CONTEXT_IDS = ["diem-don", "diem-tra", "gio-chay", "loai-xe", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"];
-const RIDE_SUBTYPES = new Set(["xe-ghep", "xe-khach"]);
 
-export function noteContextsForPlace(place) {
+const FAMILY_CONTEXT_IDS = {
+  "pickup-service": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
+};
+
+const SUBTYPE_CONTEXT_IDS = {
+  // Taxi đón đúng chỗ khách đứng và trả đúng chỗ khách bảo — bỏ 2 chip điểm đón/điểm trả,
+  // thêm "Cách gọi" (tổng đài / app / vẫy dọc đường) theo NOTE-06 §6.
+  taxi: ["loai-xe", "cach-goi", "gio-chay", "dat-xe", "thanh-toan", "tien-ich", "khac"],
+  "xe-khach": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
+};
+
+export function noteContextsForPlace(place, family = null) {
   const ids =
-    place?.type === "dilai" && RIDE_SUBTYPES.has(place.transportSubtype)
-      ? RIDE_CONTEXT_IDS
-      : DEFAULT_CONTEXT_IDS;
+    (place?.type === "dilai" &&
+      (SUBTYPE_CONTEXT_IDS[place.transportSubtype] ?? FAMILY_CONTEXT_IDS[family])) ||
+    DEFAULT_CONTEXT_IDS;
   return ids.map((id) => NOTE_CONTEXTS.find((c) => c.id === id)).filter(Boolean);
 }
 

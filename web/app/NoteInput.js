@@ -6,7 +6,7 @@ import { submitQuestionAnswer } from "./answerActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { noteContextsForPlace, noteContextLabel } from "@/lib/notes";
 import { getQuestionForContext } from "@/lib/questions";
-import { adminFilledFields, contributionPrompt } from "@/lib/transport";
+import { adminFilledFields, contributionPrompt, transportFamilyOf } from "@/lib/transport";
 import { QuestionOptions } from "./QuestionOptions";
 
 const NOTE_MAX_LENGTH = 120;
@@ -38,10 +38,11 @@ export function NoteInput({ place, onActiveQuestion }) {
 
   // Chip và câu mời đổi theo loại hình: hỏi một nhà xe ghép về "Gửi xe / Lối vào" là sai
   // ngữ cảnh, và gọi nó là "chỗ này" cũng sai — nó không phải một chỗ để đến (NOTE-05 §8–§9).
-  const contexts = noteContextsForPlace(place);
+  const family = transportFamilyOf(place);
+  const contexts = noteContextsForPlace(place, family);
   const filledFields = adminFilledFields(place);
   const contextQuestion = context
-    ? getQuestionForContext(context, place.type, place.transportSubtype ?? null, filledFields)
+    ? getQuestionForContext(context, place.type, place.transportSubtype ?? null, filledFields, family)
     : null;
 
   function pickContext(id) {
@@ -51,7 +52,7 @@ export function NoteInput({ place, onActiveQuestion }) {
     setAnswerThanks(null);
     setErrorMessage(null);
     const question = next
-      ? getQuestionForContext(next, place.type, place.transportSubtype ?? null, filledFields)
+      ? getQuestionForContext(next, place.type, place.transportSubtype ?? null, filledFields, family)
       : null;
     onActiveQuestion?.(question?.id ?? null);
   }
