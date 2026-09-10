@@ -10,6 +10,8 @@ import {
   updateItemNote,
   updateNotebookTitle,
   reorderItems,
+  updateNotebookMode,
+  notebookModeOf,
   copyNotebook,
   incrementNotebookView,
   resolveNotebookItems,
@@ -76,6 +78,13 @@ export async function reorderNotebookItems({ anonId, slug, orderedPlaceIds }) {
   return reorderItems({ anonId, slug, orderedPlaceIds });
 }
 
+// Đổi Sổ thường <-> Lộ trình (NOTE-03 §2). Chỉ đổi cách hiển thị, KHÔNG đụng vào danh sách chỗ
+// — bật rồi tắt lại là về đúng như cũ.
+export async function setNotebookMode({ anonId, slug, mode }) {
+  if (!anonId || !slug) return { ok: false };
+  return updateNotebookMode({ anonId, slug, mode });
+}
+
 // §3.4 — "Lưu sổ này thành sổ của tôi". Người xem chưa có hồ sơ vẫn bấm được (tự tạo im lặng).
 export async function saveNotebookAsMine({ anonId, sourceSlug }) {
   if (!sourceSlug) return { ok: false };
@@ -111,6 +120,6 @@ export async function getNotebookForEdit({ anonId, slug }) {
   const items = await resolveNotebookItems(notebook.items);
   return {
     ok: true,
-    notebook: { slug: notebook.slug, title: notebook.title, items },
+    notebook: { slug: notebook.slug, title: notebook.title, mode: notebookModeOf(notebook), items },
   };
 }

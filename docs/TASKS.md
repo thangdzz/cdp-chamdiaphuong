@@ -202,3 +202,8 @@
 - [x] **Ví dụ còn đổi theo LOẠI CHỖ nữa**: "Tiện ích" ở quán ăn là wifi, trên xe là điều hoà,
       ở bãi đỗ là mái che; "Giờ chạy" của xe ghép là giờ chuyến, của taxi là giờ tổng đài trực.
       3 tầng ưu tiên (subtype → family → loại chính → mặc định), phủ đủ 90 tổ hợp
+- [x] **Lộ trình — nửa đầu ra** (NOTE-03 §2/§4/§5, NOTE-04 §10; anh chốt 2026-09-10): thêm
+      `mode: "list" | "route"` cho Sổ, công tắc "Sổ thường / Lộ trình" trong trang Sửa, trang
+      xem đánh số ①②③ theo đúng thứ tự đang sắp, mô tả và preview đổi thành "N điểm · Ăn + Chơi".
+      Bản sao Sổ mang theo `mode`. **Không** hiện khoảng cách/thời gian giữa các điểm — chưa có
+      nguồn dữ liệu, §4 cấm bịa

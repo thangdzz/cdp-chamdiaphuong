@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getNotebook, resolveNotebookItems } from "@/lib/notebooks";
+import { getNotebook, resolveNotebookItems, notebookModeOf } from "@/lib/notebooks";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
@@ -28,12 +28,27 @@ function dominantTypeLabel(items) {
   return PLACE_TYPES.find((t) => t.id === type)?.label ?? null;
 }
 
-function notebookSummary(items) {
+// Lộ trình thì đếm "điểm" chứ không phải "địa điểm", và nói đủ các nhóm có mặt vì một lộ
+// trình vốn trộn nhiều nhóm — "7 điểm · Ăn + Chơi" (NOTE-03 §5). Sổ thường giữ nguyên như cũ:
+// chỉ gắn nhãn khi có nhóm chiếm đa số, trộn quá nhiều thì thà không nói.
+function routeTypeLabels(items) {
+  const seen = [];
+  for (const it of items) {
+    const label = PLACE_TYPES.find((t) => t.id === it.place?.type)?.label;
+    if (label && !seen.includes(label)) seen.push(label);
+  }
+  return seen.length > 0 ? seen.join(" + ") : null;
+}
+
+function notebookSummary(items, mode) {
+  if (mode === "route") {
+    return [`${items.length} điểm`, routeTypeLabels(items)].filter(Boolean).join(" · ");
+  }
   return [`${items.length} địa điểm`, dominantTypeLabel(items)].filter(Boolean).join(" · ");
 }
 
-function ogDescription(items) {
-  return `${notebookSummary(items)} · ${SITE_NAME}`;
+function ogDescription(items, mode) {
+  return `${notebookSummary(items, mode)} · ${SITE_NAME}`;
 }
 
 // Bắt buộc trang này chạy được không cần đăng nhập, không cần localStorage — người nhận link
@@ -47,7 +62,7 @@ export async function generateMetadata({ params }) {
   // Preview khi share sổ dùng CÙNG thứ tự ưu tiên với ảnh hiện trên trang (lib/cover.js),
   // để ảnh người nhận thấy trong preview khớp ảnh họ thấy khi mở link.
   const cover = notebookCover(notebook, items);
-  const description = ogDescription(items);
+  const description = ogDescription(items, notebookModeOf(notebook));
 
   return {
     title: `${notebook.title} — ${SITE_NAME}`,
@@ -82,6 +97,7 @@ export default async function NotebookViewPage({ params }) {
     item.deleted ? item : { ...item, place: { ...item.place, notes: filterVisibleNotes(allNotes[item.placeId] ?? []) } }
   );
 
+  const mode = notebookModeOf(notebook);
   const cover = notebookCover(notebook, itemsWithNotes);
   // Chỉ vẽ khối ảnh khi sổ có ảnh THẬT — sổ chưa có ảnh nào thì bỏ hẳn thay vì trưng ảnh lễ
   // hội mặc định lên đầu trang (ảnh mặc định chỉ dành cho preview khi share, nơi bắt buộc
@@ -113,7 +129,7 @@ export default async function NotebookViewPage({ params }) {
         <header className="mb-4">
           <h1 className="text-xl font-medium tracking-tight text-zinc-900">{notebook.title}</h1>
           <p className="mt-1 text-[13px] text-zinc-500">
-            {notebookSummary(itemsWithNotes)} · cập nhật {formatRelativeDays(notebook.updatedAt)}
+            {notebookSummary(itemsWithNotes, mode)} · cập nhật {formatRelativeDays(notebook.updatedAt)}
           </p>
         </header>
 
@@ -125,7 +141,7 @@ export default async function NotebookViewPage({ params }) {
           <p className="text-sm text-zinc-500">Sổ này chưa có chỗ nào.</p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {itemsWithNotes.map((item) =>
+            {itemsWithNotes.map((item, index) =>
               item.deleted ? (
                 <li
                   key={item.placeId}
@@ -138,7 +154,11 @@ export default async function NotebookViewPage({ params }) {
                   {item.note && <p className="mt-2 text-sm text-zinc-500">💬 {item.note}</p>}
                 </li>
               ) : (
-                <NotebookPlaceCard key={item.placeId} item={item} />
+                <NotebookPlaceCard
+                  key={item.placeId}
+                  item={item}
+                  stopNumber={mode === "route" ? index + 1 : null}
+                />
               )
             )}
           </ul>

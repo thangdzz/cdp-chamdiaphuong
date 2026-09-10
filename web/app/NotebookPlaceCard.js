@@ -14,7 +14,10 @@ import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./
 // thêm "Xem thêm" để bung xem đầy đủ thông tin (địa chỉ, độ tin cậy, ảnh...), không kèm các
 // nút hành động (báo sai/hỏi đáp/check-in) vì đây là trang xem cho khách lạ, không phải
 // trang quản lý dữ liệu.
-export function NotebookPlaceCard({ item }) {
+// `stopNumber`: số thứ tự khi cuốn sổ này là Lộ trình (NOTE-03 §4). null = sổ thường, không
+// đánh số. CỐ Ý không hiện khoảng cách / thời gian giữa các điểm — chưa có nguồn dữ liệu nào
+// cho thứ đó, mà bịa ra thì tệ hơn là không nói (§4 dòng cuối, §14 "không bịa route").
+export function NotebookPlaceCard({ item, stopNumber = null }) {
   const [expanded, setExpanded] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(null);
   const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
@@ -41,9 +44,18 @@ export function NotebookPlaceCard({ item }) {
     <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
       <div className="flex gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-medium tracking-tight leading-snug text-zinc-900">{place.name}</h3>
-          {subtitle && <p className="mt-1 text-[13px] text-zinc-500">{subtitle}</p>}
-          <p className="mt-3 flex items-baseline gap-1">
+          <h3 className="flex items-start gap-2 text-lg font-medium tracking-tight leading-snug text-zinc-900">
+            {stopNumber !== null && (
+              <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-medium text-white">
+                {stopNumber}
+              </span>
+            )}
+            <span className="min-w-0">{place.name}</span>
+          </h3>
+          {subtitle && (
+            <p className={`mt-1 text-[13px] text-zinc-500 ${stopNumber !== null ? "pl-8" : ""}`}>{subtitle}</p>
+          )}
+          <p className={`mt-3 flex items-baseline gap-1 ${stopNumber !== null ? "pl-8" : ""}`}>
             {compactPrice ? (
               <>
                 <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>

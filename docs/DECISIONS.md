@@ -819,3 +819,24 @@ chọn khác không bật vì "Tiền mặt (3) · Chuyển khoản (2)" chỉ l
   dần theo lúc anh sửa, không có lúc nào tồn tại 2 nguồn cùng nói về một thứ.
 - Giá trị subtype cũ `thue-xe` vẫn hợp lệ (xếp vào family `self-drive`) nhưng **ẩn khỏi ô chọn**
   — chỗ nào còn giá trị đó thì chọn lại "Thuê ô tô tự lái" hoặc "Thuê xe máy".
+
+## 2026-09-10 — Lộ trình: cùng model với Sổ, chỉ thêm `mode`
+
+**Quyết định:** Sổ thường và Lộ trình dùng CHUNG một model, khác nhau đúng một trường
+`notebook.mode` (`"list" | "route"`) — không tạo entity Route riêng (NOTE-03 §2, NOTE-04 §15).
+Bật "Lộ trình" chỉ đổi cách hiển thị: đánh số các điểm theo thứ tự đang sắp, mô tả thành
+"N điểm · Ăn + Chơi". Tắt đi là về đúng như cũ, danh sách chỗ không bị đụng tới.
+**Vì sao:** thứ tự đã có sẵn (nút ↑↓ trong trang Sửa từ Chặng 4), nên "lộ trình" thực chất chỉ
+là *nói ra* rằng thứ tự đó có nghĩa. Tách entity riêng sẽ phải nhân đôi toàn bộ phần sửa, chia
+sẻ, sao chép — trong khi chẳng thêm được khả năng nào.
+
+**Sổ cũ không có trường này** → `notebookModeOf()` trả "list", đúng hành vi trước giờ. Không
+cần migration. Giá trị lạ cũng về "list" chứ không làm vỡ trang.
+
+**KHÔNG hiện khoảng cách / thời gian giữa các điểm** ("650 m · 9 phút đi bộ" như ví dụ NOTE-03
+§4). Chưa có nguồn dữ liệu nào cho thứ đó — §4 và §14 đều cấm bịa. Chỉ đánh số.
+
+**Làm nửa đầu RA trước, nửa đầu VÀO sau** (anh chốt 2026-09-10). Nửa đầu vào là "chọn nhiều
+chỗ cùng lúc → Tạo lộ trình" (NOTE-04 §6–§9): nhanh hơn khi gom 5–6 chỗ, nhưng nếu chưa có
+đánh số thì bấm "Tạo lộ trình" vẫn chỉ đẻ ra một danh sách không thứ tự. Thứ tự mới là thứ làm
+cái link gửi đi có giá trị.
