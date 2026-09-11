@@ -230,6 +230,24 @@ nhất".
 
 ## Cập nhật gần nhất
 
+### 2026-09-11 (chiều) — 4 chỗ vướng anh phát hiện khi tự dựng lộ trình
+
+Anh dựng thật một lộ trình 4 điểm rồi báo về 4 chỗ vướng. Cả 4 đã sửa:
+
+1. **Gõ tên một chỗ không có trong danh bạ thì phải gõ lại lần nữa** ở ô Điểm riêng. Giờ chữ
+   đó tự nhảy xuống, chỉ còn bấm Thêm.
+2. **Google Maps dễ dẫn sai tỉnh.** Chuỗi gửi sang Google giờ luôn kèm địa chỉ và tự gắn
+   "Tuyên Quang" — "Winmart Hàng Bún" gửi trần thì Google rất dễ hiểu là Hàng Bún ở Hà Nội.
+   Điểm riêng có thêm **ô địa chỉ**, và vào link bằng địa chỉ chứ không bằng cái tên tự đặt
+   ("Xuất phát tại nhà" thì Google chịu). Bỏ trống địa chỉ thì điểm đó không vào link, và
+   trang lộ trình **nói rõ** có mấy điểm như vậy.
+3. **Không thêm được một chỗ hai lần** (trưa về khách sạn nghỉ, tối lại về ngủ). Đây là chặn
+   cứng trong code, đã bỏ. Bộ chọn báo trước "Đã có trong lộ trình · thêm lần nữa" để phân
+   biệt với bấm nhầm.
+4. **"Khoảng 240 phút" vừa khó nhẩm vừa không rõ nghĩa.** Giờ viết "Ở đây khoảng 4 tiếng";
+   dưới 1 tiếng vẫn để phút. Ô nhập vẫn nhập phút nhưng hiện quy đổi ngay bên dưới. Thời gian
+   **đi đường** có câu riêng "Di chuyển khoảng ..." để không bao giờ lẫn với thời gian ở lại.
+
 ### 2026-09-11 — NOTE 07: bộ chọn địa điểm dùng chung + khách đề xuất địa điểm
 
 **Sửa lỗi Safari tự phóng to trang khi gõ.** 73 ô nhập trong web đều dùng cỡ chữ 13–14px —

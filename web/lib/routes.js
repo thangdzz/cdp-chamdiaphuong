@@ -25,6 +25,7 @@ const MAX_STOPS_PER_ROUTE = 30;
 const MAX_TITLE_LENGTH = 60;
 const MAX_NOTE_LENGTH = 140;
 const MAX_CUSTOM_TITLE_LENGTH = 60;
+const MAX_CUSTOM_ADDRESS_LENGTH = 120;
 
 // Phương tiện của cả lộ trình (§P4). Chưa làm phương tiện riêng từng chặng — đó là P7, mà P7
 // còn cần toạ độ địa điểm (hiện 0/210 chỗ có toạ độ).
@@ -155,10 +156,13 @@ export async function getRoutesSummary(anonId) {
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 }
 
+// Cùng một chỗ được phép nằm trong lộ trình NHIỀU LẦN (2026-09-11): "về khách sạn nghỉ trưa
+// rồi tối lại về ngủ" là một chặng thật, không phải thao tác thừa. Trước đây bấm lần hai bị
+// bỏ qua im lặng, khách tưởng nút hỏng.
 export async function addStopToRoute({ anonId, slug, placeId, nameSnapshot }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
-  if (route.stops.some((s) => s.placeId === placeId)) return { ok: true, already: true };
+  const repeat = route.stops.some((s) => s.placeId === placeId);
   if (route.stops.length >= MAX_STOPS_PER_ROUTE) {
     return { ok: false, error: `Lộ trình đã đủ ${MAX_STOPS_PER_ROUTE} điểm rồi.` };
   }
@@ -173,19 +177,18 @@ export async function addStopToRoute({ anonId, slug, placeId, nameSnapshot }) {
   });
   route.updatedAt = new Date().toISOString();
   await redis.set(routeKey(slug), route);
-  return { ok: true };
+  return { ok: true, repeat };
 }
 
 // Thêm NHIỀU địa điểm trong một lượt — PlacePicker chọn xong mới bấm "Thêm N điểm" (§5).
-// Bỏ qua chỗ đã có trong lộ trình thay vì báo lỗi cả lượt: khách chọn 5 chỗ mà 1 chỗ trùng
-// thì thêm 4 chỗ còn lại vẫn đúng ý hơn là không thêm gì.
+// Chỗ đã có trong lộ trình vẫn thêm được lần nữa (xem addStopToRoute) — bộ chọn có nhãn báo
+// trước "đã có trong lộ trình" để khách biết mình đang thêm lần hai, chứ không chặn.
 export async function addPlacesToRoute({ anonId, slug, places }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
-  const existing = new Set(route.stops.map((s) => s.placeId).filter(Boolean));
   let added = 0;
   for (const place of places ?? []) {
-    if (!place?.id || existing.has(place.id)) continue;
+    if (!place?.id) continue;
     if (route.stops.length >= MAX_STOPS_PER_ROUTE) break;
     route.stops.push({
       type: STOP_TYPES.CDP_PLACE,
@@ -196,7 +199,6 @@ export async function addPlacesToRoute({ anonId, slug, places }) {
       durationMinutes: null,
       note: null,
     });
-    existing.add(place.id);
     added++;
   }
   if (added === 0) return { ok: true, added: 0 };
@@ -233,12 +235,17 @@ export async function addProposedStopToRoute({ anonId, slug, proposalId, name })
 
 // Điểm tự đặt tên: "Khách sạn của tôi", "Nhà bạn Nam" — thứ không có trong danh bạ CDP nhưng
 // vẫn là một chặng thật của chuyến đi (§P4 lấy ví dụ "Khách sạn → Ăn tối → ...").
-export async function addCustomStopToRoute({ anonId, slug, customTitle }) {
+//
+// `customAddress` (2026-09-11) chỉ để Google tra đúng chỗ, KHÔNG hiện thay tên: cái tên khách
+// tự đặt thì Google chịu, mà thiếu nó thì điểm đầu lộ trình rơi khỏi link chỉ đường. Để trống
+// vẫn được — điểm đó chỉ nằm trong danh sách, không vào link Google (xem stopMapsQuery).
+export async function addCustomStopToRoute({ anonId, slug, customTitle, customAddress }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
   const cleanTitle = cleanText(customTitle, MAX_CUSTOM_TITLE_LENGTH);
   if (!cleanTitle) return { ok: false, error: "Chưa nhập tên điểm." };
-  if (containsLinkOrPhone(cleanTitle)) {
+  const cleanAddress = cleanText(customAddress, MAX_CUSTOM_ADDRESS_LENGTH);
+  if (containsLinkOrPhone(cleanTitle) || (cleanAddress && containsLinkOrPhone(cleanAddress))) {
     return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
   }
   if (route.stops.length >= MAX_STOPS_PER_ROUTE) {
@@ -248,6 +255,7 @@ export async function addCustomStopToRoute({ anonId, slug, customTitle }) {
     type: STOP_TYPES.CUSTOM,
     placeId: null,
     customTitle: cleanTitle,
+    customAddress: cleanAddress,
     nameSnapshot: null,
     plannedAt: null,
     durationMinutes: null,
@@ -272,7 +280,15 @@ export async function removeStopFromRoute({ anonId, slug, index }) {
   return { ok: true };
 }
 
-export async function updateStop({ anonId, slug, index, plannedAt, durationMinutes, note }) {
+export async function updateStop({
+  anonId,
+  slug,
+  index,
+  plannedAt,
+  durationMinutes,
+  note,
+  customAddress,
+}) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
   const stop = route.stops[index];
@@ -282,9 +298,18 @@ export async function updateStop({ anonId, slug, index, plannedAt, durationMinut
   if (cleanNote && containsLinkOrPhone(cleanNote)) {
     return { ok: false, error: "Ghi chú không được chứa link hoặc số điện thoại." };
   }
+  const cleanAddress = cleanText(customAddress, MAX_CUSTOM_ADDRESS_LENGTH);
+  if (cleanAddress && containsLinkOrPhone(cleanAddress)) {
+    return { ok: false, error: "Địa chỉ không được chứa link hoặc số điện thoại." };
+  }
   if (plannedAt !== undefined) stop.plannedAt = cleanPlannedAt(plannedAt);
   if (durationMinutes !== undefined) stop.durationMinutes = cleanDuration(durationMinutes);
   if (note !== undefined) stop.note = cleanNote;
+  // Chỉ điểm riêng mới có địa chỉ tự nhập — địa điểm CDP đã có địa chỉ trong danh bạ, cho sửa
+  // ở đây thì mỗi lộ trình lại giữ một địa chỉ khác nhau cho cùng một chỗ.
+  if (customAddress !== undefined && normalizeStop(stop).type === STOP_TYPES.CUSTOM) {
+    stop.customAddress = cleanAddress;
+  }
 
   route.updatedAt = new Date().toISOString();
   await redis.set(routeKey(slug), route);
@@ -370,6 +395,9 @@ export async function resolveRouteStops(stops) {
           ...stop,
           type: STOP_TYPES.CUSTOM,
           customTitle: stop.customTitle ?? proposal.name ?? stop.nameSnapshot,
+          // Giữ lại địa chỉ đã khai lúc đề xuất: CDP không đưa chỗ này vào danh bạ, nhưng
+          // người tạo vẫn phải chỉ đường tới được nó.
+          customAddress: stop.customAddress ?? proposal.address ?? proposal.ward ?? null,
           place: null,
           deleted: false,
         };

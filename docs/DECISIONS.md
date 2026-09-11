@@ -946,3 +946,27 @@ CDP không cho đề xuất.
 **Bẫy đã gặp:** `getPlaceTypeLabel` dùng trong thẻ đề xuất ở `/admin` mà quên import. Build và
 lint đều SẠCH vì thẻ đó chỉ vẽ khi hàng chờ có mục — lỗi sẽ nổ đúng lúc anh có đề xuất đầu
 tiên. Từ nay thêm component nào chỉ hiện theo điều kiện, phải dò lại mọi tên nó dùng.
+
+## 2026-09-11 (chiều) — 3 quyết định từ lần anh tự dựng lộ trình
+
+**1. Một chỗ được phép nằm nhiều lần trong cùng một lộ trình.** Trước đây `addPlacesToRoute`
+và `addStopToRoute` bỏ qua chỗ đã có — im lặng, nên bấm xong tưởng nút hỏng. Nhưng "trưa về
+khách sạn nghỉ, tối lại về ngủ" là chặng thật của chuyến đi. Bỏ chặn, và thay bằng **báo
+trước** trong bộ chọn ("Đã có trong lộ trình · thêm lần nữa") để phân biệt với bấm nhầm.
+Chỗ này an toàn sẵn: điểm dừng vốn nhận diện bằng VỊ TRÍ trong mảng, không bằng placeId, nên
+xoá/đảo thứ tự không phải sửa gì thêm.
+
+**2. Điểm riêng vào Google Maps bằng ĐỊA CHỈ, không bằng tên tự đặt.** Tên kiểu "Xuất phát tại
+nhà", "Nhà Tuấn" là đặt cho mình đọc — gửi sang Google thì càng tra càng sai. Nên điểm riêng
+có thêm ô địa chỉ (không bắt buộc), và:
+- có địa chỉ → vào link bằng địa chỉ
+- không có → **không vào link**, thà thiếu một chặng còn hơn dẫn người ta tới chỗ khác; trang
+  lộ trình nói rõ đang thiếu mấy điểm như vậy
+
+Kèm theo: mọi chuỗi gửi Google đều tự gắn "Tuyên Quang" nếu chưa có. "Winmart Hàng Bún" hay
+"12 Trần Phú" gửi trần là Google đoán sang tỉnh khác.
+
+**3. Thời lượng: lưu bằng phút, hiển thị bằng tiếng.** Một con số phút dễ cộng dồn cho timeline
+sau này, nên không đổi cách lưu. Chỗ đổi là lúc viết ra: "Ở đây khoảng 4 tiếng". Và **hai loại
+thời gian phải có hai câu khác hẳn nhau** — "Ở đây khoảng ..." (dừng lại) vs "Di chuyển khoảng
+..." (đi đường). Câu cũ "Khoảng 240 phút" không nói nó là loại nào.

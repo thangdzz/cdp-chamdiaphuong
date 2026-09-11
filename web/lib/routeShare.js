@@ -15,6 +15,7 @@
 
 import { redis } from "./redis.js";
 import { stopTitle, STOP_TYPES } from "./routes.js";
+import { stopMapsQuery } from "./mapsUrl.js";
 
 const SHARE_CHARS = "23456789abcdefghjkmnpqrstuvwxyz";
 const TOKEN_LENGTH = 10; // dài hơn slug lộ trình: link này đi ra ngoài, đừng để đoán được
@@ -51,12 +52,9 @@ export async function createShareSnapshot({ route, resolvedStops }) {
       // chụp: link đã gửi đi thì đóng băng luôn trạng thái lúc đó, đúng tinh thần §P6.
       type: stop.type ?? (stop.placeId ? STOP_TYPES.CDP_PLACE : STOP_TYPES.CUSTOM),
       // `mapsQuery` chép sẵn để nút "Mở trên Google Maps" của người nhận vẫn chạy kể cả khi
-      // chỗ đó về sau bị xoá khỏi danh bạ.
-      mapsQuery: stop.place
-        ? `${stop.place.name}, ${stop.place.address}`
-        : (stop.proposal
-            ? [stop.proposal.name, stop.proposal.address ?? stop.proposal.ward].filter(Boolean).join(", ")
-            : (stop.customTitle ?? null)),
+      // chỗ đó về sau bị xoá khỏi danh bạ. Ghép bằng đúng hàm trang lộ trình dùng — hai nơi
+      // tự ghép mỗi kiểu thì link chia sẻ dẫn khác link của chủ.
+      mapsQuery: stopMapsQuery(stop),
       subtitle: stop.place
         ? [stop.place.ward, stop.place.priceText].filter(Boolean).join(" · ") || null
         : (stop.proposal?.ward ?? null),

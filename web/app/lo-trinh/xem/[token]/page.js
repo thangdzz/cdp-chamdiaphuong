@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getShareSnapshot } from "@/lib/routeShare";
 import { routeMapsUrl } from "@/lib/mapsUrl";
+import { formatStayDuration } from "@/lib/durationFormat";
 import { TRANSPORT_MODES, transportModeLabel } from "@/lib/routes";
 import { SiteHeader } from "@/app/SiteHeader";
 import { FALLBACK_COVER } from "@/lib/cover";
@@ -81,7 +82,9 @@ export default async function SharedRoutePage({ params }) {
                 {stop.subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{stop.subtitle}</p>}
                 <StopBadge type={stop.type} />
                 {stop.durationMinutes && (
-                  <p className="mt-0.5 text-[13px] text-zinc-500">Khoảng {stop.durationMinutes} phút</p>
+                  <p className="mt-0.5 text-[13px] text-zinc-500">
+                    {formatStayDuration(stop.durationMinutes)}
+                  </p>
                 )}
                 {stop.note && <p className="mt-1 text-sm text-zinc-700">💬 {stop.note}</p>}
               </div>

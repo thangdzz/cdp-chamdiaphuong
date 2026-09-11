@@ -20,8 +20,9 @@ import { ProposePlaceForm } from "@/app/ProposePlaceForm";
 import { StopBadge } from "@/app/StopBadge";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { SiteHeader } from "@/app/SiteHeader";
-import { TRANSPORT_MODES } from "@/lib/routes";
+import { TRANSPORT_MODES, STOP_TYPES } from "@/lib/routes";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
+import { formatDurationText } from "@/lib/durationFormat";
 
 // Chỉ chủ lộ trình vào được — getRouteForEdit tự kiểm tra ở server, trang này chỉ điều hướng
 // về trang xem khi không phải chủ, không tự chặn (cùng cách trang sửa Sổ làm).
@@ -103,8 +104,10 @@ export default function EditRoutePage({ params }) {
     if (result?.ok) await reload();
   }
 
-  async function handleAddCustom(title) {
-    const result = await run((anonId) => addCustomStop({ anonId, slug, customTitle: title }));
+  async function handleAddCustom({ title, address }) {
+    const result = await run((anonId) =>
+      addCustomStop({ anonId, slug, customTitle: title, customAddress: address })
+    );
     if (result?.ok) {
       setPickerOpen(false);
       await reload();
@@ -224,6 +227,8 @@ export default function EditRoutePage({ params }) {
           <PlacePicker
             title="Thêm địa điểm"
             confirmLabel="Thêm"
+            // Để bộ chọn báo "đã có trong lộ trình" — vẫn cho chọn, chỉ là nói trước.
+            existingPlaceIds={route.stops.map((s) => s.placeId).filter(Boolean)}
             onConfirm={handleAddPlaces}
             onClose={() => setPickerOpen(false)}
             onAddCustomStop={handleAddCustom}
@@ -246,12 +251,19 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
   const [plannedAt, setPlannedAt] = useState(stop.plannedAt ?? "");
   const [duration, setDuration] = useState(stop.durationMinutes ?? "");
   const [note, setNote] = useState(stop.note ?? "");
+  const [address, setAddress] = useState(stop.customAddress ?? "");
   const [saved, setSaved] = useState(null); // null | "ok" | lỗi
-  const savedRef = useRef({ plannedAt: stop.plannedAt ?? "", duration: stop.durationMinutes ?? "", note: stop.note ?? "" });
+  const savedRef = useRef({
+    plannedAt: stop.plannedAt ?? "",
+    duration: stop.durationMinutes ?? "",
+    note: stop.note ?? "",
+    address: stop.customAddress ?? "",
+  });
+  const isCustom = stop.type === STOP_TYPES.CUSTOM;
 
   // Lưu lúc rời ô, không lưu từng ký tự — mỗi lượt lưu là một lệnh Redis.
   async function save() {
-    const current = { plannedAt, duration, note };
+    const current = { plannedAt, duration, note, address };
     if (JSON.stringify(current) === JSON.stringify(savedRef.current)) return;
     const result = await saveStopDetails({
       anonId: loadLocalContributor()?.anonId,
@@ -260,6 +272,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
       plannedAt,
       durationMinutes: duration === "" ? null : duration,
       note,
+      ...(isCustom ? { customAddress: address } : {}),
     });
     if (result.ok) {
       savedRef.current = current;
@@ -337,8 +350,33 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
             onChange={(e) => setDuration(e.target.value)}
             onBlur={save}
           />
+          {/* Nhập bằng phút cho gọn, nhưng nhắc lại ngay bằng tiếng để khỏi phải nhẩm:
+              gõ 240 mà không thấy "4 tiếng" thì rất dễ nhầm sang 24 tiếng. */}
+          {formatDurationText(duration) && (
+            <span className="text-xs text-zinc-400">= {formatDurationText(duration)}</span>
+          )}
         </label>
       </div>
+
+      {/* Chỉ điểm riêng mới cần: địa điểm CDP đã có địa chỉ sẵn trong danh bạ. */}
+      {isCustom && (
+        <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">
+          Địa chỉ (để Google dẫn đúng)
+          <input
+            className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
+            value={address}
+            maxLength={120}
+            placeholder="VD: 12 Trần Phú, Phan Thiết"
+            onChange={(e) => setAddress(e.target.value)}
+            onBlur={save}
+          />
+          {!address.trim() && (
+            <span className="text-xs text-zinc-400">
+              Bỏ trống thì điểm này không nằm trong link Google Maps.
+            </span>
+          )}
+        </label>
+      )}
 
       <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">
         Ghi chú cho chặng này

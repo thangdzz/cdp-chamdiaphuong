@@ -261,3 +261,22 @@
 - [x] **Duyệt → tự thành `cdp_place`** ở mọi lộ trình đang trỏ tới, không ai phải sửa tay
 - [x] **Từ chối → thành `custom_stop`**, KHÔNG mất khỏi lộ trình
 - [x] **Tương thích ngược**: `normalizeStop()` suy `type` từ route cũ, không migration
+
+## 2026-09-11 (anh bấm thử lộ trình — 4 chỗ vướng)
+
+- [x] **Ô "Điểm riêng" tự điền chữ đang gõ** — gõ "Xuất phát tại nhà" ở ô tìm mà không ra chỗ
+      nào thì chữ đó nhảy thẳng xuống ô Điểm riêng, chỉ còn bấm Thêm. Gõ tay vào ô đó rồi thì
+      thôi bám theo ô tìm. Thêm xong dọn luôn ô tìm để không bấm Thêm hai lần ra hai điểm trùng
+- [x] **Chuỗi gửi Google Maps chuẩn hơn** (`lib/mapsUrl.js`) — luôn kèm địa chỉ, tự gắn
+      "Tuyên Quang" nếu chưa có (trước đây "Winmart Hàng Bún" gửi trần dễ ra Hà Nội). Gom
+      `stopMapsQuery()` dùng chung cho trang lộ trình và bản chụp chia sẻ — trước đó hai nơi
+      tự ghép mỗi kiểu
+- [x] **Điểm riêng có ô địa chỉ** — nhập lúc thêm trong bộ chọn, sửa lại được ở trang sửa lộ
+      trình. Điểm riêng vào link Google bằng ĐỊA CHỈ, không bằng cái tên tự đặt. Bỏ trống thì
+      điểm đó không vào link (trang lộ trình nói rõ có mấy điểm như vậy)
+- [x] **Thêm một chỗ nhiều lần vào cùng lộ trình** — bỏ chặn trùng trong `addPlacesToRoute` và
+      `addStopToRoute`. "Trưa về khách sạn nghỉ, tối lại về ngủ" là chặng thật. Bộ chọn báo
+      trước "Đã có trong lộ trình · thêm lần nữa" để phân biệt với bấm nhầm
+- [x] **Thời lượng viết cho người đọc** (`lib/durationFormat.js`) — "Khoảng 240 phút" →
+      "Ở đây khoảng 4 tiếng"; dưới 1 tiếng giữ phút; ô nhập hiện quy đổi "= 4 tiếng" ngay bên
+      dưới. Thời gian đi đường có câu riêng "Di chuyển khoảng ..." để hai loại không lẫn nhau

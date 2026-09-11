@@ -25,6 +25,7 @@ export function PlacePicker({
   title,
   confirmLabel,
   initialSelected = [],
+  existingPlaceIds = [],
   onConfirm,
   onClose,
   onAddCustomStop,
@@ -36,11 +37,16 @@ export function PlacePicker({
   // Map<placeId, place> — nguồn sự thật của "đang chọn những gì", độc lập với danh sách hiện ra.
   const [selected, setSelected] = useState(() => new Map(initialSelected.map((p) => [p.id, p])));
   const [busy, setBusy] = useState(false);
-  const [customTitle, setCustomTitle] = useState("");
+  const [customDraft, setCustomDraft] = useState("");
+  const [customAddress, setCustomAddress] = useState("");
+  // Khách đã tự gõ vào ô điểm riêng chưa — chưa thì ô đó đi theo chữ đang tìm (xem customTitle
+  // bên dưới), rồi thôi bám ngay khi khách sửa tay, không giật chữ khỏi tay người đang gõ.
+  const [customTouched, setCustomTouched] = useState(false);
   // Chế độ giữ tạm (màn tạo mới) — điểm riêng gom ở đây tới lúc bấm nút cuối.
   const [pendingCustom, setPendingCustom] = useState([]);
   const searchRef = useRef(null);
   const holdsLocally = !onAddCustomStop;
+  const existing = useMemo(() => new Set(existingPlaceIds), [existingPlaceIds]);
 
   useEffect(() => {
     fetchPickerPlaces().then(setPlaces);
@@ -66,6 +72,14 @@ export function PlacePicker({
     });
   }, [places, query, type]);
 
+  const noResults = places !== null && filtered.length === 0;
+
+  // Gõ "Xuất phát tại nhà" mà danh bạ không có chỗ nào khớp thì chữ đó chính là tên điểm riêng
+  // khách muốn — ô Điểm riêng bám theo luôn để chỉ còn bấm "Thêm", thay vì bắt gõ lại y nguyên
+  // lần nữa ở ô bên dưới. Tính ngay lúc vẽ chứ không chép qua state: chép thì phải đồng bộ hai
+  // nguồn, mà lệch một nhịp là ô hiện chữ cũ.
+  const customTitle = customTouched ? customDraft : noResults ? query.trim() : "";
+
   function toggle(place) {
     setSelected((prev) => {
       const next = new Map(prev);
@@ -87,25 +101,34 @@ export function PlacePicker({
     }
   }
 
+  // Thêm xong thì dọn cả ô tìm: để nguyên chữ cũ thì ô điểm riêng lập tức tự điền lại đúng
+  // chữ đó, rất dễ bấm Thêm lần nữa và ra hai điểm trùng ngoài ý muốn.
+  function resetCustomInputs() {
+    setCustomDraft("");
+    setCustomAddress("");
+    setCustomTouched(false);
+    setQuery("");
+  }
+
   async function handleAddCustom() {
     const title = customTitle.trim();
+    const address = customAddress.trim();
     if (!title || busy) return;
     if (holdsLocally) {
-      setPendingCustom((prev) => [...prev, title]);
-      setCustomTitle("");
+      setPendingCustom((prev) => [...prev, { title, address: address || null }]);
+      resetCustomInputs();
       return;
     }
     setBusy(true);
     try {
-      await onAddCustomStop(title);
-      setCustomTitle("");
+      await onAddCustomStop({ title, address: address || null });
+      resetCustomInputs();
     } finally {
       setBusy(false);
     }
   }
 
   const selectedList = [...selected.values()];
-  const noResults = places !== null && filtered.length === 0;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-zinc-50">
@@ -153,7 +176,7 @@ export function PlacePicker({
           <div className="mb-4">
             <p className="mb-1.5 text-[13px] text-zinc-500">Đã chọn</p>
             <div className="flex flex-col gap-1.5">
-              {pendingCustom.map((title, i) => (
+              {pendingCustom.map((custom, i) => (
                 <button
                   key={`custom-${i}`}
                   type="button"
@@ -161,7 +184,10 @@ export function PlacePicker({
                   className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-dashed border-zinc-400 bg-white px-3 py-2 text-left"
                 >
                   <span className="min-w-0 text-sm text-zinc-900">
-                    {title} <span className="text-xs text-zinc-400">· điểm riêng</span>
+                    {custom.title} <span className="text-xs text-zinc-400">· điểm riêng</span>
+                    {custom.address && (
+                      <span className="block text-xs text-zinc-500">{custom.address}</span>
+                    )}
                   </span>
                   <span className="shrink-0 text-xs text-zinc-400">Bỏ</span>
                 </button>
@@ -198,6 +224,14 @@ export function PlacePicker({
                   <span className="block text-xs text-zinc-500">
                     {[PLACE_TYPES.find((t) => t.id === p.type)?.label, p.ward].filter(Boolean).join(" · ")}
                   </span>
+                  {/* Chỗ đã có trong lộ trình VẪN chọn được — sáng đi ăn rồi tối quay lại là
+                      chuyện thường. Chỉ báo trước để khách biết đây là lần thứ hai, không
+                      phải bấm nhầm. */}
+                  {existing.has(p.id) && (
+                    <span className="mt-0.5 block text-xs text-zinc-400">
+                      Đã có trong lộ trình · thêm lần nữa
+                    </span>
+                  )}
                 </button>
               ))}
           </div>
@@ -235,27 +269,39 @@ export function PlacePicker({
           </div>
 
           <div>
-              <p className="text-[13px] font-medium text-zinc-700">Điểm riêng của bạn</p>
-              <p className="mb-1.5 text-xs text-zinc-500">
-                Chỗ chỉ mình bạn cần — nhà bạn bè, điểm hẹn. Không gửi CDP, không vào danh bạ.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  className="min-w-0 flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
-                  value={customTitle}
-                  maxLength={60}
-                  placeholder="VD: Nhà Tuấn"
-                  onChange={(e) => setCustomTitle(e.target.value)}
-                />
-                <button
-                  type="button"
-                  disabled={busy || !customTitle.trim()}
-                  onClick={handleAddCustom}
-                  className="cdp-pressable shrink-0 cursor-pointer rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white disabled:cursor-default disabled:opacity-40"
-                >
-                  Thêm
-                </button>
-              </div>
+            <p className="text-[13px] font-medium text-zinc-700">Điểm riêng của bạn</p>
+            <p className="mb-1.5 text-xs text-zinc-500">
+              Chỗ chỉ mình bạn cần — nhà bạn bè, điểm hẹn. Không gửi CDP, không vào danh bạ.
+            </p>
+            <div className="flex flex-col gap-2">
+              <input
+                className="min-w-0 rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
+                value={customTitle}
+                maxLength={60}
+                placeholder="VD: Nhà Tuấn"
+                onChange={(e) => {
+                  setCustomTouched(true);
+                  setCustomDraft(e.target.value);
+                }}
+              />
+              {/* Cái tên khách tự đặt thì Google chịu, nên muốn chỉ đường tới được phải có địa
+                  chỉ. Để trống vẫn thêm được — điểm đó chỉ không nằm trong link Google Maps. */}
+              <input
+                className="min-w-0 rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
+                value={customAddress}
+                maxLength={120}
+                placeholder="Địa chỉ, để Google dẫn đúng (không bắt buộc)"
+                onChange={(e) => setCustomAddress(e.target.value)}
+              />
+              <button
+                type="button"
+                disabled={busy || !customTitle.trim()}
+                onClick={handleAddCustom}
+                className="cdp-pressable w-fit cursor-pointer rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-default disabled:opacity-40"
+              >
+                Thêm điểm riêng
+              </button>
+            </div>
           </div>
         </div>
       </div>

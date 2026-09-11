@@ -347,7 +347,16 @@ web/
 │   ├── routes.js           (330)  ⭐ Lộ trình — thực thể RIÊNG, không phải trạng thái của Sổ
 │   │                              (CDP_P1-P8 §P4). `route:{slug}` + `routes:by-owner:{anonId}`.
 │   │                              Mỗi điểm: giờ dự kiến · thời lượng · ghi chú chặng, và có
-│   │                              thể là điểm TỰ ĐẶT TÊN thay vì địa điểm CDP
+│   │                              thể là điểm TỰ ĐẶT TÊN thay vì địa điểm CDP (khi đó thêm
+│   │                              `customAddress` — CHỈ để Google tra, không hiện thay tên).
+│   │                              MỘT CHỖ ĐƯỢC PHÉP NẰM NHIỀU LẦN trong cùng lộ trình; điểm
+│   │                              dừng nhận diện bằng VỊ TRÍ trong mảng, không bằng placeId
+│   ├── durationFormat.js    (37)  Viết thời lượng thành tiếng Việt đọc được: "Ở đây khoảng 4
+│   │                              tiếng" (dừng lại) vs "Di chuyển khoảng 25 phút" (đi đường).
+│   │                              Vẫn LƯU bằng phút, chỉ đổi lúc hiển thị
+│   ├── mapsUrl.js           (78)  Chuỗi tra Google Maps: luôn kèm địa chỉ + gắn "Tuyên Quang"
+│   │                              nếu chưa có. `stopMapsQuery()` dùng CHUNG cho trang lộ trình
+│   │                              và bản chụp chia sẻ
 │   ├── routeShare.js        (95)  ⭐ Chia sẻ bằng BẢN CHỤP (§P6) — `route_share:{token}` đóng
 │   │                              băng nội dung lúc bấm. Sửa/xoá lộ trình gốc thì link đã gửi
 │   │                              vẫn mở đúng thứ được gửi

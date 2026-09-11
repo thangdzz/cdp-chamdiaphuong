@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getRoute, resolveRouteStops, stopTitle, transportModeLabel, TRANSPORT_MODES } from "@/lib/routes";
-import { routeMapsUrl } from "@/lib/mapsUrl";
+import { routeMapsUrl, stopMapsQuery } from "@/lib/mapsUrl";
+import { formatStayDuration } from "@/lib/durationFormat";
 import { SiteHeader } from "@/app/SiteHeader";
 import { RouteOwnerActions } from "@/app/RouteOwnerActions";
 import { formatPriceCompact } from "@/lib/priceFormat";
@@ -25,15 +26,11 @@ export default async function RouteViewPage({ params }) {
   const stops = await resolveRouteStops(route.stops);
   const mapsMode = TRANSPORT_MODES.find((m) => m.id === route.transportMode)?.mapsMode ?? "driving";
   // Điểm đề xuất cũng phải vào được link Google Maps — bỏ qua thì lộ trình mở ra thiếu chặng.
-  const maps = routeMapsUrl(
-    stops.map((s) => ({
-      mapsQuery: s.place
-        ? `${s.place.name}, ${s.place.address}`
-        : (s.customTitle ??
-            (s.proposal ? [s.proposal.name, s.proposal.address ?? s.proposal.ward].filter(Boolean).join(", ") : null)),
-    })),
-    mapsMode
-  );
+  const mapsQueries = stops.map((s) => ({ mapsQuery: stopMapsQuery(s) }));
+  const maps = routeMapsUrl(mapsQueries, mapsMode);
+  // Điểm riêng chưa khai địa chỉ thì Google không tra nổi, nên nó rơi khỏi link — nói thẳng
+  // ra thay vì để khách mở link rồi mới phát hiện thiếu chặng.
+  const missingAddress = stops.filter((s, i) => !mapsQueries[i].mapsQuery).length;
 
   return (
     <div className="flex flex-1 justify-center">
@@ -78,6 +75,12 @@ export default async function RouteViewPage({ params }) {
                 Google Maps chỉ nhận 11 điểm — {maps.omitted} điểm giữa không nằm trong link này.
               </p>
             )}
+            {missingAddress > 0 && (
+              <p className="mt-1.5 text-center text-xs text-zinc-400">
+                {missingAddress} điểm riêng chưa có địa chỉ nên không vào được link. Thêm địa chỉ
+                ở trang sửa lộ trình.
+              </p>
+            )}
           </div>
         )}
       </main>
@@ -116,7 +119,7 @@ function RouteStopRow({ stop, index }) {
         {subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{subtitle}</p>}
         <StopBadge type={stop.type} />
         {stop.durationMinutes && (
-          <p className="mt-0.5 text-[13px] text-zinc-500">Khoảng {stop.durationMinutes} phút</p>
+          <p className="mt-0.5 text-[13px] text-zinc-500">{formatStayDuration(stop.durationMinutes)}</p>
         )}
         {stop.note && <p className="mt-1 text-sm text-zinc-700">💬 {stop.note}</p>}
       </div>

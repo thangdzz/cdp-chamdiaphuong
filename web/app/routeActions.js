@@ -84,9 +84,9 @@ export async function createRouteAndAddPlace({ anonId, title, placeId, nameSnaps
   return { ...result, slug: created.slug, anonId: currentAnonId, newProfile };
 }
 
-export async function addCustomStop({ anonId, slug, customTitle }) {
+export async function addCustomStop({ anonId, slug, customTitle, customAddress }) {
   if (!anonId || !slug) return { ok: false };
-  return addCustomStopToRoute({ anonId, slug, customTitle });
+  return addCustomStopToRoute({ anonId, slug, customTitle, customAddress });
 }
 
 export async function removeStop({ anonId, slug, index }) {
@@ -94,9 +94,17 @@ export async function removeStop({ anonId, slug, index }) {
   return removeStopFromRoute({ anonId, slug, index });
 }
 
-export async function saveStopDetails({ anonId, slug, index, plannedAt, durationMinutes, note }) {
+export async function saveStopDetails({
+  anonId,
+  slug,
+  index,
+  plannedAt,
+  durationMinutes,
+  note,
+  customAddress,
+}) {
   if (!anonId || !slug) return { ok: false };
-  return updateStop({ anonId, slug, index, plannedAt, durationMinutes, note });
+  return updateStop({ anonId, slug, index, plannedAt, durationMinutes, note, customAddress });
 }
 
 export async function reorderRouteStops({ anonId, slug, order }) {
@@ -149,6 +157,7 @@ export async function getRouteForEdit({ anonId, slug }) {
         type: s.type,
         placeId: s.placeId,
         customTitle: s.customTitle,
+        customAddress: s.customAddress ?? null,
         deleted: s.deleted,
         nameSnapshot: s.nameSnapshot,
         plannedAt: s.plannedAt,
@@ -194,8 +203,12 @@ export async function createRouteWithPlaces({ anonId, title, places, customStops
   }
   // Điểm riêng khách gõ ngay trong bộ chọn lúc chưa có lộ trình — giữ tạm ở đó rồi ghi một
   // lượt tại đây, xếp SAU các địa điểm đã chọn (khách sắp lại thứ tự ở trang sửa).
-  for (const customTitle of customStops) {
-    await addCustomStopToRoute({ anonId: currentAnonId, slug: created.slug, customTitle });
+  for (const custom of customStops) {
+    // Nhận cả chuỗi trần (dạng cũ) lẫn { title, address } — bộ chọn cũ còn mở trên máy khách
+    // nào đó lúc bản mới lên thì vẫn thêm được điểm, không đứng hình.
+    const customTitle = typeof custom === "string" ? custom : custom?.title;
+    const customAddress = typeof custom === "string" ? null : (custom?.address ?? null);
+    await addCustomStopToRoute({ anonId: currentAnonId, slug: created.slug, customTitle, customAddress });
   }
   return { ok: true, slug: created.slug, anonId: currentAnonId, newProfile };
 }
