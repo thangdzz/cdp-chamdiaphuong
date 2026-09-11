@@ -75,6 +75,11 @@
     "address": null
   },
   {
+    "name": "Bánh cuốn rạp Tháng Tám",
+    "type": "an",
+    "address": "đường 17 Tháng 8, TP Tuyên Quang"
+  },
+  {
     "name": "Bảo tàng tỉnh Tuyên Quang",
     "type": "choi",
     "address": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang"
@@ -138,6 +143,11 @@
     "name": "Cháo Ấu Tẩu",
     "type": "an",
     "address": "375 Đường 17/8, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Chè Huế và bánh xèo Huế",
+    "type": "an",
+    "address": "đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Chill - Tiệm Trà Chanh Tuyên Quang",
@@ -378,6 +388,11 @@
     "name": "Homestay Nguyễn Văn Siểng",
     "type": "ngu",
     "address": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang"
+  },
+  {
+    "name": "Kem 81",
+    "type": "an",
+    "address": "154 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Khách sạn Bảo Linh",
@@ -820,6 +835,11 @@
     "address": "18 Nguyễn Trãi, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Piccolo",
+    "type": "an",
+    "address": "Ngã 5 chợ Tam Cờ, TP Tuyên Quang"
+  },
+  {
     "name": "Quán Ẩm Thực Sài Gòn",
     "type": "an",
     "address": "216 Lý Nam Đế, Phường Tân Quang, TP Tuyên Quang"
@@ -860,6 +880,11 @@
     "address": "Khu vực 60, phố Tam Cờ, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Quán Thanh Thủy",
+    "type": "an",
+    "address": "205 Lê Lợi 2, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Quán Ven Hồ Tuyên Quang",
     "type": "an",
     "address": "Ven hồ Tuyên Quang, Tổ 32, Phường Tân Quang, TP. Tuyên Quang"
@@ -868,6 +893,11 @@
     "name": "Quảng trường Nguyễn Tất Thành",
     "type": "choi",
     "address": "Phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Queen Hotel",
+    "type": "ngu",
+    "address": "Số 26, đường 17/8, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Relax Coffee",
@@ -950,6 +980,11 @@
     "address": "285 Trần Phú, phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Taxi Thảo Lâm",
+    "type": "dilai",
+    "address": null
+  },
+  {
     "name": "Taxi Trang Vinh",
     "type": "dilai",
     "address": null
@@ -1013,6 +1048,11 @@
     "name": "Thủy Mộc Quán (Cafe Cá Koi)",
     "type": "an",
     "address": "Tổ 3, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
+    "name": "Tiệm Xôi Xéo - Bánh Mì",
+    "type": "an",
+    "address": "07 Nguyễn Đình Chiểu, Tổ 6, TP Tuyên Quang"
   },
   {
     "name": "Tiến Vũ Homestay",
