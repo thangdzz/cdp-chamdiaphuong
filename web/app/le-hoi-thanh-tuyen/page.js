@@ -1,23 +1,33 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  EVENT_STATUS,
+  eventStatus,
+  groupEvents,
+  formatEventWhen,
+  formatCountdown,
+  readNow,
+} from "@/lib/events";
+import { FESTIVAL_EVENTS, POST_META, PLAN_TEMPLATE } from "@/lib/postEvents/le-hoi-thanh-tuyen-2026";
+import { InteractivePlan } from "@/app/InteractivePlan";
+import { EventCard } from "./EventCard";
+
+// Trạng thái mốc lịch tính lúc MỞ TRANG, không phải lúc build (CDP_P1-P8 §"Dynamic Timeline":
+// "không cần deploy code mỗi khi thời gian chuyển trạng thái"). Trang này trước đây là trang
+// tĩnh — để nguyên thì "Đang diễn ra" đóng băng ở thời điểm deploy gần nhất.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Lễ hội Thành Tuyên 2026 — Chạm Địa Phương",
   description:
-    "Thời gian, địa điểm và các hoạt động chính của Lễ hội Thành Tuyên 2026 tại Tuyên Quang.",
+    "Lịch Lễ hội Thành Tuyên 2026: thi đèn các phường, Đêm hội 20/9 và các hoạt động quanh lễ hội.",
 };
 
-function InfoRow({ date, title, place }) {
-  return (
-    <li className="rounded-xl border border-zinc-200 bg-white p-3">
-      <p className="text-sm font-semibold text-zinc-900">{date}</p>
-      <p className="mt-0.5 text-sm text-zinc-700">{title}</p>
-      {place && <p className="mt-0.5 text-xs text-zinc-500">{place}</p>}
-    </li>
-  );
-}
+export default async function LeHoiThanhTuyenPage() {
+  const now = await readNow();
+  const { live, upcoming, past, undated, next } = groupEvents(FESTIVAL_EVENTS, now);
+  const countdown = formatCountdown(next, now);
 
-export default function LeHoiThanhTuyenPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
@@ -27,8 +37,8 @@ export default function LeHoiThanhTuyenPage() {
 
         <div className="relative mt-3 h-48 w-full overflow-hidden rounded-xl sm:h-64">
           <Image
-            src="/images/le-hoi-thanh-tuyen-2026.jpg"
-            alt="Lễ hội Thành Tuyên 2026"
+            src={POST_META.cover}
+            alt={POST_META.title}
             fill
             priority
             sizes="(max-width: 640px) 100vw, 576px"
@@ -36,110 +46,87 @@ export default function LeHoiThanhTuyenPage() {
           />
         </div>
 
-        <h1 className="mt-4 text-2xl font-bold text-zinc-900">
-          Lễ hội Thành Tuyên 2026
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">19 – 25/9/2026 · TP Tuyên Quang</p>
+        <h1 className="mt-4 text-2xl font-bold text-zinc-900">{POST_META.title}</h1>
+        <p className="mt-1 text-sm text-zinc-500">{POST_META.subtitle}</p>
+
+        {/* §"Phần 2 — Sắp diễn ra gần nhất": mở trang ra là thấy ngay cái sắp tới, không phải
+            tự dò trong danh sách xem hôm nay đến lượt gì. */}
+        {next && (
+          <section className="mt-4 rounded-xl border border-zinc-300 bg-white p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              Sắp diễn ra{countdown ? ` · ${countdown}` : ""}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-zinc-900">{formatEventWhen(next)}</p>
+            <p className="mt-0.5 text-sm text-zinc-800">{next.title}</p>
+            {next.location && <p className="mt-0.5 text-xs text-zinc-500">{next.location}</p>}
+          </section>
+        )}
 
         <section className="mt-5">
-          <h2 className="text-lg font-bold text-zinc-900">
-            Lễ hội Thành Tuyên là gì?
-          </h2>
+          <h2 className="text-lg font-bold text-zinc-900">Lễ hội Thành Tuyên là gì?</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-700">
-            Lễ hội Thành Tuyên là lễ hội Trung Thu đặc trưng của Tuyên Quang,
-            nổi tiếng với những mô hình đèn Trung thu khổng lồ do chính người
-            dân các phường tự thiết kế, diễu diễu khắp phố. Năm 2026, lễ hội
-            tổ chức ở quy mô cấp tỉnh.
+            Lễ hội Thành Tuyên là lễ hội Trung Thu đặc trưng của Tuyên Quang, nổi tiếng với những
+            mô hình đèn Trung thu khổng lồ do chính người dân các phường tự thiết kế, diễu diễu
+            khắp phố. Năm 2026, lễ hội tổ chức ở quy mô cấp tỉnh.
           </p>
         </section>
 
         <section className="mt-5">
-          <h2 className="text-lg font-bold text-zinc-900">Thời gian</h2>
+          <h2 className="text-lg font-bold text-zinc-900">Lịch hoạt động</h2>
 
-          <h3 className="mt-3 text-sm font-semibold text-zinc-800">
-            Trước lễ hội — diễu diễu mô hình đèn
-          </h3>
-          <ul className="mt-2 flex flex-col gap-2">
-            <InfoRow
-              date="21/8 – 4/9/2026"
-              title="Diễu diễu hằng ngày, 19h30 – 22h"
-            />
-            <InfoRow
-              date="5/9 – 27/9/2026"
-              title="Chỉ diễu diễu tối thứ Sáu và thứ Bảy hằng tuần"
-            />
-          </ul>
+          {/* Mốc đã qua GOM LẠI, mở ra xem được — bày hết ra thì phần đang tới bị đẩy xuống
+              dưới, mà đó mới là thứ khách cần (§"Dynamic Timeline"). <details> là thẻ sẵn của
+              trình duyệt: không cần JavaScript, bấm là mở. */}
+          {past.length > 0 && (
+            <details className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+              <summary className="cursor-pointer text-sm text-zinc-500">
+                ✓ {past.length} hoạt động đã diễn ra — xem lại
+              </summary>
+              <ul className="mt-3 flex flex-col gap-2">
+                {past.map((event) => (
+                  <EventCard key={event.id} event={event} status={EVENT_STATUS.PAST} />
+                ))}
+              </ul>
+            </details>
+          )}
 
-          <h3 className="mt-4 text-sm font-semibold text-zinc-800">
-            Trước lễ hội — các hoạt động khác
-          </h3>
-          <ul className="mt-2 flex flex-col gap-2">
-            <InfoRow
-              date="Dự kiến 12/9 (thứ Bảy)"
-              title="Cuộc thi mô hình đèn Trung thu cấp phường Minh Xuân — chọn mô hình đẹp nhất tham gia Đêm hội chính 20/9"
-              place="Quảng trường Nguyễn Tất Thành, phường Minh Xuân"
-            />
-            <InfoRow
-              date="Dự kiến 11 – 25/9/2026"
-              title="Hoạt động trên tuyến phố đi bộ: dân vũ, không gian âm nhạc, trò chơi dân gian"
-              place="Tuyến phố đi bộ, phường Minh Xuân"
-            />
-            <InfoRow
-              date="13 – 25/9/2026, từ 18h30"
-              title="Đèn trang trí, điện chiếu sáng bật sớm quanh phố — đi dạo, chụp ảnh được cả những ngày không phải cao điểm"
-            />
-            <InfoRow
-              date="Tháng 9/2026 (chưa có ngày cụ thể)"
-              title="Giải trình diễn lái xe ô tô - mô tô địa hình Tuyên Quang mở rộng lần IV"
-              place="Phường Minh Xuân"
-            />
-          </ul>
+          {(live.length > 0 || upcoming.length > 0) && (
+            <ul className="mt-3 flex flex-col gap-2">
+              {[...live, ...upcoming].map((event) => (
+                <EventCard key={event.id} event={event} status={eventStatus(event, now)} />
+              ))}
+            </ul>
+          )}
 
-          <h3 className="mt-4 text-sm font-semibold text-zinc-800">
-            Tuần lễ hội chính: 19 – 25/9/2026
-          </h3>
-          <ul className="mt-2 flex flex-col gap-2">
-            <InfoRow
-              date="19/9 (thứ Bảy)"
-              title="Đêm hội trăng rằm, thắp sáng ước mơ thiếu nhi Tuyên Quang"
-              place="Quảng trường 26/3, phường Hà Giang 1"
-            />
-            <InfoRow
-              date="20/9 (chủ nhật)"
-              title={
-                'Đêm hội Thành Tuyên — sự kiện lớn nhất, khai mạc 20h00, chủ đề "Lung linh đêm hội trăng rằm", 45 mô hình đèn diễn diễu (40 mô hình được lựa chọn + 5 mô hình của đơn vị tài trợ), truyền hình trực tiếp'
-              }
-              place="Quảng trường Nguyễn Tất Thành, phường Minh Xuân"
-            />
-            <InfoRow
-              date="20/9 (cùng đêm hội chính)"
-              title="Trưng bày Mâm cỗ Trung thu — sản vật địa phương trang trí đẹp mắt"
-              place="Quảng trường Nguyễn Tất Thành"
-            />
-            <InfoRow
-              date="19 – 25/9"
-              title="Không gian ẩm thực & Lễ hội Bia + Hội chợ Nông sản OCOP (~30 gian hàng)"
-              place="Đường Chiến thắng Sông Lô, phường Minh Xuân"
-            />
-            <InfoRow
-              date="25/9 (rằm Trung Thu, 15/8 âm lịch)"
-              title="Đêm trăng rằm chính"
-            />
-          </ul>
+          {undated.length > 0 && (
+            <>
+              <h3 className="mt-4 text-sm font-semibold text-zinc-800">Chưa có ngày cụ thể</h3>
+              <ul className="mt-2 flex flex-col gap-2">
+                {undated.map((event) => (
+                  <EventCard key={event.id} event={event} status={EVENT_STATUS.UNDATED} />
+                ))}
+              </ul>
+            </>
+          )}
+
+          {live.length === 0 && upcoming.length === 0 && undated.length === 0 && (
+            <p className="mt-3 text-sm text-zinc-500">
+              Lễ hội năm nay đã kết thúc. Hẹn gặp lại mùa sau.
+            </p>
+          )}
         </section>
+
+        {/* §P3: ngay sau lịch là chỗ khách bắt tay xếp buổi tối của mình — đọc xong không
+            dừng ở "đọc rồi thoát". */}
+        <InteractivePlan template={PLAN_TEMPLATE} />
 
         <section className="mt-5">
           <h2 className="text-lg font-bold text-zinc-900">Địa điểm chính</h2>
           <ul className="mt-2 list-disc pl-5 text-sm leading-6 text-zinc-700">
             <li>Quảng trường Nguyễn Tất Thành, phường Minh Xuân</li>
             <li>Quảng trường 26/3, phường Hà Giang 1</li>
-            <li>
-              Đường Chiến thắng Sông Lô, phường Minh Xuân (khu ẩm thực, hội
-              chợ)
-            </li>
-            <li>
-              Tuyến phố đi bộ, phường Minh Xuân (văn nghệ, trò chơi dân gian)
-            </li>
+            <li>Đường Chiến thắng Sông Lô, phường Minh Xuân (khu ẩm thực, hội chợ)</li>
+            <li>Tuyến phố đi bộ, phường Minh Xuân (văn nghệ, trò chơi dân gian)</li>
           </ul>
         </section>
 
@@ -147,24 +134,21 @@ export default function LeHoiThanhTuyenPage() {
           <h2 className="text-lg font-bold text-zinc-900">Lưu ý cho khách</h2>
           <ul className="mt-2 list-disc pl-5 text-sm leading-6 text-zinc-700">
             <li>
-              Muốn xem mô hình đèn diễu diễu vào ngày thường (không phải cuối
-              tuần), chỉ có thể xem trong khoảng 21/8 – 4/9; sau đó chỉ diễu
-              diễu tối thứ Sáu/thứ Bảy.
+              Muốn xem mô hình đèn diễu diễu vào ngày thường (không phải cuối tuần), chỉ có thể
+              xem trong khoảng 21/8 – 4/9; sau đó chỉ diễu diễu tối thứ Sáu/thứ Bảy.
             </li>
             <li>
-              Đêm hội chính 20/9 và rằm 25/9 là hai đêm đông khách nhất — nên
-              đặt chỗ ngủ sớm.
+              Đêm hội chính 20/9 và rằm 25/9 là hai đêm đông khách nhất — nên đặt chỗ ngủ sớm.
             </li>
             <li>
-              Có dịch vụ cho khách trải nghiệm ngồi trên xe mô hình đèn tham
-              quan (do các phường/hộ tự tổ chức, không phải dịch vụ của Chạm
-              Địa Phương).
+              Có dịch vụ cho khách trải nghiệm ngồi trên xe mô hình đèn tham quan (do các
+              phường/hộ tự tổ chức, không phải dịch vụ của Chạm Địa Phương).
             </li>
           </ul>
 
           <p className="mt-4 text-xs text-zinc-400">
-            Nguồn: Kế hoạch số 246/KH-UBND, UBND tỉnh Tuyên Quang, 27/6/2026; Kế hoạch
-            UBND phường Minh Xuân, tháng 7/2026.
+            Nguồn: Kế hoạch số 246/KH-UBND, UBND tỉnh Tuyên Quang, 27/6/2026; Kế hoạch UBND
+            phường Minh Xuân, tháng 7/2026.
           </p>
         </section>
       </main>

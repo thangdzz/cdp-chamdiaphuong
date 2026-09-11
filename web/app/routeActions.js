@@ -120,6 +120,59 @@ export async function saveStopDetails({
   });
 }
 
+/**
+ * Tạo lộ trình từ KHUNG KẾ HOẠCH trong một Post (§P3 "Interactive Plan").
+ *
+ * Khác `createRouteWithPlaces` ở chỗ mỗi điểm đã có sẵn GIỜ DỰ KIẾN — khung kế hoạch vốn là
+ * "17:30 ăn tối, 19:00 gửi xe, 20:00 đêm hội", nên giờ phải theo sang lộ trình chứ không bắt
+ * khách gõ lại. Thứ tự đúng bằng thứ tự khung.
+ *
+ * @param {{placeId?: string, name?: string, customTitle?: string, customAddress?: string,
+ *          customProvince?: string, plannedAt?: string, durationMinutes?: number}[]} stops
+ */
+export async function createRouteFromPlan({ anonId, title, stops }) {
+  if (!stops?.length) return { ok: false, error: "Chưa chọn chỗ nào." };
+  const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
+  const created = await createRoute({ ownerAnonId: currentAnonId, title });
+  if (!created.ok) return { ...created, anonId: currentAnonId, newProfile };
+
+  // Ghi lần lượt qua đúng các hàm đã có, để mọi luật (chặn link/số điện thoại, giới hạn số
+  // điểm, chuẩn hoá tỉnh) chỉ nằm ở một chỗ trong lib/routes.js.
+  // Đếm riêng số điểm ĐÃ THÊM chứ không dùng chỉ số của khung: khung có ô nào khách bỏ trống
+  // thì vị trí trong lộ trình lệch đi, và giờ dự kiến sẽ rơi nhầm sang điểm khác.
+  let index = 0;
+  for (const stop of stops) {
+    if (stop.placeId) {
+      await addPlacesToRoute({
+        anonId: currentAnonId,
+        slug: created.slug,
+        places: [{ id: stop.placeId, name: stop.name }],
+      });
+    } else if (stop.customTitle) {
+      await addCustomStopToRoute({
+        anonId: currentAnonId,
+        slug: created.slug,
+        customTitle: stop.customTitle,
+        customAddress: stop.customAddress,
+        customProvince: stop.customProvince,
+      });
+    } else {
+      continue;
+    }
+    if (stop.plannedAt || stop.durationMinutes) {
+      await updateStop({
+        anonId: currentAnonId,
+        slug: created.slug,
+        index,
+        plannedAt: stop.plannedAt ?? null,
+        durationMinutes: stop.durationMinutes ?? null,
+      });
+    }
+    index++;
+  }
+  return { ok: true, slug: created.slug, anonId: currentAnonId, newProfile };
+}
+
 // "Đổi chỗ" — thay điểm dừng tại ĐÚNG vị trí đang đứng, không đẩy xuống cuối như cách xoá rồi
 // thêm lại. Thứ tự là thứ khách sắp bằng tay, đổi một chỗ không có lý do gì làm xáo nó.
 export async function replaceRouteStop({ anonId, slug, index, place, custom }) {

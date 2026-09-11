@@ -4,6 +4,8 @@ import { getLivePlaces } from "@/lib/redis";
 import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
+import { groupEvents, formatEventWhen, readNow } from "@/lib/events";
+import { FESTIVAL_EVENTS } from "@/lib/postEvents/le-hoi-thanh-tuyen-2026";
 import PlaceExplorer from "./PlaceExplorer";
 import { SiteHeader } from "./SiteHeader";
 
@@ -22,6 +24,9 @@ export default async function Home() {
     consensus: allConsensus[p.id] ?? null,
     notes: filterVisibleNotes(allNotes[p.id] ?? []),
   }));
+  // Card lễ hội lấy mốc sắp tới từ ĐÚNG nguồn dữ liệu của trang lễ hội — hai nơi không bao giờ
+  // nói khác nhau, và hết lễ hội thì câu chữ tự chuyển chứ không đứng đó hứa hão.
+  const { next: nextFestivalEvent } = groupEvents(FESTIVAL_EVENTS, await readNow());
 
   return (
     <div className="flex flex-1 justify-center">
@@ -56,10 +61,16 @@ export default async function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-4">
               <p className="text-lg font-medium tracking-tight text-white">
-                Đi Thành Tuyên 20/9?
+                Lễ hội Thành Tuyên 2026
               </p>
+              {/* §P2: card phải nói đúng thứ nằm bên trong. Câu cũ hứa "chỗ gửi xe, ăn tối,
+                  cafe nghỉ chân và chỗ ngủ" trong khi trang bên trong là LỊCH lễ hội.
+                  Dòng dưới lấy thẳng mốc sắp tới từ dữ liệu nên không bao giờ lệch với trang
+                  trong, và tự hết hạn — không phải nhớ đi sửa câu quảng cáo sau lễ hội. */}
               <p className="text-sm text-white/90">
-                Chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ quanh khu lễ hội →
+                {nextFestivalEvent
+                  ? `Sắp tới: ${nextFestivalEvent.title} · ${formatEventWhen(nextFestivalEvent)} →`
+                  : "Lịch thi đèn các phường, Đêm hội 20/9 và các hoạt động quanh lễ hội →"}
               </p>
             </div>
           </div>

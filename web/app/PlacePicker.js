@@ -27,6 +27,9 @@ export function PlacePicker({
   confirmLabel,
   initialSelected = [],
   existingPlaceIds = [],
+  // Mở sẵn đúng nhóm cần chọn: bấm "Chọn chỗ ăn" từ khung kế hoạch thì không có lý do gì bắt
+  // khách lọc lại nhóm Ăn bằng tay.
+  initialType = "all",
   // Chế độ ĐỔI CHỖ: chọn đúng một chỗ để thay cho điểm đang sửa, bấm phát nào xong phát đó —
   // ở đây "chọn nhiều rồi bấm nút cuối" vô nghĩa vì chỉ có một ô để thay.
   singlePick = false,
@@ -37,7 +40,7 @@ export function PlacePicker({
 }) {
   const [places, setPlaces] = useState(null);
   const [query, setQuery] = useState("");
-  const [type, setType] = useState("all");
+  const [type, setType] = useState(initialType);
   // Map<placeId, place> — nguồn sự thật của "đang chọn những gì", độc lập với danh sách hiện ra.
   const [selected, setSelected] = useState(() => new Map(initialSelected.map((p) => [p.id, p])));
   const [busy, setBusy] = useState(false);

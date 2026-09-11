@@ -1002,3 +1002,20 @@ Cách làm: ô `<select>` 34 tỉnh/thành (sắp xếp hành chính có hiệu 
 tên cũ vẫn ra, nhưng tên mới là thứ khách đang thấy trên giấy tờ. Điểm riêng cũ chưa có trường
 này thì hiểu là Tuyên Quang (đúng bằng hành vi trước đó) và **hiện rõ trên giao diện** để sửa,
 thay vì giấu một giả định trong code.
+
+## 2026-09-11 (tối) — Timeline động: 3 lựa chọn
+
+**1. Trang lễ hội phải `force-dynamic`.** Trạng thái "đang diễn ra / đã qua" tính lúc MỞ TRANG.
+Để trang tĩnh như trước thì trạng thái đóng băng ở thời điểm deploy gần nhất — đúng thứ
+CDP_P1-P8 muốn tránh ("không cần deploy code mỗi khi thời gian chuyển trạng thái").
+
+**2. Mốc thời gian ghi kèm `+07:00`, chữ format theo `Asia/Ho_Chi_Minh`.** Máy chủ Vercel chạy
+giờ UTC; nếu lưu "20:00" trần thì "Đêm hội 20h" thành 20h giờ UTC = 3h sáng giờ Việt Nam. Đã
+test với máy chủ giả lập múi giờ New York, kết quả giống hệt.
+
+**3. Đếm ngược tính theo NGÀY LỊCH, không theo số giờ chia 24.** Bẫy gặp ngay khi test: 15h
+chiều nay tới 0h sáng mai chỉ cách 9 tiếng, chia 24 ra 0 và hiện "hôm nay" — sai hẳn một ngày.
+
+**Dữ liệu lịch vẫn nằm trong file, sửa lịch vẫn phải deploy.** Content Monitor + admin duyệt
+diff là Phase 2, chưa làm. Nhưng lịch đã tách hẳn khỏi giao diện (`lib/postEvents/*`) nên khi
+chuyển sang đọc Redis chỉ phải thay chỗ lấy mảng, không đụng trang.

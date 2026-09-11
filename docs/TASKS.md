@@ -305,3 +305,31 @@
       Địa điểm CDP và đề xuất thì VẪN gắn Tuyên Quang (danh bạ chỉ có Tuyên Quang)
 - [x] **Điểm riêng cũ (chưa có trường tỉnh)** → hiểu là Tuyên Quang, đúng bằng hành vi trước
       đây; giao diện hiện rõ ô đang chọn Tuyên Quang để anh đổi nếu sai. Không cần migration
+
+## 2026-09-11 (CDP_P1-P8: P1, P2, P3)
+
+### P1 — Timeline động
+- [x] **`lib/events.js`** — logic chung cho mốc thời gian của MỌI Post (không dính Trung thu):
+      `eventStatus()` (đã qua / đang diễn ra / sắp tới / chưa có ngày), `groupEvents()`,
+      `formatEventWhen()`, `formatCountdown()`. Mốc ghi kèm `+07:00` nên máy chủ chạy giờ UTC
+      vẫn ra đúng giờ Việt Nam
+- [x] **`lib/postEvents/le-hoi-thanh-tuyen-2026.js`** — 11 mốc lịch chuyển từ JSX sang dữ liệu,
+      kèm `verificationStatus` (chắc / dự kiến) và nguồn
+- [x] **Trang lễ hội chuyển sang `force-dynamic`** — trước là trang tĩnh, trạng thái sẽ đóng
+      băng ở thời điểm deploy
+- [x] **Khối "Sắp diễn ra" + đếm ngược** ở đầu trang; mốc đã qua gom vào "✓ N hoạt động đã
+      diễn ra — xem lại" (dùng `<details>`, không cần JavaScript); mốc chưa có ngày xếp riêng
+      thay vì đoán bừa một ngày
+
+### P2 — Card trang chủ
+- [x] Bỏ câu "Chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ" (hứa một đằng, trang trong là
+      lịch lễ hội). Card giờ lấy **mốc sắp tới** từ đúng nguồn dữ liệu của trang lễ hội — hai
+      nơi không bao giờ lệch nhau, hết lễ hội thì câu chữ tự đổi
+
+### P3 — Interactive Plan
+- [x] **`app/InteractivePlan.js`** — khối "Bạn định đi thế nào?" sau lịch: 5 khung giờ
+      (17:30 ăn tối · 19:00 gửi xe · 20:00 Đêm hội · 22:15 cafe · sau đó ngủ lại), mỗi khung
+      bấm chọn chỗ bằng **PlacePicker dùng chung**, mở sẵn đúng nhóm
+- [x] **`createRouteFromPlan()`** — giờ dự kiến theo sang lộ trình, ô bỏ trống thì bỏ hẳn
+      (không tạo điểm rỗng). Mốc Đêm hội mang sẵn địa chỉ Quảng trường Nguyễn Tất Thành nên
+      vào được link Google Maps

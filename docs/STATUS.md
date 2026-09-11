@@ -230,6 +230,28 @@ nhất".
 
 ## Cập nhật gần nhất
 
+### 2026-09-11 (khuya) — CDP_P1-P8: timeline động + card trang chủ + Interactive Plan
+
+Ba việc còn dở của tài liệu [CDP_P1-P8](CDP_P1-P8_PostDong_LoTrinh_Prompt.md), làm trước lễ hội
+19/9:
+
+**P1 — Trang lễ hội thành timeline động.** 11 mốc lịch trước đây nằm cứng trong mã giao diện.
+Giờ là dữ liệu có cấu trúc, trạng thái tự đổi theo giờ Việt Nam: mốc đang diễn ra có nhãn đỏ,
+mốc đã qua gom lại thành "✓ N hoạt động đã diễn ra — xem lại", mốc nguồn chưa chốt có nhãn
+"Dự kiến". Đầu trang là khối "Sắp diễn ra · ngày mai". **Không phải deploy lại** khi một mốc
+chuyển trạng thái.
+
+**P2 — Card trang chủ.** Câu cũ hứa "chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ" trong khi
+bên trong là lịch lễ hội. Giờ card lấy thẳng mốc sắp tới từ cùng nguồn dữ liệu, nên không bao
+giờ lệch với trang trong và tự hết hạn sau lễ hội.
+
+**P3 — "Bạn định đi thế nào?"** Sau lịch là 5 khung giờ bỏ trống (17:30 ăn tối · 19:00 gửi xe ·
+20:00 Đêm hội · 22:15 cafe · sau đó ngủ lại). Bấm chọn chỗ cho từng khung rồi "Tạo lộ trình" —
+giờ giấc theo sang luôn. Đây là mắt xích biến người ĐỌC bài thành người TẠO lộ trình.
+
+Còn lại của tài liệu: Phase 2 (Source Registry, Content Monitor, lộ trình mẫu của CDP, feature
+lộ trình cộng đồng) và Phase 3 (Google Routes API — vẫn chờ toạ độ địa điểm).
+
 ### 2026-09-11 (tối, sau) — Điểm riêng ở tỉnh khác Tuyên Quang
 
 Anh phát hiện: gõ địa chỉ "31 Hàng Bún" cho điểm xuất phát thì Google dẫn sai — vì bản sáng

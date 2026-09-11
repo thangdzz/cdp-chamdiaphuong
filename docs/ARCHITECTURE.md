@@ -361,6 +361,11 @@ web/
 │   │                              có. Địa điểm CDP và đề xuất -> Tuyên Quang; ĐIỂM RIÊNG ->
 │   │                              tỉnh khách CHỌN (nhà khách có thể ở tỉnh khác).
 │   │                              `stopMapsQuery()` dùng CHUNG cho trang lộ trình và bản chụp
+│   ├── events.js           (130)  ⭐ Mốc thời gian của Post (CDP_P1-P8 §P1) — trạng thái tính
+│   │                              theo giờ Asia/Ho_Chi_Minh, KHÔNG theo giờ máy chủ. Dùng
+│   │                              chung cho mọi Post, không dính Trung thu
+│   ├── postEvents/                Dữ liệu lịch từng bài, tách hẳn khỏi giao diện
+│   │   └── le-hoi-thanh-tuyen-2026.js  11 mốc + PLAN_TEMPLATE (khung Interactive Plan)
 │   ├── provinces.js         (60)  34 tỉnh/thành (sắp xếp 01/7/2025) cho ô chọn của điểm riêng;
 │   │                              mặc định + fallback là Tuyên Quang
 │   ├── routeShare.js        (95)  ⭐ Chia sẻ bằng BẢN CHỤP (§P6) — `route_share:{token}` đóng
