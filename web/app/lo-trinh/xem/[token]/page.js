@@ -5,6 +5,7 @@ import { routeMapsUrl } from "@/lib/mapsUrl";
 import { TRANSPORT_MODES, transportModeLabel } from "@/lib/routes";
 import { SiteHeader } from "@/app/SiteHeader";
 import { FALLBACK_COVER } from "@/lib/cover";
+import { StopBadge } from "@/app/StopBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -78,6 +79,7 @@ export default async function SharedRoutePage({ params }) {
                   </span>
                 </div>
                 {stop.subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{stop.subtitle}</p>}
+                <StopBadge type={stop.type} />
                 {stop.durationMinutes && (
                   <p className="mt-0.5 text-[13px] text-zinc-500">Khoảng {stop.durationMinutes} phút</p>
                 )}

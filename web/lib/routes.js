@@ -16,6 +16,7 @@
 import { redis } from "./redis.js";
 import { getLivePlaces } from "./redis.js";
 import { containsLinkOrPhone } from "./textFilter.js";
+import { getProposalIndex, PROPOSAL_STATUS } from "./proposals.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
 const SLUG_LENGTH = 8;
@@ -33,6 +34,15 @@ export const TRANSPORT_MODES = [
   { id: "di-bo", label: "Đi bộ", mapsMode: "walking" },
   { id: "hon-hop", label: "Kết hợp", mapsMode: "driving" },
 ];
+
+// Ba loại điểm dừng (NOTE-07 §7). Route CŨ chỉ có `placeId`/`customTitle`, không có `type` —
+// normalizeStop() suy ra, KHÔNG cần chạy migration cả Redis (§14).
+export const STOP_TYPES = { CDP_PLACE: "cdp_place", PROPOSED: "proposed_place", CUSTOM: "custom_stop" };
+
+export function normalizeStop(stop) {
+  if (stop.type) return stop;
+  return { ...stop, type: stop.placeId ? STOP_TYPES.CDP_PLACE : STOP_TYPES.CUSTOM };
+}
 
 export function transportModeLabel(id) {
   return TRANSPORT_MODES.find((m) => m.id === id)?.label ?? null;
@@ -124,6 +134,7 @@ export async function createRoute({ ownerAnonId, title, stops = [] }) {
 // phải bấm lại từng chỗ. Chép sang STOP, giữ nguyên thứ tự và ghi chú; sổ gốc không đổi.
 export async function createRouteFromNotebook({ ownerAnonId, notebook, title }) {
   const stops = (notebook?.items ?? []).map((item) => ({
+    type: STOP_TYPES.CDP_PLACE,
     placeId: item.placeId,
     customTitle: null,
     nameSnapshot: item.nameSnapshot ?? null,
@@ -152,9 +163,65 @@ export async function addStopToRoute({ anonId, slug, placeId, nameSnapshot }) {
     return { ok: false, error: `Lộ trình đã đủ ${MAX_STOPS_PER_ROUTE} điểm rồi.` };
   }
   route.stops.push({
+    type: STOP_TYPES.CDP_PLACE,
     placeId,
     customTitle: null,
     nameSnapshot: nameSnapshot ?? null,
+    plannedAt: null,
+    durationMinutes: null,
+    note: null,
+  });
+  route.updatedAt = new Date().toISOString();
+  await redis.set(routeKey(slug), route);
+  return { ok: true };
+}
+
+// Thêm NHIỀU địa điểm trong một lượt — PlacePicker chọn xong mới bấm "Thêm N điểm" (§5).
+// Bỏ qua chỗ đã có trong lộ trình thay vì báo lỗi cả lượt: khách chọn 5 chỗ mà 1 chỗ trùng
+// thì thêm 4 chỗ còn lại vẫn đúng ý hơn là không thêm gì.
+export async function addPlacesToRoute({ anonId, slug, places }) {
+  const route = await getRoute(slug);
+  if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
+  const existing = new Set(route.stops.map((s) => s.placeId).filter(Boolean));
+  let added = 0;
+  for (const place of places ?? []) {
+    if (!place?.id || existing.has(place.id)) continue;
+    if (route.stops.length >= MAX_STOPS_PER_ROUTE) break;
+    route.stops.push({
+      type: STOP_TYPES.CDP_PLACE,
+      placeId: place.id,
+      customTitle: null,
+      nameSnapshot: place.name ?? null,
+      plannedAt: null,
+      durationMinutes: null,
+      note: null,
+    });
+    existing.add(place.id);
+    added++;
+  }
+  if (added === 0) return { ok: true, added: 0 };
+  route.updatedAt = new Date().toISOString();
+  await redis.set(routeKey(slug), route);
+  return { ok: true, added };
+}
+
+// Địa điểm khách ĐỀ XUẤT (NOTE-07 §6.B): vào lộ trình NGAY, đồng thời xếp hàng chờ admin.
+// Lộ trình chỉ giữ `proposalId` — trạng thái (chờ / đã duyệt / bị từ chối) tra lúc đọc, nên
+// admin duyệt là mọi lộ trình tự đổi theo, không phải sửa từng cái.
+export async function addProposedStopToRoute({ anonId, slug, proposalId, name }) {
+  const route = await getRoute(slug);
+  if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
+  if (route.stops.length >= MAX_STOPS_PER_ROUTE) {
+    return { ok: false, error: `Lộ trình đã đủ ${MAX_STOPS_PER_ROUTE} điểm rồi.` };
+  }
+  route.stops.push({
+    type: STOP_TYPES.PROPOSED,
+    placeId: null,
+    proposalId,
+    // Giữ tên ngay trên điểm dừng: bảng tra proposal có mất thì lộ trình vẫn hiện được tên,
+    // không thành dòng trống.
+    customTitle: null,
+    nameSnapshot: name ?? null,
     plannedAt: null,
     durationMinutes: null,
     note: null,
@@ -178,6 +245,7 @@ export async function addCustomStopToRoute({ anonId, slug, customTitle }) {
     return { ok: false, error: `Lộ trình đã đủ ${MAX_STOPS_PER_ROUTE} điểm rồi.` };
   }
   route.stops.push({
+    type: STOP_TYPES.CUSTOM,
     placeId: null,
     customTitle: cleanTitle,
     nameSnapshot: null,
@@ -276,10 +344,45 @@ export async function deleteRoute({ anonId, slug }) {
  * khách vẫn thấy tên chứ không phải một dòng trống.
  */
 export async function resolveRouteStops(stops) {
-  const places = await getLivePlaces();
+  const normalized = (stops ?? []).map(normalizeStop);
+  const hasProposal = normalized.some((s) => s.type === STOP_TYPES.PROPOSED);
+  // Chỉ đọc bảng đề xuất khi lộ trình thật sự có điểm đề xuất — lộ trình thường vẫn đúng 1
+  // lệnh Redis như trước.
+  const [places, proposals] = await Promise.all([
+    getLivePlaces(),
+    hasProposal ? getProposalIndex() : Promise.resolve({}),
+  ]);
   const placeMap = new Map(places.map((p) => [p.id, p]));
-  return (stops ?? []).map((stop) => {
-    if (!stop.placeId) return { ...stop, place: null, deleted: false }; // điểm tự đặt tên
+
+  return normalized.map((stop) => {
+    if (stop.type === STOP_TYPES.CUSTOM) return { ...stop, place: null, deleted: false };
+
+    if (stop.type === STOP_TYPES.PROPOSED) {
+      const proposal = proposals[stop.proposalId];
+      // §10 Đã duyệt -> tự trở thành địa điểm chính thức, nhãn "chưa xác minh" biến mất.
+      if (proposal?.status === PROPOSAL_STATUS.APPROVED && proposal.livePlaceId) {
+        const place = placeMap.get(proposal.livePlaceId);
+        if (place) return { ...stop, type: STOP_TYPES.CDP_PLACE, place, deleted: false };
+      }
+      // §11 Bị từ chối -> thành điểm riêng, KHÔNG biến mất khỏi lộ trình.
+      if (proposal?.status === PROPOSAL_STATUS.REJECTED) {
+        return {
+          ...stop,
+          type: STOP_TYPES.CUSTOM,
+          customTitle: stop.customTitle ?? proposal.name ?? stop.nameSnapshot,
+          place: null,
+          deleted: false,
+        };
+      }
+      // Còn đang chờ -> hiện kèm nhãn chưa xác minh (§9).
+      return {
+        ...stop,
+        place: null,
+        deleted: false,
+        proposal: proposal ?? { name: stop.nameSnapshot, ward: null, address: null },
+      };
+    }
+
     const place = placeMap.get(stop.placeId);
     if (place) return { ...stop, place, deleted: false };
     return { ...stop, place: null, deleted: true };
@@ -288,5 +391,7 @@ export async function resolveRouteStops(stops) {
 
 /** Tên hiển thị của một điểm dừng, dù nó là địa điểm CDP hay điểm tự đặt tên. */
 export function stopTitle(stop) {
-  return stop.customTitle ?? stop.place?.name ?? stop.nameSnapshot ?? "Điểm đã bị xoá";
+  return (
+    stop.customTitle ?? stop.place?.name ?? stop.proposal?.name ?? stop.nameSnapshot ?? "Điểm đã bị xoá"
+  );
 }

@@ -7,7 +7,9 @@ import {
   createRoute,
   createRouteFromNotebook,
   addStopToRoute,
+  addPlacesToRoute,
   addCustomStopToRoute,
+  addProposedStopToRoute,
   removeStopFromRoute,
   updateStop,
   reorderStops,
@@ -18,6 +20,8 @@ import {
 } from "@/lib/routes";
 import { createShareSnapshot } from "@/lib/routeShare";
 import { getNotebook } from "@/lib/notebooks";
+import { getLivePlaces } from "@/lib/redis";
+import { createProposal } from "@/lib/proposals";
 
 // Không cần đăng nhập, chưa có hồ sơ thì tự tạo im lặng — giống hệt Sổ (SPEC-chang-4 §5 quy
 // tắc 1). Chỉ tạo lúc khách THỰC SỰ tạo/sửa gì, không phải lúc chỉ xem.
@@ -140,6 +144,9 @@ export async function getRouteForEdit({ anonId, slug }) {
       title: route.title,
       transportMode: route.transportMode,
       stops: stops.map((s) => ({
+        // `type` đã được resolveRouteStops() giải xong: đề xuất đã duyệt trả về "cdp_place",
+        // bị từ chối trả về "custom_stop" — trang sửa chỉ việc vẽ theo, không tự suy lại.
+        type: s.type,
         placeId: s.placeId,
         customTitle: s.customTitle,
         deleted: s.deleted,
@@ -147,9 +154,9 @@ export async function getRouteForEdit({ anonId, slug }) {
         plannedAt: s.plannedAt,
         durationMinutes: s.durationMinutes,
         note: s.note,
-        name: s.place?.name ?? null,
-        typeLabel: s.place?.type ?? null,
-        ward: s.place?.ward ?? null,
+        name: s.place?.name ?? s.proposal?.name ?? null,
+        typeLabel: s.place?.type ?? s.proposal?.type ?? null,
+        ward: s.place?.ward ?? s.proposal?.ward ?? null,
       })),
     },
   };
@@ -159,4 +166,63 @@ export async function checkRouteOwnership({ anonId, slug }) {
   if (!anonId || !slug) return { isOwner: false };
   const route = await getRoute(slug);
   return { isOwner: route?.ownerAnonId === anonId };
+}
+
+// PlacePicker tải danh bạ MỘT LẦN lúc mở rồi lọc ngay trên máy khách (NOTE-07 §13 muốn tìm
+// kiếm mượt). Cắt còn 5 trường: ~210 chỗ × ~90 byte ≈ 20KB, rẻ hơn hẳn việc gọi máy chủ theo
+// từng ký tự gõ, và chỉ tốn đúng 1 lệnh Redis.
+export async function fetchPickerPlaces() {
+  const places = await getLivePlaces();
+  return places.map((p) => ({
+    id: p.id,
+    name: p.name,
+    type: p.type,
+    ward: p.ward ?? null,
+    address: p.address ?? null,
+    localArea: p.localArea ?? null,
+  }));
+}
+
+// "Tạo lộ trình từ đây" (§4) — tạo lộ trình mới với TẤT CẢ chỗ vừa chọn trong PlacePicker.
+export async function createRouteWithPlaces({ anonId, title, places, customStops = [] }) {
+  if (!places?.length && !customStops.length) return { ok: false, error: "Chưa chọn chỗ nào." };
+  const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
+  const created = await createRoute({ ownerAnonId: currentAnonId, title });
+  if (!created.ok) return { ...created, anonId: currentAnonId, newProfile };
+  if (places?.length) {
+    await addPlacesToRoute({ anonId: currentAnonId, slug: created.slug, places });
+  }
+  // Điểm riêng khách gõ ngay trong bộ chọn lúc chưa có lộ trình — giữ tạm ở đó rồi ghi một
+  // lượt tại đây, xếp SAU các địa điểm đã chọn (khách sắp lại thứ tự ở trang sửa).
+  for (const customTitle of customStops) {
+    await addCustomStopToRoute({ anonId: currentAnonId, slug: created.slug, customTitle });
+  }
+  return { ok: true, slug: created.slug, anonId: currentAnonId, newProfile };
+}
+
+// "+ Thêm địa điểm" trong trang sửa lộ trình (§5) — thêm cả loạt, không đóng picker sau mỗi lần chọn.
+export async function addPlacesToMyRoute({ anonId, slug, places }) {
+  if (!anonId || !slug) return { ok: false };
+  return addPlacesToRoute({ anonId, slug, places });
+}
+
+// §6.B: đề xuất một chỗ chưa có trong danh bạ. Vào lộ trình NGAY (kèm nhãn chưa xác minh),
+// đồng thời xếp hàng chờ admin — hai việc trong một lượt bấm.
+export async function proposePlaceForRoute({ anonId, slug, name, type, ward, address, note }) {
+  if (!slug) return { ok: false };
+  const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
+  const route = await getRoute(slug);
+  if (!route || route.ownerAnonId !== currentAnonId) {
+    return { ok: false, error: "Không tìm thấy lộ trình.", anonId: currentAnonId, newProfile };
+  }
+  const proposal = await createProposal({ contributorId: currentAnonId, name, type, ward, address, note });
+  if (!proposal.ok) return { ...proposal, anonId: currentAnonId, newProfile };
+
+  const added = await addProposedStopToRoute({
+    anonId: currentAnonId,
+    slug,
+    proposalId: proposal.proposal.id,
+    name: proposal.proposal.name,
+  });
+  return { ...added, anonId: currentAnonId, newProfile };
 }

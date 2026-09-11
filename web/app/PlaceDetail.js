@@ -7,6 +7,7 @@ import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
 import { PhoneBlock } from "./PhoneBlock";
 import { AddToNotebook } from "./AddToNotebook";
+import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
 import {
   PhotoGallery,
   confidenceLabel,
@@ -264,6 +265,7 @@ export function PlaceDetail({ place }) {
           </a>
         )}
         <AddToNotebook place={place} />
+        <CreateRouteFromPlace place={place} />
         <button
           type="button"
           onClick={handleShare}

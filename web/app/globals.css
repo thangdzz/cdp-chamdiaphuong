@@ -23,6 +23,21 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* Safari trên iPhone TỰ PHÓNG TO cả trang khi bấm vào một ô nhập có cỡ chữ dưới 16px, và
+   nhả ra thì không phải lúc nào cũng thu về đúng tỉ lệ cũ — trang thành ra bị lệch sau mỗi
+   lần gõ (NOTE-07 §2). Cả web đang dùng text-sm (14px) và text-[13px] cho ô nhập nên dính
+   toàn bộ: ô tìm kiếm, ghi chú, đổi tên lộ trình, điểm tự đặt tên, form trong /admin...
+   CỐ Ý KHÔNG dùng `maximum-scale=1` hay `user-scalable=no` để chặn zoom — làm vậy là tước
+   luôn khả năng phóng to của người mắt kém.
+   `pointer: coarse` = màn hình cảm ứng; máy tính vẫn giữ cỡ chữ 14px cho gọn. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 /* Nhấp nháy khi nhảy tới 1 chỗ từ /ghi-chu hoặc link ngoài dạng #placeId — để khách biết
    đúng thẻ nào là đích, không phải đoán giữa cả danh sách. Tông màu logo CDP (#c8553d).
    Rút còn 1 lần, 600ms, chỉ đổi nền — bỏ box-shadow (SPEC-giao-dien.md §7, chuyển động phải

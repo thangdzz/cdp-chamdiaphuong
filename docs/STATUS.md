@@ -230,7 +230,33 @@ nhất".
 
 ## Cập nhật gần nhất
 
-### 2026-09-10 (mới nhất) — Chặng A: Lộ trình tách khỏi Sổ
+### 2026-09-11 — NOTE 07: bộ chọn địa điểm dùng chung + khách đề xuất địa điểm
+
+**Sửa lỗi Safari tự phóng to trang khi gõ.** 73 ô nhập trong web đều dùng cỡ chữ 13–14px —
+Safari trên iPhone luôn zoom khi chạm vào ô nhỏ hơn 16px, nhả ra không thu về đúng chỗ cũ.
+Giờ mọi ô nhập trên màn cảm ứng đều 16px. Máy tính giữ nguyên như cũ.
+
+**Bộ chọn địa điểm dùng chung.** Trước đây muốn dựng lộ trình phải gom sổ trước, hoặc bấm từng
+chỗ một. Giờ:
+- Trên thẻ bất kỳ có nút **"Tạo lộ trình từ đây"** — chỗ đang xem được chọn sẵn, tìm và tích
+  thêm mấy chỗ nữa ngay tại đó
+- Trong trang sửa lộ trình có **"+ Thêm địa điểm"** — cùng một bộ chọn, không phải cái khác
+- Chọn xong 3 chỗ rồi gõ tìm chỗ thứ 4 thì **3 cái trước vẫn còn nguyên**
+
+**Khách đề xuất được địa điểm chưa có trong danh bạ.** Nguyên tắc: *lộ trình thuộc về người
+tạo, danh bạ thuộc về CDP*. Khách gõ một chỗ chưa có → chỗ đó **vào lộ trình của họ ngay**,
+kèm nhãn "CDP chưa xác minh", đồng thời xếp hàng chờ anh duyệt trong `/admin`.
+- Anh **duyệt** → chỗ vào danh bạ, nhãn tự biến mất ở mọi lộ trình đang dùng nó, không ai phải
+  sửa tay
+- Anh **bỏ** → chỗ đó thành "điểm riêng" của họ, **không mất khỏi lộ trình**
+
+Ba loại điểm dừng: địa điểm CDP · khách đề xuất · điểm riêng. Lộ trình cũ không có trường này
+thì tự suy ra, **không cần chuyển dữ liệu**.
+
+**Còn lại của NOTE 07 (P2):** map cho lộ trình, khoảng cách/thời gian, tối ưu tuyến — cả 3 đều
+chờ toạ độ địa điểm (0/210 chỗ có).
+
+### 2026-09-10 — Chặng A: Lộ trình tách khỏi Sổ
 
 Theo `CDP_P1-P8_PostDong_LoTrinh_Prompt.md` §P4–§P7. **Đảo quyết định cũ**: lộ trình không còn
 là `notebook.mode` mà là thực thể riêng.

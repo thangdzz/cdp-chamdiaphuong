@@ -5,6 +5,7 @@ import { routeMapsUrl } from "@/lib/mapsUrl";
 import { SiteHeader } from "@/app/SiteHeader";
 import { RouteOwnerActions } from "@/app/RouteOwnerActions";
 import { formatPriceCompact } from "@/lib/priceFormat";
+import { StopBadge } from "@/app/StopBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +24,13 @@ export default async function RouteViewPage({ params }) {
 
   const stops = await resolveRouteStops(route.stops);
   const mapsMode = TRANSPORT_MODES.find((m) => m.id === route.transportMode)?.mapsMode ?? "driving";
+  // Điểm đề xuất cũng phải vào được link Google Maps — bỏ qua thì lộ trình mở ra thiếu chặng.
   const maps = routeMapsUrl(
     stops.map((s) => ({
-      mapsQuery: s.place ? `${s.place.name}, ${s.place.address}` : s.customTitle,
+      mapsQuery: s.place
+        ? `${s.place.name}, ${s.place.address}`
+        : (s.customTitle ??
+            (s.proposal ? [s.proposal.name, s.proposal.address ?? s.proposal.ward].filter(Boolean).join(", ") : null)),
     })),
     mapsMode
   );
@@ -86,7 +91,7 @@ function RouteStopRow({ stop, index }) {
     ? [stop.place.ward, price ? `${price.compact}${price.unitText}` : null].filter(Boolean).join(" · ")
     : stop.deleted
       ? "Chỗ này không còn trong danh bạ"
-      : "Điểm tự thêm";
+      : (stop.proposal?.ward ?? null);
 
   return (
     <li className="flex gap-3 rounded-xl bg-white px-[18px] py-4 shadow-sm">
@@ -109,6 +114,7 @@ function RouteStopRow({ stop, index }) {
           </span>
         </div>
         {subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{subtitle}</p>}
+        <StopBadge type={stop.type} />
         {stop.durationMinutes && (
           <p className="mt-0.5 text-[13px] text-zinc-500">Khoảng {stop.durationMinutes} phút</p>
         )}

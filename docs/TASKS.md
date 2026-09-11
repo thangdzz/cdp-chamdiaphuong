@@ -234,3 +234,30 @@
       lộ trình nên không mất dữ liệu của ai
 - [x] Lối vào: "Tạo lộ trình từ sổ này" ở trang Sổ; nút trên thẻ đổi thành "+ Sổ / Lộ trình"
       và cho chọn cả hai; link chéo giữa 2 trang danh sách
+
+## 2026-09-11 (NOTE 07)
+
+### P0
+- [x] **Safari tự zoom khi nhập liệu** — 73 ô nhập toàn dùng cỡ chữ 13–14px, Safari iOS luôn
+      phóng to trang khi chạm vào. Ép `font-size: 16px` cho input/textarea/select trên màn cảm
+      ứng (`@media (pointer: coarse)` trong `globals.css`). **KHÔNG** dùng `user-scalable=no`
+- [x] **`app/PlacePicker.js`** — bộ chọn địa điểm DÙNG CHUNG: tìm kiếm, lọc 4 nhóm, chọn nhiều,
+      đếm số điểm, khoá cuộn nền. Selection giữ nguyên khi đổi ô tìm hoặc đổi bộ lọc
+- [x] **`lib/placeTextSearch.js`** — tách logic tìm kiếm khỏi PlaceExplorer để trang chủ và
+      PlacePicker dùng chung một bộ từ đồng nghĩa, không trôi lệch nhau
+- [x] **"Tạo lộ trình từ đây"** trên thẻ và trang địa điểm — mở PlacePicker với chỗ đang xem
+      đã chọn sẵn
+- [x] **"+ Thêm địa điểm"** trong trang sửa lộ trình — cùng PlacePicker, chọn nhiều rồi mới
+      bấm "Thêm N điểm", không đóng sau mỗi lần chọn
+- [x] Điểm riêng thêm được ngay trong PlacePicker; ở màn tạo mới thì giữ tạm rồi ghi một lượt
+
+### P1
+- [x] **`lib/proposals.js`** — 3 loại điểm dừng `cdp_place | proposed_place | custom_stop`;
+      `place_proposals:queue` + `place_proposals:index`
+- [x] **Form đề xuất địa điểm** — vào lộ trình NGAY, đồng thời xếp hàng chờ admin
+- [x] **Nhãn "Người tạo đề xuất · CDP chưa xác minh"** trên lộ trình của chủ VÀ trong bản chụp
+      chia sẻ (nét đứt, nền trung tính — không phải cảnh báo đỏ)
+- [x] **Hàng chờ trong `/admin`** — duyệt vào danh bạ / bỏ
+- [x] **Duyệt → tự thành `cdp_place`** ở mọi lộ trình đang trỏ tới, không ai phải sửa tay
+- [x] **Từ chối → thành `custom_stop`**, KHÔNG mất khỏi lộ trình
+- [x] **Tương thích ngược**: `normalizeStop()` suy `type` từ route cũ, không migration

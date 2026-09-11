@@ -221,6 +221,14 @@ web/
 │   │                              30đ/ngày, thêm ở Chặng 2)
 │   ├── QuestionPrompt.js   (152)  Chặng 2: khối hỏi 1 câu bấm chọn tại 1 thời điểm.
 │   │                              Bỏ qua câu mà khối Mẹo đang bày sẵn (tránh hỏi 2 lần)
+│   ├── PlacePicker.js      (240)  ⭐ Bộ chọn địa điểm DÙNG CHUNG — "Tạo lộ trình từ đây" và
+│   │                              "+ Thêm địa điểm". Tìm + lọc + chọn NHIỀU, selection giữ
+│   │                              nguyên qua mọi lần đổi ô tìm/bộ lọc (NOTE-07 §3, §13)
+│   ├── ProposePlaceForm.js (140)  Form đề xuất địa điểm mới — nói rõ "vào lộ trình ngay,
+│   │                              chưa vào danh bạ tới khi CDP duyệt"
+│   ├── CreateRouteFromPlace.js (60) Nút "Tạo lộ trình từ đây" trên thẻ + trang địa điểm
+│   ├── StopBadge.js         (25)  Nhãn "CDP chưa xác minh" / "Điểm riêng" — nền trung tính,
+│   │                              KHÔNG cảnh báo đỏ (NOTE-07 §9)
 │   ├── QuestionOptions.js   (95)  ⭐ Bộ nút đáp án của 1 câu hỏi — DÙNG CHUNG cho
 │   │                              QuestionPrompt (hỏi tuần tự cuối thẻ) và NoteInput
 │   │                              (khách tự chọn ngữ cảnh). Ô gõ làm rõ chỉ hiện khi
@@ -330,7 +338,13 @@ web/
 │   │                              vehicleTypesOf() -> loại xe (đọc được cả ô chữ tự do cũ);
 │   │                              adminFilledFields() -> ô admin đã điền thì thôi hỏi khách
 │   │                              (NOTE-04 §1–§2, NOTE-05 §2/§6/§9, NOTE-06 §1/§8/§10)
-│   ├── routes.js           (280)  ⭐ Lộ trình — thực thể RIÊNG, không phải trạng thái của Sổ
+│   ├── proposals.js        (140)  ⭐ Địa điểm khách ĐỀ XUẤT khi dựng lộ trình (NOTE-07 §6.B).
+│   │                              `place_proposals:queue` (hàng chờ admin) +
+│   │                              `place_proposals:index` (bảng tra lúc hiển thị). Duyệt/từ
+│   │                              chối chỉ đổi bảng tra — KHÔNG ghi lại route nào
+│   ├── placeTextSearch.js   (50)  Tìm theo tên/địa chỉ + nhóm từ đồng nghĩa — DÙNG CHUNG cho
+│   │                              bộ lọc trang chủ và PlacePicker
+│   ├── routes.js           (330)  ⭐ Lộ trình — thực thể RIÊNG, không phải trạng thái của Sổ
 │   │                              (CDP_P1-P8 §P4). `route:{slug}` + `routes:by-owner:{anonId}`.
 │   │                              Mỗi điểm: giờ dự kiến · thời lượng · ghi chú chặng, và có
 │   │                              thể là điểm TỰ ĐẶT TÊN thay vì địa điểm CDP

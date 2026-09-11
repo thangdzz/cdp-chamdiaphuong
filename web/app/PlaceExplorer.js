@@ -6,7 +6,7 @@ import { ContributionPanel } from "./ContributionPanel";
 import { CheckinButton } from "./CheckinButton";
 import { QuestionPrompt } from "./QuestionPrompt";
 import { PlaceFacts } from "./PlaceFacts";
-import { stripDiacritics } from "@/lib/ingestion/normalize";
+import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
@@ -24,6 +24,7 @@ import {
   adminFilledFields,
 } from "@/lib/transport";
 import { SharePlaceButton } from "./SharePlaceButton";
+import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
@@ -55,33 +56,6 @@ function formatShortAddress(address) {
     kept.push(part);
   }
   return kept.length > 0 ? kept.join(", ") : address;
-}
-
-// Nhóm từ đồng nghĩa cho tìm kiếm — gõ 1 trong các từ này đều ra kết quả như nhau. Đã qua
-// stripDiacritics + lowercase nên viết không dấu (VD "cà phê" -> "ca phe").
-const SEARCH_SYNONYM_GROUPS = [
-  ["cafe", "coffee", "ca phe", "caphe"],
-  ["khach san", "hotel"],
-  ["nha nghi", "motel", "nha tro", "guesthouse"],
-  ["nha hang", "restaurant", "quan an"],
-  ["an sang", "breakfast"],
-  ["an trua", "lunch"],
-  ["an toi", "dinner"],
-];
-
-function expandSearchWord(word) {
-  const group = SEARCH_SYNONYM_GROUPS.find((g) =>
-    g.some((term) => term.startsWith(word) || word.startsWith(term))
-  );
-  return group ? [word, ...group] : [word];
-}
-
-// Khớp từng từ trong ô tìm kiếm với địa điểm — mỗi từ phải khớp (đúng chữ hoặc 1 từ đồng
-// nghĩa của nó), cho phép gõ nhiều từ cùng lúc (VD "cafe minh xuan").
-function matchesSearchQuery(haystack, query) {
-  const words = query.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return true;
-  return words.every((word) => expandSearchWord(word).some((alt) => haystack.includes(alt)));
 }
 
 function matchesPriceBucket(place, bucketId) {
@@ -689,6 +663,7 @@ function PlaceCard({ place }) {
           <>
             <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
             <AddToNotebook place={place} />
+            <CreateRouteFromPlace place={place} />
             <SharePlaceButton place={place} />
             <ContributionPanel place={place} />
           </>
@@ -846,17 +821,12 @@ export default function PlaceExplorer({ places }) {
   }, [places]);
 
   const filtered = useMemo(() => {
-    const query = stripDiacritics(search).toLowerCase().trim();
+    const query = normalizeForSearch(search).trim();
     return places.filter((p) => {
       if (type !== "all" && p.type !== type) return false;
       if (ward !== "all" && p.ward !== ward) return false;
       if (!matchesPriceBucket(p, priceBucket)) return false;
-      if (query) {
-        const haystack = stripDiacritics(
-          `${p.name} ${p.address ?? ""} ${p.localArea ?? ""} ${p.ward ?? ""}`
-        ).toLowerCase();
-        if (!matchesSearchQuery(haystack, query)) return false;
-      }
+      if (query && !matchesSearchQuery(placeSearchHaystack(p), query)) return false;
       return true;
     });
   }, [places, type, ward, priceBucket, search]);

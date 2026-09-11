@@ -12,7 +12,12 @@ import {
   addCustomStop,
   reorderRouteStops,
   deleteMyRoute,
+  addPlacesToMyRoute,
+  proposePlaceForRoute,
 } from "@/app/routeActions";
+import { PlacePicker } from "@/app/PlacePicker";
+import { ProposePlaceForm } from "@/app/ProposePlaceForm";
+import { StopBadge } from "@/app/StopBadge";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { SiteHeader } from "@/app/SiteHeader";
 import { TRANSPORT_MODES } from "@/lib/routes";
@@ -26,8 +31,10 @@ export default function EditRoutePage({ params }) {
   const [route, setRoute] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ok | forbidden | notFound
   const [titleInput, setTitleInput] = useState("");
-  const [customTitle, setCustomTitle] = useState("");
   const [error, setError] = useState(null);
+  // §5: "+ Thêm địa điểm" mở đúng PlacePicker dùng chung, không phải một bộ chọn riêng.
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [proposeName, setProposeName] = useState(null); // chuỗi = đang mở form đề xuất
   const busyRef = useRef(false);
   const [busy, setBusy] = useState(false);
 
@@ -96,13 +103,31 @@ export default function EditRoutePage({ params }) {
     if (result?.ok) await reload();
   }
 
-  async function handleAddCustom() {
-    if (!customTitle.trim()) return;
-    const result = await run((anonId) => addCustomStop({ anonId, slug, customTitle }));
+  async function handleAddCustom(title) {
+    const result = await run((anonId) => addCustomStop({ anonId, slug, customTitle: title }));
     if (result?.ok) {
-      setCustomTitle("");
+      setPickerOpen(false);
       await reload();
     }
+    return result;
+  }
+
+  async function handleAddPlaces(places) {
+    const result = await run((anonId) => addPlacesToMyRoute({ anonId, slug, places }));
+    if (result?.ok) {
+      setPickerOpen(false);
+      await reload();
+    }
+  }
+
+  async function handlePropose(fields) {
+    const result = await run((anonId) => proposePlaceForRoute({ anonId, slug, ...fields }));
+    if (result?.ok) {
+      setProposeName(null);
+      setPickerOpen(false);
+      await reload();
+    }
+    return result;
   }
 
   async function handleDeleteRoute() {
@@ -155,6 +180,15 @@ export default function EditRoutePage({ params }) {
 
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => setPickerOpen(true)}
+          className="cdp-pressable mt-4 w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 disabled:opacity-50"
+        >
+          + Thêm địa điểm
+        </button>
+
         {route.stops.length === 0 ? (
           <p className="mt-5 text-sm text-zinc-500">
             Lộ trình chưa có điểm nào. Về trang chủ bấm &quot;+ Vào sổ&quot; trên một chỗ để thêm
@@ -177,29 +211,6 @@ export default function EditRoutePage({ params }) {
           </ol>
         )}
 
-        {/* Điểm tự đặt tên: "Khách sạn của tôi", "Nhà bạn Nam" — lộ trình thật hay bắt đầu từ
-            chỗ không có trong danh bạ CDP. */}
-        <div className="mt-5 rounded-xl border border-dashed border-zinc-300 p-3">
-          <p className="mb-1.5 text-[13px] text-zinc-500">Thêm điểm tự đặt tên</p>
-          <div className="flex gap-2">
-            <input
-              className="min-w-0 flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
-              value={customTitle}
-              maxLength={60}
-              placeholder="VD: Khách sạn của tôi"
-              onChange={(e) => setCustomTitle(e.target.value)}
-            />
-            <button
-              type="button"
-              disabled={busy || !customTitle.trim()}
-              onClick={handleAddCustom}
-              className="cdp-pressable shrink-0 cursor-pointer rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white disabled:cursor-default disabled:opacity-40"
-            >
-              Thêm
-            </button>
-          </div>
-        </div>
-
         <button
           type="button"
           disabled={busy}
@@ -208,6 +219,24 @@ export default function EditRoutePage({ params }) {
         >
           Xoá lộ trình này
         </button>
+
+        {pickerOpen && (
+          <PlacePicker
+            title="Thêm địa điểm"
+            confirmLabel="Thêm"
+            onConfirm={handleAddPlaces}
+            onClose={() => setPickerOpen(false)}
+            onAddCustomStop={handleAddCustom}
+            onProposePlace={(name) => setProposeName(name)}
+          />
+        )}
+        {proposeName !== null && (
+          <ProposePlaceForm
+            initialName={proposeName}
+            onSubmit={handlePropose}
+            onClose={() => setProposeName(null)}
+          />
+        )}
       </main>
     </div>
   );
@@ -257,10 +286,11 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
             <p className="text-[13px] text-zinc-500">
               {stop.deleted
                 ? "Chỗ này không còn trong danh bạ"
-                : stop.customTitle
-                  ? "Điểm tự thêm"
-                  : [getPlaceTypeLabel(stop.typeLabel), stop.ward].filter(Boolean).join(" · ")}
+                : [stop.typeLabel ? getPlaceTypeLabel(stop.typeLabel) : null, stop.ward]
+                    .filter(Boolean)
+                    .join(" · ")}
             </p>
+            <StopBadge type={stop.type} />
           </div>
         </div>
         <div className="flex shrink-0 gap-1">

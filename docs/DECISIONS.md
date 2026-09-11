@@ -918,3 +918,31 @@ chạy được vì Google tự tra từ tên + địa chỉ.
 **Điểm cần để ý:** đầu trang chưa có link tới "Lộ trình của tôi" — 2 nút hiện có đã chật màn
 hình điện thoại. Tạm dùng link chéo ở trang `/so`. Nếu anh thấy khó tìm thì phải rút gọn nhãn
 3 nút ("Ghi chú · Sổ · Lộ trình").
+
+## 2026-09-11 — NOTE 07: 4 lựa chọn
+
+**1. Safari zoom sửa bằng `@media (pointer: coarse)`, không phải `max-width`.** Điều kiện thật
+là *màn hình cảm ứng*, không phải *màn hình hẹp* — iPad cũng zoom, còn màn hình máy tính hẹp
+thì không. Máy tính giữ cỡ chữ 14px cho gọn. **Cố ý không dùng `user-scalable=no`**: chặn zoom
+là tước luôn khả năng phóng to của người mắt kém.
+
+**2. PlacePicker tải cả danh bạ MỘT LẦN rồi lọc trên máy khách**, thay vì gọi máy chủ theo
+từng ký tự. 210 chỗ × 6 trường ≈ 20KB, đúng 1 lệnh Redis, và gõ tới đâu ra kết quả tới đó
+không cần chờ mạng. Danh bạ lên vài nghìn chỗ thì mới phải đổi sang tìm phía máy chủ.
+
+**3. Trạng thái đề xuất tra lúc ĐỌC, không ghi lại vào route** (§10, §11). `route.stops` chỉ
+giữ `proposalId`; duyệt hay từ chối chỉ đổi một dòng trong `place_proposals:index`. Nhờ vậy
+duyệt 1 đề xuất là mọi lộ trình đang trỏ tới nó tự đổi theo — không phải quét toàn bộ lộ trình
+của mọi người để sửa. Cũng là lý do **không cần migration** cho route cũ.
+Đánh đổi: trang lộ trình có điểm đề xuất tốn thêm 1 lệnh Redis. Chỉ tốn khi thật sự có điểm
+đề xuất — lộ trình thường vẫn đúng 1 lệnh như trước.
+
+**4. Ở màn "Tạo lộ trình từ đây", điểm riêng được GIỮ TẠM trong bộ chọn** rồi ghi một lượt khi
+bấm nút cuối — lúc đó chưa có lộ trình nào để gắn vào. Riêng **đề xuất địa điểm thì chưa cho
+làm ở màn này**, vì đề xuất phải gắn với một lộ trình có thật; giao diện **nói thẳng** "Tạo lộ
+trình xong, bấm + Thêm địa điểm là đề xuất được" thay vì giấu nút đi — giấu thì khách tưởng
+CDP không cho đề xuất.
+
+**Bẫy đã gặp:** `getPlaceTypeLabel` dùng trong thẻ đề xuất ở `/admin` mà quên import. Build và
+lint đều SẠCH vì thẻ đó chỉ vẽ khi hàng chờ có mục — lỗi sẽ nổ đúng lúc anh có đề xuất đầu
+tiên. Từ nay thêm component nào chỉ hiện theo điều kiện, phải dò lại mọi tên nó dùng.

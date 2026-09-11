@@ -5,9 +5,10 @@ import { formatPriceText, parsePriceRangeText } from "@/lib/priceFormat";
 import { getReviewQueue } from "@/lib/ingestion/store";
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { getSuggestions } from "@/lib/suggestions";
-import { PLACE_TYPES } from "@/lib/placeTypes";
+import { PLACE_TYPES, getPlaceTypeLabel } from "@/lib/placeTypes";
 import { getAdminNotebookStats } from "@/lib/notebooks";
 import { getNoteQueue, noteContextLabel } from "@/lib/notes";
+import { getProposalQueue } from "@/lib/proposals";
 import {
   login,
   logout,
@@ -18,6 +19,7 @@ import {
 import { approveReviewItem, rejectReviewItem } from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
 import { approveNoteAction, rejectNoteAction } from "./noteActions";
+import { approveProposalAction, rejectProposalAction } from "./proposalActions";
 import { IngestPasteBox } from "./IngestPasteBox";
 import { MergeDuplicatePanel } from "./MergeDuplicatePanel";
 import { Field, PlaceForm } from "./PlaceFormFields";
@@ -245,6 +247,44 @@ function NoteCard({ item, placeName }) {
   );
 }
 
+// Địa điểm khách đề xuất khi dựng lộ trình (NOTE-07 §6.B). Khác "Ghi chú chờ duyệt" ở chỗ:
+// chỗ này ĐÃ nằm trong lộ trình của người gửi rồi, duyệt hay không chỉ quyết định nó có vào
+// DANH BẠ CHUNG hay không. Từ chối KHÔNG làm mất điểm khỏi lộ trình của họ (§11).
+function ProposalCard({ item }) {
+  return (
+    <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4">
+      <span className="rounded-full bg-teal-200 px-2 py-0.5 text-xs font-medium text-teal-900">
+        Khách đề xuất từ lộ trình
+      </span>
+      <p className="mt-2 text-sm font-medium text-zinc-800">{item.name}</p>
+      <p className="mt-1 text-xs text-zinc-500">
+        {[getPlaceTypeLabel(item.type), item.ward, item.address].filter(Boolean).join(" · ")}
+      </p>
+      {item.note && <p className="mt-1 text-sm text-zinc-700">💬 {item.note}</p>}
+      <p className="mt-2 text-xs text-zinc-500">
+        Duyệt = thêm vào danh bạ, lộ trình của khách tự bỏ nhãn &quot;chưa xác minh&quot;.
+        Bỏ = chỗ này thành điểm riêng của họ, không mất khỏi lộ trình.
+      </p>
+
+      <form className="mt-3 flex gap-2">
+        <input type="hidden" name="id" value={item.id} />
+        <button
+          formAction={approveProposalAction}
+          className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+        >
+          Duyệt vào danh bạ
+        </button>
+        <button
+          formAction={rejectProposalAction}
+          className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+        >
+          Bỏ
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function SuggestionCard({ item }) {
   return (
     <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
@@ -323,7 +363,7 @@ function SuggestionCard({ item }) {
   );
 }
 
-function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats, noteQueue }) {
+function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats, noteQueue, proposalQueue }) {
   const placeNameById = (id) => live.find((p) => p.id === id)?.name ?? "(chỗ không rõ, có thể đã bị xoá)";
   const pendingNotes = noteQueue.filter((n) => !n.reported);
   const reportedNotes = noteQueue.filter((n) => n.reported);
@@ -423,6 +463,20 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats
 
       <section className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Địa điểm khách đề xuất ({proposalQueue.length})
+        </h2>
+        {proposalQueue.length === 0 && (
+          <p className="text-sm text-zinc-500">Chưa có đề xuất nào chờ duyệt.</p>
+        )}
+        <div className="flex flex-col gap-3">
+          {proposalQueue.map((item) => (
+            <ProposalCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Ghi chú chờ duyệt ({pendingNotes.length})
         </h2>
         {pendingNotes.length === 0 && (
@@ -509,14 +563,16 @@ export default async function AdminPage({ searchParams }) {
     return <LoginForm hasError={params?.error === "1"} />;
   }
 
-  const [live, pending, allReviewItems, allSuggestions, notebookStats, noteQueue] = await Promise.all([
-    getLivePlaces(),
-    getPendingPlaces(),
-    getReviewQueue(),
-    getSuggestions(),
-    getAdminNotebookStats(),
-    getNoteQueue(),
-  ]);
+  const [live, pending, allReviewItems, allSuggestions, notebookStats, noteQueue, proposalQueue] =
+    await Promise.all([
+      getLivePlaces(),
+      getPendingPlaces(),
+      getReviewQueue(),
+      getSuggestions(),
+      getAdminNotebookStats(),
+      getNoteQueue(),
+      getProposalQueue(),
+    ]);
   const reviewQueue = allReviewItems.filter((i) => i.status === REVIEW_STATUS.PENDING);
   const suggestions = allSuggestions.filter((s) => s.status === "pending");
   return (
@@ -527,6 +583,7 @@ export default async function AdminPage({ searchParams }) {
       suggestions={suggestions}
       notebookStats={notebookStats}
       noteQueue={noteQueue}
+      proposalQueue={proposalQueue}
     />
   );
 }
