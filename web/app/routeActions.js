@@ -12,6 +12,7 @@ import {
   addProposedStopToRoute,
   removeStopFromRoute,
   updateStop,
+  replaceStop,
   reorderStops,
   updateRouteTitle,
   updateTransportMode,
@@ -101,10 +102,27 @@ export async function saveStopDetails({
   plannedAt,
   durationMinutes,
   note,
+  customTitle,
   customAddress,
 }) {
   if (!anonId || !slug) return { ok: false };
-  return updateStop({ anonId, slug, index, plannedAt, durationMinutes, note, customAddress });
+  return updateStop({
+    anonId,
+    slug,
+    index,
+    plannedAt,
+    durationMinutes,
+    note,
+    customTitle,
+    customAddress,
+  });
+}
+
+// "Đổi chỗ" — thay điểm dừng tại ĐÚNG vị trí đang đứng, không đẩy xuống cuối như cách xoá rồi
+// thêm lại. Thứ tự là thứ khách sắp bằng tay, đổi một chỗ không có lý do gì làm xáo nó.
+export async function replaceRouteStop({ anonId, slug, index, place, custom }) {
+  if (!anonId || !slug) return { ok: false };
+  return replaceStop({ anonId, slug, index, place, custom });
 }
 
 export async function reorderRouteStops({ anonId, slug, order }) {

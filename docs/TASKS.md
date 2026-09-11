@@ -280,3 +280,17 @@
 - [x] **Thời lượng viết cho người đọc** (`lib/durationFormat.js`) — "Khoảng 240 phút" →
       "Ở đây khoảng 4 tiếng"; dưới 1 tiếng giữ phút; ô nhập hiện quy đổi "= 4 tiếng" ngay bên
       dưới. Thời gian đi đường có câu riêng "Di chuyển khoảng ..." để hai loại không lẫn nhau
+
+## 2026-09-11 (đổi điểm trong lộ trình)
+
+- [x] **Nút "Đổi chỗ" trên từng điểm** (`replaceStop` trong `lib/routes.js`) — mở lại bộ chọn
+      ở chế độ chọn MỘT, bấm phát nào xong phát đó. Thay **tại đúng vị trí đang đứng**, không
+      đẩy xuống cuối như cách xoá-rồi-thêm-lại; thứ tự để anh tự kéo nếu muốn
+- [x] **Giữ giờ · thời lượng · ghi chú chặng khi đổi chỗ** — đó là kế hoạch của CHẶNG, không
+      phải thuộc tính của địa điểm. Riêng ghi chú thì nhắc "xem lại ghi chú chặng" vì nó rất
+      hay đang nói về chỗ cũ
+- [x] **Đổi qua lại giữa địa điểm CDP và điểm riêng** — trong bộ chọn chế độ đổi, gõ tên vào ô
+      Điểm riêng là thay luôn ("Đổi sang điểm riêng này")
+- [x] **Sửa tên điểm riêng tại chỗ** — ô "Tên điểm" ngay trong thẻ, cùng chỗ với ô địa chỉ;
+      tiêu đề đổi theo ngay khi gõ. Địa điểm CDP thì KHÔNG cho sửa tên (tên lấy từ danh bạ,
+      sửa thì mỗi lộ trình giữ một phiên bản khác nhau) — muốn thay hẳn thì bấm "Đổi chỗ"

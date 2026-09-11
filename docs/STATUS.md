@@ -230,6 +230,20 @@ nhất".
 
 ## Cập nhật gần nhất
 
+### 2026-09-11 (tối) — Đổi điểm trong lộ trình
+
+Trang sửa lộ trình trước đó chỉ sửa được giờ, thời lượng, ghi chú — **không đổi được chính cái
+điểm đó**. Muốn thay thì phải xoá rồi thêm lại, mà thêm thì rơi xuống cuối và mất luôn giờ.
+
+Giờ mỗi điểm có nút **"Đổi chỗ"**: mở lại bộ chọn, bấm một chỗ là thay ngay **tại đúng vị trí
+đang đứng** — thứ tự không xê dịch, anh tự kéo sau nếu muốn. Đổi qua lại được cả hai chiều
+giữa địa điểm CDP và điểm riêng. **Điểm riêng** thì sửa được cả tên lẫn địa chỉ ngay trong thẻ,
+không cần mở gì.
+
+Giờ, thời lượng và ghi chú chặng **giữ nguyên** khi đổi — đó là kế hoạch của chặng, không phải
+thuộc tính của địa điểm. Riêng ghi chú thì có dòng nhắc xem lại, vì nó rất hay đang nói về chỗ
+cũ ("đặt bàn trước ở vỉa hè").
+
 ### 2026-09-11 (chiều) — 4 chỗ vướng anh phát hiện khi tự dựng lộ trình
 
 Anh dựng thật một lộ trình 4 điểm rồi báo về 4 chỗ vướng. Cả 4 đã sửa:

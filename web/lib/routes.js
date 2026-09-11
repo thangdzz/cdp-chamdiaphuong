@@ -280,6 +280,60 @@ export async function removeStopFromRoute({ anonId, slug, index }) {
   return { ok: true };
 }
 
+/**
+ * ĐỔI CHỖ tại đúng vị trí đang đứng (2026-09-11). Trước đây muốn thay một điểm phải xoá rồi
+ * thêm lại — mà thêm thì rơi xuống cuối, kèm mất luôn giờ và ghi chú của chặng đó.
+ *
+ * GIỮ NGUYÊN `plannedAt` / `durationMinutes` / `note`: đó là kế hoạch của CHẶNG ("19:00, ở 2
+ * tiếng"), không phải thuộc tính của địa điểm. Riêng ghi chú thì có thể đã nói về chỗ cũ, nên
+ * giao diện nhắc xem lại — nhắc vẫn hơn tự ý xoá chữ người ta đã gõ.
+ *
+ * @param {{id: string, name: string}} [place] đổi sang một địa điểm CDP
+ * @param {{title: string, address: string|null}} [custom] hoặc đổi thành điểm riêng
+ */
+export async function replaceStop({ anonId, slug, index, place, custom }) {
+  const route = await getRoute(slug);
+  if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
+  const current = route.stops[index];
+  if (!current) return { ok: false, error: "Không tìm thấy điểm này." };
+
+  const kept = {
+    plannedAt: current.plannedAt ?? null,
+    durationMinutes: current.durationMinutes ?? null,
+    note: current.note ?? null,
+  };
+
+  if (place?.id) {
+    route.stops[index] = {
+      type: STOP_TYPES.CDP_PLACE,
+      placeId: place.id,
+      customTitle: null,
+      customAddress: null,
+      nameSnapshot: place.name ?? null,
+      ...kept,
+    };
+  } else {
+    const cleanTitle = cleanText(custom?.title, MAX_CUSTOM_TITLE_LENGTH);
+    if (!cleanTitle) return { ok: false, error: "Chưa chọn chỗ thay thế." };
+    const cleanAddress = cleanText(custom?.address, MAX_CUSTOM_ADDRESS_LENGTH);
+    if (containsLinkOrPhone(cleanTitle) || (cleanAddress && containsLinkOrPhone(cleanAddress))) {
+      return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
+    }
+    route.stops[index] = {
+      type: STOP_TYPES.CUSTOM,
+      placeId: null,
+      customTitle: cleanTitle,
+      customAddress: cleanAddress,
+      nameSnapshot: null,
+      ...kept,
+    };
+  }
+
+  route.updatedAt = new Date().toISOString();
+  await redis.set(routeKey(slug), route);
+  return { ok: true };
+}
+
 export async function updateStop({
   anonId,
   slug,
@@ -287,6 +341,7 @@ export async function updateStop({
   plannedAt,
   durationMinutes,
   note,
+  customTitle,
   customAddress,
 }) {
   const route = await getRoute(slug);
@@ -302,13 +357,20 @@ export async function updateStop({
   if (cleanAddress && containsLinkOrPhone(cleanAddress)) {
     return { ok: false, error: "Địa chỉ không được chứa link hoặc số điện thoại." };
   }
+  const cleanTitle = cleanText(customTitle, MAX_CUSTOM_TITLE_LENGTH);
+  if (cleanTitle && containsLinkOrPhone(cleanTitle)) {
+    return { ok: false, error: "Tên điểm không được chứa link hoặc số điện thoại." };
+  }
   if (plannedAt !== undefined) stop.plannedAt = cleanPlannedAt(plannedAt);
   if (durationMinutes !== undefined) stop.durationMinutes = cleanDuration(durationMinutes);
   if (note !== undefined) stop.note = cleanNote;
-  // Chỉ điểm riêng mới có địa chỉ tự nhập — địa điểm CDP đã có địa chỉ trong danh bạ, cho sửa
-  // ở đây thì mỗi lộ trình lại giữ một địa chỉ khác nhau cho cùng một chỗ.
-  if (customAddress !== undefined && normalizeStop(stop).type === STOP_TYPES.CUSTOM) {
-    stop.customAddress = cleanAddress;
+  // Chỉ điểm riêng mới sửa được tên và địa chỉ tại đây — địa điểm CDP lấy tên/địa chỉ từ danh
+  // bạ, cho sửa thì mỗi lộ trình lại giữ một phiên bản khác nhau cho cùng một chỗ. Muốn thay
+  // hẳn địa điểm CDP thì dùng replaceStop ("Đổi chỗ").
+  if (normalizeStop(stop).type === STOP_TYPES.CUSTOM) {
+    // Tên rỗng thì giữ tên cũ: điểm riêng mà mất tên là thành một dòng trống trong lộ trình.
+    if (customTitle !== undefined && cleanTitle) stop.customTitle = cleanTitle;
+    if (customAddress !== undefined) stop.customAddress = cleanAddress;
   }
 
   route.updatedAt = new Date().toISOString();

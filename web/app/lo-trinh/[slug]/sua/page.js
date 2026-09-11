@@ -14,6 +14,7 @@ import {
   deleteMyRoute,
   addPlacesToMyRoute,
   proposePlaceForRoute,
+  replaceRouteStop,
 } from "@/app/routeActions";
 import { PlacePicker } from "@/app/PlacePicker";
 import { ProposePlaceForm } from "@/app/ProposePlaceForm";
@@ -36,6 +37,11 @@ export default function EditRoutePage({ params }) {
   // §5: "+ Thêm địa điểm" mở đúng PlacePicker dùng chung, không phải một bộ chọn riêng.
   const [pickerOpen, setPickerOpen] = useState(false);
   const [proposeName, setProposeName] = useState(null); // chuỗi = đang mở form đề xuất
+  // Đang đổi chỗ cho điểm thứ mấy (null = không đổi gì). Cùng PlacePicker, chỉ khác chế độ.
+  const [replacingIndex, setReplacingIndex] = useState(null);
+  // Vừa đổi xong điểm nào — để nhắc xem lại ghi chú của chặng đó, vì ghi chú cũ rất có thể
+  // đang nói về chỗ cũ ("đặt bàn trước ở vỉa hè").
+  const [justReplaced, setJustReplaced] = useState(null);
   const busyRef = useRef(false);
   const [busy, setBusy] = useState(false);
 
@@ -110,6 +116,27 @@ export default function EditRoutePage({ params }) {
     );
     if (result?.ok) {
       setPickerOpen(false);
+      await reload();
+    }
+    return result;
+  }
+
+  // Đổi chỗ: thay tại ĐÚNG vị trí đang sửa, thứ tự không xê dịch (anh muốn tự kéo sau nếu cần).
+  async function handleReplace(places, { customStops } = {}) {
+    const index = replacingIndex;
+    if (index === null) return;
+    const result = await run((anonId) =>
+      replaceRouteStop({
+        anonId,
+        slug,
+        index,
+        place: places?.[0] ?? null,
+        custom: customStops?.[0] ?? null,
+      })
+    );
+    if (result?.ok) {
+      setReplacingIndex(null);
+      setJustReplaced(index);
       await reload();
     }
     return result;
@@ -209,6 +236,8 @@ export default function EditRoutePage({ params }) {
                 slug={slug}
                 onMove={move}
                 onRemove={handleRemove}
+                onReplace={() => setReplacingIndex(index)}
+                justReplaced={justReplaced === index}
               />
             ))}
           </ol>
@@ -235,6 +264,16 @@ export default function EditRoutePage({ params }) {
             onProposePlace={(name) => setProposeName(name)}
           />
         )}
+        {replacingIndex !== null && (
+          <PlacePicker
+            title="Đổi chỗ"
+            confirmLabel="Đổi"
+            singlePick
+            existingPlaceIds={route.stops.map((s) => s.placeId).filter(Boolean)}
+            onConfirm={handleReplace}
+            onClose={() => setReplacingIndex(null)}
+          />
+        )}
         {proposeName !== null && (
           <ProposePlaceForm
             initialName={proposeName}
@@ -247,23 +286,25 @@ export default function EditRoutePage({ params }) {
   );
 }
 
-function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
+function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplace, justReplaced }) {
   const [plannedAt, setPlannedAt] = useState(stop.plannedAt ?? "");
   const [duration, setDuration] = useState(stop.durationMinutes ?? "");
   const [note, setNote] = useState(stop.note ?? "");
+  const [customName, setCustomName] = useState(stop.customTitle ?? "");
   const [address, setAddress] = useState(stop.customAddress ?? "");
   const [saved, setSaved] = useState(null); // null | "ok" | lỗi
   const savedRef = useRef({
     plannedAt: stop.plannedAt ?? "",
     duration: stop.durationMinutes ?? "",
     note: stop.note ?? "",
+    customName: stop.customTitle ?? "",
     address: stop.customAddress ?? "",
   });
   const isCustom = stop.type === STOP_TYPES.CUSTOM;
 
   // Lưu lúc rời ô, không lưu từng ký tự — mỗi lượt lưu là một lệnh Redis.
   async function save() {
-    const current = { plannedAt, duration, note, address };
+    const current = { plannedAt, duration, note, customName, address };
     if (JSON.stringify(current) === JSON.stringify(savedRef.current)) return;
     const result = await saveStopDetails({
       anonId: loadLocalContributor()?.anonId,
@@ -272,7 +313,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
       plannedAt,
       durationMinutes: duration === "" ? null : duration,
       note,
-      ...(isCustom ? { customAddress: address } : {}),
+      ...(isCustom ? { customTitle: customName, customAddress: address } : {}),
     });
     if (result.ok) {
       savedRef.current = current;
@@ -283,7 +324,10 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
     }
   }
 
-  const title = stop.customTitle ?? stop.name ?? stop.nameSnapshot ?? "Điểm đã bị xoá";
+  // Điểm riêng lấy tên từ ô đang gõ để tiêu đề đổi theo ngay, khỏi phải đợi lưu xong mới thấy.
+  const title = isCustom
+    ? customName.trim() || "Điểm riêng"
+    : (stop.name ?? stop.nameSnapshot ?? "Điểm đã bị xoá");
 
   return (
     <li className="rounded-xl bg-white px-[18px] py-4 shadow-sm">
@@ -358,7 +402,21 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
         </label>
       </div>
 
-      {/* Chỉ điểm riêng mới cần: địa điểm CDP đã có địa chỉ sẵn trong danh bạ. */}
+      {/* Chỉ điểm riêng mới sửa được tên và địa chỉ tại chỗ: địa điểm CDP lấy cả hai từ danh
+          bạ, muốn thay hẳn thì bấm "Đổi chỗ". */}
+      {isCustom && (
+        <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">
+          Tên điểm
+          <input
+            className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
+            value={customName}
+            maxLength={60}
+            placeholder="VD: Nhà Tuấn"
+            onChange={(e) => setCustomName(e.target.value)}
+            onBlur={save}
+          />
+        </label>
+      )}
       {isCustom && (
         <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">
           Địa chỉ (để Google dẫn đúng)
@@ -393,14 +451,32 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove }) {
       {saved === "ok" && <p className="mt-1 text-xs text-emerald-700">✓ Đã lưu</p>}
       {saved && saved !== "ok" && <p className="mt-1 text-xs text-red-600">{saved}</p>}
 
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => onRemove(index)}
-        className="mt-2 cursor-pointer text-xs text-red-500 underline disabled:opacity-50"
-      >
-        Bỏ khỏi lộ trình
-      </button>
+      {/* Ghi chú chặng rất hay nói về chỗ CŨ ("đặt bàn trước ở vỉa hè") — nhắc xem lại, nhưng
+          không tự ý xoá chữ người ta đã gõ. */}
+      {justReplaced && note.trim() && (
+        <p className="mt-2 text-xs text-amber-700">
+          Đã đổi chỗ — xem lại ghi chú chặng xem còn đúng không.
+        </p>
+      )}
+
+      <div className="mt-3 flex items-center gap-4">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onReplace}
+          className="cdp-pressable cursor-pointer rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 disabled:opacity-50"
+        >
+          Đổi chỗ
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onRemove(index)}
+          className="cursor-pointer text-xs text-red-500 underline disabled:opacity-50"
+        >
+          Bỏ khỏi lộ trình
+        </button>
+      </div>
     </li>
   );
 }

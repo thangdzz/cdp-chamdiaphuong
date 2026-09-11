@@ -350,7 +350,9 @@ web/
 │   │                              thể là điểm TỰ ĐẶT TÊN thay vì địa điểm CDP (khi đó thêm
 │   │                              `customAddress` — CHỈ để Google tra, không hiện thay tên).
 │   │                              MỘT CHỖ ĐƯỢC PHÉP NẰM NHIỀU LẦN trong cùng lộ trình; điểm
-│   │                              dừng nhận diện bằng VỊ TRÍ trong mảng, không bằng placeId
+│   │                              dừng nhận diện bằng VỊ TRÍ trong mảng, không bằng placeId.
+│   │                              `replaceStop()` = đổi chỗ TẠI VỊ TRÍ, giữ giờ/thời lượng/
+│   │                              ghi chú (thuộc về chặng, không thuộc về địa điểm)
 │   ├── durationFormat.js    (37)  Viết thời lượng thành tiếng Việt đọc được: "Ở đây khoảng 4
 │   │                              tiếng" (dừng lại) vs "Di chuyển khoảng 25 phút" (đi đường).
 │   │                              Vẫn LƯU bằng phút, chỉ đổi lúc hiển thị

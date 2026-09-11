@@ -970,3 +970,19 @@ Kèm theo: mọi chuỗi gửi Google đều tự gắn "Tuyên Quang" nếu ch�
 sau này, nên không đổi cách lưu. Chỗ đổi là lúc viết ra: "Ở đây khoảng 4 tiếng". Và **hai loại
 thời gian phải có hai câu khác hẳn nhau** — "Ở đây khoảng ..." (dừng lại) vs "Di chuyển khoảng
 ..." (đi đường). Câu cũ "Khoảng 240 phút" không nói nó là loại nào.
+
+## 2026-09-11 (tối) — Đổi điểm trong lộ trình
+
+**Đổi chỗ thay TẠI VỊ TRÍ, giữ nguyên giờ/thời lượng/ghi chú.** Trước đây muốn thay một điểm
+phải xoá rồi thêm lại — mà thêm thì rơi xuống cuối, kèm mất luôn giờ và ghi chú của chặng đó.
+Giờ/thời lượng/ghi chú thuộc về **chặng** ("19:00, ở 2 tiếng"), không thuộc về địa điểm, nên
+đổi địa điểm không có lý do gì xoá chúng. Riêng ghi chú có thể đang nói về chỗ cũ → **nhắc xem
+lại**, không tự ý xoá chữ người ta đã gõ.
+
+**Tên điểm: chỉ điểm riêng mới sửa được.** Địa điểm CDP lấy tên và địa chỉ từ danh bạ; cho sửa
+trong lộ trình thì mỗi lộ trình giữ một phiên bản tên khác nhau cho cùng một chỗ, và tên trong
+lộ trình sẽ trôi khỏi danh bạ theo thời gian. Muốn thay hẳn thì "Đổi chỗ".
+
+**Bộ chọn có 2 chế độ, không tách thành 2 component.** Thêm (chọn nhiều → bấm nút cuối) và Đổi
+(`singlePick`: bấm phát nào xong phát đó, không có nút xác nhận vì chỉ có một ô để thay). Tách
+đôi thì lại rơi vào đúng cái bẫy NOTE-07 §3 đã chống: hai bộ chọn trôi lệch nhau.

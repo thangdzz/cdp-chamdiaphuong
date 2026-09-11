@@ -26,6 +26,9 @@ export function PlacePicker({
   confirmLabel,
   initialSelected = [],
   existingPlaceIds = [],
+  // Chế độ ĐỔI CHỖ: chọn đúng một chỗ để thay cho điểm đang sửa, bấm phát nào xong phát đó —
+  // ở đây "chọn nhiều rồi bấm nút cuối" vô nghĩa vì chỉ có một ô để thay.
+  singlePick = false,
   onConfirm,
   onClose,
   onAddCustomStop,
@@ -80,7 +83,17 @@ export function PlacePicker({
   // nguồn, mà lệch một nhịp là ô hiện chữ cũ.
   const customTitle = customTouched ? customDraft : noResults ? query.trim() : "";
 
-  function toggle(place) {
+  async function toggle(place) {
+    if (singlePick) {
+      if (busy) return;
+      setBusy(true);
+      try {
+        await onConfirm([place], { customStops: [] });
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     setSelected((prev) => {
       const next = new Map(prev);
       if (next.has(place.id)) next.delete(place.id);
@@ -114,6 +127,17 @@ export function PlacePicker({
     const title = customTitle.trim();
     const address = customAddress.trim();
     if (!title || busy) return;
+    // Đổi chỗ: điểm riêng vừa gõ chính là thứ thay cho điểm đang sửa, đi thẳng qua onConfirm
+    // như khi chọn một địa điểm CDP.
+    if (singlePick) {
+      setBusy(true);
+      try {
+        await onConfirm([], { customStops: [{ title, address: address || null }] });
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     if (holdsLocally) {
       setPendingCustom((prev) => [...prev, { title, address: address || null }]);
       resetCustomInputs();
@@ -250,7 +274,13 @@ export function PlacePicker({
               Đề xuất để CDP xem xét đưa vào danh bạ. Chỗ này vào lộ trình của bạn ngay, kèm
               nhãn chưa xác minh.
             </p>
-            {onProposePlace ? (
+            {singlePick ? (
+              // Đang đổi một điểm có sẵn. Đề xuất thì thêm một điểm MỚI, không thay điểm nào —
+              // nói rõ lối đi thay vì giấu nút, cùng cách xử lý với màn tạo lộ trình.
+              <p className="text-xs text-zinc-400">
+                Đóng lại, bấm &quot;+ Thêm địa điểm&quot; là đề xuất được.
+              </p>
+            ) : onProposePlace ? (
               <button
                 type="button"
                 disabled={busy}
@@ -272,6 +302,7 @@ export function PlacePicker({
             <p className="text-[13px] font-medium text-zinc-700">Điểm riêng của bạn</p>
             <p className="mb-1.5 text-xs text-zinc-500">
               Chỗ chỉ mình bạn cần — nhà bạn bè, điểm hẹn. Không gửi CDP, không vào danh bạ.
+              {singlePick && " Gõ tên là thay luôn cho điểm đang sửa."}
             </p>
             <div className="flex flex-col gap-2">
               <input
@@ -299,14 +330,15 @@ export function PlacePicker({
                 onClick={handleAddCustom}
                 className="cdp-pressable w-fit cursor-pointer rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-default disabled:opacity-40"
               >
-                Thêm điểm riêng
+                {singlePick ? "Đổi sang điểm riêng này" : "Thêm điểm riêng"}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-zinc-200 bg-white px-4 py-3">
+      {/* Đổi chỗ thì bấm phát nào xong phát đó, không có gì để "xác nhận" nữa. */}
+      <div className={`border-t border-zinc-200 bg-white px-4 py-3 ${singlePick ? "hidden" : ""}`}>
         <button
           type="button"
           disabled={totalPicked === 0 || busy}
