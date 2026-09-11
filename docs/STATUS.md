@@ -230,6 +230,18 @@ nhất".
 
 ## Cập nhật gần nhất
 
+### 2026-09-11 (tối, sau) — Điểm riêng ở tỉnh khác Tuyên Quang
+
+Anh phát hiện: gõ địa chỉ "31 Hàng Bún" cho điểm xuất phát thì Google dẫn sai — vì bản sáng
+nay tự gắn "Tuyên Quang" vào MỌI điểm. Đúng với quán trong danh bạ (danh bạ chỉ có Tuyên
+Quang) nhưng sai với nhà của khách: người Hà Nội, Đà Nẵng về Tuyên Quang chơi thì điểm xuất
+phát của họ nằm ở tỉnh khác.
+
+Giờ điểm riêng có **ô chọn tỉnh/thành** (34 tỉnh/thành theo sắp xếp 01/7/2025), mặc định Tuyên
+Quang, có cả lúc thêm lẫn lúc sửa; đổi tỉnh là lưu ngay. Địa điểm CDP và địa điểm đề xuất vẫn
+gắn Tuyên Quang như cũ. Điểm riêng tạo trước hôm nay hiểu là Tuyên Quang (đúng bằng hành vi
+cũ) và hiện rõ trên giao diện để anh đổi.
+
 ### 2026-09-11 (tối) — Đổi điểm trong lộ trình
 
 Trang sửa lộ trình trước đó chỉ sửa được giờ, thời lượng, ghi chú — **không đổi được chính cái

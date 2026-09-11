@@ -986,3 +986,19 @@ lộ trình sẽ trôi khỏi danh bạ theo thời gian. Muốn thay hẳn thì
 **Bộ chọn có 2 chế độ, không tách thành 2 component.** Thêm (chọn nhiều → bấm nút cuối) và Đổi
 (`singlePick`: bấm phát nào xong phát đó, không có nút xác nhận vì chỉ có một ô để thay). Tách
 đôi thì lại rơi vào đúng cái bẫy NOTE-07 §3 đã chống: hai bộ chọn trôi lệch nhau.
+
+## 2026-09-11 (tối) — Tỉnh/thành của điểm riêng phải CHỌN, không đoán
+
+Sáng nay CDP tự gắn "Tuyên Quang" vào mọi chuỗi gửi Google. Đúng với danh bạ (danh bạ chỉ có
+Tuyên Quang) nhưng **sai với điểm riêng của khách**: người từ Hà Nội về Tuyên Quang chơi, gõ
+"31 Hàng Bún" thì thành "31 Hàng Bún, Tuyên Quang" — Google dẫn tới một nơi khác hẳn.
+
+Bài học chung: **thứ gì thuộc về CDP thì suy được, thứ gì thuộc về khách thì phải hỏi.** Địa
+điểm trong danh bạ và địa điểm đề xuất đều nằm ở Tuyên Quang nên gắn tỉnh là an toàn; điểm
+riêng là chỗ của riêng khách, nằm ở đâu chỉ khách biết.
+
+Cách làm: ô `<select>` 34 tỉnh/thành (sắp xếp hành chính có hiệu lực 01/7/2025), Tuyên Quang
+đứng đầu và là mặc định vì phần lớn điểm riêng vẫn ở ngay đây. Dùng **tên mới** — Google tra
+tên cũ vẫn ra, nhưng tên mới là thứ khách đang thấy trên giấy tờ. Điểm riêng cũ chưa có trường
+này thì hiểu là Tuyên Quang (đúng bằng hành vi trước đó) và **hiện rõ trên giao diện** để sửa,
+thay vì giấu một giả định trong code.

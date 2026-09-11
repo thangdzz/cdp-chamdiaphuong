@@ -85,9 +85,9 @@ export async function createRouteAndAddPlace({ anonId, title, placeId, nameSnaps
   return { ...result, slug: created.slug, anonId: currentAnonId, newProfile };
 }
 
-export async function addCustomStop({ anonId, slug, customTitle, customAddress }) {
+export async function addCustomStop({ anonId, slug, customTitle, customAddress, customProvince }) {
   if (!anonId || !slug) return { ok: false };
-  return addCustomStopToRoute({ anonId, slug, customTitle, customAddress });
+  return addCustomStopToRoute({ anonId, slug, customTitle, customAddress, customProvince });
 }
 
 export async function removeStop({ anonId, slug, index }) {
@@ -104,6 +104,7 @@ export async function saveStopDetails({
   note,
   customTitle,
   customAddress,
+  customProvince,
 }) {
   if (!anonId || !slug) return { ok: false };
   return updateStop({
@@ -115,6 +116,7 @@ export async function saveStopDetails({
     note,
     customTitle,
     customAddress,
+    customProvince,
   });
 }
 
@@ -176,6 +178,7 @@ export async function getRouteForEdit({ anonId, slug }) {
         placeId: s.placeId,
         customTitle: s.customTitle,
         customAddress: s.customAddress ?? null,
+        customProvince: s.customProvince ?? null,
         deleted: s.deleted,
         nameSnapshot: s.nameSnapshot,
         plannedAt: s.plannedAt,
@@ -226,7 +229,14 @@ export async function createRouteWithPlaces({ anonId, title, places, customStops
     // nào đó lúc bản mới lên thì vẫn thêm được điểm, không đứng hình.
     const customTitle = typeof custom === "string" ? custom : custom?.title;
     const customAddress = typeof custom === "string" ? null : (custom?.address ?? null);
-    await addCustomStopToRoute({ anonId: currentAnonId, slug: created.slug, customTitle, customAddress });
+    const customProvince = typeof custom === "string" ? null : (custom?.province ?? null);
+    await addCustomStopToRoute({
+      anonId: currentAnonId,
+      slug: created.slug,
+      customTitle,
+      customAddress,
+      customProvince,
+    });
   }
   return { ok: true, slug: created.slug, anonId: currentAnonId, newProfile };
 }

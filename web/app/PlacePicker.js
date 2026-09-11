@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
+import { PROVINCES, DEFAULT_PROVINCE } from "@/lib/provinces";
 import { fetchPickerPlaces } from "./routeActions";
 
 // Bộ chọn địa điểm DÙNG CHUNG (NOTE-07 §3) — cùng một component cho:
@@ -42,6 +43,9 @@ export function PlacePicker({
   const [busy, setBusy] = useState(false);
   const [customDraft, setCustomDraft] = useState("");
   const [customAddress, setCustomAddress] = useState("");
+  // Điểm riêng của khách có thể ở bất kỳ tỉnh nào — khách Hà Nội về Tuyên Quang chơi thì
+  // "Xuất phát tại nhà" nằm ở Hà Nội. Mặc định Tuyên Quang vì phần lớn điểm riêng vẫn ở đây.
+  const [customProvince, setCustomProvince] = useState(DEFAULT_PROVINCE);
   // Khách đã tự gõ vào ô điểm riêng chưa — chưa thì ô đó đi theo chữ đang tìm (xem customTitle
   // bên dưới), rồi thôi bám ngay khi khách sửa tay, không giật chữ khỏi tay người đang gõ.
   const [customTouched, setCustomTouched] = useState(false);
@@ -119,6 +123,7 @@ export function PlacePicker({
   function resetCustomInputs() {
     setCustomDraft("");
     setCustomAddress("");
+    setCustomProvince(DEFAULT_PROVINCE);
     setCustomTouched(false);
     setQuery("");
   }
@@ -126,26 +131,27 @@ export function PlacePicker({
   async function handleAddCustom() {
     const title = customTitle.trim();
     const address = customAddress.trim();
+    const province = customProvince;
     if (!title || busy) return;
     // Đổi chỗ: điểm riêng vừa gõ chính là thứ thay cho điểm đang sửa, đi thẳng qua onConfirm
     // như khi chọn một địa điểm CDP.
     if (singlePick) {
       setBusy(true);
       try {
-        await onConfirm([], { customStops: [{ title, address: address || null }] });
+        await onConfirm([], { customStops: [{ title, address: address || null, province }] });
       } finally {
         setBusy(false);
       }
       return;
     }
     if (holdsLocally) {
-      setPendingCustom((prev) => [...prev, { title, address: address || null }]);
+      setPendingCustom((prev) => [...prev, { title, address: address || null, province }]);
       resetCustomInputs();
       return;
     }
     setBusy(true);
     try {
-      await onAddCustomStop({ title, address: address || null });
+      await onAddCustomStop({ title, address: address || null, province });
       resetCustomInputs();
     } finally {
       setBusy(false);
@@ -210,7 +216,9 @@ export function PlacePicker({
                   <span className="min-w-0 text-sm text-zinc-900">
                     {custom.title} <span className="text-xs text-zinc-400">· điểm riêng</span>
                     {custom.address && (
-                      <span className="block text-xs text-zinc-500">{custom.address}</span>
+                      <span className="block text-xs text-zinc-500">
+                        {[custom.address, custom.province].filter(Boolean).join(", ")}
+                      </span>
                     )}
                   </span>
                   <span className="shrink-0 text-xs text-zinc-400">Bỏ</span>
@@ -324,6 +332,21 @@ export function PlacePicker({
                 placeholder="Địa chỉ, để Google dẫn đúng (không bắt buộc)"
                 onChange={(e) => setCustomAddress(e.target.value)}
               />
+              {/* Tỉnh phải CHỌN chứ không đoán: "31 Hàng Bún" là Hà Nội, gắn bừa Tuyên Quang
+                  vào là Google dẫn đi nơi khác. Khách tỉnh khác về chơi thì điểm xuất phát của
+                  họ nằm ngoài Tuyên Quang là chuyện thường. */}
+              <select
+                className="min-w-0 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900"
+                value={customProvince}
+                onChange={(e) => setCustomProvince(e.target.value)}
+                aria-label="Tỉnh/thành của điểm riêng"
+              >
+                {PROVINCES.map((p) => (
+                  <option key={p} value={p}>
+                    {p === DEFAULT_PROVINCE ? `${p} (tại đây)` : p}
+                  </option>
+                ))}
+              </select>
               <button
                 type="button"
                 disabled={busy || !customTitle.trim()}

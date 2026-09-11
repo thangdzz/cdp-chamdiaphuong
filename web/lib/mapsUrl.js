@@ -1,24 +1,30 @@
 import { normalizeForSearch } from "./placeTextSearch.js";
+import { DEFAULT_PROVINCE, normalizeProvince } from "./provinces.js";
 
 // Chuỗi đem tra Google Maps. Ba việc nhỏ nhưng đều là lỗi thật đã gặp:
 //
 //  1. Luôn kèm ĐỊA CHỈ, không chỉ mỗi tên. "Winmart Hàng Bún" gửi trần sang Google thì ra
 //     Hàng Bún ở Hà Nội, vì tên đó có thật ngoài Tuyên Quang.
-//  2. Luôn kèm "Tuyên Quang" khi chuỗi chưa có — địa chỉ trong danh bạ hay ghi kiểu
-//     "12 Trần Phú", trùng tên với hàng trăm phố Trần Phú khắp nước.
+//  2. Luôn kèm TỈNH/THÀNH khi chuỗi chưa có — địa chỉ hay ghi kiểu "12 Trần Phú", trùng tên
+//     với hàng trăm phố Trần Phú khắp nước.
 //  3. Bỏ phần rỗng thay vì nối bừa: chỗ chưa có địa chỉ trước đây thành "Tên quán, " —
 //     dấu phẩy cụt làm Google đoán lung tung.
-const AREA_HINT = "Tuyên Quang";
+//
+// Tỉnh nào thì tuỳ loại điểm: địa điểm trong danh bạ CDP luôn ở Tuyên Quang, còn ĐIỂM RIÊNG
+// của khách thì nằm ở đâu cũng được — khách từ Hà Nội về Tuyên Quang chơi thì nhà họ ở Hà Nội.
+// Gắn cứng "Tuyên Quang" cho điểm riêng (như bản 2026-09-11 sáng) là dẫn sai đường.
+const AREA_HINT = DEFAULT_PROVINCE;
 
-function withAreaHint(query) {
+function withAreaHint(query, areaHint) {
   if (!query) return null;
-  const hasArea = normalizeForSearch(query).includes(normalizeForSearch(AREA_HINT));
-  return hasArea ? query : `${query}, ${AREA_HINT}`;
+  if (!areaHint) return query;
+  const hasArea = normalizeForSearch(query).includes(normalizeForSearch(areaHint));
+  return hasArea ? query : `${query}, ${areaHint}`;
 }
 
-function buildQuery(parts) {
+function buildQuery(parts, areaHint = AREA_HINT) {
   const query = parts.filter(Boolean).join(", ").trim();
-  return withAreaHint(query || null);
+  return withAreaHint(query || null, areaHint);
 }
 
 export function mapsUrl(place) {
@@ -30,9 +36,10 @@ export function mapsUrl(place) {
  * Chuỗi tra cứu của MỘT ĐIỂM DỪNG trong lộ trình — dùng chung cho trang lộ trình và cho bản
  * chụp chia sẻ (trước đây mỗi nơi tự ghép một kiểu, sửa một chỗ là chỗ kia lệch).
  *
- * Điểm riêng ("Nhà Tuấn", "Xuất phát tại nhà") gửi đi bằng ĐỊA CHỈ, KHÔNG gửi cái tên: tên đó
- * người tạo đặt cho mình đọc, Google tra ra thì càng sai. Không nhập địa chỉ -> trả null, tức
- * điểm đó không nằm trong link Google. Thà thiếu một chặng còn hơn dẫn người ta tới chỗ khác.
+ * Điểm riêng ("Nhà Tuấn", "Xuất phát tại nhà") gửi đi bằng ĐỊA CHỈ + TỈNH KHÁCH CHỌN, KHÔNG
+ * gửi cái tên: tên đó người tạo đặt cho mình đọc, Google tra ra thì càng sai. Không nhập địa
+ * chỉ -> trả null, tức điểm đó không nằm trong link Google. Thà thiếu một chặng còn hơn dẫn
+ * người ta tới chỗ khác.
  *
  * @param {object} stop điểm đã qua resolveRouteStops()
  * @returns {string|null}
@@ -41,9 +48,10 @@ export function stopMapsQuery(stop) {
   if (!stop) return null;
   if (stop.place) return buildQuery([stop.place.name, stop.place.address || stop.place.ward]);
   if (stop.proposal) {
+    // Đề xuất là chỗ xin đưa vào danh bạ CDP, mà danh bạ chỉ nhận Tuyên Quang.
     return buildQuery([stop.proposal.name, stop.proposal.address || stop.proposal.ward]);
   }
-  return buildQuery([stop.customAddress]);
+  return buildQuery([stop.customAddress], normalizeProvince(stop.customProvince));
 }
 
 // Mở CẢ lộ trình trên Google Maps (CDP_P1-P8 §P7 giai đoạn 1) — "CDP lo kế hoạch, Google lo

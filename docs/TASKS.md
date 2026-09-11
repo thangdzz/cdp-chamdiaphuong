@@ -294,3 +294,14 @@
 - [x] **Sửa tên điểm riêng tại chỗ** — ô "Tên điểm" ngay trong thẻ, cùng chỗ với ô địa chỉ;
       tiêu đề đổi theo ngay khi gõ. Địa điểm CDP thì KHÔNG cho sửa tên (tên lấy từ danh bạ,
       sửa thì mỗi lộ trình giữ một phiên bản khác nhau) — muốn thay hẳn thì bấm "Đổi chỗ"
+
+## 2026-09-11 (điểm riêng ở tỉnh khác — anh phát hiện)
+
+- [x] **Điểm riêng chọn được tỉnh/thành** (`lib/provinces.js`, 34 đơn vị theo sắp xếp 01/7/2025)
+      — mặc định Tuyên Quang, có cả trong bộ chọn lẫn trang sửa lộ trình. Đổi tỉnh là lưu ngay,
+      không đợi rời ô
+- [x] **Bỏ gắn cứng "Tuyên Quang" cho điểm riêng** — lỗi do chính bản sáng nay: khách từ Hà Nội
+      về chơi, gõ "31 Hàng Bún" thì thành "31 Hàng Bún, Tuyên Quang" và Google dẫn sai hẳn.
+      Địa điểm CDP và đề xuất thì VẪN gắn Tuyên Quang (danh bạ chỉ có Tuyên Quang)
+- [x] **Điểm riêng cũ (chưa có trường tỉnh)** → hiểu là Tuyên Quang, đúng bằng hành vi trước
+      đây; giao diện hiện rõ ô đang chọn Tuyên Quang để anh đổi nếu sai. Không cần migration

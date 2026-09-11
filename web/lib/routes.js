@@ -17,6 +17,7 @@ import { redis } from "./redis.js";
 import { getLivePlaces } from "./redis.js";
 import { containsLinkOrPhone } from "./textFilter.js";
 import { getProposalIndex, PROPOSAL_STATUS } from "./proposals.js";
+import { normalizeProvince } from "./provinces.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
 const SLUG_LENGTH = 8;
@@ -239,7 +240,16 @@ export async function addProposedStopToRoute({ anonId, slug, proposalId, name })
 // `customAddress` (2026-09-11) chỉ để Google tra đúng chỗ, KHÔNG hiện thay tên: cái tên khách
 // tự đặt thì Google chịu, mà thiếu nó thì điểm đầu lộ trình rơi khỏi link chỉ đường. Để trống
 // vẫn được — điểm đó chỉ nằm trong danh sách, không vào link Google (xem stopMapsQuery).
-export async function addCustomStopToRoute({ anonId, slug, customTitle, customAddress }) {
+//
+// `customProvince` đi kèm địa chỉ: điểm riêng của khách nằm ở tỉnh nào cũng được ("31 Hàng Bún"
+// là Hà Nội chứ không phải Tuyên Quang), nên tỉnh phải do khách chọn chứ không suy từ CDP.
+export async function addCustomStopToRoute({
+  anonId,
+  slug,
+  customTitle,
+  customAddress,
+  customProvince,
+}) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
   const cleanTitle = cleanText(customTitle, MAX_CUSTOM_TITLE_LENGTH);
@@ -256,6 +266,7 @@ export async function addCustomStopToRoute({ anonId, slug, customTitle, customAd
     placeId: null,
     customTitle: cleanTitle,
     customAddress: cleanAddress,
+    customProvince: normalizeProvince(customProvince),
     nameSnapshot: null,
     plannedAt: null,
     durationMinutes: null,
@@ -289,7 +300,8 @@ export async function removeStopFromRoute({ anonId, slug, index }) {
  * giao diện nhắc xem lại — nhắc vẫn hơn tự ý xoá chữ người ta đã gõ.
  *
  * @param {{id: string, name: string}} [place] đổi sang một địa điểm CDP
- * @param {{title: string, address: string|null}} [custom] hoặc đổi thành điểm riêng
+ * @param {{title: string, address: string|null, province: string|null}} [custom] hoặc đổi
+ *        thành điểm riêng
  */
 export async function replaceStop({ anonId, slug, index, place, custom }) {
   const route = await getRoute(slug);
@@ -309,6 +321,7 @@ export async function replaceStop({ anonId, slug, index, place, custom }) {
       placeId: place.id,
       customTitle: null,
       customAddress: null,
+      customProvince: null,
       nameSnapshot: place.name ?? null,
       ...kept,
     };
@@ -324,6 +337,7 @@ export async function replaceStop({ anonId, slug, index, place, custom }) {
       placeId: null,
       customTitle: cleanTitle,
       customAddress: cleanAddress,
+      customProvince: normalizeProvince(custom?.province),
       nameSnapshot: null,
       ...kept,
     };
@@ -343,6 +357,7 @@ export async function updateStop({
   note,
   customTitle,
   customAddress,
+  customProvince,
 }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
@@ -371,6 +386,7 @@ export async function updateStop({
     // Tên rỗng thì giữ tên cũ: điểm riêng mà mất tên là thành một dòng trống trong lộ trình.
     if (customTitle !== undefined && cleanTitle) stop.customTitle = cleanTitle;
     if (customAddress !== undefined) stop.customAddress = cleanAddress;
+    if (customProvince !== undefined) stop.customProvince = normalizeProvince(customProvince);
   }
 
   route.updatedAt = new Date().toISOString();

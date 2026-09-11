@@ -24,6 +24,7 @@ import { SiteHeader } from "@/app/SiteHeader";
 import { TRANSPORT_MODES, STOP_TYPES } from "@/lib/routes";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { formatDurationText } from "@/lib/durationFormat";
+import { PROVINCES, DEFAULT_PROVINCE } from "@/lib/provinces";
 
 // Chỉ chủ lộ trình vào được — getRouteForEdit tự kiểm tra ở server, trang này chỉ điều hướng
 // về trang xem khi không phải chủ, không tự chặn (cùng cách trang sửa Sổ làm).
@@ -110,9 +111,15 @@ export default function EditRoutePage({ params }) {
     if (result?.ok) await reload();
   }
 
-  async function handleAddCustom({ title, address }) {
+  async function handleAddCustom({ title, address, province }) {
     const result = await run((anonId) =>
-      addCustomStop({ anonId, slug, customTitle: title, customAddress: address })
+      addCustomStop({
+        anonId,
+        slug,
+        customTitle: title,
+        customAddress: address,
+        customProvince: province,
+      })
     );
     if (result?.ok) {
       setPickerOpen(false);
@@ -292,6 +299,9 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
   const [note, setNote] = useState(stop.note ?? "");
   const [customName, setCustomName] = useState(stop.customTitle ?? "");
   const [address, setAddress] = useState(stop.customAddress ?? "");
+  // Điểm riêng có từ trước khi có ô này thì chưa mang tỉnh — hiện Tuyên Quang, đúng bằng thứ
+  // hệ thống vẫn ngầm dùng trước đây, và để anh thấy mà đổi nếu chỗ đó ở tỉnh khác.
+  const [province, setProvince] = useState(stop.customProvince ?? DEFAULT_PROVINCE);
   const [saved, setSaved] = useState(null); // null | "ok" | lỗi
   const savedRef = useRef({
     plannedAt: stop.plannedAt ?? "",
@@ -299,21 +309,30 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
     note: stop.note ?? "",
     customName: stop.customTitle ?? "",
     address: stop.customAddress ?? "",
+    province: stop.customProvince ?? DEFAULT_PROVINCE,
   });
   const isCustom = stop.type === STOP_TYPES.CUSTOM;
 
   // Lưu lúc rời ô, không lưu từng ký tự — mỗi lượt lưu là một lệnh Redis.
-  async function save() {
-    const current = { plannedAt, duration, note, customName, address };
+  // `overrides` cho ô CHỌN (tỉnh/thành): chọn xong là lưu ngay, không đợi rời ô, mà state lúc
+  // đó chưa kịp cập nhật nên giá trị mới phải truyền thẳng vào.
+  async function save(overrides = {}) {
+    const current = { plannedAt, duration, note, customName, address, province, ...overrides };
     if (JSON.stringify(current) === JSON.stringify(savedRef.current)) return;
     const result = await saveStopDetails({
       anonId: loadLocalContributor()?.anonId,
       slug,
       index,
-      plannedAt,
-      durationMinutes: duration === "" ? null : duration,
-      note,
-      ...(isCustom ? { customTitle: customName, customAddress: address } : {}),
+      plannedAt: current.plannedAt,
+      durationMinutes: current.duration === "" ? null : current.duration,
+      note: current.note,
+      ...(isCustom
+        ? {
+            customTitle: current.customName,
+            customAddress: current.address,
+            customProvince: current.province,
+          }
+        : {}),
     });
     if (result.ok) {
       savedRef.current = current;
@@ -381,7 +400,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             placeholder="17:30"
             maxLength={5}
             onChange={(e) => setPlannedAt(e.target.value)}
-            onBlur={save}
+            onBlur={() => save()}
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-zinc-500">
@@ -392,7 +411,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             value={duration}
             placeholder="60"
             onChange={(e) => setDuration(e.target.value)}
-            onBlur={save}
+            onBlur={() => save()}
           />
           {/* Nhập bằng phút cho gọn, nhưng nhắc lại ngay bằng tiếng để khỏi phải nhẩm:
               gõ 240 mà không thấy "4 tiếng" thì rất dễ nhầm sang 24 tiếng. */}
@@ -413,7 +432,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             maxLength={60}
             placeholder="VD: Nhà Tuấn"
             onChange={(e) => setCustomName(e.target.value)}
-            onBlur={save}
+            onBlur={() => save()}
           />
         </label>
       )}
@@ -426,13 +445,34 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             maxLength={120}
             placeholder="VD: 12 Trần Phú, Phan Thiết"
             onChange={(e) => setAddress(e.target.value)}
-            onBlur={save}
+            onBlur={() => save()}
           />
           {!address.trim() && (
             <span className="text-xs text-zinc-400">
               Bỏ trống thì điểm này không nằm trong link Google Maps.
             </span>
           )}
+        </label>
+      )}
+      {/* Tỉnh/thành phải chọn: khách từ tỉnh khác về chơi thì điểm xuất phát của họ không nằm
+          ở Tuyên Quang, gắn bừa là Google dẫn sai hẳn địa phương. */}
+      {isCustom && (
+        <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">
+          Tỉnh/thành
+          <select
+            className="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900"
+            value={province}
+            onChange={(e) => {
+              setProvince(e.target.value);
+              save({ province: e.target.value });
+            }}
+          >
+            {PROVINCES.map((p) => (
+              <option key={p} value={p}>
+                {p === DEFAULT_PROVINCE ? `${p} (tại đây)` : p}
+              </option>
+            ))}
+          </select>
         </label>
       )}
 
@@ -444,7 +484,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
           maxLength={140}
           placeholder="VD: Đặt bàn trước cho 6 người"
           onChange={(e) => setNote(e.target.value)}
-          onBlur={save}
+          onBlur={() => save()}
         />
       </label>
 
