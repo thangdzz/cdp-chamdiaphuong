@@ -1,18 +1,68 @@
-# TASKS — Việc đã làm xong
+# TASKS — DONE / IN PROGRESS / TODO
 
-> Danh sách việc **đã hoàn thành**, tổng hợp từ lịch sử git (163 commit, từ 2026-07-15).
-> Bỏ qua các commit tự động hằng ngày của routine quét dữ liệu (`scan:` / `chore: xoa
-> pending-scan`).
+> Cập nhật: **2026-09-12**. Trạng thái bàn giao: [HANDOFF.md](HANDOFF.md) ·
+> **vì sao** chọn cách làm: [DECISIONS.md](DECISIONS.md) ·
+> nhật ký từng phiên: [STATUS.md](STATUS.md) · chia chặng: [ROADMAP.md](ROADMAP.md).
 >
-> Việc **đang làm / sắp làm** xem [STATUS.md](STATUS.md); **vì sao** chọn cách làm đó xem
-> [DECISIONS.md](DECISIONS.md); kế hoạch chia chặng xem [ROADMAP.md](ROADMAP.md).
->
-> File này tạo ngày 2026-09-08, dựng lại từ toàn bộ lịch sử git — nên các mục cũ ghi theo
-> mức tóm tắt, không chi tiết bằng các mục mới.
+> Phần **DONE chi tiết theo thời gian** nằm ở nửa dưới file, dựng lại từ lịch sử git
+> (163 commit, từ 2026-07-15; bỏ qua commit tự động của routine quét).
 
 ---
 
-## Nền tảng ban đầu (2026-07-15 → 07-17)
+## 🚧 IN PROGRESS
+
+Không có việc nào đang code dở — phiên 11/9 đã đóng trọn vẹn (build sạch, test qua, đã
+deploy, đã dọn dữ liệu test).
+
+Đang **chờ chủ dự án chốt hướng** trước khi code:
+
+- [ ] **Giá mùa cao điểm** — `places:live` chỉ có một ô giá; đúng tuần lễ hội thì web hiển thị
+      giá sai với nhóm khách cần nhất. Rủi ro uy tín, chưa có hướng xử lý
+- [ ] **Tài khoản / đăng nhập (Chặng 7)** — chọn kênh OTP (Zalo ZNS / SMS / email), có nên
+      đăng nhập bằng Zalo, gộp thế nào với hồ sơ ẩn danh. Xem [SPEC-chang-7.md](SPEC-chang-7.md)
+- [ ] **Thông tin theo khu vực** (kiểu "đường Nguyễn Tất Thành chặn từ 18h") — không thuộc về
+      địa điểm nào; khoảng trống thật nhưng lớn
+
+---
+
+## 📋 TODO
+
+### Gấp — trước lễ hội 19–25/9
+- [ ] **Sửa lịch lễ hội không cần deploy** — đọc `FESTIVAL_EVENTS` từ Redis (rơi về file tĩnh
+      khi key rỗng) + màn sửa mốc trong `/admin`. Bước đầu của Phase 2, và là việc gấp nhất
+- [ ] **Routine quét nâng 2–3 lần/ngày trong tuần lễ hội**, xong lại về 1
+- [ ] Gọi điện xác minh 10–15 chỗ quan trọng nhất (không cần code)
+
+### Chặn bởi thiếu dữ liệu
+- [ ] **Toạ độ địa điểm** — 0/210 chỗ có. Chặn: bản đồ lộ trình · khoảng cách/thời gian từng
+      chặng · tối ưu tuyến (NOTE-07 P2, CDP_P1-P8 Phase 3). Hướng: chỉ geocode chỗ thực sự
+      được dùng trong lộ trình
+- [ ] **Google Routes API** (Phase 3) — sau khi có toạ độ
+
+### CDP_P1-P8 Phase 2
+- [ ] Lộ trình mẫu của CDP (`is_featured`) + nút "Dùng lộ trình này" (clone sang người dùng)
+- [ ] Feature lộ trình của cộng đồng
+- [ ] Source Registry + Content Monitor + admin duyệt diff (bot **không** publish thẳng)
+
+### Kiểm lại dữ liệu — [SPEC-kiem-lai-du-lieu.md](SPEC-kiem-lai-du-lieu.md)
+- [ ] Hiện tuổi dữ liệu trên thẻ ("Chưa kiểm lại hơn 1 tháng")
+- [ ] Thêm trường `lastVerifiedAt`; routine chia đôi việc: ~5 chỗ mới + ~5 chỗ lâu nhất chưa
+      kiểm. Trần 3 mục chờ duyệt/ngày từ nguồn kiểm lại
+- [ ] Xoay vòng trọng tâm quét theo ngày + thêm nguồn ngoài Google Maps/Facebook
+
+### Nợ kỹ thuật & việc nhỏ
+- [ ] Sửa lỗi lint cũ ở `web/app/PlaceExplorer.js` (`react-hooks/set-state-in-effect`)
+- [ ] Đưa test Playwright vào repo (hiện là script rời, chạy tay, không commit)
+- [ ] Header thêm link "Lộ trình của tôi" (mới có link chéo ở `/so`)
+- [ ] Xác minh lại phân loại "Danh Khoa - Cho thuê xe tự lái" (đang đoán là `thue-o-to`)
+- [ ] Nhãn "còn chỗ" theo lịch — ngày lễ hội 2026 viết cứng trong `app/occupancy.js`, sang năm
+      là sai. Quyết trước mùa 2027: bỏ hẳn hay làm theo dữ liệu thật
+
+---
+
+## ✅ DONE — chi tiết theo thời gian
+
+### Nền tảng ban đầu (2026-07-15 → 07-17)
 
 - [x] Dựng web app Next.js đầu tiên, hiển thị danh sách địa điểm + bộ lọc (loại hình/khu
       vực/giá)
@@ -26,7 +76,7 @@
       lặp / mâu thuẫn dữ liệu
 - [x] Thẻ địa điểm 2 lớp (gọn → bung "Xem thêm") + xem ảnh toàn màn hình
 
-## Khách đóng góp dữ liệu (2026-07-18 → 07-20)
+### Khách đóng góp dữ liệu (2026-07-18 → 07-20)
 
 - [x] "Báo sai / Bổ sung ảnh": khách sửa field (địa chỉ/SĐT/giá), báo đã đóng cửa, hoặc gửi
       tối đa 3 ảnh/lần
@@ -42,12 +92,12 @@
 - [x] Rút gọn địa chỉ hiển thị + thêm trường "khu vực" do khách nhập
 - [x] Logo CDP + header bấm về trang chủ
 
-## Tự động hoá routine quét (2026-08-04)
+### Tự động hoá routine quét (2026-08-04)
 
 - [x] GitHub Action tự ingest kết quả quét hằng ngày → **pipeline chạy tự động hoàn toàn**,
       không cần copy-paste thủ công nữa
 
-## Hướng mới "cuốn sổ địa phương" (2026-08-15 → 08-20)
+### Hướng mới "cuốn sổ địa phương" (2026-08-15 → 08-20)
 
 - [x] **Chặng 0** — cập nhật PRD theo hướng mới (4 nhóm Ăn/Chơi/Ngủ/Đi lại, bỏ vai trò hạn
       chót của 21/08)
@@ -65,7 +115,7 @@
       nhấn, bo góc thống nhất, 3 chuyển động chuẩn (tắt khi máy bật "giảm chuyển động")
 - [x] Ép giao diện luôn sáng màu (tránh chữ khó đọc khi máy bật chế độ tối)
 
-## Công cụ xử lý trùng lặp trong `/admin` (2026-08-18 → 08-21)
+### Công cụ xử lý trùng lặp trong `/admin` (2026-08-18 → 08-21)
 
 - [x] Công cụ so sánh & gộp 2 chỗ trùng lặp, dùng chung cho cả 2 nguồn (khách báo + AI quét
       phát hiện)
@@ -81,7 +131,7 @@
 - [x] Đổi `mode="reviewItem"` sang ưu tiên dữ liệu chỗ đã công khai (B), không phải bản mới
       quét (A)
 
-## Sửa routine quét dữ liệu (2026-08-20 → 08-21)
+### Sửa routine quét dữ liệu (2026-08-20 → 08-21)
 
 - [x] Thêm trường `signature_dishes` (tối đa 3 món, chỉ với loại Ăn) vào schema ingestion +
       cập nhật lệnh routine
@@ -89,7 +139,7 @@
       (trước đó đóng băng từ 18/07, routine chạy 16 lần không biết 70 chỗ mới đã lên web)
 - [x] Thêm địa chỉ vào snapshot; viết lại Bước 4 của routine (đoạn `curl` đã chết 403)
 
-## 2026-08-23 → 08-24
+### 2026-08-23 → 08-24
 
 - [x] `/admin` mục "Đang công khai": đổi từ mở sẵn 122 form thành danh sách có tìm kiếm (không
       dấu) + tab lọc theo loại, 1 form mở tại 1 thời điểm
@@ -103,7 +153,7 @@
 - [x] Khôi phục `an-03` "Nhà hàng Dũng Cá" bị xoá nhầm khi test công cụ gộp (xem
       [DECISIONS.md](DECISIONS.md) 2026-08-24)
 
-## 2026-09-03 → 09-08
+### 2026-09-03 → 09-08
 
 - [x] Ngừng theo dõi git cho `.claude/settings.json` / `.claude/settings.local.json` (từng
       chứa secret bị lộ; secret đã đổi giá trị mới)
@@ -144,7 +194,7 @@
   - Lời mời gửi ảnh menu mới khi menu đã quá 3 tháng (NOTE-01 §7.4)
   - Trang địa điểm thêm nút "Xem thêm N ảnh menu" cho khớp thẻ trang chủ
 
-## 2026-09-09 (NOTE 04)
+### 2026-09-09 (NOTE 04)
 
 - [x] **P0 việc 1 — Mẹo bấm chọn thay vì bắt gõ lại**: chọn ngữ cảnh xong, ngữ cảnh nào đã có
       sẵn câu hỏi bấm chọn thì đưa luôn bộ đáp án ra bấm (1 chạm → đồng thuận, không cần duyệt).
@@ -161,7 +211,7 @@
       mọi chỗ Đi lại đã chọn loại đều thôi bị hỏi "Đây là chỗ gì?"
 - [x] Điền loại hình cho "Xe ghép Anh Huy" (xe ghép · 7 chỗ · Tuyên Quang ↔ Hà Nội)
 
-## 2026-09-09 (NOTE 05)
+### 2026-09-09 (NOTE 05)
 
 - [x] **P0 việc 1–2 — câu hỏi và CTA theo `transportSubtype`**: `getQuestionsForType(type,
       subtype, filledFields)` + `primaryAction(place)` trong `lib/transport.js`
@@ -179,7 +229,7 @@
 - [x] **Sửa lỗi cũ**: khối ảnh menu ở trang địa điểm đang là `menuPhotos.length > 3` nên không
       bao giờ hiện (lỗi do lệnh khôi phục sed đổi nhầm cả 2 dòng hôm 09/09)
 
-## 2026-09-10 (NOTE 06)
+### 2026-09-10 (NOTE 06)
 
 - [x] **P0 việc 1–2 — taxonomy 4 family**: `TRANSPORT_FAMILIES` + 11 subtype gán family trong
       `lib/transport.js`; ô chọn trong `/admin` nhóm theo family bằng `<optgroup>`
@@ -219,7 +269,7 @@
       1 bến xe, 1 bãi đỗ. Đây là nguyên nhân chính khiến anh không thấy gì đổi: code đúng nhưng
       chỗ nào chưa chọn loại hình thì hệ thống không có căn cứ để đổi
 
-## 2026-09-10 (Chặng A — tách Lộ trình)
+### 2026-09-10 (Chặng A — tách Lộ trình)
 
 - [x] **`lib/routes.js`** — Lộ trình thành thực thể riêng `route:{slug}`. Mỗi điểm có giờ dự
       kiến · thời lượng · ghi chú chặng; cả lộ trình có phương tiện. Điểm có thể là địa điểm
@@ -235,9 +285,9 @@
 - [x] Lối vào: "Tạo lộ trình từ sổ này" ở trang Sổ; nút trên thẻ đổi thành "+ Sổ / Lộ trình"
       và cho chọn cả hai; link chéo giữa 2 trang danh sách
 
-## 2026-09-11 (NOTE 07)
+### 2026-09-11 (NOTE 07)
 
-### P0
+#### P0
 - [x] **Safari tự zoom khi nhập liệu** — 73 ô nhập toàn dùng cỡ chữ 13–14px, Safari iOS luôn
       phóng to trang khi chạm vào. Ép `font-size: 16px` cho input/textarea/select trên màn cảm
       ứng (`@media (pointer: coarse)` trong `globals.css`). **KHÔNG** dùng `user-scalable=no`
@@ -251,7 +301,7 @@
       bấm "Thêm N điểm", không đóng sau mỗi lần chọn
 - [x] Điểm riêng thêm được ngay trong PlacePicker; ở màn tạo mới thì giữ tạm rồi ghi một lượt
 
-### P1
+#### P1
 - [x] **`lib/proposals.js`** — 3 loại điểm dừng `cdp_place | proposed_place | custom_stop`;
       `place_proposals:queue` + `place_proposals:index`
 - [x] **Form đề xuất địa điểm** — vào lộ trình NGAY, đồng thời xếp hàng chờ admin
@@ -262,7 +312,7 @@
 - [x] **Từ chối → thành `custom_stop`**, KHÔNG mất khỏi lộ trình
 - [x] **Tương thích ngược**: `normalizeStop()` suy `type` từ route cũ, không migration
 
-## 2026-09-11 (anh bấm thử lộ trình — 4 chỗ vướng)
+### 2026-09-11 (anh bấm thử lộ trình — 4 chỗ vướng)
 
 - [x] **Ô "Điểm riêng" tự điền chữ đang gõ** — gõ "Xuất phát tại nhà" ở ô tìm mà không ra chỗ
       nào thì chữ đó nhảy thẳng xuống ô Điểm riêng, chỉ còn bấm Thêm. Gõ tay vào ô đó rồi thì
@@ -281,7 +331,7 @@
       "Ở đây khoảng 4 tiếng"; dưới 1 tiếng giữ phút; ô nhập hiện quy đổi "= 4 tiếng" ngay bên
       dưới. Thời gian đi đường có câu riêng "Di chuyển khoảng ..." để hai loại không lẫn nhau
 
-## 2026-09-11 (đổi điểm trong lộ trình)
+### 2026-09-11 (đổi điểm trong lộ trình)
 
 - [x] **Nút "Đổi chỗ" trên từng điểm** (`replaceStop` trong `lib/routes.js`) — mở lại bộ chọn
       ở chế độ chọn MỘT, bấm phát nào xong phát đó. Thay **tại đúng vị trí đang đứng**, không
@@ -295,7 +345,7 @@
       tiêu đề đổi theo ngay khi gõ. Địa điểm CDP thì KHÔNG cho sửa tên (tên lấy từ danh bạ,
       sửa thì mỗi lộ trình giữ một phiên bản khác nhau) — muốn thay hẳn thì bấm "Đổi chỗ"
 
-## 2026-09-11 (điểm riêng ở tỉnh khác — anh phát hiện)
+### 2026-09-11 (điểm riêng ở tỉnh khác — anh phát hiện)
 
 - [x] **Điểm riêng chọn được tỉnh/thành** (`lib/provinces.js`, 34 đơn vị theo sắp xếp 01/7/2025)
       — mặc định Tuyên Quang, có cả trong bộ chọn lẫn trang sửa lộ trình. Đổi tỉnh là lưu ngay,
@@ -306,9 +356,9 @@
 - [x] **Điểm riêng cũ (chưa có trường tỉnh)** → hiểu là Tuyên Quang, đúng bằng hành vi trước
       đây; giao diện hiện rõ ô đang chọn Tuyên Quang để anh đổi nếu sai. Không cần migration
 
-## 2026-09-11 (CDP_P1-P8: P1, P2, P3)
+### 2026-09-11 (CDP_P1-P8: P1, P2, P3)
 
-### P1 — Timeline động
+#### P1 — Timeline động
 - [x] **`lib/events.js`** — logic chung cho mốc thời gian của MỌI Post (không dính Trung thu):
       `eventStatus()` (đã qua / đang diễn ra / sắp tới / chưa có ngày), `groupEvents()`,
       `formatEventWhen()`, `formatCountdown()`. Mốc ghi kèm `+07:00` nên máy chủ chạy giờ UTC
@@ -321,12 +371,12 @@
       diễn ra — xem lại" (dùng `<details>`, không cần JavaScript); mốc chưa có ngày xếp riêng
       thay vì đoán bừa một ngày
 
-### P2 — Card trang chủ
+#### P2 — Card trang chủ
 - [x] Bỏ câu "Chỗ gửi xe, ăn tối, cafe nghỉ chân và chỗ ngủ" (hứa một đằng, trang trong là
       lịch lễ hội). Card giờ lấy **mốc sắp tới** từ đúng nguồn dữ liệu của trang lễ hội — hai
       nơi không bao giờ lệch nhau, hết lễ hội thì câu chữ tự đổi
 
-### P3 — Interactive Plan
+#### P3 — Interactive Plan
 - [x] **`app/InteractivePlan.js`** — khối "Bạn định đi thế nào?" sau lịch: 5 khung giờ
       (17:30 ăn tối · 19:00 gửi xe · 20:00 Đêm hội · 22:15 cafe · sau đó ngủ lại), mỗi khung
       bấm chọn chỗ bằng **PlacePicker dùng chung**, mở sẵn đúng nhóm

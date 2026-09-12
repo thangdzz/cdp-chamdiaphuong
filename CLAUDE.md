@@ -54,5 +54,10 @@ Nghĩa là: ở Cowork, sau khi chốt thiết kế thì ghi vào `docs/`, rồi
   (chốt 2026-08-11, hướng đi hiện tại — đọc cùng PRD)
 - [docs/ROADMAP.md](docs/ROADMAP.md) — chia giai đoạn nhỏ
 - `docs/SPEC-chang-N.md` — mô tả chi tiết từng chặng, viết ngay trước khi code chặng đó
+- [docs/ROUTINE.md](docs/ROUTINE.md) — lịch quét dữ liệu hằng ngày: nằm ở đâu, làm gì, bản
+  sao lưu nội dung lệnh, cách dựng lại nếu mất. **Cập nhật mỗi khi sửa nội dung routine.**
+- `docs/reference/` — **tài liệu tham khảo, KHÔNG phải yêu cầu tính năng.** Nghiên cứu, tư
+  liệu bối cảnh. Đọc để đối chiếu và tìm khoảng trống; **không tự biến thành việc phải làm.**
+  Muốn đề xuất gì từ đây thì trình anh duyệt như mọi việc khác.
 - [docs/STATUS.md](docs/STATUS.md) — tình trạng hiện tại, cập nhật mỗi phiên
 - [docs/DECISIONS.md](docs/DECISIONS.md) — nhật ký các quyết định quan trọng
