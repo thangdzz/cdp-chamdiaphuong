@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "name": "ChangMin Tea, Coffee & Food",
+    "category_primary": "an",
+    "address_text": "Số nhà 01, Ngõ 280 Đại lộ Tân Trào, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0963 250 188",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Bánh mì Hoàng Tuấn",
+    "category_primary": "an",
+    "address_text": "137-139, Tổ 5, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0845 606 222",
+    "opening_hours_text": "06:00 - 18:30",
+    "price_range_text": "Từ 10.000đ",
+    "map_note": null,
+    "signature_dishes": ["bánh mì"]
+  },
+  {
+    "name": "Khách sạn Spa Ngọc Hà",
+    "category_primary": "ngu",
+    "address_text": "Tổ 23, đường Lý Nam Đế, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0207 3818888",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
