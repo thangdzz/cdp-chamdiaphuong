@@ -80,6 +80,11 @@
     "address": "đường 17 Tháng 8, TP Tuyên Quang"
   },
   {
+    "name": "Bánh mì Hoàng Tuấn",
+    "type": "an",
+    "address": "137-139, Tổ 5, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Bảo tàng tỉnh Tuyên Quang",
     "type": "choi",
     "address": "Đường 17/8, phường Minh Xuân, TP Tuyên Quang"
@@ -138,6 +143,11 @@
     "name": "Chang's Restaurant",
     "type": "an",
     "address": "Khu ẩm thực, Tổ 2, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "ChangMin Tea, Coffee & Food",
+    "type": "an",
+    "address": "Số nhà 01, Ngõ 280 Đại lộ Tân Trào, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Cháo Ấu Tẩu",
@@ -463,6 +473,11 @@
     "name": "Khách sạn Royal Palace",
     "type": "ngu",
     "address": "176A Bình Thuận, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Khách sạn Spa Ngọc Hà",
+    "type": "ngu",
+    "address": "Tổ 23, đường Lý Nam Đế, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Khách sạn Tân Trang",
