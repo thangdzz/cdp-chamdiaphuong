@@ -105,14 +105,14 @@
     "address": "Số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
   },
   {
-    "name": "Bin Cafe",
-    "type": "an",
-    "address": null
-  },
-  {
     "name": "Buffet Lẩu Nướng - Cò Thận",
     "type": "an",
     "address": "Số nhà 34, Tổ 16, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Bún chả A béo",
+    "type": "an",
+    "address": "23 Lê Duẩn"
   },
   {
     "name": "Cà Phê Bên Hồ",
@@ -138,11 +138,6 @@
     "name": "CGV Cinemas Vincom Plaza Tuyên Quang",
     "type": "choi",
     "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
-  },
-  {
-    "name": "Chang's Restaurant",
-    "type": "an",
-    "address": "Khu ẩm thực, Tổ 2, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "ChangMin Tea, Coffee & Food",
@@ -202,7 +197,7 @@
   {
     "name": "Công viên hồ Tân Quang",
     "type": "choi",
-    "address": "Phường Phan Thiết, TP Tuyên Quang"
+    "address": "215 đường Tân Trào"
   },
   {
     "name": "Công viên nước Bách Thảo Ngân",
@@ -315,6 +310,11 @@
     "address": "Số nhà 10A, Ngõ 136 Kim Quan, Tổ 4, Phường Ỷ La, TP Tuyên Quang"
   },
   {
+    "name": "Đông Sun Quán",
+    "type": "an",
+    "address": "205 Lê Lợi, TP Tuyên Quang"
+  },
+  {
     "name": "eNggO Gà rán Hàn Quốc",
     "type": "an",
     "address": "27 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
@@ -322,7 +322,7 @@
   {
     "name": "Feline Café",
     "type": "an",
-    "address": "102 đường Quang Trung, TP Tuyên Quang"
+    "address": "126 Bình Thuận"
   },
   {
     "name": "Gà Tươi Mạnh Hoạch (Tuyên Quang)",
@@ -348,6 +348,11 @@
     "name": "Hải Sản Thúy Nga",
     "type": "an",
     "address": "Số 55, Tổ 25, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Hanashi coffee Tuyên Quang",
+    "type": "an",
+    "address": "102 Quang Trung, TP Tuyên Quang"
   },
   {
     "name": "Hãng Taxi Sơn Trang",
@@ -515,11 +520,6 @@
     "address": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang"
   },
   {
-    "name": "Laika Cafe",
-    "type": "an",
-    "address": "102 Quang Trung, TP Tuyên Quang"
-  },
-  {
     "name": "Lavender Hotel Tuyên Quang",
     "type": "ngu",
     "address": "Số 98 đường Trần Phú, phường Minh Xuân, TP Tuyên Quang"
@@ -630,6 +630,11 @@
     "address": "Số 340 đường Phạm Văn Đồng, Tổ 4 Phường Hưng Thành, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng Bin (món ngon mỗi ngày)",
+    "type": "an",
+    "address": "8 Đinh Tiên Hoàng"
+  },
+  {
     "name": "Nhà hàng Cá Vân Kiên",
     "type": "an",
     "address": "Tổ 10, Phường Minh Xuân, TP Tuyên Quang"
@@ -730,6 +735,11 @@
     "address": "345 Trường Chinh, Phường Ỷ La, TP Tuyên Quang"
   },
   {
+    "name": "Nhà nghỉ Chí Tường",
+    "type": "ngu",
+    "address": "Tổ 33, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà nghỉ Dream",
     "type": "ngu",
     "address": "22C Lê Đại Hành, An Tường, TP Tuyên Quang"
@@ -760,6 +770,11 @@
     "address": "532 đường 17 tháng 8, phường Phan Thiết, TP. Tuyên Quang"
   },
   {
+    "name": "Nhà nghỉ Minh Thủy",
+    "type": "ngu",
+    "address": "Số 536, đường 17 Tháng 8, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà Nghỉ Ngọc Điệp",
     "type": "ngu",
     "address": "12 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
@@ -788,6 +803,11 @@
     "name": "Nhà nghỉ Thanh Huyền",
     "type": "ngu",
     "address": "Đường Trường Chinh, phường Tân Hà, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà nghỉ Thu Hiền",
+    "type": "ngu",
+    "address": "Tổ 14, phường Tân Hà, TP Tuyên Quang"
   },
   {
     "name": "Nhà Nghỉ Thủy Trang",
