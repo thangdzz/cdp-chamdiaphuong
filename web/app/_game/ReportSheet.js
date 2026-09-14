@@ -226,6 +226,7 @@ export function ReportSheet({ open, onClose, event, snapshot, resolvedCollection
             zoom={focus?.zoom ?? event.map.zoom}
             focus={focus}
             picker
+            venues={event.venues}
             onPick={({ lat, lng }) => setPoint({ lat, lng, accuracy: null, source: "map" })}
             className="mt-3 h-60 rounded-xl"
           />

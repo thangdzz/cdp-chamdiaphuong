@@ -3,6 +3,23 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — Điểm tổ chức chính trên bản đồ Săn đèn (venue layer)
+
+**Quyết định:** thêm primitive "venue" (điểm tổ chức của Event) vào cấu hình mùa
+`lib/game/seasons/thanh-tuyen-2026.js`, vẽ bằng `lib/game/venues.js` + `GameMap`: **Quảng trường
+Nguyễn Tất Thành** (vùng tô vàng nhạt viền cam) và **Tuyến phố đi bộ** trên đường Nguyễn Văn Linh,
+đoạn từ nút giao Hà Huy Tập đến nút giao Đinh Tiên Hoàng, khu hồ Tân Quang (đường cam viền trắng,
+~320m). Có nhãn HTML trên bản đồ chính; bản đồ chọn vị trí chỉ vẽ vùng/tuyến, không nhãn (nhãn che
+ghim). Bản đồ chính tự căn khung vừa mọi điểm tổ chức khi mở.
+
+**Vì sao/cách làm:** toạ độ lấy từ OpenStreetMap ngày 15/9/2026, không vẽ tay — quảng trường là
+OSM way 772332585 (`place=square`); tuyến phố là 8 điểm của way 309132178 (Đường Nguyễn Văn Linh)
+giữa node 3144504132 (chung với Đường Hà Huy Tập) và node 10562260409 (chung với Đường Đinh Tiên
+Hoàng). Venue là lớp nền cố định, không phải object sưu tầm/không nhận chạm, nằm dưới nhãn đường và
+marker mô hình. Nhãn dùng HTML thay vì lớp chữ của style để vẫn hiện khi rơi về tile OSM dự phòng.
+Kèm sửa tâm bản đồ cũ (ghi là quảng trường nhưng lệch ~450m). Mùa khác chỉ cần khai `venues`.
+Chưa có màn admin sửa venue — đổi trong file cấu hình.
+
 ## 2026-09-15 — Polish MVP1 Săn đèn: nhiều lượt thấy, nền bản đồ, vuốt đóng sheet, nháy bản đồ
 
 **1. Nhiều lượt thấy cùng một mô hình.** Giữ nguyên: bộ sưu tập chỉ tính mô hình duy nhất

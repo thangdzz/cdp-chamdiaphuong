@@ -252,6 +252,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             markers={mapMarkers}
             onMarkerClick={openMarker}
             focus={mapFocus}
+            venues={event.venues}
             showLocate
             // svh (không phải dvh): chiều cao KHÔNG đổi khi thanh địa chỉ Safari co/giãn lúc cuộn,
             // nên cuộn trang không kéo theo resize bản đồ (nguyên nhân nháy canvas).

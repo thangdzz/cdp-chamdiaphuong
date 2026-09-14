@@ -3,6 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import { FALLBACK_MAP_STYLE, loadGameMapStyle } from "@/lib/game/mapStyle";
+import { venueBounds, venueFeatureCollection, venueLabelPoint } from "@/lib/game/venues";
 
 // Primitive "Map Layer" phía giao diện: một bản đồ MapLibre + OSM nhận danh sách marker chung
 // chung ({id, lat, lng, icon, ...}). Không biết gì về đèn Trung thu — mùa khác, lớp khác
@@ -16,6 +17,68 @@ const MARKER_TONE = {
   high: "ring-[#e0a526]",
   mystery: "ring-zinc-400",
 };
+
+const VENUE_SOURCE = "cdp-venues";
+
+// Lớp điểm tổ chức (quảng trường, phố đi bộ) nằm DƯỚI nhãn tên đường của nền bản đồ và dưới
+// marker mô hình — là bối cảnh để định hướng, không tranh chú ý với lượt báo.
+function addVenueLayers(map, maplibregl, venues, { labels = true } = {}) {
+  if (!venues?.length || map.getSource(VENUE_SOURCE)) return [];
+  map.addSource(VENUE_SOURCE, { type: "geojson", data: venueFeatureCollection(venues) });
+  const beforeId = map.getStyle().layers.find((layer) => layer.type === "symbol")?.id;
+  const isArea = ["==", ["get", "kind"], "area"];
+  const isRoute = ["==", ["get", "kind"], "route"];
+  map.addLayer(
+    { id: "cdp-venue-area-fill", type: "fill", source: VENUE_SOURCE, filter: isArea,
+      paint: { "fill-color": "#e0a526", "fill-opacity": 0.22 } },
+    beforeId
+  );
+  map.addLayer(
+    { id: "cdp-venue-area-outline", type: "line", source: VENUE_SOURCE, filter: isArea,
+      paint: { "line-color": "#c8553d", "line-width": 1.5, "line-opacity": 0.65 } },
+    beforeId
+  );
+  map.addLayer(
+    { id: "cdp-venue-route-casing", type: "line", source: VENUE_SOURCE, filter: isRoute,
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 6, 17, 16] } },
+    beforeId
+  );
+  map.addLayer(
+    { id: "cdp-venue-route", type: "line", source: VENUE_SOURCE, filter: isRoute,
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": "#c8553d",
+        "line-opacity": 0.8,
+        "line-width": ["interpolate", ["linear"], ["zoom"], 13, 3, 17, 10],
+      } },
+    beforeId
+  );
+
+  if (!labels) return [];
+  // Nhãn là HTML (không dùng lớp chữ của style) để vẫn hiện khi phải dùng nền tile dự phòng
+  // không có font. Không nhận chạm để không che marker mô hình.
+  return venues
+    .map((venue) => {
+      const point = venueLabelPoint(venue);
+      if (!point) return null;
+      const el = document.createElement("div");
+      el.className =
+        "pointer-events-none flex max-w-[180px] items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-medium leading-4 text-[#8a3b28] shadow-sm ring-1 ring-[#c8553d]/30";
+      const icon = document.createElement("span");
+      icon.textContent = venue.icon ?? "📍";
+      const label = document.createElement("span");
+      label.className = "truncate";
+      label.textContent = venue.shortName ?? venue.name;
+      el.append(icon, label);
+      el.setAttribute("title", venue.name);
+      return new maplibregl.Marker({ element: el, anchor: venue.kind === "route" ? "bottom" : "center",
+        offset: venue.kind === "route" ? [0, -8] : [0, 0] })
+        .setLngLat([point.lng, point.lat])
+        .addTo(map);
+    })
+    .filter(Boolean);
+}
 
 function buildMarkerElement(marker) {
   const el = document.createElement("button");
@@ -63,6 +126,7 @@ export function GameMap({
   picker = false,
   onPick,
   showLocate = false,
+  venues = null,
   className = "",
 }) {
   const containerRef = useRef(null);
@@ -71,7 +135,7 @@ export function GameMap({
   const markerRefs = useRef(new Map());
   const onMarkerClickRef = useRef(onMarkerClick);
   const onPickRef = useRef(onPick);
-  const initialView = useRef({ center, zoom });
+  const initialView = useRef({ center, zoom, venues, picker });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -84,13 +148,14 @@ export function GameMap({
     let cancelled = false;
     let resizeObserver = null;
     const markerMap = markerRefs.current;
+    let venueLabels = [];
 
     Promise.all([import("maplibre-gl"), loadGameMapStyle().catch(() => FALLBACK_MAP_STYLE)])
       .then(([mod, style]) => {
         if (cancelled || !containerRef.current) return;
         const maplibregl = mod.default ?? mod;
         libRef.current = maplibregl;
-        const { center: c, zoom: z } = initialView.current;
+        const { center: c, zoom: z, venues: initialVenues, picker: isPicker } = initialView.current;
         const map = new maplibregl.Map({
           container: containerRef.current,
           style,
@@ -134,6 +199,13 @@ export function GameMap({
         });
         map.on("load", () => {
           if (cancelled) return;
+          // Bản đồ chọn vị trí chỉ vẽ vùng/tuyến, không nhãn — nhãn sẽ che ghim ở giữa.
+          venueLabels = addVenueLayers(map, maplibregl, initialVenues, { labels: !isPicker });
+          // Bản đồ chính: căn khung vừa mọi điểm tổ chức (điện thoại hẹp, zoom cố định bị cắt mất).
+          const bounds = !isPicker && venueBounds(initialVenues ?? []);
+          if (bounds && containerRef.current?.clientWidth > 0) {
+            map.fitBounds(bounds, { padding: { top: 56, bottom: 36, left: 36, right: 60 }, maxZoom: 16, duration: 0 });
+          }
           setReady(true);
           // Điện thoại: dòng ghi công OSM mở sẵn che mất góc bản đồ — thu về nút "i" (vẫn bấm
           // xem được). Màn rộng thì để nguyên.
@@ -175,6 +247,7 @@ export function GameMap({
     return () => {
       cancelled = true;
       resizeObserver?.disconnect();
+      venueLabels.forEach((label) => label.remove());
       markerMap.forEach(({ marker }) => marker.remove());
       markerMap.clear();
       mapRef.current?.remove();

@@ -24,6 +24,8 @@
   - [x] Polish 15/9: badge ×N + popup "tối nay N lượt · gần nhất", thống kê theo ngày/số người;
         nền bản đồ sáng kiểu Google + tên tiếng Việt; vuốt xuống đóng sheet; hết nháy bản đồ khi
         cuộn (Chromium + WebKit + desktop: 0 lần resize canvas/remount/vẽ lại marker khi cuộn)
+  - [x] 15/9: bản đồ có Quảng trường Nguyễn Tất Thành + Tuyến phố đi bộ Nguyễn Văn Linh (Hà Huy
+        Tập → Đinh Tiên Hoàng), toạ độ từ OSM, bản đồ tự căn khung vừa cả hai
   - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh, vuốt sheet) tại localhost:3100
   - [ ] Thay 10 tên mô hình tạm bằng danh sách thật ở `/admin/game`
   - [ ] Quyết định deploy trước 19/9

@@ -32,15 +32,50 @@ export const THANH_TUYEN_2026 = {
   },
 
   map: {
-    // Quảng trường Nguyễn Tất Thành, phường Minh Xuân — nơi tập trung chính.
-    center: { lat: 21.8236, lng: 105.214 },
-    zoom: 14.5,
+    // Giữa Quảng trường Nguyễn Tất Thành và tuyến phố đi bộ — mở ra thấy cả hai điểm tổ chức.
+    center: { lat: 21.8196, lng: 105.2125 },
+    zoom: 15,
     // Tỉnh Tuyên Quang (sau sáp nhập) + biên. Lượt báo ngoài khung này bị từ chối.
     bounds: [
       [104.2, 21.4],
       [106.0, 23.5],
     ],
   },
+
+  // Điểm tổ chức chính — lớp nền cố định trên bản đồ, không phải object để sưu tầm. Toạ độ lấy
+  // từ OpenStreetMap ngày 15/9/2026 (không tự vẽ tay); `source` ghi rõ để đối chiếu khi OSM đổi.
+  venues: [
+    {
+      id: "quang-truong-nguyen-tat-thanh",
+      kind: "area",
+      name: "Quảng trường Nguyễn Tất Thành",
+      shortName: "Quảng trường Nguyễn Tất Thành",
+      icon: "🏮",
+      source: "OSM way 772332585",
+      coordinates: [
+        [105.2163434, 21.8210839], [105.2161395, 21.8209967], [105.2152705, 21.8193583],
+        [105.2153134, 21.819174], [105.2157056, 21.818935], [105.2163154, 21.8198189],
+        [105.2175257, 21.8190159], [105.2176362, 21.8191441], [105.2182907, 21.8186685],
+        [105.2187628, 21.8192188], [105.2187735, 21.819413], [105.2177435, 21.82018],
+        [105.2166223, 21.8209967], [105.2163434, 21.8210839],
+      ],
+    },
+    {
+      id: "pho-di-bo-nguyen-van-linh",
+      kind: "route",
+      name: "Tuyến phố đi bộ — đường Nguyễn Văn Linh (Hà Huy Tập → Đinh Tiên Hoàng, khu hồ Tân Quang)",
+      shortName: "Phố đi bộ",
+      icon: "🚶",
+      // Đoạn đường Nguyễn Văn Linh (OSM way 309132178) giữa nút giao Hà Huy Tập (node 3144504132)
+      // và nút giao Đinh Tiên Hoàng (node 10562260409).
+      source: "OSM way 309132178, node 3144504132 → 10562260409",
+      coordinates: [
+        [105.2067636, 21.8201602], [105.2073137, 21.8198625], [105.2079478, 21.8195309],
+        [105.2083073, 21.8193268], [105.2084682, 21.8191973], [105.2085862, 21.819018],
+        [105.2087579, 21.8187192], [105.2090836, 21.8182784],
+      ],
+    },
+  ],
 
   // "Bản đồ tối nay" hiện lượt báo trong khoảng này. Mô hình di chuyển nên dữ liệu cũ hơn vài
   // giờ không còn giúp ai đi tìm.

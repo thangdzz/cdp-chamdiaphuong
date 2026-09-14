@@ -8,6 +8,10 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (sau) — Điểm tổ chức trên bản đồ Săn đèn ĐÃ CODE, CHƯA DEPLOY.** `venues` trong file
+season (quảng trường + phố đi bộ Nguyễn Văn Linh, toạ độ OSM), vẽ ở `GameMap` qua `lib/game/venues.js`.
+Đổi/thêm điểm tổ chức: sửa mảng `venues`, giữ `source` ghi way/node OSM.
+
 **2026-09-15 — Polish MVP1 Săn đèn ĐÃ CODE, CHƯA DEPLOY.** Badge ×N + popup lượt tối nay, nền
 bản đồ style chỉnh sẵn trong `lib/game/mapStyle.js`, vuốt đóng trong `app/_game/BottomSheet.js`,
 chống nháy trong `app/_game/GameMap.js` (**đừng bật lại `trackResize` hay dùng `dvh` cho khung

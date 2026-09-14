@@ -506,7 +506,9 @@ web/
 │   │   └── le-hoi-thanh-tuyen-2026.js  11 mốc + PLAN_TEMPLATE (khung Interactive Plan)
 │   ├── game/                      ⭐ Game layer primitive (NOTE-03/04). Thuần = client dùng được:
 │   │   ├── registry.js            Event: đăng ký mùa, pha upcoming/live/ended
-│   │   ├── seasons/thanh-tuyen-2026.js  Cấu hình mùa (copy, bản đồ, category, seed object)
+│   │   ├── seasons/thanh-tuyen-2026.js  Cấu hình mùa (copy, bản đồ, category, điểm tổ chức
+│   │   │                          `venues` lấy từ OSM, seed object)
+│   │   ├── venues.js              Venue → GeoJSON, điểm đặt nhãn, khung bao để căn bản đồ
 │   │   ├── catalog.js             Object: chuẩn hoá + fallback tên/icon, gộp seed + Redis, ghép
 │   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
 │   │   ├── quests.js              Nhiệm vụ tự sinh từ data gap (thiếu ảnh/vị trí lệch/chưa tên)

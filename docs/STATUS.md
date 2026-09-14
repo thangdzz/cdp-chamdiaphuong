@@ -6,6 +6,13 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (sau) — Điểm tổ chức trên bản đồ Săn đèn, chỉ local:** thêm Quảng
+trường Nguyễn Tất Thành (vùng) và Tuyến phố đi bộ đường Nguyễn Văn Linh từ nút giao Hà Huy Tập tới
+nút giao Đinh Tiên Hoàng, khu hồ Tân Quang (tuyến ~320m). Toạ độ truy từ OpenStreetMap (way/node ghi
+trong file season + DECISIONS). Bản đồ chính tự căn khung vừa cả hai; bản đồ chọn vị trí chỉ tô tuyến,
+không nhãn. Build đạt, lint đúng 1 lỗi nền; chạy lại toàn bộ test Chromium/WebKit/desktop (chống nháy,
+vuốt sheet) vẫn đạt, không lỗi JS. **Chưa deploy.**
+
 **Cập nhật mới nhất 2026-09-15 — Polish MVP1 Săn đèn, chỉ local:** theo phản hồi chủ dự án sửa 4
 điểm, không mở rộng phạm vi. (1) Điểm bản đồ có badge `×N`, popup ghi số lượt tối nay + lần gần
 nhất; thêm đếm theo ngày + số người khác nhau cho thống kê sau này (chưa UI). (2) Nền bản đồ đổi
