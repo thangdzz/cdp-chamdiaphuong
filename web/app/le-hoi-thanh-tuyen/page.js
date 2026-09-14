@@ -76,7 +76,7 @@ export default async function LeHoiThanhTuyenPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <Link href="/" className="text-sm text-zinc-500">
+        <Link href="/" transitionTypes={["nav-back"]} className="text-sm text-zinc-500">
           ← Về trang chủ
         </Link>
 

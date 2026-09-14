@@ -246,13 +246,14 @@ nháy. Dài gấp khoảng bảy lần mức nên dùng.
 **Nguyên tắc: 150–300ms, `ease-out`, và người dùng gần như không nhận ra nó đang diễn ra.**
 Hiệu ứng tốt là hiệu ứng chỉ thấy thiếu khi bỏ đi.
 
-**Chỉ có đúng ba chỗ chuyển động:**
+**Chỉ có đúng bốn chỗ chuyển động** (chỗ thứ 4 thêm 2026-09-14, xem DECISIONS):
 
 | Chỗ | Thời gian | Kiểu |
 |---|---|---|
 | Thẻ bung ra / thu lại | 250ms `ease-out` | Trượt xuống + hiện dần |
 | Nút bấm | 100ms | `scale(0.97)` lúc nhấn |
 | Nội dung mới xuất hiện | 200ms | Mờ dần vào |
+| Chuyển sang trang khác | 260ms `ease-out` | Trang mới trượt 28px + hiện dần (từ phải khi đi tới, từ trái với link "←"); header/sidebar đứng yên; nút Back trình duyệt không chạy |
 
 **Sửa `cdp-highlight-flash`:** rút còn **1 lần, 600ms**, và chỉ đổi nền — bỏ `box-shadow`
 nhấp nháy.

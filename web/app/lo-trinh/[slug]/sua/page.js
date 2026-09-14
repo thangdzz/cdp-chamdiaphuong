@@ -180,7 +180,7 @@ export default function EditRoutePage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <Link href={`/lo-trinh/${slug}`} className="text-sm text-zinc-400 underline">
+        <Link href={`/lo-trinh/${slug}`} transitionTypes={["nav-back"]} className="text-sm text-zinc-400 underline">
           ← Xem lộ trình
         </Link>
 

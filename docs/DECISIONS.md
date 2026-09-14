@@ -3,6 +3,25 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-14 — Chuyển trang kiểu iOS bằng View Transitions của trình duyệt
+
+**Quyết định:** Bật `experimental.viewTransition` của Next 16 và bọc nội dung trang trong
+`app/PageTransition.js` (`<ViewTransition key={pathname}>`). Chỉ trang mới có animation enter
+260ms trượt 28px + hiện dần; trang cũ không exit, root không crossfade. Link "←" gắn
+`transitionTypes={["nav-back"]}` để trượt ngược. Điều hướng từ nút Back/vuốt Back của trình
+duyệt (đánh dấu qua `popstate`) không chạy hiệu ứng. Header mobile + sidebar desktop có
+`view-transition-name` riêng để đứng yên. `prefers-reduced-motion` tắt hẳn.
+
+**Vì sao:** Chủ dự án muốn cảm giác chuyển trang giống iOS nhưng không được làm chậm web. API
+có sẵn của trình duyệt không thêm thư viện (0KB), chạy trên compositor, chỉ bắt đầu khi trang
+mới đã sẵn sàng; trình duyệt chưa hỗ trợ thì chuyển tức thì như cũ. Không animation lúc Back
+của trình duyệt vì Safari iOS đã có hiệu ứng vuốt riêng — thêm nữa là chuyển động chồng.
+Key theo `pathname` để làm mới dữ liệu cùng trang (Server Action, lọc, #anchor) không trượt.
+
+**Rủi ro:** Tính năng còn "experimental" trong Next. Tắt bằng một dòng `viewTransition: false`
+trong `next.config.mjs` là web về như cũ (component vẫn render bình thường). Đây là chỗ chuyển
+động thứ 4 — đã cập nhật SPEC-giao-dien §7.
+
 ## 2026-09-14 — Link chia sẻ cũ mượn ảnh hiện tại của địa điểm (ngoại lệ bản chụp)
 
 **Quyết định:** Trang `/lo-trinh/xem/[token]` vẫn đọc chữ/giờ/thứ tự từ bản chụp. Riêng stop

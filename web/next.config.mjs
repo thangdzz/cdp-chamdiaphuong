@@ -14,6 +14,8 @@ const nextConfig = {
     root: import.meta.dirname,
   },
   experimental: {
+    // Công tắc hiệu ứng chuyển trang (app/PageTransition.js). Có vấn đề thì đặt false.
+    viewTransition: true,
     serverActions: {
       // Mặc định 1MB — ảnh đã nén phía trình duyệt nhưng khách có thể gửi 5 ảnh/lần, Admin
       // 10 ảnh/lần. Server vẫn chặn từng file 8MB và resize lại trước khi lưu.

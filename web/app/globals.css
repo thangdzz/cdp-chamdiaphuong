@@ -99,11 +99,59 @@ body {
   transform: scale(0.97);
 }
 
+/* Chuyển trang kiểu iOS (app/PageTransition.js) — chỗ chuyển động thứ 4 trong
+   SPEC-giao-dien.md §7. Chỉ trang mới trượt vào một đoạn ngắn + hiện dần, 260ms ease-out. */
+@keyframes cdp-page-enter {
+  from {
+    opacity: 0;
+    translate: var(--cdp-page-offset) 0;
+  }
+}
+
+::view-transition-new(.cdp-nav-forward) {
+  --cdp-page-offset: 28px;
+  animation: cdp-page-enter 260ms ease-out both;
+}
+
+::view-transition-new(.cdp-nav-back) {
+  --cdp-page-offset: -28px;
+  animation: cdp-page-enter 260ms ease-out both;
+}
+
+/* Trang cũ biến mất ngay, không mờ chéo cả màn hình (header/sidebar giống hệt nhau). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Header mobile + sidebar desktop đứng yên, luôn nằm trên nội dung đang trượt. */
+::view-transition-group(cdp-site-header),
+::view-transition-group(cdp-site-sidebar) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(cdp-site-header),
+::view-transition-old(cdp-site-sidebar) {
+  display: none;
+}
+
+::view-transition-new(cdp-site-header),
+::view-transition-new(cdp-site-sidebar) {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none !important;
   }
 }

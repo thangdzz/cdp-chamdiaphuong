@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { NavigationIcon } from "@/app/NavigationIcon";
 
 function isActive(item, pathname) {
   if (item.href === "/") return pathname === "/";
@@ -14,7 +15,7 @@ export function SiteHeader({ navigation, pathname, open, onOpenChange }) {
   const visibleItems = navigation.filter((item) => item.enabled);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur lg:hidden">
+    <header style={{ viewTransitionName: "cdp-site-header" }} className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur lg:hidden">
       <div className="mx-auto flex min-h-[57px] w-full items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
         <Link href="/" onClick={() => onOpenChange(false)} className="inline-flex min-w-0 items-center gap-2.5">
           <Image src="/cdp-logo.png" alt="CDP" width={280} height={121} priority className="h-[26px] w-auto shrink-0" />
@@ -46,10 +47,13 @@ export function SiteHeader({ navigation, pathname, open, onOpenChange }) {
                   href={item.href}
                   onClick={() => onOpenChange(false)}
                   aria-current={active ? "page" : undefined}
-                  className={`cdp-pressable rounded-lg px-3 py-2.5 text-sm ${
+                  className={`cdp-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
                     active ? "bg-[#c8553d]/10 font-medium text-[#a83f2b]" : "text-zinc-700"
                   }`}
                 >
+                  <span className={`shrink-0 ${active ? "" : "text-zinc-500"}`}>
+                    <NavigationIcon itemKey={item.key} />
+                  </span>
                   {item.navLabel}
                 </Link>
               );

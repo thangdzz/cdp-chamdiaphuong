@@ -132,7 +132,7 @@ export default function EditNotebookPage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <Link href={`/so/${slug}`} className="text-sm text-zinc-400 underline">
+        <Link href={`/so/${slug}`} transitionTypes={["nav-back"]} className="text-sm text-zinc-400 underline">
           ← Xem sổ
         </Link>
 

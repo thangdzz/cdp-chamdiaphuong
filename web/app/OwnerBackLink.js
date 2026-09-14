@@ -26,7 +26,7 @@ export function OwnerBackLink({ kind, slug }) {
   if (!isOwner) return null;
 
   return (
-    <Link href={target.href} className="mb-3 inline-block text-sm text-zinc-400 underline">
+    <Link href={target.href} transitionTypes={["nav-back"]} className="mb-3 inline-block text-sm text-zinc-400 underline">
       ← {target.label}
     </Link>
   );
