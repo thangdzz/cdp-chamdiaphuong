@@ -605,11 +605,6 @@
     "address": "197 Quang Trung, phường Tân Quang, TP Tuyên Quang"
   },
   {
-    "name": "Nhà hàng 3 Chữ Lồng",
-    "type": "an",
-    "address": "Số 18, tổ 19, ngõ Ngô Gia Khảm, phường Minh Xuân, TP Tuyên Quang"
-  },
-  {
     "name": "Nhà hàng 89 Lẩu - Nướng",
     "type": "an",
     "address": "Tổ 14, phường Minh Xuân, TP Tuyên Quang"
@@ -638,6 +633,11 @@
     "name": "Nhà hàng Cá Vân Kiên",
     "type": "an",
     "address": "Tổ 10, Phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà hàng Cường Sâm 2",
+    "type": "an",
+    "address": "Tổ 14, phường Tân Hà, TP Tuyên Quang"
   },
   {
     "name": "Nhà Hàng Dân Tộc Quán",
@@ -693,6 +693,11 @@
     "name": "Nhà Hàng Nhiên Hiên",
     "type": "an",
     "address": "Số 112 Điện Biên Phủ, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà hàng Tây Bắc",
+    "type": "an",
+    "address": "Đường Nam Cao, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Nhà hàng Thành Tín",
@@ -905,11 +910,6 @@
     "address": "95 Bình Thuận, phường Tân Quang, TP Tuyên Quang"
   },
   {
-    "name": "Quán Cơm Văn Phòng Buffet 30 Món - Lão Đại",
-    "type": "an",
-    "address": "110 Xã Tắc, Phường Tân Quang, TP Tuyên Quang"
-  },
-  {
     "name": "Quán Mỳ cay Oppa",
     "type": "an",
     "address": "Khu vực 60, phố Tam Cờ, phường Minh Xuân, TP Tuyên Quang"
@@ -958,6 +958,11 @@
     "name": "Royal Restaurant",
     "type": "an",
     "address": "Đường Lý Thái Tổ, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Saturday - Trà Chanh Phố",
+    "type": "an",
+    "address": "Số 02 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Sáu Được - Cháo Dinh Dưỡng",
