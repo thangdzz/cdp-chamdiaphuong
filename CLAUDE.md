@@ -12,13 +12,14 @@ Anh là solo creator, **không rành kỹ thuật (non-tech)**. Mọi giải th�
 đơn giản, tránh thuật ngữ khi không cần thiết; nếu buộc phải dùng thuật ngữ kỹ thuật, giải
 thích ngắn ngay sau đó.
 
-## Chia việc giữa các công cụ (từ 2026-08-11)
+## Chia việc giữa các công cụ (cập nhật 2026-09-14)
 - **Cowork (Claude desktop):** bàn hướng đi, thiết kế, brainstorm, và **cập nhật tài liệu
   `.md`**. Không code ở đây.
-- **Antigravity:** nơi viết code thật.
+- **Claude Code:** nơi viết code chính (vẫn trình kế hoạch trước khi code).
+- **Codex:** chỉ dự phòng khi Claude hết usage.
 
-Nghĩa là: ở Cowork, sau khi chốt thiết kế thì ghi vào `docs/`, rồi bàn giao sang Antigravity
-để code — không tự viết code trong phiên Cowork trừ khi anh nói khác.
+Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub — quy tắc ở
+[AGENTS.md](AGENTS.md) §7. (Từ 2026-08-11 đến trước tháng 9, code được viết ở Antigravity.)
 
 ## Quy tắc làm việc bắt buộc
 

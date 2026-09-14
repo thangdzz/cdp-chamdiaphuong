@@ -3,6 +3,17 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-14 — Claude Code là agent code chính, Codex dự phòng; bàn giao qua HANDOFF + git
+
+**Quyết định:** Claude Code viết code chính; Codex chỉ dùng khi Claude hết usage. Mỗi phiên
+đồng bộ git trước khi làm, mỗi NOTE một commit, push ngay khi xong, và cập nhật HANDOFF §1/§5
++ push trước khi dừng. Quy tắc chi tiết ở `AGENTS.md` §7 (file cả hai agent đều đọc).
+
+**Vì sao:** Lần bàn giao Codex → Claude ngày 14/9 gộp NOTE-08→13 vào một commit 101 file,
+HANDOFF ghi "chưa commit" dù đã commit, và máy lệch GitHub vì routine quét commit hằng ngày.
+Hai agent không trao đổi trực tiếp được nên GitHub + HANDOFF phải luôn là bản mới nhất. Push
+an toàn vì Vercel không nối git — deploy vẫn chỉ bằng lệnh tay khi chủ dự án yêu cầu.
+
 ## 2026-09-14 — NOTE-13: closed thắng crawler; mở lại giữ ID, thay thế đi qua proposal
 
 **Quyết định:** `ingestBatch()` phải đối chiếu `places:closed` trước mọi nhánh auto-public.

@@ -131,3 +131,21 @@ npm run lint     # eslint
 
 **Quy trình**
 - Không commit/push/deploy nếu không được yêu cầu. Không đụng file ngoài phạm vi việc đang làm.
+
+---
+
+## 7. Bàn giao giữa các agent
+
+Claude Code là agent chính; Codex chỉ dự phòng khi Claude hết usage. Hai bên không nói chuyện
+được với nhau — **`docs/HANDOFF.md` trên GitHub là kênh bàn giao duy nhất**. Ba quy tắc dưới
+đây là ngoại lệ đã được chủ dự án duyệt (2026-09-14) cho quy tắc "không commit/push".
+
+1. **Bắt đầu phiên:** `git fetch` rồi đồng bộ với `origin/main` trước khi làm gì (routine quét
+   tự commit lên `main` mỗi ngày). Đọc HANDOFF, so với `git log`; chỗ nào lệch thì sửa HANDOFF
+   trước rồi mới làm việc mới.
+2. **Trong lúc làm:** mỗi NOTE/việc một commit riêng, xong phần nào push phần đó. **Push không
+   deploy** — Vercel không nối git, production chỉ đổi khi chạy `npx vercel --prod`.
+   Không gộp nhiều NOTE vào một commit (khó revert riêng).
+3. **Kết thúc phiên hoặc sắp hết usage:** cập nhật HANDOFF §1 (đang làm gì, dở ở đâu) và §5
+   (bước tiếp theo), ghi rõ việc nào đã deploy / chỉ local; commit + push. Code dở dang cũng
+   commit (ghi `WIP` trong message) thay vì để trên máy.
