@@ -3,6 +3,22 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-14 — Link chia sẻ cũ mượn ảnh hiện tại của địa điểm (ngoại lệ bản chụp)
+
+**Quyết định:** Trang `/lo-trinh/xem/[token]` vẫn đọc chữ/giờ/thứ tự từ bản chụp. Riêng stop
+**thiếu hẳn** field `navigationMedia` (link tạo trước NOTE-11) và có `placeId` thì lấy ảnh nhận
+diện hiện tại từ `places:live` (`withLegacyNavigationMedia` trong `lib/routeShare.js`). Snapshot
+mới có field (kể cả `null`) vẫn đóng băng ảnh như cũ.
+
+**Vì sao:** Cả 6 link chia sẻ có sẵn đều tạo 11–14/9, trước khi NOTE-11 lên production, nên
+người nhận không thấy ảnh dù trang lộ trình của chủ có ảnh. Các link này đã gửi cho người đi lễ
+hội; bắt chủ dự án chia sẻ lại và gửi lại từng người là không thực tế. Ảnh chỉ để nhận diện
+chỗ, không đổi nội dung người gửi đã chọn. Chủ dự án chọn cách này (phương án B) thay vì chia
+sẻ lại.
+
+**Đánh đổi:** Với link cũ, Admin đổi ảnh bìa về sau thì người nhận thấy ảnh mới; chỗ đã gỡ
+khỏi danh bạ thì không có ảnh. Mỗi lượt mở link cũ đọc thêm `places:live`.
+
 ## 2026-09-14 — Claude Code là agent code chính, Codex dự phòng; bàn giao qua HANDOFF + git
 
 **Quyết định:** Claude Code viết code chính; Codex chỉ dùng khi Claude hết usage. Mỗi phiên

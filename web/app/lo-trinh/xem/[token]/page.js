@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getShareSnapshot } from "@/lib/routeShare";
+import { getShareSnapshot, withLegacyNavigationMedia } from "@/lib/routeShare";
 import { routeMapsUrl } from "@/lib/mapsUrl";
 import { formatStayDuration } from "@/lib/durationFormat";
 import { TRANSPORT_MODES, transportModeLabel } from "@/lib/routes";
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }) {
   const shared = await getShareSnapshot(token);
   if (!shared) return { title: `Không tìm thấy lộ trình — ${SITE_NAME}` };
 
-  const { snapshot } = shared;
+  const snapshot = await withLegacyNavigationMedia(shared.snapshot);
   const description = [`${snapshot.stops.length} điểm`, transportModeLabel(snapshot.transportMode), SITE_NAME]
     .filter(Boolean)
     .join(" · ");
@@ -41,7 +41,7 @@ export default async function SharedRoutePage({ params }) {
   const shared = await getShareSnapshot(token);
   if (!shared) notFound();
 
-  const { snapshot } = shared;
+  const snapshot = await withLegacyNavigationMedia(shared.snapshot);
   const mapsMode = TRANSPORT_MODES.find((m) => m.id === snapshot.transportMode)?.mapsMode ?? "driving";
   const maps = routeMapsUrl(snapshot.stops, mapsMode);
 

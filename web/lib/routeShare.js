@@ -13,7 +13,7 @@
 // Bản chụp phải TỰ ĐỦ: chép sẵn tên, địa chỉ, khu vực, giá của từng điểm — không tra lại
 // places:live lúc mở. Chỗ bị xoá khỏi danh bạ sau đó thì link cũ vẫn hiện đúng như lúc chia sẻ.
 
-import { redis } from "./redis.js";
+import { getLivePlaces, redis } from "./redis.js";
 import { stopTitle, STOP_TYPES } from "./routes.js";
 import { stopMapsQuery } from "./mapsUrl.js";
 import { placeNavigationMedia } from "./media.js";
@@ -93,4 +93,26 @@ export async function createShareSnapshot({ route, resolvedStops }) {
 export async function getShareSnapshot(token) {
   if (!token) return null;
   return (await redis.get(shareKey(token))) ?? null;
+}
+
+/**
+ * Ngoại lệ duy nhất của nguyên tắc "không tra lại places:live" (DECISIONS 2026-09-14): link
+ * tạo trước NOTE-11 không có field `navigationMedia` nên người nhận không thấy ảnh. Chỉ stop
+ * THIẾU hẳn field (khác `null` của snapshot mới) và có placeId mới mượn ảnh hiện tại của địa
+ * điểm. Chữ, giờ, thứ tự vẫn đọc từ bản chụp; chỗ đã bị gỡ khỏi danh bạ thì đơn giản không có ảnh.
+ */
+export async function withLegacyNavigationMedia(snapshot) {
+  const needsLookup = snapshot.stops.some((stop) => !("navigationMedia" in stop) && stop.placeId);
+  if (!needsLookup) return snapshot;
+
+  const livePlaces = await getLivePlaces().catch(() => []);
+  const placesById = new Map(livePlaces.map((place) => [place.id, place]));
+  return {
+    ...snapshot,
+    stops: snapshot.stops.map((stop) => {
+      if ("navigationMedia" in stop || !stop.placeId) return stop;
+      const place = placesById.get(stop.placeId);
+      return { ...stop, navigationMedia: place ? placeNavigationMedia(place) : null };
+    }),
+  };
 }
