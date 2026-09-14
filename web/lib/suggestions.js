@@ -22,6 +22,14 @@ export async function appendSuggestion(item) {
   return item;
 }
 
+export async function appendSuggestions(items) {
+  if (!items?.length) return [];
+  const list = await getSuggestions();
+  list.push(...items);
+  await saveSuggestions(list);
+  return items;
+}
+
 function fieldsEqual(a, b) {
   const keys = new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})]);
   for (const key of keys) {

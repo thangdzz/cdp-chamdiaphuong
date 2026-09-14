@@ -1,13 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.public.blob.vercel-storage.com",
+        pathname: "/**",
+      },
+    ],
+    formats: ["image/avif", "image/webp"],
+  },
   turbopack: {
     root: import.meta.dirname,
   },
   experimental: {
     serverActions: {
-      // Mặc định 1MB — ảnh khách gửi (đã nén phía trình duyệt, nhưng có thể tới 3 ảnh/lần
-      // và đôi khi nén không tác dụng) cần rộng rãi hơn để không bị chặn oan.
-      bodySizeLimit: "8mb",
+      // Mặc định 1MB — ảnh đã nén phía trình duyệt nhưng khách có thể gửi 5 ảnh/lần, Admin
+      // 10 ảnh/lần. Server vẫn chặn từng file 8MB và resize lại trước khi lưu.
+      bodySizeLimit: "12mb",
     },
   },
 };

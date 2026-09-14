@@ -1,5 +1,5 @@
 import { getLivePlaces } from "@/lib/redis";
-import { SiteHeader } from "@/app/SiteHeader";
+import { PageTitle } from "@/app/AppShell";
 import { PersonalNotesList } from "@/app/PersonalNotesList";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +13,7 @@ export default async function PersonalNotesPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <SiteHeader />
-        <h1 className="mb-1 text-xl font-medium tracking-tight text-zinc-900">Ghi chú của tôi</h1>
+        <PageTitle pageKey="notes" fallback="Ghi chú của tôi" className="mb-1 text-xl font-medium tracking-tight text-zinc-900" />
         <p className="mb-4 text-[13px] text-zinc-500">
           Chỉ mình bạn thấy — lưu trên máy này, đổi máy hoặc xoá dữ liệu duyệt web sẽ mất.
         </p>

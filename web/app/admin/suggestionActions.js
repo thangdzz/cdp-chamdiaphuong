@@ -7,6 +7,8 @@ import { getLivePlaces, setLivePlaces } from "@/lib/redis";
 import { getSuggestions, saveSuggestions } from "@/lib/suggestions";
 import { addContributorPoints } from "@/lib/contributors";
 import { POINTS } from "@/lib/badges";
+import { normalizeMediaItem, placeMedia, withPlaceMedia } from "@/lib/media";
+import { archiveClosedPlace } from "@/lib/closedPlaces";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -39,7 +41,12 @@ async function applyDecision(id, decision) {
     const placeIndex = livePlaces.findIndex((p) => p.id === item.placeId);
 
     if (item.type === "correction" && item.fields?.closed && placeIndex !== -1) {
-      // Chỗ báo đã đóng cửa — gỡ khỏi công khai, giống nhánh stale_place (luôn cần duyệt).
+      // Archive trước rồi mới gỡ public: nếu bước sau lỗi, retry vẫn an toàn; không còn biến
+      // URL đã chia sẻ thành 404 như cách xoá thẳng trước NOTE-12.
+      await archiveClosedPlace(livePlaces[placeIndex], {
+        source: "user_suggestion",
+        sourceId: item.id,
+      });
       await setLivePlaces(livePlaces.filter((p) => p.id !== item.placeId));
     } else if (item.type === "correction" && placeIndex !== -1) {
       const place = livePlaces[placeIndex];
@@ -51,15 +58,18 @@ async function applyDecision(id, decision) {
       }
       livePlaces[placeIndex] = { ...place, ...updates, lastUpdatedAt: new Date().toISOString() };
       await setLivePlaces(livePlaces);
-    } else if (item.type === "photo" && placeIndex !== -1 && item.photoTag === "menu") {
-      const place = livePlaces[placeIndex];
-      const menuPhotos = [...(place.menuPhotos ?? []), { url: item.photoUrl, addedAt: item.createdAt }];
-      livePlaces[placeIndex] = { ...place, menuPhotos };
-      await setLivePlaces(livePlaces);
     } else if (item.type === "photo" && placeIndex !== -1) {
       const place = livePlaces[placeIndex];
-      const photos = [...(place.photos ?? []), item.photoUrl];
-      livePlaces[placeIndex] = { ...place, photos };
+      const current = placeMedia(place);
+      const incoming = normalizeMediaItem(item.media ?? item.photoUrl, {
+        order: current.length,
+        fallbackRole: item.photoTag === "menu" ? "menu" : "general",
+        uploadedAt: item.createdAt,
+        source: "user",
+      });
+      if (incoming) {
+        livePlaces[placeIndex] = withPlaceMedia(place, [...current, incoming]);
+      }
       await setLivePlaces(livePlaces);
     }
 
@@ -80,6 +90,7 @@ async function applyDecision(id, decision) {
 
   revalidatePath("/admin");
   revalidatePath("/");
+  if (item.placeId) revalidatePath(`/dia-diem/${item.placeId}`);
 }
 
 export async function approveSuggestion(formData) {

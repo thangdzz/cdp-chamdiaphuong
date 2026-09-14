@@ -8,14 +8,22 @@ import { PLACE_TYPES } from "@/lib/placeTypes";
 // Nói rõ ngay trên form chuyện gì sẽ xảy ra: chỗ này vào lộ trình NGAY, nhưng CHƯA vào danh bạ
 // CDP cho tới khi được duyệt. Không nói thì khách tưởng vừa đăng một địa điểm công khai
 // (đúng nguyên tắc §8: "Lộ trình thuộc về người tạo; danh bạ thuộc về CDP").
-export function ProposePlaceForm({ initialName = "", onSubmit, onClose }) {
+export function ProposePlaceForm({
+  initialName = "",
+  initialWard = "",
+  initialAddress = "",
+  variant = "route",
+  onSubmit,
+  onClose,
+}) {
   const [name, setName] = useState(initialName);
   const [type, setType] = useState(PLACE_TYPES[0].id);
-  const [ward, setWard] = useState("");
-  const [address, setAddress] = useState("");
+  const [ward, setWard] = useState(initialWard);
+  const [address, setAddress] = useState(initialAddress);
   const [note, setNote] = useState("");
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const replacementMode = variant === "replacement";
 
   // Cùng lý do với PlacePicker: khoá cuộn trang phía sau khi form đang mở.
   useEffect(() => {
@@ -41,7 +49,9 @@ export function ProposePlaceForm({ initialName = "", onSubmit, onClose }) {
   return (
     <div className="fixed inset-0 z-[60] flex flex-col bg-zinc-50">
       <header className="flex items-center justify-between gap-2 border-b border-zinc-200 bg-white px-4 py-3">
-        <h2 className="text-base font-medium text-zinc-900">Đề xuất địa điểm mới</h2>
+        <h2 className="text-base font-medium text-zinc-900">
+          {replacementMode ? "Đề xuất chỗ mới tại đây" : "Đề xuất địa điểm mới"}
+        </h2>
         <button
           type="button"
           onClick={onClose}
@@ -52,11 +62,21 @@ export function ProposePlaceForm({ initialName = "", onSubmit, onClose }) {
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        <p className="mb-4 rounded-lg bg-white p-3 text-[13px] leading-relaxed text-zinc-600">
-          Chỗ này vào <span className="font-medium text-zinc-900">lộ trình của bạn ngay</span>, kèm
-          nhãn &quot;CDP chưa xác minh&quot;. CDP sẽ xem lại rồi mới quyết định có đưa vào danh bạ
-          chung hay không — chưa duyệt thì người khác không tìm thấy nó trên web.
-        </p>
+        {replacementMode ? (
+          <p className="mb-4 rounded-lg bg-white p-3 text-[13px] leading-relaxed text-zinc-600">
+            CDP giữ nguyên địa điểm cũ và gửi chỗ mới này vào hàng chờ Admin. Chỗ mới chỉ xuất
+            hiện trong danh bạ sau khi được duyệt; ảnh, giá và xác nhận của chỗ cũ không được
+            chuyển sang.
+          </p>
+        ) : (
+          <p className="mb-4 rounded-lg bg-white p-3 text-[13px] leading-relaxed text-zinc-600">
+            Chỗ này vào <span className="font-medium text-zinc-900">lộ trình của bạn ngay</span>, kèm
+            nhãn &quot;CDP chưa xác minh&quot;. CDP sẽ xem lại rồi mới quyết định có đưa vào danh bạ
+            chung hay không — chưa duyệt thì người khác không tìm thấy nó trên web. Mục đề xuất
+            chỉ dành cho địa điểm tại Tuyên Quang; chỗ ở tỉnh khác hãy thêm dưới dạng Điểm riêng
+            và chọn đúng tỉnh/thành.
+          </p>
+        )}
 
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-[13px] text-zinc-500">
@@ -88,8 +108,9 @@ export function ProposePlaceForm({ initialName = "", onSubmit, onClose }) {
           <label className="flex flex-col gap-1 text-[13px] text-zinc-500">
             Khu vực / phường
             <input
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 read-only:bg-zinc-100 read-only:text-zinc-500"
               value={ward}
+              readOnly={replacementMode}
               maxLength={120}
               placeholder="VD: Phan Thiết"
               onChange={(e) => setWard(e.target.value)}
@@ -99,8 +120,9 @@ export function ProposePlaceForm({ initialName = "", onSubmit, onClose }) {
           <label className="flex flex-col gap-1 text-[13px] text-zinc-500">
             Địa chỉ (nếu biết)
             <input
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 read-only:bg-zinc-100 read-only:text-zinc-500"
               value={address}
+              readOnly={replacementMode}
               maxLength={120}
               placeholder="VD: 12 Trần Phú"
               onChange={(e) => setAddress(e.target.value)}
@@ -130,7 +152,11 @@ export function ProposePlaceForm({ initialName = "", onSubmit, onClose }) {
           onClick={handleSubmit}
           className="cdp-pressable w-full cursor-pointer rounded-lg bg-[#c8553d] px-4 py-3 text-sm font-medium text-white disabled:cursor-default disabled:opacity-40"
         >
-          {busy ? "Đang gửi..." : "Thêm vào lộ trình & gửi CDP"}
+          {busy
+            ? "Đang gửi..."
+            : replacementMode
+              ? "Gửi chỗ mới để CDP duyệt"
+              : "Thêm vào lộ trình & gửi CDP"}
         </button>
       </div>
     </div>

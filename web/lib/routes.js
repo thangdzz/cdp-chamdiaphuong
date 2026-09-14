@@ -17,7 +17,8 @@ import { redis } from "./redis.js";
 import { getLivePlaces } from "./redis.js";
 import { containsLinkOrPhone } from "./textFilter.js";
 import { getProposalIndex, PROPOSAL_STATUS } from "./proposals.js";
-import { normalizeProvince } from "./provinces.js";
+import { DEFAULT_PROVINCE, PROVINCES, isValidProvince, normalizeProvince } from "./provinces.js";
+import { routeStorageKey } from "./routeStorageKeys.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
 const SLUG_LENGTH = 8;
@@ -51,11 +52,11 @@ export function transportModeLabel(id) {
 }
 
 function routeKey(slug) {
-  return `route:${slug}`;
+  return routeStorageKey(`route:${slug}`);
 }
 
 function ownerListKey(anonId) {
-  return `routes:by-owner:${anonId}`;
+  return routeStorageKey(`routes:by-owner:${anonId}`);
 }
 
 function randomSlug() {
@@ -103,7 +104,13 @@ export async function getRoute(slug) {
   return (await redis.get(routeKey(slug))) ?? null;
 }
 
-export async function createRoute({ ownerAnonId, title, stops = [] }) {
+export async function createRoute({
+  ownerAnonId,
+  title,
+  stops = [],
+  transportMode = "xe-may",
+  copiedFrom = null,
+}) {
   const owned = await getOwnedRouteSlugs(ownerAnonId);
   if (owned.length >= MAX_ROUTES_PER_OWNER) {
     return { ok: false, error: `Đã đủ ${MAX_ROUTES_PER_OWNER} lộ trình rồi bạn ơi.` };
@@ -117,9 +124,11 @@ export async function createRoute({ ownerAnonId, title, stops = [] }) {
       slug,
       title: cleanTitle,
       ownerAnonId,
-      transportMode: "xe-may",
+      transportMode: TRANSPORT_MODES.some((mode) => mode.id === transportMode)
+        ? transportMode
+        : "xe-may",
       stops: stops.slice(0, MAX_STOPS_PER_ROUTE),
-      copiedFrom: null,
+      copiedFrom,
       createdAt: now,
       updatedAt: now,
     };
@@ -130,6 +139,76 @@ export async function createRoute({ ownerAnonId, title, stops = [] }) {
     }
   }
   return { ok: false, error: "Không tạo được lộ trình, thử lại nhé." };
+}
+
+function provinceFromSharedStop(stop) {
+  if (isValidProvince(stop.customProvince)) return stop.customProvince;
+  const mapsQuery = (stop.mapsQuery ?? "").toString();
+  return PROVINCES.find((province) => mapsQuery.includes(province)) ?? DEFAULT_PROVINCE;
+}
+
+// Pure mapper để test backward compatibility mà không ghi Redis. Snapshot mới giữ đủ field;
+// snapshot cũ thiếu proposalId/customProvince được hạ thành điểm riêng có tên + mapsQuery,
+// không tạo một proposed stop rỗng rồi gãy lúc mở trang sửa.
+export function routeStopsFromShareSnapshot(stops) {
+  return (stops ?? []).slice(0, MAX_STOPS_PER_ROUTE).map((rawStop) => {
+    const stop = rawStop ?? {};
+    const common = {
+      plannedAt: cleanPlannedAt(stop.plannedAt),
+      durationMinutes: cleanDuration(stop.durationMinutes),
+      note: cleanText(stop.note, MAX_NOTE_LENGTH),
+    };
+
+    if ((!stop.type || stop.type === STOP_TYPES.CDP_PLACE) && stop.placeId) {
+      return {
+        type: STOP_TYPES.CDP_PLACE,
+        placeId: stop.placeId,
+        customTitle: null,
+        nameSnapshot: cleanText(stop.nameSnapshot ?? stop.title, MAX_CUSTOM_TITLE_LENGTH),
+        ...common,
+      };
+    }
+
+    if (stop.type === STOP_TYPES.PROPOSED && stop.proposalId) {
+      return {
+        type: STOP_TYPES.PROPOSED,
+        placeId: null,
+        proposalId: stop.proposalId,
+        customTitle: null,
+        customAddress: cleanText(stop.customAddress ?? stop.address, MAX_CUSTOM_ADDRESS_LENGTH),
+        customProvince: provinceFromSharedStop(stop),
+        nameSnapshot: cleanText(stop.nameSnapshot ?? stop.title, MAX_CUSTOM_TITLE_LENGTH),
+        ...common,
+      };
+    }
+
+    return {
+      type: STOP_TYPES.CUSTOM,
+      placeId: null,
+      customTitle: cleanText(stop.customTitle ?? stop.title, MAX_CUSTOM_TITLE_LENGTH) ?? "Điểm riêng",
+      customAddress: cleanText(
+        stop.customAddress ?? stop.address ?? stop.mapsQuery,
+        MAX_CUSTOM_ADDRESS_LENGTH,
+      ),
+      customProvince: provinceFromSharedStop(stop),
+      nameSnapshot: null,
+      ...common,
+    };
+  });
+}
+
+export async function copyRouteFromShare({ ownerAnonId, shareToken, snapshot }) {
+  if (!snapshot?.stops?.length) {
+    return { ok: false, error: "Lộ trình chia sẻ không có điểm nào để lưu." };
+  }
+  return createRoute({
+    ownerAnonId,
+    title: snapshot.title,
+    transportMode: snapshot.transportMode,
+    stops: routeStopsFromShareSnapshot(snapshot.stops),
+    // Route copy bắt nguồn từ BẢN CHỤP, không phải route sống: route gốc có thể đã đổi/xoá.
+    copiedFrom: `route_share:${shareToken}`,
+  });
 }
 
 // "Tạo lộ trình từ sổ này" — lối vào chính ở chặng đầu: ai đã gom sẵn một cuốn sổ thì không
@@ -237,9 +316,9 @@ export async function addProposedStopToRoute({ anonId, slug, proposalId, name })
 // Điểm tự đặt tên: "Khách sạn của tôi", "Nhà bạn Nam" — thứ không có trong danh bạ CDP nhưng
 // vẫn là một chặng thật của chuyến đi (§P4 lấy ví dụ "Khách sạn → Ăn tối → ...").
 //
-// `customAddress` (2026-09-11) chỉ để Google tra đúng chỗ, KHÔNG hiện thay tên: cái tên khách
-// tự đặt thì Google chịu, mà thiếu nó thì điểm đầu lộ trình rơi khỏi link chỉ đường. Để trống
-// vẫn được — điểm đó chỉ nằm trong danh sách, không vào link Google (xem stopMapsQuery).
+// `customAddress` (2026-09-11) giúp Google tra chính xác hơn và KHÔNG hiện thay tên. Để trống
+// vẫn được: Maps sẽ dùng tên + tỉnh người dùng chọn, đủ cho chỗ công cộng như Winmart Hàng
+// Bún; tên riêng kiểu "Nhà Tuấn" thì người dùng nên khai địa chỉ (xem stopMapsQuery).
 //
 // `customProvince` đi kèm địa chỉ: điểm riêng của khách nằm ở tỉnh nào cũng được ("31 Hàng Bún"
 // là Hà Nội chứ không phải Tuyên Quang), nên tỉnh phải do khách chọn chứ không suy từ CDP.
@@ -254,6 +333,9 @@ export async function addCustomStopToRoute({
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
   const cleanTitle = cleanText(customTitle, MAX_CUSTOM_TITLE_LENGTH);
   if (!cleanTitle) return { ok: false, error: "Chưa nhập tên điểm." };
+  if (!isValidProvince(customProvince)) {
+    return { ok: false, error: "Hãy chọn tỉnh/thành của điểm ngoài danh bạ CDP." };
+  }
   const cleanAddress = cleanText(customAddress, MAX_CUSTOM_ADDRESS_LENGTH);
   if (containsLinkOrPhone(cleanTitle) || (cleanAddress && containsLinkOrPhone(cleanAddress))) {
     return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
@@ -328,6 +410,9 @@ export async function replaceStop({ anonId, slug, index, place, custom }) {
   } else {
     const cleanTitle = cleanText(custom?.title, MAX_CUSTOM_TITLE_LENGTH);
     if (!cleanTitle) return { ok: false, error: "Chưa chọn chỗ thay thế." };
+    if (!isValidProvince(custom?.province)) {
+      return { ok: false, error: "Hãy chọn tỉnh/thành của điểm ngoài danh bạ CDP." };
+    }
     const cleanAddress = cleanText(custom?.address, MAX_CUSTOM_ADDRESS_LENGTH);
     if (containsLinkOrPhone(cleanTitle) || (cleanAddress && containsLinkOrPhone(cleanAddress))) {
       return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
@@ -363,6 +448,13 @@ export async function updateStop({
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
   const stop = route.stops[index];
   if (!stop) return { ok: false, error: "Không tìm thấy điểm này." };
+  if (
+    normalizeStop(stop).type === STOP_TYPES.CUSTOM &&
+    customProvince !== undefined &&
+    !isValidProvince(customProvince)
+  ) {
+    return { ok: false, error: "Hãy chọn tỉnh/thành của điểm ngoài danh bạ CDP." };
+  }
 
   const cleanNote = cleanText(note, MAX_NOTE_LENGTH);
   if (cleanNote && containsLinkOrPhone(cleanNote)) {
@@ -476,6 +568,9 @@ export async function resolveRouteStops(stops) {
           // Giữ lại địa chỉ đã khai lúc đề xuất: CDP không đưa chỗ này vào danh bạ, nhưng
           // người tạo vẫn phải chỉ đường tới được nó.
           customAddress: stop.customAddress ?? proposal.address ?? proposal.ward ?? null,
+          // Proposal chỉ nhận chỗ trong vùng CDP (Tuyên Quang). Khi bị từ chối và trở thành
+          // điểm riêng, giữ tỉnh đã biết thay vì bắt người tạo khai lại.
+          customProvince: stop.customProvince ?? DEFAULT_PROVINCE,
           place: null,
           deleted: false,
         };

@@ -4,8 +4,13 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { getProposalQueue, approveProposal, rejectProposal } from "@/lib/proposals";
+import { getProposalQueue, approveProposal, createProposal, rejectProposal } from "@/lib/proposals";
 import { getLivePlaces, setLivePlaces } from "@/lib/redis";
+import {
+  getClosedPlace,
+  replacementLocationOf,
+  setClosedPlaceReplacement,
+} from "@/lib/closedPlaces";
 import { addContributorPoints } from "@/lib/contributors";
 import { trySpendDailyPoints } from "@/lib/pointsCap";
 import { POINTS } from "@/lib/badges";
@@ -43,7 +48,8 @@ export async function approveProposalAction(formData) {
     type: proposal.type,
     address: proposal.address ?? "",
     ward: proposal.ward ?? null,
-    localArea: null,
+    localArea: proposal.localArea ?? null,
+    coordinates: proposal.coordinates ?? null,
     phone: null,
     priceMin: null,
     priceMax: null,
@@ -54,6 +60,7 @@ export async function approveProposalAction(formData) {
     sourceCount: 1,
     lastUpdatedAt: new Date().toISOString(),
     autoPublished: false,
+    replacesPlaceId: proposal.replacesPlaceId ?? null,
   });
   await setLivePlaces(places);
 
@@ -63,9 +70,39 @@ export async function approveProposalAction(formData) {
     const allowed = await trySpendDailyPoints(result.contributorId, POINTS.note);
     if (allowed) await addContributorPoints(result.contributorId, POINTS.note);
   }
+  if (result.ok && proposal.replacesPlaceId) {
+    await setClosedPlaceReplacement(proposal.replacesPlaceId, livePlaceId);
+    revalidatePath(`/dia-diem/${proposal.replacesPlaceId}`);
+  }
 
   revalidatePath("/admin");
   revalidatePath("/");
+}
+
+// Admin chỉ tạo PROPOSAL thay thế, không public thẳng. Vị trí được điền sẵn từ tombstone;
+// với bản đóng cửa cũ chỉ còn tên, Admin có thể bổ sung địa chỉ/khu vực trước khi gửi queue.
+export async function createReplacementProposalAction(formData) {
+  await requireAdmin();
+  const replacesPlaceId = formData.get("replacesPlaceId")?.toString();
+  if (!replacesPlaceId) return;
+
+  const oldPlace = await getClosedPlace(replacesPlaceId);
+  if (!oldPlace) return;
+  const location = replacementLocationOf(oldPlace);
+  await createProposal({
+    contributorId: null,
+    name: formData.get("name")?.toString(),
+    type: formData.get("type")?.toString(),
+    ward: formData.get("ward")?.toString() || location.ward,
+    address: formData.get("address")?.toString() || location.address,
+    localArea: formData.get("localArea")?.toString() || location.localArea,
+    coordinates: location.coordinates,
+    note: formData.get("note")?.toString(),
+    replacesPlaceId,
+    replacesPlaceName: oldPlace.name,
+  });
+
+  revalidatePath("/admin");
 }
 
 /**

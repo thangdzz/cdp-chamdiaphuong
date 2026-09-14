@@ -4,11 +4,14 @@ import {
   EVENT_STATUS,
   eventStatus,
   groupEvents,
+  groupEventsByDate,
+  formatEventDateHeading,
   formatEventWhen,
   formatCountdown,
   readNow,
 } from "@/lib/events";
 import { FESTIVAL_EVENTS, POST_META, PLAN_TEMPLATE } from "@/lib/postEvents/le-hoi-thanh-tuyen-2026";
+import { getPostEvents } from "@/lib/postEvents";
 import { InteractivePlan } from "@/app/InteractivePlan";
 import { EventCard } from "./EventCard";
 
@@ -23,10 +26,52 @@ export const metadata = {
     "Lịch Lễ hội Thành Tuyên 2026: thi đèn các phường, Đêm hội 20/9 và các hoạt động quanh lễ hội.",
 };
 
+function TimelineGroups({ events, now }) {
+  return (
+    <div className="flex flex-col gap-2">
+      {groupEventsByDate(events).map((group) =>
+        group.range ? (
+          <ul key={group.key}>
+            <EventCard
+              event={group.events[0]}
+              status={eventStatus(group.events[0], now)}
+            />
+          </ul>
+        ) : (
+          <section key={group.key} className="rounded-xl border border-zinc-200 bg-white p-3">
+            <h3 className="mb-1 text-sm font-medium text-zinc-900">
+              {formatEventDateHeading(group.events[0])}
+            </h3>
+            <ul className="divide-y divide-zinc-100">
+              {group.events.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  status={eventStatus(event, now)}
+                  grouped
+                />
+              ))}
+            </ul>
+          </section>
+        )
+      )}
+    </div>
+  );
+}
+
 export default async function LeHoiThanhTuyenPage() {
-  const now = await readNow();
-  const { live, upcoming, past, undated, next } = groupEvents(FESTIVAL_EVENTS, now);
+  const [now, events] = await Promise.all([
+    readNow(),
+    getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
+  ]);
+  const { live, today, upcoming, past, undated, next } = groupEvents(events, now);
   const countdown = formatCountdown(next, now);
+  const nextStatus = next ? eventStatus(next, now) : null;
+  const focusLabel = nextStatus === EVENT_STATUS.LIVE
+    ? "Đang diễn ra"
+    : nextStatus === EVENT_STATUS.TODAY
+      ? "Hôm nay có gì?"
+      : "Sắp diễn ra";
 
   return (
     <div className="flex flex-1 justify-center">
@@ -54,7 +99,7 @@ export default async function LeHoiThanhTuyenPage() {
         {next && (
           <section className="mt-4 rounded-xl border border-zinc-300 bg-white p-4">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-              Sắp diễn ra{countdown ? ` · ${countdown}` : ""}
+              {focusLabel}{countdown ? ` · ${countdown}` : ""}
             </p>
             <p className="mt-1 text-sm font-semibold text-zinc-900">{formatEventWhen(next)}</p>
             <p className="mt-0.5 text-sm text-zinc-800">{next.title}</p>
@@ -82,20 +127,16 @@ export default async function LeHoiThanhTuyenPage() {
               <summary className="cursor-pointer text-sm text-zinc-500">
                 ✓ {past.length} hoạt động đã diễn ra — xem lại
               </summary>
-              <ul className="mt-3 flex flex-col gap-2">
-                {past.map((event) => (
-                  <EventCard key={event.id} event={event} status={EVENT_STATUS.PAST} />
-                ))}
-              </ul>
+              <div className="mt-3">
+                <TimelineGroups events={past} now={now} />
+              </div>
             </details>
           )}
 
-          {(live.length > 0 || upcoming.length > 0) && (
-            <ul className="mt-3 flex flex-col gap-2">
-              {[...live, ...upcoming].map((event) => (
-                <EventCard key={event.id} event={event} status={eventStatus(event, now)} />
-              ))}
-            </ul>
+          {(live.length > 0 || today.length > 0 || upcoming.length > 0) && (
+            <div className="mt-3">
+              <TimelineGroups events={[...live, ...today, ...upcoming]} now={now} />
+            </div>
           )}
 
           {undated.length > 0 && (
@@ -109,7 +150,7 @@ export default async function LeHoiThanhTuyenPage() {
             </>
           )}
 
-          {live.length === 0 && upcoming.length === 0 && undated.length === 0 && (
+          {live.length === 0 && today.length === 0 && upcoming.length === 0 && undated.length === 0 && (
             <p className="mt-3 text-sm text-zinc-500">
               Lễ hội năm nay đã kết thúc. Hẹn gặp lại mùa sau.
             </p>

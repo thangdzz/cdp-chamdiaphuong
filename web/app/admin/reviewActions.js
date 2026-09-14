@@ -14,6 +14,15 @@ import {
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { placeFromFormData } from "@/lib/placeForm";
 import { resolveStaleReferences } from "@/lib/ingestion/resolveStaleReferences";
+import {
+  archiveClosedPlace,
+  getClosedPlace,
+  getClosedPlaceLifecycleRecord,
+  markClosedPlaceReopened,
+  replacementLocationOf,
+} from "@/lib/closedPlaces";
+import { candidateToLivePlace } from "@/lib/ingestion/toLivePlace";
+import { createProposal, getProposalQueue } from "@/lib/proposals";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -86,8 +95,16 @@ async function applyDecision(id, decision, formData) {
       item.status = REVIEW_STATUS.DISMISSED;
     }
   } else if (item.type === REVIEW_ITEM_TYPE.STALE_PLACE) {
-    // "Từ chối" ở đây nghĩa là "đã đóng cửa/không còn hoạt động" -> gỡ khỏi công khai.
+    // "Từ chối" ở đây nghĩa là đã đóng cửa. Giữ tombstone trước khi gỡ public để URL cũ
+    // còn giải thích được chuyện gì xảy ra và sau này nối sang địa điểm thay thế.
     const livePlaces = await getLivePlaces();
+    const closedPlace = livePlaces.find((p) => p.id === item.matchedLivePlaceId);
+    if (closedPlace) {
+      await archiveClosedPlace(closedPlace, {
+        source: "stale_review",
+        sourceId: item.id,
+      });
+    }
     await setLivePlaces(livePlaces.filter((p) => p.id !== item.matchedLivePlaceId));
     item.status = REVIEW_STATUS.REJECTED;
   } else if (item.type === REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE) {
@@ -136,6 +153,7 @@ async function applyDecision(id, decision, formData) {
 
   revalidatePath("/admin");
   revalidatePath("/");
+  if (item.matchedLivePlaceId) revalidatePath(`/dia-diem/${item.matchedLivePlaceId}`);
 }
 
 export async function approveReviewItem(formData) {
@@ -148,4 +166,148 @@ export async function rejectReviewItem(formData) {
   "use server";
   const id = formData.get("id")?.toString();
   await applyDecision(id, "reject", formData);
+}
+
+async function getPendingClosedMatch(id) {
+  const reviewQueue = await getReviewQueue();
+  const index = reviewQueue.findIndex((item) => item.id === id);
+  const item = reviewQueue[index];
+  if (
+    index === -1 ||
+    item?.status !== REVIEW_STATUS.PENDING ||
+    item?.type !== REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH ||
+    !item.matchedClosedPlaceId
+  ) {
+    return null;
+  }
+  return { reviewQueue, index, item };
+}
+
+async function finishClosedMatchReview({ reviewQueue, index, item, status, resolution, note }) {
+  const at = new Date().toISOString();
+  item.status = status;
+  item.resolution = resolution;
+  item.updatedAt = at;
+  reviewQueue[index] = item;
+  await saveReviewQueue(reviewQueue);
+  await appendReviewEvent({
+    id: `event-${crypto.randomUUID()}`,
+    itemId: item.id,
+    action: resolution,
+    note,
+    at,
+  });
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath(`/dia-diem/${item.matchedClosedPlaceId}`);
+}
+
+// NOTE-13: đây là action RIÊNG, không đi qua approveReviewItem. Nhờ vậy một closed match
+// không thể bị nút generic hiểu thành new_place rồi tạo ID mới ngoài ý muốn.
+export async function reopenClosedPlaceFromReview(formData) {
+  await requireAdmin();
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+  const pending = await getPendingClosedMatch(id);
+  if (!pending) return;
+
+  const { reviewQueue, index, item } = pending;
+  // Đọc cả override reopened để retry được nếu lần trước đã ghi live/archive nhưng lỗi trước
+  // khi đóng review item. Public getter vẫn ẩn record `closed:false` như bình thường.
+  const closedPlace = await getClosedPlaceLifecycleRecord(item.matchedClosedPlaceId);
+  if (!closedPlace) return;
+
+  const now = new Date().toISOString();
+  const candidatePlace = candidateToLivePlace(item.candidate, {
+    id: closedPlace.id,
+    basePlace: closedPlace,
+    observedAt: now,
+    autoPublished: false,
+  });
+  const edited = placeFromFormData(formData);
+  const reopenedPlace = {
+    ...candidatePlace,
+    id: closedPlace.id,
+    // Review card chỉ cho sửa các field này. Không spread toàn `edited`: form không có
+    // localArea/transport fields sẽ trả null/[] và làm mất dữ liệu cũ khi mở lại.
+    name: edited.name,
+    type: edited.type,
+    address: edited.address,
+    ward: edited.ward,
+    priceMin: edited.priceMin,
+    priceMax: edited.priceMax,
+    priceUnit: edited.priceUnit,
+    priceText: edited.priceText,
+    closed: false,
+    status: "active",
+    reopenedAt: now,
+    reopenedBy: "admin",
+    lastCheckedAt: now,
+  };
+
+  const livePlaces = await getLivePlaces();
+  const existingIndex = livePlaces.findIndex((place) => place.id === closedPlace.id);
+  if (existingIndex === -1) livePlaces.push(reopenedPlace);
+  else livePlaces[existingIndex] = reopenedPlace;
+  await setLivePlaces(livePlaces);
+  await markClosedPlaceReopened(closedPlace.id, {
+    reopenedAt: now,
+    reopenedBy: "admin",
+    reviewItemId: item.id,
+  });
+  await finishClosedMatchReview({
+    reviewQueue,
+    index,
+    item,
+    status: REVIEW_STATUS.APPROVED,
+    resolution: "reopened_closed_place",
+    note: `Mở lại địa điểm cũ ${closedPlace.id}; giữ nguyên ID và lịch sử đóng cửa`,
+  });
+}
+
+// Candidate là business mới ở vị trí cũ: chỉ tạo PROPOSAL chờ duyệt, không public thẳng.
+export async function createReplacementFromClosedMatch(formData) {
+  await requireAdmin();
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+  const pending = await getPendingClosedMatch(id);
+  if (!pending) return;
+
+  const { reviewQueue, index, item } = pending;
+  const closedPlace = await getClosedPlace(item.matchedClosedPlaceId);
+  if (!closedPlace) return;
+  const edited = placeFromFormData(formData);
+  const location = replacementLocationOf(closedPlace);
+  const proposalQueue = await getProposalQueue();
+  const existingProposal = proposalQueue.find(
+    (proposal) =>
+      proposal.replacesPlaceId === closedPlace.id &&
+      proposal.name?.toLocaleLowerCase("vi") === edited.name.toLocaleLowerCase("vi"),
+  );
+  const result = existingProposal
+    ? { ok: true, proposal: existingProposal }
+    : await createProposal({
+        contributorId: null,
+        name: edited.name,
+        type: edited.type,
+        ward: edited.ward || location.ward,
+        address: edited.address || location.address,
+        localArea: location.localArea,
+        coordinates: location.coordinates,
+        note: null,
+        replacesPlaceId: closedPlace.id,
+        replacesPlaceName: closedPlace.name,
+      });
+  if (!result.ok) return result;
+
+  item.replacementProposalId = result.proposal.id;
+  await finishClosedMatchReview({
+    reviewQueue,
+    index,
+    item,
+    status: REVIEW_STATUS.DISMISSED,
+    resolution: "replacement_proposed",
+    note: `Tạo proposal ${result.proposal.id} thay cho địa điểm đã đóng ${closedPlace.id}`,
+  });
+  return { ok: true, proposalId: result.proposal.id };
 }

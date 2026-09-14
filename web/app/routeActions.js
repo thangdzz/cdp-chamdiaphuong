@@ -18,11 +18,13 @@ import {
   updateTransportMode,
   deleteRoute,
   resolveRouteStops,
+  copyRouteFromShare,
 } from "@/lib/routes";
-import { createShareSnapshot } from "@/lib/routeShare";
+import { createShareSnapshot, getShareSnapshot } from "@/lib/routeShare";
 import { getNotebook } from "@/lib/notebooks";
 import { getLivePlaces } from "@/lib/redis";
 import { createProposal } from "@/lib/proposals";
+import { isValidProvince } from "@/lib/provinces";
 
 // Không cần đăng nhập, chưa có hồ sơ thì tự tạo im lặng — giống hệt Sổ (SPEC-chang-4 §5 quy
 // tắc 1). Chỉ tạo lúc khách THỰC SỰ tạo/sửa gì, không phải lúc chỉ xem.
@@ -132,6 +134,9 @@ export async function saveStopDetails({
  */
 export async function createRouteFromPlan({ anonId, title, stops }) {
   if (!stops?.length) return { ok: false, error: "Chưa chọn chỗ nào." };
+  if (stops.some((stop) => stop.customTitle && !isValidProvince(stop.customProvince))) {
+    return { ok: false, error: "Hãy chọn tỉnh/thành cho mọi điểm ngoài danh bạ CDP." };
+  }
   const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
   const created = await createRoute({ ownerAnonId: currentAnonId, title });
   if (!created.ok) return { ...created, anonId: currentAnonId, newProfile };
@@ -210,6 +215,21 @@ export async function shareRoute({ anonId, slug }) {
   return createShareSnapshot({ route, resolvedStops });
 }
 
+// Người nhận chỉ gửi token; server tự đọc snapshot đóng băng rồi tạo route thuộc anonId mới.
+// Không nhận `stops` từ trình duyệt để tránh client sửa payload và lách giới hạn/validation.
+export async function saveSharedRouteAsMine({ anonId, token }) {
+  if (!token) return { ok: false, error: "Không tìm thấy lộ trình chia sẻ." };
+  const shared = await getShareSnapshot(token);
+  if (!shared?.snapshot) return { ok: false, error: "Không tìm thấy lộ trình chia sẻ." };
+  const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
+  const result = await copyRouteFromShare({
+    ownerAnonId: currentAnonId,
+    shareToken: token,
+    snapshot: shared.snapshot,
+  });
+  return { ...result, anonId: currentAnonId, newProfile };
+}
+
 // Trang sửa — Server Action tự kiểm tra đúng chủ, không tin giao diện chặn hộ (Next.js
 // data-security: action luôn gọi được trực tiếp bất kể UI).
 export async function getRouteForEdit({ anonId, slug }) {
@@ -269,6 +289,13 @@ export async function fetchPickerPlaces() {
 // "Tạo lộ trình từ đây" (§4) — tạo lộ trình mới với TẤT CẢ chỗ vừa chọn trong PlacePicker.
 export async function createRouteWithPlaces({ anonId, title, places, customStops = [] }) {
   if (!places?.length && !customStops.length) return { ok: false, error: "Chưa chọn chỗ nào." };
+  if (
+    customStops.some((custom) =>
+      typeof custom === "string" || !isValidProvince(custom?.province)
+    )
+  ) {
+    return { ok: false, error: "Hãy chọn tỉnh/thành cho mọi điểm ngoài danh bạ CDP." };
+  }
   const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
   const created = await createRoute({ ownerAnonId: currentAnonId, title });
   if (!created.ok) return { ...created, anonId: currentAnonId, newProfile };
@@ -278,17 +305,12 @@ export async function createRouteWithPlaces({ anonId, title, places, customStops
   // Điểm riêng khách gõ ngay trong bộ chọn lúc chưa có lộ trình — giữ tạm ở đó rồi ghi một
   // lượt tại đây, xếp SAU các địa điểm đã chọn (khách sắp lại thứ tự ở trang sửa).
   for (const custom of customStops) {
-    // Nhận cả chuỗi trần (dạng cũ) lẫn { title, address } — bộ chọn cũ còn mở trên máy khách
-    // nào đó lúc bản mới lên thì vẫn thêm được điểm, không đứng hình.
-    const customTitle = typeof custom === "string" ? custom : custom?.title;
-    const customAddress = typeof custom === "string" ? null : (custom?.address ?? null);
-    const customProvince = typeof custom === "string" ? null : (custom?.province ?? null);
     await addCustomStopToRoute({
       anonId: currentAnonId,
       slug: created.slug,
-      customTitle,
-      customAddress,
-      customProvince,
+      customTitle: custom.title,
+      customAddress: custom.address ?? null,
+      customProvince: custom.province,
     });
   }
   return { ok: true, slug: created.slug, anonId: currentAnonId, newProfile };

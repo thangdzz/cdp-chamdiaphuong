@@ -33,6 +33,7 @@ export async function runDailyIngest(options = {}) {
     newPlacesPublished: 0,
     changedPlacesApplied: 0,
     duplicateCandidatesForReview: 0,
+    closedPlaceMatchesForReview: 0,
     lowConfidencePublished: 0,
     updatedExistingPending: 0,
     skippedNoChange: 0,

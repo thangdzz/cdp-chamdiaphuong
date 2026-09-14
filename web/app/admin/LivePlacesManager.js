@@ -6,6 +6,7 @@ import { transportSummary } from "@/lib/transport";
 import { stripDiacritics } from "@/lib/ingestion/normalize";
 import { Field, PlaceForm } from "./PlaceFormFields";
 import { updateLive, deleteLive } from "./actions";
+import { MediaManager } from "./MediaManager";
 
 function matchesQuery(place, normalizedQuery) {
   if (!normalizedQuery) return true;
@@ -117,6 +118,7 @@ export function LivePlacesManager({ live }) {
                     Xoá
                   </button>
                 </PlaceForm>
+                <MediaManager place={place} />
               </div>
             ) : (
               <div

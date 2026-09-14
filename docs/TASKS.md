@@ -1,6 +1,6 @@
 # TASKS — DONE / IN PROGRESS / TODO
 
-> Cập nhật: **2026-09-12**. Trạng thái bàn giao: [HANDOFF.md](HANDOFF.md) ·
+> Cập nhật: **2026-09-14**. Trạng thái bàn giao: [HANDOFF.md](HANDOFF.md) ·
 > **vì sao** chọn cách làm: [DECISIONS.md](DECISIONS.md) ·
 > nhật ký từng phiên: [STATUS.md](STATUS.md) · chia chặng: [ROADMAP.md](ROADMAP.md).
 >
@@ -11,11 +11,107 @@
 
 ## 🚧 IN PROGRESS
 
-Không có việc nào đang code dở — phiên 11/9 đã đóng trọn vẹn (build sạch, test qua, đã
-deploy, đã dọn dữ liệu test).
+- [x] **NOTE-13 P0 — Closed crawler guard + shared route copy — ✅ Local xong, chưa deploy:**
+  - [x] Audit crawler: root cause là chỉ match `places:live`, không đọc `places:closed`
+  - [x] Candidate khớp closed luôn thành `closed_place_match` trong verify queue, không
+        auto-public; guard chạy trước de-dupe item đang chờ
+  - [x] Admin có `Mở lại địa điểm cũ` (giữ ID/lịch sử), `Tạo địa điểm mới thay thế`
+        (proposal chờ duyệt) và `Bỏ qua`
+  - [x] Lưu `lastCrawlMatchAt`; override `closed:false` chặn fallback legacy sau khi mở lại,
+        không migration toàn kho
+  - [x] Shared route có CTA lưu thành route cá nhân; server copy từ snapshot bằng anonymous
+        owner hiện có; chỉ bản copy mới hiện link sửa
+  - [x] Snapshot mới giữ field CDP/proposal/custom; link cũ suy ra an toàn lúc copy, không
+        migration và không tạo proposed stop rỗng
+  - [x] Build đạt; lint vẫn đúng 1 lỗi nền ở `PlaceExplorer.js:409`; integration test crawler
+        + route copy dùng namespace riêng và rollback rỗng; Playwright đạt iPhone 15 Plus
+        430×932 + desktop 1440×1000
+  - [ ] P1 backlog: compare view sâu hơn, lifecycle/provenance đầy đủ hơn và nhận ra route đã
+        copy để tránh người dùng vô tình lưu lặp
+
+- [x] **NOTE-12 P0 + P1 — Contribution Audit + Place Replacement — ✅ Local xong, chưa deploy:**
+  - [x] Audit code + dữ liệu thật; xác định lỗi `QuestionPrompt` chỉ ẩn câu trùng id
+  - [x] Một context active chỉ render UI của context đó; đổi context xoá text/state cũ
+  - [x] `Cách đến`/`Khác` là free-text qua Admin; structured option giữ luồng đồng thuận
+  - [x] Matrix placeholder/context phủ Ăn/Chơi/Ngủ + 11 subtype Đi lại; giữ tương thích
+        `di-chuyen` cũ lúc đọc, không migration
+  - [x] P0 hierarchy: bỏ nút `Bổ sung` trùng nghĩa; card/detail có section riêng, action phụ
+        ghi rõ “Sửa thông tin hoặc gửi ảnh”; mỗi lúc chỉ một bề mặt nhập active
+  - [x] P0 kiểm thử matrix + data flow tách namespace; build đạt; lint không thêm lỗi;
+        Chrome thật và iPhone 15 Plus 430×932 đạt
+  - [x] P1 archive record đóng cửa vào `places:closed`, user/Admin tạo proposal thay thế
+  - [x] P1 chỉ reuse location; duyệt mới nối `replacedByPlaceId` ↔ `replacesPlaceId`; URL cũ
+        hiện closed/replacement thay vì 404
+  - [x] Backward compatibility: suy ra 4 tombstone cũ lúc đọc, không migration; dữ liệu vị
+        trí đã mất từ flow cũ được ghi rõ là không còn, không tự đoán
+  - [ ] Chờ chủ dự án test local và yêu cầu deploy; không còn hạng mục code P0/P1
+
+- [x] **NOTE-11 P0 — Media Pipeline bằng Vercel Blob + Redis — ✅ Local xong, chưa deploy:**
+      một `media[]` cho nhiều ảnh/place, role bìa/dẫn đường/menu..., reorder + caption + gỡ
+      trong Admin, upload nhiều ảnh, server resize WebP, `next/image` responsive/lazy và ảnh
+      nhận diện ở lộ trình. Khách tối đa **5 ảnh/lần** (cảnh báo tĩnh + báo đỏ khi chọn quá),
+      Admin 10, server chặn lại độc lập. Không migration toàn Redis: đọc `photos[]`/
+      `menuPhotos[]`/`coverPhoto` cũ rồi chỉ ghi schema mới khi đúng place được chỉnh.
+      Build đạt; lint không thêm lỗi; Playwright iPhone 15 Plus 430×932 + Admin desktop
+      1440px đạt. P1 còn thumbnail vật lý, usage/error metrics, reference index + dọn orphan
+      dry-run và tinh chỉnh UX caption/role.
+
+- [x] **NOTE-10 P0 + P1 — App Shell desktop và navigation config — 🚀 Đã deploy:**
+      public site dùng chung sidebar desktop 248/72px có nhớ trạng thái và menu
+      mobile cùng một config; `/gioi-thieu` đã vào menu. Homepage rộng tối đa 1360px, card
+      địa điểm hai cột trên desktop; trang chi tiết chia media/thông tin thành hai cột độc
+      lập; `/gioi-thieu` có accent cam tiết chế. `/admin/navigation` sửa được `navLabel`,
+      `pageTitle`, bật/tắt và thứ tự, nhưng key/route khóa trong code. Build đạt; Playwright
+      đạt ở 375/430/820/1024/1280/1440px; production kiểm tra lại ở desktop 1440px và
+      iPhone 15 Plus. Deployment `web-rn6nho9f0` Ready.
+
+- [x] **NOTE-09 P0 — Admin chỉnh Giới thiệu + responsive — 🚀 Đã deploy:**
+      `/gioi-thieu` đọc nội dung từ `site_content:about`, tự dùng bản trong code khi key
+      thiếu/hỏng/lỗi. `/admin/gioi-thieu` sửa được toàn bộ copy P0 dưới dạng chữ thuần;
+      Server Action kiểm tra phiên admin và schema trước khi ghi. Mobile 1 cột, tablet 2,
+      desktop 3 cột cho phần cách hoạt động. Build đạt; Playwright đạt ở 375/430/768/1024/
+      1280/1440px. P1 còn toggle/thứ tự, preview trong Admin và mục lục sticky.
+
+- [x] **NOTE-08 — giới thiệu và minh bạch dữ liệu — 🚀 Đã deploy:** thêm
+      `/gioi-thieu`, onboarding card không bắt buộc cho lần đầu và footer có hai link cố
+      định. Trạng thái đóng chỉ lưu localStorage; không thêm Redis, disclaimer nặng hay social.
+      Build đạt; Playwright production trên iPhone 15 Plus đạt.
+
+- [x] **Rút gọn từ khóa mở Google Maps — 🚀 Đã deploy:** địa điểm CDP
+      dùng Tên + phường + tỉnh; tên đã có “Tuyên Quang” thì không ghép thêm. Điểm riêng/đề
+      xuất vẫn dùng địa chỉ nhưng bỏ chú thích dài trong ngoặc. Điểm người dùng tự gõ ngoài
+      CDP bắt buộc chọn tỉnh/thành, không mặc định Tuyên Quang; thiếu địa chỉ thì Maps dùng
+      tên + tỉnh đã chọn. Bỏ chữ “(tại đây)” cạnh Tuyên Quang.
+- [x] **Ưu tiên địa điểm đáng tin + ghim tìm kiếm — 🚀 Đã deploy:** trong từng
+      nhóm, xác nhận mới trong 30 ngày đứng trước theo đúng độ mới → 6 nhóm dữ liệu hữu ích →
+      xác nhận cũ; độ tin cậy/số nguồn chỉ phá hoà cuối. Kho chưa lưu số lượt xác nhận nên
+      chưa dùng tín hiệu này và không migration. Logo ghim hàng trên; ô tìm kiếm và 5 nút loại
+      ghim ngay dưới. Khu vực/giá không ghim. Đã kiểm tra production trên iPhone 15 Plus
+      430×932; deployment `web-2uhe5w6sq` Ready.
+- [x] **Sửa lịch lễ hội không cần deploy — 🚀 Đã deploy:** trang chủ
+      và bài lễ hội đọc `post_events:le-hoi-thanh-tuyen` từ Redis, tự rơi về file tĩnh nếu
+      key rỗng/hỏng/lỗi; `/admin` sửa và thêm mốc. Timeline đã nhóm cùng ngày, có “Hôm nay”,
+      đủ trạng thái xác minh, không bịa giờ khi chỉ biết buổi và có lịch sử hoàn tác.
+
+### Checklist 8 việc — Post động, Event Monitor và Lộ trình
+
+Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
+
+1. **Event đúng dữ liệu:** nhóm theo ngày, Hôm nay, trạng thái xác minh, không bịa giờ —
+   **🚀 Đã deploy**
+2. **Lịch sử Event + hoàn tác** — **🚀 Đã deploy**
+3. **Content Inbox nhận URL/nội dung dán tay và tự phân tích ra preview** — **🚀 Đã deploy**
+4. **Dữ liệu dán tay và bot tự quét dùng chung pipeline** — ⬜ Chưa làm
+5. **Event Candidate, chống trùng, so sánh cũ–mới, hàng chờ duyệt** — 🚧 Phần candidate,
+   Cũ/Mới, bản nháp và Public tay **đã deploy**; còn thiếu dedupe/conflict đầy đủ
+6. **Cảnh báo thiếu lịch/cũ lịch; Nông Tiến 11/9 là regression test** — ⬜ Chưa làm
+7. **Lộ trình mẫu CDP, clone và gợi ý cộng đồng** — ⬜ Chưa làm
+8. **Google Routes API + Post Engine dạng block** — ⬜ Chưa làm
 
 Đang **chờ chủ dự án chốt hướng** trước khi code:
 
+- [ ] **Ghi chú trong lộ trình chia sẻ** — tạm giữ 140 ký tự. Trước khi tăng phải chốt ghi chú
+      đó là riêng tư (không hiện ở link chia sẻ) hay nội dung công khai cần qua duyệt
 - [ ] **Giá mùa cao điểm** — `places:live` chỉ có một ô giá; đúng tuần lễ hội thì web hiển thị
       giá sai với nhóm khách cần nhất. Rủi ro uy tín, chưa có hướng xử lý
 - [ ] **Tài khoản / đăng nhập (Chặng 7)** — chọn kênh OTP (Zalo ZNS / SMS / email), có nên
@@ -28,8 +124,6 @@ deploy, đã dọn dữ liệu test).
 ## 📋 TODO
 
 ### Gấp — trước lễ hội 19–25/9
-- [ ] **Sửa lịch lễ hội không cần deploy** — đọc `FESTIVAL_EVENTS` từ Redis (rơi về file tĩnh
-      khi key rỗng) + màn sửa mốc trong `/admin`. Bước đầu của Phase 2, và là việc gấp nhất
 - [ ] **Routine quét nâng 2–3 lần/ngày trong tuần lễ hội**, xong lại về 1
 - [ ] Gọi điện xác minh 10–15 chỗ quan trọng nhất (không cần code)
 
@@ -62,6 +156,36 @@ deploy, đã dọn dữ liệu test).
 
 ## ✅ DONE — chi tiết theo thời gian
 
+### 2026-09-12 — Sửa lịch lễ hội không cần deploy (đã deploy)
+
+- [x] Thêm `post_events:le-hoi-thanh-tuyen`; trang chủ và bài lễ hội dùng cùng một mảng Redis
+      nên không thể nói lệch lịch nhau
+- [x] Thêm mục "Lịch Lễ hội Thành Tuyên" trong `/admin`: sửa từng mốc, thêm mốc, đổi trạng
+      thái Đã xác nhận / Dự kiến / Đã huỷ; mọi Server Action đều kiểm tra phiên admin
+- [x] Redis chưa có/rỗng/sai khuôn/tạm lỗi thì giữ nguyên lịch trong file đang deploy
+- [x] Unit check + build production + Playwright iPhone 13 qua; không ghi dữ liệu thật
+- [x] Bổ sung theo prompt 11/9: `timePrecision`, trạng thái thời gian độc lập với xác minh,
+      nhóm nhiều hoạt động cùng ngày, hiện rõ Đã huỷ và log tối đa 100 revision để hoàn tác
+- [x] Test trọn luồng Lưu → trang khách đổi ngay → Hoàn tác trên namespace Redis riêng; đã
+      xác nhận và xoá sạch đúng 2 key test sau khi chạy
+- [x] Bổ sung mốc đã diễn ra “Đêm hội Trung thu phường Nông Tiến” tối 11/9, không đoán giờ
+
+### 2026-09-12 — Checklist mục 3: Content Inbox (đã deploy)
+
+- [x] Route `/admin/content-inbox`, chỉ mở khi có phiên admin
+- [x] Nhận một URL, tối đa 20 URL mỗi dòng hoặc nội dung copy tối đa 30.000 ký tự
+- [x] Sau khi dán tự chạy và hiện preview: loại/chủ đề/khu vực/Post/Event/độ tin cậy/so lịch
+- [x] Hai mục admin đã dán bằng bản cũ được phân tích lại mà không phải dán lại
+- [x] Local chưa có khóa AI: ghi rõ “phân tích sơ bộ bằng quy tắc”, không giả là AI; link bị
+      nguồn chặn đọc có cảnh báo để admin dán nguyên nội dung
+- [x] Link vào từ `/admin`; liệt kê mục mới nhất trước và mở được nguồn trong tab mới
+- [x] Có 4 tab Mới/Bản nháp/Đã đăng/Bỏ qua; Bỏ qua khôi phục được, chỉ tab này mới cho xóa hẳn
+- [x] Chỉnh kết quả rồi Lưu bản nháp hoặc Public; Public cần xác nhận, cập nhật trang khách
+      và ghi lịch sử hoàn tác cùng một lượt Redis
+- [x] Mốc nghi trùng hiện Cũ/Mới và cho admin chọn cập nhật mốc cũ hay tạo mốc mới
+- [x] Parser + build + Playwright iPhone 13 qua; test 3 loại đầu vào trên namespace riêng và
+      xoá sạch key test
+
 ### Nền tảng ban đầu (2026-07-15 → 07-17)
 
 - [x] Dựng web app Next.js đầu tiên, hiển thị danh sách địa điểm + bộ lọc (loại hình/khu
@@ -79,7 +203,7 @@ deploy, đã dọn dữ liệu test).
 ### Khách đóng góp dữ liệu (2026-07-18 → 07-20)
 
 - [x] "Báo sai / Bổ sung ảnh": khách sửa field (địa chỉ/SĐT/giá), báo đã đóng cửa, hoặc gửi
-      tối đa 3 ảnh/lần
+      tối đa 5 ảnh/lần
 - [x] Tự nén ảnh phía trình duyệt trước khi gửi (ảnh điện thoại thật >1MB từng làm hỏng luồng
       gửi)
 - [x] Hồ sơ ẩn danh: biệt danh + **mã khôi phục 6 số**; hệ thống điểm & huy hiệu 5 bậc, có
@@ -348,13 +472,13 @@ deploy, đã dọn dữ liệu test).
 ### 2026-09-11 (điểm riêng ở tỉnh khác — anh phát hiện)
 
 - [x] **Điểm riêng chọn được tỉnh/thành** (`lib/provinces.js`, 34 đơn vị theo sắp xếp 01/7/2025)
-      — mặc định Tuyên Quang, có cả trong bộ chọn lẫn trang sửa lộ trình. Đổi tỉnh là lưu ngay,
-      không đợi rời ô
+      — bắt buộc người dùng tự chọn, có cả trong bộ chọn lẫn trang sửa lộ trình. Không mặc
+      định Tuyên Quang; đổi tỉnh là lưu ngay, không đợi rời ô
 - [x] **Bỏ gắn cứng "Tuyên Quang" cho điểm riêng** — lỗi do chính bản sáng nay: khách từ Hà Nội
       về chơi, gõ "31 Hàng Bún" thì thành "31 Hàng Bún, Tuyên Quang" và Google dẫn sai hẳn.
       Địa điểm CDP và đề xuất thì VẪN gắn Tuyên Quang (danh bạ chỉ có Tuyên Quang)
-- [x] **Điểm riêng cũ (chưa có trường tỉnh)** → hiểu là Tuyên Quang, đúng bằng hành vi trước
-      đây; giao diện hiện rõ ô đang chọn Tuyên Quang để anh đổi nếu sai. Không cần migration
+- [x] **Điểm riêng cũ (chưa có trường tỉnh)** → để trống và bắt người tạo chọn lại trước khi
+      Google Maps dùng; không migration hay đoán tỉnh trên toàn bộ dữ liệu cũ
 
 ### 2026-09-11 (CDP_P1-P8: P1, P2, P3)
 

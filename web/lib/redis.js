@@ -10,20 +10,27 @@ export const redis = new Redis({
 export const LIVE_KEY = "places:live";
 export const PENDING_KEY = "places:pending";
 
+// Chỉ dùng khi chạy integration test: production không đặt biến này nên toàn bộ key giữ
+// nguyên. Crawler test cần cả live + queue cùng namespace để không bao giờ ghi dữ liệu thật.
+function dataKey(key) {
+  const namespace = process.env.CDP_INGESTION_NAMESPACE?.trim();
+  return namespace ? `${namespace}:${key}` : key;
+}
+
 export async function getLivePlaces() {
-  const data = await redis.get(LIVE_KEY);
+  const data = await redis.get(dataKey(LIVE_KEY));
   return data ?? [];
 }
 
 export async function getPendingPlaces() {
-  const data = await redis.get(PENDING_KEY);
+  const data = await redis.get(dataKey(PENDING_KEY));
   return data ?? [];
 }
 
 export async function setLivePlaces(places) {
-  await redis.set(LIVE_KEY, places);
+  await redis.set(dataKey(LIVE_KEY), places);
 }
 
 export async function setPendingPlaces(places) {
-  await redis.set(PENDING_KEY, places);
+  await redis.set(dataKey(PENDING_KEY), places);
 }

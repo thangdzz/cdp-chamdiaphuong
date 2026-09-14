@@ -5,6 +5,201 @@
 > [ROADMAP.md](ROADMAP.md); lý do các quyết định xem [DECISIONS.md](DECISIONS.md).
 
 ## Đang ở giai đoạn nào
+
+**Cập nhật mới nhất 2026-09-14 — NOTE-13 P0 local xong, chưa deploy:** crawler nay đọc
+`places:closed` trước nhánh auto-public. Candidate khớp hồ sơ đóng luôn thành
+`closed_place_match` trong verify queue, kể cả nguồn confidence cao; item đang chờ cũ cũng
+được nâng type khi khớp. Admin có ba lựa chọn riêng: mở lại cùng ID và giữ history, tạo
+proposal thay thế có `replacesPlaceId`, hoặc bỏ qua. Có `lastCrawlMatchAt`, `reopenedAt`,
+`reopenedBy` và lifecycle history tối thiểu; không migration. Hai action được làm retry-safe
+cho trường hợp mạng đứt giữa các lần ghi.
+
+Trang shared route có CTA “Lưu lộ trình này” và giải thích đây là bản người khác chia sẻ.
+Server chỉ nhận token, tự đọc snapshot đóng băng rồi tạo `route:{slug}` riêng theo anonymous
+owner hiện có; sau thành công mới hiện “Sửa lộ trình của tôi”. Copy giữ phương tiện, thứ tự,
+giờ, thời lượng, note, CDP/proposal/custom stop. Snapshot mới lưu đủ proposal/custom fields;
+snapshot cũ suy ra lúc đọc, proposed thiếu ID hạ an toàn thành điểm riêng thay vì gãy.
+
+Kiểm thử: pure matcher + backward mapper đạt; integration crawler xác nhận closed match không
+thêm vào live và lần quét sau chỉ gộp source; UI copy thực sự đạt trên iPhone 15 Plus 430×932
+và desktop 1440×1000. Tất cả Redis test nằm trong hai namespace riêng, rollback và kiểm tra
+lại đều rỗng. Build production đạt; lint không thêm lỗi, vẫn đúng lỗi nền
+`PlaceExplorer.js:409`. Không deploy. NOTE-11 P0 + NOTE-12 P0/P1 cũng vẫn local chưa deploy.
+
+**Cập nhật mới nhất 2026-09-14 — NOTE-12 P0 + P1 local xong, chưa deploy:** đã sửa nguyên
+nhân render chồng: khi một context đóng góp active thì câu mặc định ẩn toàn bộ; đổi context
+xoá nháp/checkbox/state cũ. `Cách đến` và `Khác` dùng chữ tự do qua hàng chờ Admin;
+structured option tiếp tục bấm một chạm. Placeholder/context đã rà đủ Ăn/Chơi/Ngủ và 11
+subtype Đi lại; `di-chuyen` cũ được đổi nhãn lúc đọc, không migration. Card và trang chi tiết
+dùng một section đóng góp, action phụ ghi rõ “Sửa thông tin hoặc gửi ảnh”; mở action này thì
+context/câu nhanh ẩn.
+
+P1 thêm hash `places:closed`. Duyệt báo đóng cửa archive nguyên record trước khi gỡ khỏi
+live; URL cũ hiện trạng thái đóng. User/Admin tạo proposal thay thế vào đúng queue hiện có;
+duyệt mới tạo record mới, nối `replacedByPlaceId` ↔ `replacesPlaceId` và chỉ dùng lại location.
+Không kế thừa ảnh, giá, món, note hoặc phiếu xác nhận. Bốn record đã đóng từ flow cũ được suy
+ra lúc đọc; địa chỉ cũ đã mất nên UI nói rõ thiếu dữ liệu thay vì đoán.
+
+Kiểm thử: matrix/schema đạt; Redis roundtrip dùng namespace riêng và xoá đúng key test;
+không ghi production. Build production đạt. Lint không thêm lỗi, vẫn đúng một lỗi nền cũ ở
+`PlaceExplorer.js:409`. Chrome thật đạt các bước card/context/hierarchy/detail/URL closed;
+responsive iPhone 15 Plus 430×932 và mục closed-place Admin desktop 1440px không tràn, copy
+rõ. NOTE-12 không còn code P0/P1 dở; chờ chủ dự án test local rồi mới deploy. NOTE-11 P0 vẫn
+giữ local, chưa deploy.
+
+**Cập nhật mới nhất 2026-09-13 — NOTE-11 P0 local xong, chưa deploy:** đã audit 225 địa
+điểm thật và 28 Blob theo cách chỉ đọc. Có 12 chỗ đang có ảnh; dữ liệu thật còn ba dạng cũ
+`photos[]`, `menuPhotos[]`, `coverPhoto`, chưa place nào dùng `media[]`. Đã giữ nguyên dữ liệu
+thật và triển khai read-old/write-new: `lib/media.js` suy ra object media trong bộ nhớ; chỉ
+đúng địa điểm được Admin sửa/upload hoặc nhận ảnh vừa duyệt mới đổi sang schema mới.
+
+Vercel Blob nay nằm sau storage abstraction; SDK nhà cung cấp chỉ xuất hiện trong adapter.
+Upload mới được kiểm tra nội dung ở server, giới hạn 8MB/file, tự xoay/resize tối đa 1600px,
+chuyển WebP bằng Sharp và lưu width/height/bytes/MIME/hash. Khách gửi tối đa **5 ảnh/lần**,
+Admin 10; cả client và server đều chặn. Menu “Bổ sung” có cảnh báo sẵn và báo đỏ cụ thể khi
+chọn 6 ảnh trở lên. Nếu upload hỏng trước khi Redis lưu, chỉ Blob vừa tạo trong lượt đó bị
+rollback.
+
+Admin có Media Manager: upload nhiều ảnh, preview, sửa caption, nút lên/xuống, chọn loại,
+bìa, dẫn đường và gỡ tham chiếu. Một media set dùng chung các role; ảnh dẫn đường ưu tiên
+`navigation → entrance → cover → ảnh đầu`. Link lộ trình mới đóng băng media dẫn đường vào
+snapshot; link cũ thiếu field vẫn mở bình thường. P0 chưa xoá file khi gỡ vì Blob có thể còn
+được route share cũ tham chiếu; reference index/dọn orphan dry-run là P1.
+
+Toàn bộ ảnh public/admin/Sổ chuyển qua `next/image` responsive; ảnh ngoài viewport lazy load.
+Build production đạt. Lint không có lỗi mới, vẫn đúng một lỗi cũ
+`PlaceExplorer.js:409`. Unit check model + Sharp đạt. Playwright đạt ở iPhone 15 Plus
+430×932 và Admin desktop 1440px: không tràn ngang, ảnh cũ render thành `srcset`, thumbnail
+lazy, cảnh báo 5 ảnh hiện đúng, đủ nút reorder/cover/navigation. Không upload hay sửa dữ liệu
+Redis thật trong kiểm thử UI. Đã chạy riêng một Blob adapter roundtrip bằng ảnh giả 16×16;
+upload/head đạt và chính file test được xoá ngay. Sharp được ghim 0.34.5 trùng Next.js để
+không nạp hai libvips.
+P1 còn thumbnail vật lý, usage/upload-error metrics, reference index + cleanup orphan và UX
+caption/role nâng cao.
+
+**Cập nhật mới nhất 2026-09-13 — NOTE-08/09/10 đã deploy production:** chủ dự án sửa nội
+dung “CDP là gì?” trong Admin local; hai thay đổi được đưa vào bản mặc định trong
+`lib/aboutPage.js` vì production chưa có key `site_content:about`: tiêu đề “Cụ thể là?” và
+câu “Mẹo người dùng nhập vào và qua admin duyệt trước khi công khai.” Build production đạt;
+lint không có lỗi mới, vẫn đúng một lỗi cũ ở `PlaceExplorer.js:405`. Vercel deployment
+`web-rn6nho9f0` đã Ready và alias `chamdiaphuong.io.vn`.
+
+Đã kiểm tra trực tiếp `/gioi-thieu` trên production bằng Playwright ở desktop 1440px và
+iPhone 15 Plus: H1, hai nội dung mới, sidebar/menu “CDP là gì?” đều hiện đúng; menu mobile
+mở được và không có tràn ngang. Lần deploy đầu thiếu quyền do CLI chưa có scope; chạy lại với
+scope `thangdz1` thành công. Không ghi hay sửa dữ liệu Redis production.
+
+**NOTE-10 P0 + P1 trước khi deploy:** đã audit và mở
+rộng `SiteHeader` hiện có thành App Shell public dùng chung, không dựng navigation song song.
+Desktop từ 1024px có sidebar trái rộng 248px, thu còn 72px, nhớ trạng thái trong localStorage;
+mobile/tablet dùng header + menu gọn đọc cùng config. Bốn route cố định trong code là Khám
+phá, Ghi chú, Sổ và Giới thiệu; `/admin/navigation` chỉ sửa nhãn menu, tiêu đề trang, bật/tắt
+và thứ tự. Redis lưu `site_config:navigation`; thiếu/hỏng/lỗi thì dùng bản mặc định, không
+migration. Server Action xác thực admin và không nhận key/href từ form.
+
+Homepage đã mở tới 1360px, phần mở đầu vẫn giữ độ rộng đọc dễ chịu và danh sách địa điểm lên
+hai cột ở desktop; thanh tìm kiếm/loại vẫn ghim đúng dưới header mobile và ở đầu viewport
+desktop. `/gioi-thieu` giữ layout NOTE-09, thêm accent cam ở nhãn/đường viền/bước. H1 của bốn
+trang chính đọc `pageTitle`; `hero.title` cũ của Giới thiệu được giữ làm fallback để tương
+thích dữ liệu cũ. Trang chi tiết địa điểm desktop chia cột media và cột thông tin/liên hệ/
+thao tác độc lập; mobile giữ đúng thứ tự NOTE-02.
+
+Build production đạt. Lint vẫn đúng một lỗi cũ ở `PlaceExplorer.js:405`, không có lỗi mới.
+Playwright đạt ở 375px, iPhone 15 Plus, 820, 1024, 1280 và 1440px; đã kiểm tra sidebar nhớ
+trạng thái, menu mobile, lưới hai cột, trang chi tiết, Admin lưu bền và đồng bộ tiêu đề/bật
+tắt/thứ tự sang desktop + mobile. Test dùng namespace `local-note10-20260913`, key thử đã
+được xoá. Bản local từng dành cho chủ dự án kiểm tra ở `http://localhost:3004`; nội dung này
+đã lên production trong deployment `web-rn6nho9f0`.
+
+**NOTE-09 P0 trước khi deploy:** đã audit và giữ nguyên
+onboarding/footer NOTE-08. Copy `/gioi-thieu` không còn nằm rải trong JSX mà dùng schema cố
+định tại `lib/aboutPage.js`; production sẽ lưu một object ở `site_content:about`, còn key
+thiếu/hỏng/Redis lỗi thì tự rơi về bản mặc định trong code. `/admin/gioi-thieu` chỉ cho Admin
+đã đăng nhập sửa các phần Hero, CDP là gì, lý do, 3 bước, CDP không phải gì, 5 nguồn, độ
+mới/độ trễ, quyền sở hữu và nhãn CTA. Nội dung là chữ thuần, có giới hạn và được kiểm tra lại
+trên server; đích CTA cố định, không nhận HTML hay URL tùy ý.
+
+Trang public đã chuyển sang container desktop 1100–1200px, nội dung thành các grid có độ dài
+dòng kiểm soát; phần 3 bước là 1 cột mobile, 2 cột tablet và 3 cột desktop. Build production
+đạt. Lint vẫn đúng một lỗi cũ ở `PlaceExplorer.js`, không thêm lỗi mới. Playwright đã kiểm tra
+375, 430 (iPhone 15 Plus), 768, 1024, 1280 và 1440px: không tràn ngang, CTA/step grid đúng;
+Admin lưu → tải lại vẫn còn → public cập nhật; chuỗi thử dạng `<script>` chỉ hiện thành chữ;
+onboarding đóng rồi reload không hiện. Test dùng namespace `local-note09-20260913` và đã xóa
+đúng key thử. P1 chưa làm: toggle/bật tắt, đổi thứ tự, preview ngay trong Admin, mục lục sticky.
+
+**NOTE-08 trước khi deploy:** đã đối chiếu code trước
+khi làm để giữ lại các phần đã có: slogan trang chủ, tín hiệu cập nhật/xác nhận trên địa
+điểm, cơ chế duyệt địa điểm đề xuất và mẹo chữ, ranh giới dữ liệu riêng/công khai. Bổ sung
+trang `/gioi-thieu`, card hướng dẫn nhẹ cho lần đầu và footer toàn site có link `CDP là gì?`,
+`Dữ liệu & cách cập nhật`. Card không phải popup, đóng xong ghi localStorage và không hiện
+lại khi tải trang. Không thêm cảnh báo vào từng card, không mở rộng review/rating/social và
+không tạo hay sửa dữ liệu Redis.
+
+Build production đạt. Playwright đạt trên khổ iPhone 15 Plus 430×932: title SEO đúng, link
+và anchor đúng, trạng thái đóng được giữ sau reload, trang chủ/trang giới thiệu không tràn
+ngang; anchor danh sách nằm dưới hai vùng ghim ở 163,75px. Local đang ở cổng 3003 vì cổng
+3001 và 3002 đã có tiến trình khác; sau đó đã deploy trong `web-rn6nho9f0`.
+
+**Cập nhật mới nhất 2026-09-12:** đã deploy production màn sửa lịch Lễ hội Thành Tuyên trong
+`/admin`. Trang chủ và bài lễ hội giờ đọc chung key Redis
+`post_events:le-hoi-thanh-tuyen`; nếu key chưa có/rỗng/hỏng hoặc Redis tạm lỗi thì tự dùng
+lịch trong file đang deploy. Đã bổ sung nhóm hoạt động cùng ngày, ưu tiên “Hôm nay”, thời gian
+không chính xác (sáng/chiều/tối/cả ngày), 6 trạng thái xác minh và lịch sử hoàn tác. Đã qua
+unit check, build production và Playwright khổ iPhone 13 ở `localhost:3002`. Bản production
+`web-opqyajp32` đã Ready và alias vào `chamdiaphuong.io.vn`; không ghi dữ liệu thử vào key
+thật. Bản local dùng namespace Redis `local-review-20260912` để
+anh có thể bấm Lưu/Hoàn tác mà không ảnh hưởng dữ liệu production; duyệt xong sẽ xoá đúng hai
+key thử này. Đã tự test trọn luồng Lưu → trang khách cập nhật → Hoàn tác trên namespace đó và
+xác nhận hai key test về 0 trước khi giao anh.
+
+**Bổ sung theo phản hồi anh:** đã thêm mốc “Đêm hội Trung thu phường Nông Tiến” tối 11/9 vào
+lịch quá khứ, dùng `timePrecision: evening` vì nguồn không nêu giờ chính xác. `TASKS.md` giờ
+có checklist 8 việc cố định để mỗi bước đều hiện rõ local/chờ check/đã deploy.
+
+**Checklist mục 3 — đã deploy production:** submit giờ tự đọc/nhận dạng/so lịch và hiện
+preview thay vì đứng ở “chờ phân tích”. Các mục admin đã thử trong namespace
+`local-review-20260912` được giữ nguyên và đã chuyển sang `analyzed`, không bắt dán lại. Đã
+test giao diện iPhone 13 với nội dung mới rồi hoàn nguyên toàn bộ dữ liệu test.
+Local chưa có khóa AI nên UI ghi rõ kết quả sơ bộ bằng quy tắc; nguồn chặn đọc link sẽ yêu cầu
+dán nguyên nội dung thay vì giả vờ đã hiểu.
+
+**Bổ sung sau lần check tiếp theo:** Content Inbox có 4 tab Mới/Bản nháp/Đã đăng/Bỏ qua.
+“Bỏ qua” gỡ mục khỏi danh sách Mới nhưng cho khôi phục; “Xóa hẳn” chỉ xuất hiện trong tab Bỏ
+qua và có xác nhận. Kết quả phân tích có form sửa, Lưu bản nháp và Public. Nếu nghi trùng thì
+hiện Cũ/Mới; admin chọn cập nhật mốc cũ hoặc tạo mốc mới. Public ghi lịch, revision và trạng
+thái Inbox trong cùng Redis pipeline. Playwright iPhone 13 đã chạy đủ nháp → Public → trang
+khách đổi, Bỏ qua → Khôi phục → Xóa hẳn; sau test khôi phục nguyên trạng cả 3 key local.
+
+**Ghi chú sản phẩm theo phản hồi ảnh lộ trình:** chưa tăng giới hạn `route.stop.note`, tạm giữ
+140 ký tự. Ghi chú riêng tại địa điểm vẫn tối đa 500 ký tự; nếu người dùng chọn đăng thành mẹo
+công khai thì rút còn 120 ký tự và bắt buộc admin duyệt. Cần hỏi lại trước khi đổi vì ghi chú
+chặng hiện xuất hiện trong link chia sẻ lộ trình — đang nằm giữa “ghi chú cá nhân” và “nội dung
+công khai ảnh hưởng uy tín CDP”.
+
+**Sửa Google Maps theo phản hồi thật — đã deploy:** nguyên nhân là `mapsUrl.js` ghép
+cả tên và trường địa chỉ rất dài. Đã đổi địa điểm CDP sang Tên + phường + tỉnh; nếu tên đã có
+Tuyên Quang thì chỉ gửi tên. Điểm riêng/đề xuất giữ địa chỉ nhưng bỏ phần chú thích trong
+ngoặc. Sửa tiếp theo đính chính của chủ dự án: Winmart Hàng Bún là Hà Nội, vì vậy mọi điểm
+người dùng gõ ngoài CDP bắt buộc chọn tỉnh/thành; giao diện không chọn sẵn Tuyên Quang, server
+cũng từ chối dữ liệu thiếu/sai tỉnh và Maps không tự đoán cho điểm cũ thiếu tỉnh. Unit check 8
+trường hợp đạt; giao diện thật xác nhận ô tỉnh bắt đầu trống, nút bị khóa trước khi chọn, chọn
+Hà Nội thì thêm được Winmart vào kế hoạch. Nhánh kế hoạch trước đây làm rơi điểm riêng cũng đã
+sửa. Không nhập địa chỉ thì Maps dùng tên + tỉnh; có địa chỉ thì ưu tiên địa chỉ. Lint không
+thêm lỗi và build production đạt. Đang chạy ở `localhost:3002` chờ chủ dự án bấm thử; share
+snapshot cũ không đổi, tạo link mới mới nhận chuỗi mới. Đã bỏ chữ “(tại đây)” cạnh Tuyên
+Quang và đổi hướng dẫn ô địa chỉ cho khớp hành vi mới.
+
+**Ưu tiên dữ liệu đáng tin + ghim thao tác — đã deploy:** comparator dùng
+chung `lib/placeReliability.js` đã được đính chính theo phản hồi: xác nhận mới trong 30 ngày
+đứng trước và xếp theo đúng độ mới → 6 nhóm dữ liệu hữu ích → xác nhận cũ; `lastUpdatedAt`,
+độ tin cậy và số nguồn chỉ phá hoà cuối. Kho chỉ lưu lần xác nhận gần nhất, chưa có số lượt,
+nên không bịa số và không migration. Dữ liệu thật local cho kết quả đầu nhóm Ăn: Ẩm thực Hà
+Tuyên (hôm qua), Min Garden (3 ngày), Cafe HELIO/SERENITY (4 ngày). Trên trang chủ, header ở
+0–57px và vùng tìm kiếm + 5 nút loại ở 57–164px khi cuộn; lọc khu vực/giá không ghim. Đã
+kiểm tra giao diện thật ở khung iPhone 15 Plus 430×932, cả nút lọc Chơi và vùng ghim khi cuộn;
+không tạo dữ liệu thử. Production `web-2uhe5w6sq` đã Ready và alias
+`chamdiaphuong.io.vn`.
+
 Đang làm hướng mới "cuốn sổ địa phương" ([NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)).
 **Chặng 1–4 đã code xong và đã lên web thật.** Anh vừa bấm thử xong Chặng 4 theo checklist
 SPEC §10, phát hiện + vá 2 chỗ thiếu (mở rộng xem chi tiết + nút Sao chép link ở trang Xem sổ).
@@ -50,7 +245,7 @@ anh + em quét (quyết định 2026-07-18).
   gần nhất, ghi chú, cụm ảnh) → bấm ảnh mở gallery toàn màn hình (vuốt ngang đổi ảnh, vuốt
   lên/xuống đóng).
 - **"Báo sai" / "Bổ sung ảnh"** (2026-07-18, đã qua nhiều vòng sửa lỗi thật): khách bấm
-  ngay trong thẻ, sửa field (địa chỉ/SĐT/giá) hoặc báo "đã đóng cửa", hoặc gửi tối đa 3
+  ngay trong thẻ, sửa field (địa chỉ/SĐT/giá) hoặc báo "đã đóng cửa", hoặc gửi tối đa 5
   ảnh/lần (tự nén phía trình duyệt trước khi gửi — ảnh nặng mấy cũng gọn lại, lưu ở Vercel
   Blob `cdp-photos`). Lần đầu góp ý: đặt biệt danh ẩn danh + nhận **mã khôi phục 6 số**.
   Sau khi gửi: cảm ơn → chọn 1 trong 10 lĩnh vực (bỏ qua được, có icon riêng + mô phỏng
@@ -259,10 +454,11 @@ nay tự gắn "Tuyên Quang" vào MỌI điểm. Đúng với quán trong danh 
 Quang) nhưng sai với nhà của khách: người Hà Nội, Đà Nẵng về Tuyên Quang chơi thì điểm xuất
 phát của họ nằm ở tỉnh khác.
 
-Giờ điểm riêng có **ô chọn tỉnh/thành** (34 tỉnh/thành theo sắp xếp 01/7/2025), mặc định Tuyên
-Quang, có cả lúc thêm lẫn lúc sửa; đổi tỉnh là lưu ngay. Địa điểm CDP và địa điểm đề xuất vẫn
-gắn Tuyên Quang như cũ. Điểm riêng tạo trước hôm nay hiểu là Tuyên Quang (đúng bằng hành vi
-cũ) và hiện rõ trên giao diện để anh đổi.
+Giờ điểm riêng có **ô chọn tỉnh/thành** (34 tỉnh/thành theo sắp xếp 01/7/2025), có cả lúc thêm
+lẫn lúc sửa; đổi tỉnh là lưu ngay. Đính chính ngày 12/9: không được mặc định Tuyên Quang —
+người dùng phải tự chọn vì chỉ họ biết vị trí. Điểm riêng cũ thiếu tỉnh cũng phải chọn lại
+trước khi Maps dùng. Địa điểm CDP và địa điểm đề xuất vẫn gắn Tuyên Quang vì danh bạ hiện chỉ
+nhận địa điểm Tuyên Quang.
 
 ### 2026-09-11 (tối) — Đổi điểm trong lộ trình
 

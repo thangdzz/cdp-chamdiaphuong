@@ -8,6 +8,7 @@ const SUMMARY_LABELS = [
   ["changedPlacesApplied", "chỗ được cập nhật thông tin"],
   ["lowConfidencePublished", "chỗ tin cậy thấp (vẫn lên thẳng, hiển thị rõ độ tin cậy)"],
   ["duplicateCandidatesForReview", "chỗ nghi trùng/mâu thuẫn — chờ duyệt ở mục bên dưới"],
+  ["closedPlaceMatchesForReview", "chỗ khớp hồ sơ đã đóng — bắt buộc chờ xác minh"],
   ["updatedExistingPending", "mục đang chờ duyệt được bổ sung thêm thông tin"],
   ["skippedNoChange", "bản ghi trùng y hệt dữ liệu đã có — bỏ qua"],
 ];

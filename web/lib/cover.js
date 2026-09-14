@@ -1,4 +1,6 @@
-// Ảnh bìa — tách rõ 2 khái niệm khác nhau, trước đây cả hai đều lấy đại `photos[0]`:
+import { placeCoverMedia } from "./media.js";
+
+// Ảnh bìa — tách rõ 2 khái niệm khác nhau:
 //
 //   placeCover(place)          -> ảnh đại diện của MỘT địa điểm
 //   notebookCover(nb, items)   -> ảnh đại diện của MỘT CUỐN SỔ (nhiều địa điểm)
@@ -11,15 +13,13 @@ export const FALLBACK_COVER = "/images/le-hoi-thanh-tuyen-2026.jpg";
 
 /**
  * Ảnh bìa của một địa điểm.
- * Ưu tiên `coverPhoto` — ảnh do admin/CDP tự chọn — vì `photos[0]` chỉ là "ảnh khách gửi lên
- * sớm nhất", không có gì đảm bảo nó đại diện tốt cho chỗ đó (có thể là ảnh tối, chụp lệch,
- * hoặc ảnh món ăn trong khi cần ảnh mặt tiền).
+ * Ưu tiên media có role `cover` — ảnh do admin/CDP tự chọn — rồi mới lấy ảnh đầu theo
+ * `order`. `placeCoverMedia()` cũng đọc được `coverPhoto`/`photos[]` cũ mà không migration.
  * @returns {string|null} null nếu chỗ chưa có ảnh nào — nơi gọi tự quyết định ẩn hay dùng ảnh
  *   mặc định, vì "thẻ không có ảnh" và "preview không có ảnh" cần xử lý khác nhau.
  */
 export function placeCover(place) {
-  if (!place) return null;
-  return place.coverPhoto ?? place.photos?.[0] ?? place.menuPhotos?.[0]?.url ?? null;
+  return placeCoverMedia(place)?.url ?? null;
 }
 
 /**

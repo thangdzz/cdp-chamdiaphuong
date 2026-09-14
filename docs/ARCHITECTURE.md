@@ -17,7 +17,9 @@
   `@upstash/redis`. **Không có SQL, không có Supabase, không có Prisma.**
 - Mỗi "bảng" là **một key Redis chứa nguyên một mảng JSON** — đọc cả mảng, sửa, ghi lại cả
   mảng. Không có index, không có truy vấn.
-- Ảnh khách gửi để ở **Vercel Blob** (store `cdp-photos`, public).
+- Ảnh để ở **Vercel Blob** (store `cdp-photos`, public), nhưng domain/UI chỉ gọi qua
+  `lib/mediaStorage.js`; SDK Vercel bị cô lập trong `lib/media-storage/vercelBlob.js` để
+  sau này đổi R2/S3/GCS không phải đổi schema địa điểm.
 - Không có tài khoản người dùng. Người góp ý được định danh bằng **mã ẩn danh lưu trong
   localStorage**. `/admin` dùng **một mật khẩu chung** + cookie ký HMAC.
 - Toàn bộ code web nằm trong thư mục `web/` (~3.900 dòng).
@@ -28,10 +30,11 @@ viết code Next.js.**
 
 ---
 
-## 2. Kho dữ liệu — 18 key Redis
+## 2. Kho dữ liệu — 24 key Redis
 
-Tất cả đều là **một key = một mảng JSON**, **trừ `place_checkins:latest`** (Chặng 1), 3 key
-của Chặng 2, và 4 key của Chặng 4 (xem bên dưới) — dùng hash/set/string thay vì mảng.
+Tất cả đều là **một key = một mảng JSON**, **trừ `places:closed`**,
+`place_checkins:latest` (Chặng 1), 3 key của Chặng 2, và 4 key của Chặng 4 (xem bên dưới) —
+dùng hash/set/string thay vì mảng.
 `notebook:{slug}` là ngoại lệ trong ngoại lệ: bản thân nó VẪN là 1 key = 1 JSON đầy đủ (như
 quy ước gốc), chỉ khác là có **nhiều key cùng dạng** (1 sổ = 1 key riêng) thay vì gộp chung.
 
@@ -41,6 +44,46 @@ quy ước gốc), chỉ khác là có **nhiều key cùng dạng** (1 sổ = 1 
 |---|---|
 | `places:live` | **Các chỗ đang hiện trên web.** Trang chủ đọc thẳng key này |
 | `places:pending` | Hàng chờ duyệt **thủ công** (người nhập tay qua `/admin`) |
+| `places:closed` | **Hash**, field = `placeId`, value = record cũ + trạng thái đóng và `replacedByPlaceId`. `lib/closedPlaces.js` archive trước khi gỡ live; URL cũ đọc một field, không 404 |
+
+### Nội dung bài viết có lịch động (`lib/postEvents.js`)
+
+| Key | Chứa gì |
+|---|---|
+| `post_events:le-hoi-thanh-tuyen` | Mảng mốc lịch do admin sửa. Key chưa có, rỗng, sai khuôn hoặc Redis lỗi thì trang tự dùng `lib/postEvents/le-hoi-thanh-tuyen-2026.js` làm bản dự phòng |
+| `post_event_revisions:le-hoi-thanh-tuyen` | Tối đa 100 lần sửa/thêm/hoàn tác gần nhất; giữ mốc trước và sau để admin hoàn tác. Không đọc được lịch sử thì chặn ghi mới, tránh xoá log cũ |
+
+### Content Inbox (`lib/contentInbox.js`)
+
+| Key | Chứa gì |
+|---|---|
+| `content_inbox:items` | Tối đa 500 URL/nội dung admin dán vào; giữ nguyên nguồn, preview `analysis`, bản sửa `draftEvent` và trạng thái `new/draft/published/ignored`. Item cũ `waiting` vẫn chạy lại được; local chưa có khóa AI nên dùng quy tắc có ghi rõ giới hạn |
+
+Public từ Inbox dùng một Redis pipeline ghi đồng thời `post_events:*`, `post_event_revisions:*`
+và `content_inbox:items`. Nếu lượt ghi lỗi thì không key nào được đánh dấu xong nửa chừng.
+
+### Nội dung trang Giới thiệu (`lib/aboutPage.js`)
+
+| Key | Chứa gì |
+|---|---|
+| `site_content:about` | Một object theo schema cố định P0 cho `/gioi-thieu`: Hero, các section NOTE-08, 3 bước, 5 nguồn dữ liệu và nhãn 2 CTA. Không lưu HTML hay URL tùy ý |
+
+Key chưa có, Redis lỗi hoặc object sai khuôn thì trang tự dùng `DEFAULT_ABOUT_PAGE` trong
+code. Admin chỉ sửa chữ trong các block cố định tại `/admin/gioi-thieu`; React render chuỗi
+text nên nội dung giống thẻ HTML không được thực thi. Khi test dùng
+`CDP_SITE_CONTENT_NAMESPACE` để không ghi vào key production.
+
+### Cấu hình điều hướng public (`lib/navigation.js`)
+
+| Key | Chứa gì |
+|---|---|
+| `site_config:navigation` | Bốn item có `key`, `navLabel`, `pageTitle`, `enabled`, `order`; `href` lưu kèm để đọc/debug nhưng luôn bị code ghi đè bằng route cố định |
+
+`AppShell` desktop, menu mobile, footer và H1 của bốn trang chính đọc cùng object này. Key
+thiếu, Redis lỗi hoặc dữ liệu sai khuôn/thứ tự trùng thì dùng `NAVIGATION_DEFINITIONS` trong
+code. Admin tại `/admin/navigation` không có ô sửa key/route; Server Action cũng tự dựng lại
+bốn item từ definition và bỏ qua mọi key/href do request gửi. Test dùng chung biến namespace
+`CDP_SITE_CONTENT_NAMESPACE` với content Giới thiệu.
 
 ### Pipeline AI quét dữ liệu (`lib/ingestion/store.js` — hằng số `KEYS`)
 
@@ -91,10 +134,12 @@ Cộng 2 key đếm: `answers:count:{anonId}:{placeId}:{ngày}` (trần 5 câu/c
 `points:day:{anonId}:{ngày}` (`lib/pointsCap.js` — trần CHUNG 30 điểm/ngày, áp dụng cho **mọi**
 nguồn điểm kể cả Chặng 1's checkin, TTL 48h).
 
-**Vì sao đúng 3 lệnh Redis/lượt xem trang chủ dù bao nhiêu chỗ:** `places:live` (mảng) +
+**Vì sao phần dữ liệu địa điểm chỉ dùng đúng 3 lệnh Redis/lượt xem dù bao nhiêu chỗ:** `places:live` (mảng) +
 `place_checkins:latest` (`HGETALL`) + `place_answers:consensus` (`HGETALL`) — không lệnh nào
 tăng theo số địa điểm. Việc "chọn câu nào để hỏi" (đọc phiếu + đồng thuận + phiếu "Không rõ"
 của 1 chỗ cụ thể) chỉ chạy khi khách **bung 1 thẻ**, không chạy cho mọi chỗ lúc tải trang.
+Root Layout đọc thêm đúng một object `site_config:navigation`; bài lễ hội, ghi chú công khai
+và content khác có lệnh riêng theo module, không tăng theo số địa điểm.
 
 **Trọng số phiếu theo tuổi** (dưới 6 tháng = 1.0, 6–12 tháng = 0.5, trên 12 tháng = 0.1) —
 cơ chế tự dọn rác, tính lúc chốt đồng thuận (mỗi lượt bấm), không cần cron riêng.
@@ -144,9 +189,14 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
   address, ward, localArea, phone,
   priceMin, priceMax, priceUnit,
   priceText,                        // LUÔN tự tính, không nhận gõ tay
-  coverPhoto,                       // ảnh bìa admin chọn — xem lib/cover.js
-  photos: [url],                    // mảng chuỗi, KHÔNG có ngày gửi
-  menuPhotos: [{ url, addedAt }],   // có ngày, để nói thật tuổi bảng giá
+  media: [{
+    id, storageKey, url,
+    width, height, bytes, mimeType,
+    caption, order,
+    roles: ["general", "cover"],   // có thể thêm navigation/entrance/parking/menu/interior
+    source, uploadedAt, uploadedBy,
+    providerMeta                    // metadata riêng provider, domain không phụ thuộc vào nó
+  }],
   signatureDishes: [ten],           // chỉ với type "an"
 
   // Chỉ với type "dilai" — xem lib/transport.js (NOTE-04 §1–§2, NOTE-06 §1)
@@ -161,6 +211,12 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
   lastUpdatedAt, autoPublished
 }
 ```
+
+**Tương thích ảnh cũ:** phần lớn dữ liệu thật vẫn có `photos: [url]`,
+`menuPhotos: [{url, addedAt}]` và có thể có `coverPhoto`. `placeMedia()` trong
+`lib/media.js` chỉ chuẩn hoá các trường này **trong bộ nhớ**. Không migration toàn Redis;
+chỉ địa điểm đang được Admin sửa/upload ảnh hoặc nhận ảnh đã duyệt mới ghi lại `media[]` và
+bỏ ba trường cũ của chính địa điểm đó. Vì vậy dữ liệu cũ/phiếu ảnh cũ vẫn đọc được.
 
 ### Nhóm Đi lại: family quyết định, subtype override
 
@@ -205,16 +261,28 @@ web/
 ├── app/
 │   ├── page.js              (64)  Trang chủ — đọc places:live + place_checkins:latest +
 │   │                              place_answers:consensus, render PlaceExplorer
+│   ├── gioi-thieu/page.js          Trang “CDP là gì?” đọc content an toàn từ Redis/fallback;
+│   │                              mobile 1 cột, tablet 2 cột, desktop tối đa 6xl
+│   ├── FirstVisitIntroCard.js      Card onboarding lần đầu; chỉ lưu trạng thái đóng ở
+│   │                              localStorage, không tạo hồ sơ hay ghi Redis
+│   ├── AppShell.js                 Shell public: sidebar desktop 248/72px, menu mobile,
+│   │                              active state và PageTitle dùng chung navigation config
+│   ├── SiteHeader.js               Header/menu mobile; desktop ẩn để dùng sidebar AppShell
+│   ├── SiteFooter.js               Footer toàn site: link giới thiệu + cách cập nhật dữ liệu
 │   ├── PlaceExplorer.js    (632)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
 │   │                              gallery ảnh, dòng "còn mở" (Chặng 1), khối hỏi + khối
 │   │                              kết quả (Chặng 2), 4 nhóm loại + gate nhãn còn chỗ
 │   │                              (Chặng 3). Nơi nặng nhất của giao diện khách
+│   ├── MediaImage.js              Wrapper `next/image` dùng chung: responsive `srcset`,
+│   │                              `sizes` theo vị trí và lazy load mặc định
 │   ├── ContributionPanel.js(564)  ⭐ Luồng góp ý: báo sai, gửi ảnh, đặt biệt danh,
 │   │                              mã khôi phục, chọn lĩnh vực, hiện huy hiệu. Export
 │   │                              STORAGE_KEY/loadLocalContributor/saveLocalContributor
 │   │                              để CheckinButton.js + QuestionPrompt.js dùng chung
-│   │                              1 hồ sơ ẩn danh
-│   ├── contributionActions.js(155) Server Action nhận góp ý từ ContributionPanel
+│   │                              1 hồ sơ ẩn danh; sau báo đóng cửa có thể mở form đề xuất
+│   │                              địa điểm thay thế cùng vị trí
+│   ├── contributionActions.js(155) Server Action nhận góp ý và proposal thay thế; luôn đọc
+│   │                              lại vị trí record cũ ở server, không tin field vị trí client
 │   ├── CheckinButton.js     (68)  Chặng 1: nút "Tôi vừa đến, vẫn mở"
 │   ├── checkinActions.js    (48)  Server Action cho CheckinButton — gọi lib/checkins.js
 │   │                              + lib/contributors.js + lib/pointsCap.js (trần chung
@@ -269,12 +337,26 @@ web/
 │   │   ├── page.js         (497)  ⭐ Trang duyệt: đăng nhập, sửa live, duyệt hàng chờ,
 │   │   │                          duyệt góp ý khách, dán báo cáo routine. 3 form chọn
 │   │   │                          loại đọc từ lib/placeTypes.js (Chặng 3); mục thống kê
-│   │   │                          sổ chia sẻ (Chặng 4)
+│   │   │                          sổ chia sẻ (Chặng 4); sửa lịch bài lễ hội
+│   │   ├── FestivalEventsManager.js Giao diện gấp/mở từng mốc để sửa hoặc thêm mốc
+│   │   ├── festivalEventActions.js Server Action lưu lịch, bắt buộc kiểm tra phiên admin
+│   │   ├── content-inbox/page.js   Nhận URL/nội dung copy và hiện preview phân tích
+│   │   ├── content-inbox/actions.js Xác thực admin, phân tích rồi ghi/cập nhật Content Inbox
+│   │   ├── gioi-thieu/page.js     Editor chữ thuần cho các block cố định của trang Giới thiệu
+│   │   ├── gioi-thieu/actions.js  Xác thực admin, kiểm tra schema rồi lưu site_content:about
+│   │   ├── navigation/page.js     Sửa nhãn, tiêu đề, bật/tắt và thứ tự menu; route chỉ đọc
+│   │   ├── navigation/actions.js  Xác thực + dựng lại key/href cố định rồi lưu config
 │   │   ├── actions.js      (129)  Server Action: đăng nhập/xuất, sửa/xoá/thêm chỗ (xoá
 │   │   │                          chỗ cũng dọn field trong place_checkins:latest và
 │   │   │                          place_answers:consensus/votes)
 │   │   ├── reviewActions.js(138)  Duyệt/từ chối hàng chờ tự động
 │   │   ├── suggestionActions.js(87) Duyệt góp ý khách + cộng điểm
+│   │   ├── MediaManager.js         Admin upload nhiều ảnh, preview, caption, lên/xuống,
+│   │   │                          chọn bìa/dẫn đường và gỡ ảnh khỏi địa điểm
+│   │   ├── ClosedPlacesManager.js  Danh sách tombstone + URL cũ; tạo proposal địa điểm mới
+│   │   │                          cùng vị trí vào hàng chờ bình thường, không public thẳng
+│   │   ├── mediaActions.js         Server Action media; kiểm tra phiên, chỉ cho sửa media
+│   │   │                          đang thuộc đúng địa điểm
 │   │   ├── ingestPasteActions.js(50) Xử lý báo cáo routine dán tay
 │   │   ├── IngestPasteBox.js (77)
 │   │   ├── mergeActions.js  (200)  Gộp 2 chỗ trùng lặp — dùng chung cho 2 nguồn (khách báo
@@ -290,6 +372,13 @@ web/
 │
 ├── lib/
 │   ├── redis.js             (29)  Kết nối Redis + đọc/ghi places:live, places:pending
+│   ├── aboutPage.js                Default NOTE-08 + schema/giới hạn + đọc/ghi content Giới thiệu
+│   ├── navigation.js              Definition route cố định + kiểm tra/đọc/ghi menu và pageTitle
+│   ├── postEvents.js              Đọc/ghi `post_events:{slug}`; kiểm tra khuôn và tự rơi về
+│   │                              lịch trong file nếu Redis trống/hỏng/tạm lỗi
+│   ├── postEventForm.js           Đọc + kiểm tra form lịch; gắn múi giờ Việt Nam `+07:00`
+│   ├── contentInbox.js            Nhận dạng URL/text, giới hạn đầu vào, đọc/ghi Inbox
+│   ├── contentAnalyzer.js         Đọc nguồn công khai an toàn, extract + so lịch sơ bộ
 │   ├── placeTypes.js        (39)  ⭐ Chặng 3: nguồn duy nhất cho 4 loại địa điểm
 │   │                              (an/choi/ngu/dilai) — ném lỗi rõ ràng nếu giá trị lạ,
 │   │                              không âm thầm quy về "ngu" như trước
@@ -322,11 +411,23 @@ web/
 │   ├── badges.js           (167)  10 lĩnh vực × 5 bậc, ngưỡng điểm 0/5/20/50/100
 │   ├── contributors.js     (120)  Hồ sơ ẩn danh, mã khôi phục, cộng điểm
 │   ├── suggestions.js       (58)  Hàng chờ góp ý + chặn gửi trùng ăn điểm
+│   ├── closedPlaces.js             Hash `places:closed`: archive nguyên record trước khi gỡ
+│   │                              live, đọc tombstone/quan hệ replacement; suy ra báo đóng
+│   │                              cửa legacy lúc đọc, không migration
+│   ├── media.js                    Chuẩn hoá schema media cũ/mới, role, order và fallback
+│   │                              cover/navigation; chỉ `withPlaceMedia()` mới ghi schema mới
+│   ├── mediaStorage.js             Interface upload/delete/public URL + sinh storage key;
+│   │                              domain không biết provider đang dùng
+│   ├── media-storage/vercelBlob.js Adapter duy nhất được import `@vercel/blob`
+│   ├── mediaProcessing.js          Server validate ≤8MB/file, xoay/resize ≤1600px,
+│   │                              chuyển WebP bằng Sharp và tính hash nội dung
+│   ├── clientImageCompression.js   Nén trước ở trình duyệt để giảm request; khách tối đa
+│   │                              5 ảnh/lần, Admin tối đa 10 ảnh/lần
 │   ├── phoneConfirmations.js(106) Xác nhận số điện thoại: place_phone_confirmations:{placeId},
 │   │                              field "{số đã chuẩn hoá}:{anonId}" — đổi số thì phiếu cũ
 │   │                              tự hết hiệu lực (NOTE-01 §6.4)
 │   ├── cover.js             (44)  ⭐ Chọn ảnh bìa dùng chung: placeCover() ưu tiên
-│   │                              `coverPhoto` (admin chọn) hơn photos[0]; notebookCover()
+│   │                              role `cover`, rồi ảnh đầu theo `order`; notebookCover()
 │   │                              theo thứ tự cover sổ → collage 3 chỗ đầu → cover chỗ đầu
 │   │                              → ảnh mặc định. Gom về đây để thẻ / trang địa điểm /
 │   │                              Open Graph luôn hiện CÙNG một ảnh
@@ -338,11 +439,15 @@ web/
 │   │                              vehicleTypesOf() -> loại xe (đọc được cả ô chữ tự do cũ);
 │   │                              adminFilledFields() -> ô admin đã điền thì thôi hỏi khách
 │   │                              (NOTE-04 §1–§2, NOTE-05 §2/§6/§9, NOTE-06 §1/§8/§10)
-│   ├── proposals.js        (140)  ⭐ Địa điểm khách ĐỀ XUẤT khi dựng lộ trình (NOTE-07 §6.B).
+│   ├── proposals.js        (140)  ⭐ Địa điểm khách ĐỀ XUẤT khi dựng lộ trình hoặc thay chỗ
+│   │                              đã đóng (NOTE-07 §6.B, NOTE-12 §16–§18).
 │   │                              `place_proposals:queue` (hàng chờ admin) +
 │   │                              `place_proposals:index` (bảng tra lúc hiển thị). Duyệt/từ
-│   │                              chối chỉ đổi bảng tra — KHÔNG ghi lại route nào
+│   │                              chối chỉ đổi bảng tra — KHÔNG ghi lại route nào. Proposal
+│   │                              thay thế có `replacesPlaceId`; duyệt mới nối tombstone
 │   ├── placeTextSearch.js   (50)  Tìm theo tên/địa chỉ + nhóm từ đồng nghĩa — DÙNG CHUNG cho
+│   ├── placeReliability.js        Xếp theo xác nhận mới → độ đầy đủ → xác nhận cũ;
+│   │                              confidence/số nguồn chỉ là tín hiệu phá hoà cuối
 │   │                              bộ lọc trang chủ và PlacePicker
 │   ├── routes.js           (330)  ⭐ Lộ trình — thực thể RIÊNG, không phải trạng thái của Sổ
 │   │                              (CDP_P1-P8 §P4). `route:{slug}` + `routes:by-owner:{anonId}`.
@@ -434,12 +539,36 @@ script) đều gọi **cùng một hàm `ingestBatch()`**. Không viết logic l
 Khách bấm "Bổ sung thông tin" trong card (ContributionPanel.js)
    ↓
 ├─ Sửa thông tin  → Server Action contributionActions.js
-└─ Gửi ảnh (tự nén ở trình duyệt: ≤1600px, JPEG 82%) → Vercel Blob cdp-photos
+└─ Gửi tối đa 5 ảnh/lần
+   → nén trước ở trình duyệt
+   → server kiểm tra loại/≤8MB, resize ≤1600px, chuyển WebP
+   → mediaStorage.uploadMedia() → Vercel Blob cdp-photos
    ↓
-user_suggestions (chờ duyệt)  ← chặn gửi trùng để ăn điểm
+user_suggestions (mỗi ảnh là 1 phiếu `media` đang chờ duyệt) ← chặn hash trùng để ăn điểm
    ↓  admin duyệt trong /admin, mục "Góp ý từ khách"
-places:live được cập nhật  +  cộng điểm (sửa +5, ảnh +10)
+places:live.media[] được cập nhật  +  cộng điểm (sửa +5, ảnh +10)
 ```
+
+Nhánh đóng cửa + địa điểm thay thế (NOTE-12) vẫn đi qua người duyệt:
+
+```
+Khách báo đóng cửa → user_suggestions → Admin duyệt
+   ↓ archive nguyên record vào places:closed (hash) TRƯỚC khi gỡ live
+   ↓ gỡ khỏi places:live; URL /dia-diem/{id-cũ} hiện closed, không 404
+   ↓ User/Admin có thể tạo proposal mới cùng vị trí
+place_proposals:queue → Admin duyệt
+   ↓ tạo live place MỚI; chỉ reuse location
+old.replacedByPlaceId ↔ new.replacesPlaceId
+```
+
+Không mutate record cũ thành chỗ mới và không kế thừa ảnh/giá/note/confirmation. Bốn báo
+cáo đóng cửa lịch sử được `closedPlaces.js` suy ra lúc đọc để URL cũ còn hoạt động; vì flow
+cũ đã làm mất vị trí nên các tombstone này chỉ hiện dữ liệu còn thật, không tự đoán.
+
+Admin có thể tải tối đa 10 ảnh/lần qua `MediaManager`. Upload lỗi sau khi Blob đã nhận nhưng
+trước khi Redis lưu sẽ chỉ xoá đúng file vừa tạo. Nút “Gỡ ảnh” hiện chỉ bỏ tham chiếu khỏi
+địa điểm, chưa xoá Blob vật lý: `route_share:*` là snapshot đóng băng có thể còn tham chiếu
+URL đó. Cleanup orphan an toàn cần reference index/dry-run và thuộc NOTE-11 P1.
 
 ### C. Khách xem web
 

@@ -4,9 +4,9 @@ import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
 import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
-import { SiteHeader } from "@/app/SiteHeader";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { notebookCover, FALLBACK_COVER } from "@/lib/cover";
+import { MediaImage } from "@/app/MediaImage";
 
 export const dynamic = "force-dynamic";
 
@@ -92,19 +92,17 @@ export default async function NotebookViewPage({ params }) {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <NotebookViewTracker slug={slug} />
-        <SiteHeader />
 
         {/* NOTE-03 §6 + §13: cover dạng collage 3 ảnh đầu (chưa có trường cover riêng — đó là
             P1), rồi mới tới tên sổ và metadata "N địa điểm · Nhóm chính". */}
         {collagePhotos.length > 0 && (
           <div className="mb-3 flex gap-1 overflow-hidden rounded-xl">
             {collagePhotos.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <MediaImage
                 key={i}
                 src={src}
-                alt=""
-                className={`h-32 object-cover ${collagePhotos.length === 1 ? "w-full" : "flex-1"}`}
+                className={`h-32 ${collagePhotos.length === 1 ? "w-full" : "min-w-0 flex-1"}`}
+                sizes={collagePhotos.length === 1 ? "(max-width: 639px) 100vw, 576px" : "(max-width: 639px) 33vw, 192px"}
               />
             ))}
           </div>

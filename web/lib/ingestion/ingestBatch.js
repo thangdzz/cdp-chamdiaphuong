@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { getLivePlaces, setLivePlaces } from "../redis.js";
 import { normalizeRecord } from "./normalize.js";
-import { matchAgainstExisting } from "./match.js";
+import { matchAgainstClosedPlaces, matchAgainstExisting } from "./match.js";
 import { candidateToLivePlace, applyDiffToLivePlace } from "./toLivePlace.js";
 import {
   getReviewQueue,
@@ -12,6 +12,7 @@ import {
 } from "./store.js";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "./schema.js";
 import { InvalidPlaceTypeError } from "../placeTypes.js";
+import { getAllClosedPlaces, recordClosedPlaceCrawlMatch } from "../closedPlaces.js";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.5;
 const NEEDS_REVIEW_THRESHOLD = 0.6;
@@ -22,6 +23,7 @@ const NEEDS_REVIEW_THRESHOLD = 0.6;
 const GATED_TYPES = new Set([
   REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE,
   REVIEW_ITEM_TYPE.CONFLICT_DETECTED,
+  REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH,
 ]);
 
 function newId(prefix) {
@@ -77,9 +79,12 @@ function mergeCandidate(oldCandidate, newCandidate) {
  * @param {{ sourceId: string, sourceType: string, records: object[] }} batch
  */
 export async function ingestBatch(batch) {
-  const livePlaces = await getLivePlaces();
-  const reviewQueue = await getReviewQueue();
-  const confirmedDistinctPairs = await getConfirmedDistinctPairs();
+  const [livePlaces, reviewQueue, confirmedDistinctPairs, closedPlaces] = await Promise.all([
+    getLivePlaces(),
+    getReviewQueue(),
+    getConfirmedDistinctPairs(),
+    getAllClosedPlaces(),
+  ]);
   let livePlacesChanged = false;
 
   const summary = {
@@ -87,6 +92,7 @@ export async function ingestBatch(batch) {
     newPlacesPublished: 0,
     changedPlacesApplied: 0,
     duplicateCandidatesForReview: 0,
+    closedPlaceMatchesForReview: 0,
     lowConfidencePublished: 0,
     updatedExistingPending: 0,
     skippedNoChange: 0,
@@ -126,6 +132,10 @@ export async function ingestBatch(batch) {
       candidate,
     });
 
+    // NOTE-13: trạng thái closed thắng mọi confidence của crawler. Chạy guard trước cả
+    // de-dupe hàng chờ để một item cũ loại "new_place" cũng được nâng thành closed match.
+    const closedMatch = matchAgainstClosedPlaces(candidate, closedPlaces);
+
     const existingPendingIndex = reviewQueue.findIndex((item) =>
       isSamePendingCandidate(item, candidate)
     );
@@ -138,6 +148,22 @@ export async function ingestBatch(batch) {
         { sourceId: batch.sourceId, sourceType: batch.sourceType, observedAt },
       ];
       existingItem.updatedAt = observedAt;
+
+      if (closedMatch) {
+        existingItem.type = REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH;
+        existingItem.matchedClosedPlaceId = closedMatch.matchedClosedPlaceId;
+        existingItem.matchedLivePlaceId = null;
+        existingItem.diff = closedMatch.diff;
+        existingItem.needs_review = true;
+        existingItem.reasons = [
+          ...(existingItem.reasons ?? []),
+          ...closedMatch.reasons.filter((reason) => !(existingItem.reasons ?? []).includes(reason)),
+        ];
+        await recordClosedPlaceCrawlMatch(closedMatch.matchedClosedPlaceId, {
+          matchedAt: observedAt,
+          sourceId: batch.sourceId,
+        });
+      }
 
       if (conflicts.length > 0) {
         const existingConflicts = existingItem.conflicts ?? [];
@@ -159,7 +185,12 @@ export async function ingestBatch(batch) {
     }
 
     const pendingCandidatesOnly = reviewQueue.filter((i) => i.status === REVIEW_STATUS.PENDING);
-    const match = matchAgainstExisting(candidate, livePlaces, pendingCandidatesOnly, confirmedDistinctPairs);
+    const match = closedMatch ?? matchAgainstExisting(
+      candidate,
+      livePlaces,
+      pendingCandidatesOnly,
+      confirmedDistinctPairs,
+    );
 
     if (match.type === null) {
       summary.skippedNoChange++;
@@ -209,6 +240,7 @@ export async function ingestBatch(batch) {
       status: REVIEW_STATUS.PENDING,
       candidate,
       matchedLivePlaceId: match.matchedLivePlaceId,
+      matchedClosedPlaceId: match.matchedClosedPlaceId ?? null,
       duplicateOfCandidates: match.duplicateOfCandidates ?? [],
       diff: match.diff ?? [],
       confidence_score: candidate.confidence_score,
@@ -221,6 +253,12 @@ export async function ingestBatch(batch) {
     };
 
     reviewQueue.push(item);
+    if (type === REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH) {
+      await recordClosedPlaceCrawlMatch(match.matchedClosedPlaceId, {
+        matchedAt: observedAt,
+        sourceId: batch.sourceId,
+      });
+    }
     await appendReviewEvent({
       id: newId("event"),
       itemId: item.id,
@@ -228,7 +266,11 @@ export async function ingestBatch(batch) {
       note: `Tạo từ ${batch.sourceId}: ${item.reasons.join("; ")}`,
       at: observedAt,
     });
-    summary.duplicateCandidatesForReview++;
+    if (type === REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH) {
+      summary.closedPlaceMatchesForReview++;
+    } else {
+      summary.duplicateCandidatesForReview++;
+    }
   }
 
   await saveReviewQueue(reviewQueue);

@@ -23,9 +23,21 @@ export function InteractivePlan({ template }) {
 
   const chosenCount = Object.keys(picked).length;
 
-  function handlePick(slotId, places) {
+  function handlePick(slotId, places, { customStops } = {}) {
     const place = places?.[0];
-    if (place) setPicked((prev) => ({ ...prev, [slotId]: place }));
+    const custom = customStops?.[0];
+    if (place) {
+      setPicked((prev) => ({ ...prev, [slotId]: place }));
+    } else if (custom) {
+      setPicked((prev) => ({
+        ...prev,
+        [slotId]: {
+          customTitle: custom.title,
+          customAddress: custom.address ?? null,
+          customProvince: custom.province,
+        },
+      }));
+    }
     setOpenSlot(null);
   }
 
@@ -40,6 +52,15 @@ export function InteractivePlan({ template }) {
         .map((slot) => {
           const place = picked[slot.id];
           if (place) {
+            if (place.customTitle) {
+              return {
+                customTitle: place.customTitle,
+                customAddress: place.customAddress,
+                customProvince: place.customProvince,
+                plannedAt: slot.plannedAt,
+                durationMinutes: slot.durationMinutes,
+              };
+            }
             return {
               placeId: place.id,
               name: place.name,
@@ -103,7 +124,11 @@ export function InteractivePlan({ template }) {
                   {slot.plannedAt ?? slot.whenText}
                 </p>
                 <p className="text-sm text-zinc-700">{slot.label}</p>
-                {place && <p className="mt-0.5 text-[13px] text-zinc-500">{place.name}</p>}
+                {place && (
+                  <p className="mt-0.5 text-[13px] text-zinc-500">
+                    {place.name ?? place.customTitle}
+                  </p>
+                )}
               </div>
 
               {slot.fixed ? (
@@ -144,7 +169,7 @@ export function InteractivePlan({ template }) {
           confirmLabel="Chọn"
           singlePick
           initialType={activeSlot.placeType}
-          onConfirm={(places) => handlePick(activeSlot.id, places)}
+          onConfirm={(places, options) => handlePick(activeSlot.id, places, options)}
           onClose={() => setOpenSlot(null)}
         />
       )}

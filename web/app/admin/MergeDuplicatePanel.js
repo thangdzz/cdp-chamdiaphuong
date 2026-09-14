@@ -11,6 +11,8 @@ import {
 } from "./mergeActions";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { formatRelativeAge } from "../PlaceExplorer";
+import { placeGeneralMedia, placeMenuMedia } from "@/lib/media";
+import { MediaImage } from "@/app/MediaImage";
 
 const inputClass = "w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
 
@@ -78,9 +80,14 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
       priceMax: primary.priceMax ?? secondary.priceMax ?? "",
       priceUnit: primary.priceUnit || secondary.priceUnit || "",
     });
-    setKeepPhotos([...new Set([...(primary.photos ?? []), ...(secondary.photos ?? [])])]);
+    setKeepPhotos([
+      ...new Set([
+        ...placeGeneralMedia(primary).map((item) => item.url),
+        ...placeGeneralMedia(secondary).map((item) => item.url),
+      ]),
+    ]);
 
-    const menuPhotoUnion = [...(primary.menuPhotos ?? []), ...(secondary.menuPhotos ?? [])];
+    const menuPhotoUnion = [...placeMenuMedia(primary), ...placeMenuMedia(secondary)];
     const seenUrls = new Set();
     setKeepMenuPhotos(
       menuPhotoUnion.filter((m) => {
@@ -166,8 +173,8 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
   function toggleMenuPhoto(url) {
     setKeepMenuPhotos((list) => {
       if (list.some((m) => m.url === url)) return list.filter((m) => m.url !== url);
-      const fromA = placeA?.menuPhotos?.find((m) => m.url === url);
-      const fromB = placeB?.menuPhotos?.find((m) => m.url === url);
+      const fromA = placeMenuMedia(placeA).find((m) => m.url === url);
+      const fromB = placeMenuMedia(placeB).find((m) => m.url === url);
       return [...list, fromA ?? fromB];
     });
   }
@@ -330,11 +337,11 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
       <MergeField label="Giá cao nhất" valueA={placeA.priceMax} valueB={placeB.priceMax} value={fields.priceMax} onChange={(v) => setField("priceMax", v)} />
       <MergeField label="Đơn vị giá" valueA={placeA.priceUnit} valueB={placeB.priceUnit} value={fields.priceUnit} onChange={(v) => setField("priceUnit", v)} />
 
-      {(placeA.photos?.length > 0 || placeB.photos?.length > 0) && (
+      {(placeGeneralMedia(placeA).length > 0 || placeGeneralMedia(placeB).length > 0) && (
         <div className="mb-2">
           <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh giữ lại (bỏ tick để không giữ)</p>
           <div className="flex flex-wrap gap-2">
-            {[...new Set([...(placeA.photos ?? []), ...(placeB.photos ?? [])])].map((url) => (
+            {[...new Set([...placeGeneralMedia(placeA).map((item) => item.url), ...placeGeneralMedia(placeB).map((item) => item.url)])].map((url) => (
               <label key={url} className="relative">
                 <input
                   type="checkbox"
@@ -342,20 +349,19 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
                   onChange={() => togglePhoto(url)}
                   className="absolute right-1 top-1 h-4 w-4"
                 />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                <MediaImage src={url} className="h-16 w-16 rounded-lg" sizes="64px" />
               </label>
             ))}
           </div>
         </div>
       )}
 
-      {(placeA.menuPhotos?.length > 0 || placeB.menuPhotos?.length > 0) && (
+      {(placeMenuMedia(placeA).length > 0 || placeMenuMedia(placeB).length > 0) && (
         <div className="mb-2">
           <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh menu giữ lại (bỏ tick để không giữ)</p>
           <div className="flex flex-wrap gap-2">
             {(() => {
-              const union = [...(placeA.menuPhotos ?? []), ...(placeB.menuPhotos ?? [])];
+              const union = [...placeMenuMedia(placeA), ...placeMenuMedia(placeB)];
               const seen = new Set();
               const uniqueUnion = union.filter((m) => {
                 if (seen.has(m.url)) return false;
@@ -370,9 +376,8 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
                     onChange={() => toggleMenuPhoto(m.url)}
                     className="absolute right-1 top-1 h-4 w-4"
                   />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={m.url} alt="" className="h-16 w-16 rounded-lg object-cover" />
-                  <span className="mt-0.5 text-[11px] text-zinc-400">{formatRelativeAge(m.addedAt)}</span>
+                  <MediaImage media={m} className="h-16 w-16 rounded-lg" sizes="64px" />
+                  <span className="mt-0.5 text-[11px] text-zinc-400">{formatRelativeAge(m.uploadedAt)}</span>
                 </label>
               ));
             })()}

@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/siteUrl";
+import { AppShell } from "@/app/AppShell";
+import { getNavigationConfig } from "@/lib/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,13 +24,17 @@ export const metadata = {
     "Tìm nhanh chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang, đặc biệt dịp Trung Thu.",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const navigation = await getNavigationConfig();
+
   return (
     <html
       lang="vi"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50">{children}</body>
+      <body className="min-h-full flex flex-col bg-zinc-50">
+        <AppShell navigation={navigation}>{children}</AppShell>
+      </body>
     </html>
   );
 }

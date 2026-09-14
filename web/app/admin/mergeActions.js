@@ -17,6 +17,7 @@ import { getReviewQueue, saveReviewQueue, getConfirmedDistinctPairs, appendConfi
 import { REVIEW_STATUS } from "@/lib/ingestion/schema";
 import { candidateToLivePlace } from "@/lib/ingestion/toLivePlace";
 import { resolveStaleReferences } from "@/lib/ingestion/resolveStaleReferences";
+import { mergeMediaSets, withPlaceMedia } from "@/lib/media";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -96,13 +97,11 @@ export async function mergeDuplicatePlaces(formData) {
     .filter((p) => p.id !== deleteId)
     .map((p) =>
       p.id === keepId
-        ? {
-            ...p,
-            ...keptFields,
-            photos: keepPhotos,
-            menuPhotos: keepMenuPhotos,
-            lastUpdatedAt: new Date().toISOString(),
-          }
+        ? withPlaceMedia(
+            { ...p, ...keptFields, lastUpdatedAt: new Date().toISOString() },
+            mergeMediaSets(live.find((place) => place.id === keepId), live.find((place) => place.id === deleteId))
+              .filter((media) => keepPhotos.includes(media.url) || keepMenuPhotos.some((item) => item.url === media.url)),
+          )
         : p
     );
   await setLivePlaces(next);
@@ -182,21 +181,25 @@ export async function mergeReviewCandidate(formData) {
   const keepMenuPhotos = formData.getAll("keepMenuPhoto").map((p) => JSON.parse(p.toString()));
 
   const live = await getLivePlaces();
+  const reviewQueue = await getReviewQueue();
+  const reviewItem = reviewQueue.find((item) => item.id === reviewItemId);
+  const candidatePlace = reviewItem?.candidate ? candidateToLivePlace(reviewItem.candidate) : null;
   const next = live.map((p) =>
     p.id === keepId
-      ? {
-          ...p,
-          ...updates,
-          photos: keepPhotos,
-          menuPhotos: keepMenuPhotos,
-          lastUpdatedAt: new Date().toISOString(),
-          sourceCount: (p.sourceCount ?? 1) + 1,
-        }
+      ? withPlaceMedia(
+          {
+            ...p,
+            ...updates,
+            lastUpdatedAt: new Date().toISOString(),
+            sourceCount: (p.sourceCount ?? 1) + 1,
+          },
+          mergeMediaSets(p, candidatePlace)
+            .filter((media) => keepPhotos.includes(media.url) || keepMenuPhotos.some((item) => item.url === media.url)),
+        )
       : p
   );
   await setLivePlaces(next);
 
-  const reviewQueue = await getReviewQueue();
   const index = reviewQueue.findIndex((i) => i.id === reviewItemId);
   if (index !== -1) {
     reviewQueue[index] = {

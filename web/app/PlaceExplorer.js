@@ -8,13 +8,15 @@ import { QuestionPrompt } from "./QuestionPrompt";
 import { PlaceFacts } from "./PlaceFacts";
 import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { comparePlaceReliability } from "@/lib/placeReliability";
 import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
 import { PersonalNote } from "./PersonalNote";
 import { PhoneBlock } from "./PhoneBlock";
-import { placeCover } from "@/lib/cover";
+import { MediaImage } from "./MediaImage";
+import { placeCoverMedia, placeGeneralMedia, placeMenuMedia } from "@/lib/media";
 import {
   transportSummary,
   transportDetailLine,
@@ -335,15 +337,14 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={imgRef}
-          src={photos[index]}
-          alt=""
-          draggable={false}
-          className={`max-h-full max-w-full select-none object-contain ${
-            isGesturing ? "" : "transition-transform duration-200"
-          }`}
+        <MediaImage
+          media={typeof photos[index] === "string" ? null : photos[index]}
+          src={typeof photos[index] === "string" ? photos[index] : undefined}
+          imageRef={imgRef}
+          loading="eager"
+          sizes="100vw"
+          className="h-full w-full"
+          imageClassName={`select-none object-contain ${isGesturing ? "" : "transition-transform duration-200"}`}
           style={{
             transform: `translate(${translate.x}px, ${translate.y}px) scale(${(visible ? 1 : 0.95) * scale})`,
           }}
@@ -357,17 +358,21 @@ export function PhotoGallery({ photos, startIndex, onClose }) {
 
       {photos.length > 1 && (
         <div className="flex gap-2 overflow-x-auto px-4 pb-4">
-          {photos.map((src, i) => (
+          {photos.map((photo, i) => (
             <button
-              key={i}
+              key={typeof photo === "string" ? photo : photo.id}
               type="button"
               onClick={() => goToIndex(i)}
               className={`h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 ${
                 i === index ? "border-white" : "border-transparent opacity-50"
               }`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="h-full w-full object-cover" />
+              <MediaImage
+                media={typeof photo === "string" ? null : photo}
+                src={typeof photo === "string" ? photo : undefined}
+                className="h-full w-full"
+                sizes="56px"
+              />
             </button>
           ))}
         </div>
@@ -394,9 +399,9 @@ function PlaceCard({ place }) {
   // Bắt đầu bằng giá trị máy chủ, đổi ngay tại chỗ khi khách vừa bấm "Tôi vừa đến, vẫn mở"
   // (SPEC-chang-1.md §2.2: dòng trên thẻ phải đổi ngay, không chờ tải lại trang).
   const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
-  // Câu hỏi mà khối Mẹo đang bày sẵn -> QuestionPrompt ở cuối thẻ bỏ qua đúng câu đó, tránh
-  // hỏi 2 lần trên cùng 1 màn hình (hay xảy ra: "Gửi xe" vừa là chip đầu vừa là câu hỏi đầu).
-  const [noteQuestionId, setNoteQuestionId] = useState(null);
+  // Có context active thì câu mặc định cuối thẻ phải ẩn hẳn, không chỉ khi trùng question id.
+  const [activeNoteContext, setActiveNoteContext] = useState(null);
+  const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
 
   const showOccupancy = OCCUPANCY_LABEL_TYPES.has(place.type);
 
@@ -409,6 +414,8 @@ function PlaceCard({ place }) {
   function toggleExpanded() {
     if (expanded) {
       setExpanded(false);
+      setActiveNoteContext(null);
+      setCorrectionPanelOpen(false);
       clearTimeout(unmountTimer.current);
       unmountTimer.current = setTimeout(() => setMounted(false), 250);
     } else {
@@ -418,14 +425,26 @@ function PlaceCard({ place }) {
     }
   }
 
+  function handleCorrectionPanelChange(open) {
+    setCorrectionPanelOpen(open);
+    if (open) setActiveNoteContext(null);
+  }
+
   const statusLabel = showOccupancy && status ? getOccupancyLabel(status, place.type) : null;
   const checkinLabel = formatCheckinAge(lastCheckinAt);
-  const photos = place.photos ?? [];
-  const menuPhotos = place.menuPhotos ?? [];
-  const coverPhoto = placeCover(place);
+  const generalMedia = placeGeneralMedia(place);
+  const coverPhoto = placeCoverMedia(place);
+  const photos = coverPhoto
+    ? [coverPhoto, ...generalMedia.filter((item) => item.id !== coverPhoto.id)]
+    : generalMedia;
+  const menuPhotos = placeMenuMedia(place);
   const newestMenuPhotoAt =
     menuPhotos.length > 0
-      ? menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
+      ? menuPhotos.reduce(
+          (max, media) =>
+            new Date(media.uploadedAt) > new Date(max) ? media.uploadedAt : max,
+          menuPhotos[0].uploadedAt,
+        )
       : null;
   const newestMenuPhotoAge = formatRelativeAge(newestMenuPhotoAt);
   const staleMenuMonths = staleMenuAgeMonths(newestMenuPhotoAt);
@@ -516,8 +535,6 @@ function PlaceCard({ place }) {
               </div>
             )}
 
-            <NoteInput place={place} onActiveQuestion={setNoteQuestionId} />
-
             {photos.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh địa điểm</p>
@@ -529,20 +546,23 @@ function PlaceCard({ place }) {
                   onClick={() => setGalleryIndex(0)}
                   className="block w-full cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={coverPhoto} alt="" className="h-44 w-full object-cover" />
+                  <MediaImage
+                    media={coverPhoto}
+                    className="h-44 w-full"
+                    sizes="(max-width: 1023px) 100vw, 620px"
+                    loading="eager"
+                  />
                 </button>
                 {photos.length > 1 && (
                   <div className="mt-1.5 flex gap-1.5">
-                    {photos.slice(1, 3).map((src, i) => (
+                    {photos.slice(1, 3).map((media, i) => (
                       <button
-                        key={i}
+                        key={media.id}
                         type="button"
                         onClick={() => setGalleryIndex(i + 1)}
                         className="h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="" className="h-full w-full object-cover" />
+                        <MediaImage media={media} className="h-full w-full" sizes="56px" />
                       </button>
                     ))}
                     {photos.length > 3 && (
@@ -581,8 +601,7 @@ function PlaceCard({ place }) {
                       onClick={() => setMenuGalleryIndex(i)}
                       className="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={m.url} alt="" className="h-full w-full object-cover" />
+                      <MediaImage media={m} className="h-full w-full" sizes="64px" />
                     </button>
                   ))}
                 </div>
@@ -665,7 +684,6 @@ function PlaceCard({ place }) {
             <AddToNotebook place={place} />
             <CreateRouteFromPlace place={place} />
             <SharePlaceButton place={place} />
-            <ContributionPanel place={place} />
           </>
         )}
         <button
@@ -690,7 +708,27 @@ function PlaceCard({ place }) {
         </button>
       </div>
 
-      {mounted && <QuestionPrompt place={place} hideQuestionId={noteQuestionId} />}
+      {mounted && (
+        <section
+          aria-label="Đóng góp thông tin địa điểm"
+          className="mt-5 border-t border-zinc-100 pt-5"
+        >
+          {!correctionPanelOpen && (
+            <NoteInput place={place} onActiveContext={setActiveNoteContext} />
+          )}
+          <div className={correctionPanelOpen ? "" : "mt-3"}>
+            <ContributionPanel
+              place={place}
+              onOpenChange={handleCorrectionPanelChange}
+              onDone={() => setCorrectionPanelOpen(false)}
+            />
+          </div>
+          <QuestionPrompt
+            place={place}
+            suspended={activeNoteContext !== null || correctionPanelOpen}
+          />
+        </section>
+      )}
 
       {galleryIndex !== null && (
         <PhotoGallery
@@ -702,7 +740,7 @@ function PlaceCard({ place }) {
 
       {menuGalleryIndex !== null && (
         <PhotoGallery
-          photos={menuPhotos.map((m) => m.url)}
+          photos={menuPhotos}
           startIndex={menuGalleryIndex}
           onClose={() => setMenuGalleryIndex(null)}
         />
@@ -716,7 +754,7 @@ function Section({ title, items }) {
   return (
     <section className="mt-6 first:mt-0">
       <h2 className="mb-3 text-lg font-medium tracking-tight text-zinc-900">{title}</h2>
-      <ul className="flex flex-col gap-3">
+      <ul className="grid items-start gap-3 lg:grid-cols-2 lg:gap-4">
         {items.map((place) => (
           <PlaceCard key={place.id} place={place} />
         ))}
@@ -833,16 +871,18 @@ export default function PlaceExplorer({ places }) {
 
   const groupedByType = PLACE_TYPES.map((t) => ({
     type: t,
-    items: filtered.filter((p) => p.type === t.id),
+    items: filtered.filter((p) => p.type === t.id).sort(comparePlaceReliability),
   }));
 
   const hasActiveFilter = type !== "all" || ward !== "all" || priceBucket !== "all" || search !== "";
 
   return (
-    <div>
+    <div id="dia-diem" className="scroll-mt-[164px] lg:scroll-mt-4">
       <ScrollButtons />
 
-      <div className="mb-4 flex flex-col gap-2">
+      {/* SiteHeader cao cố định 57px trên mobile. Hai hàng thao tác bám ngay dưới logo khi
+          cuộn, còn lọc khu vực/giá đi theo nội dung để không che quá nhiều màn hình. */}
+      <div className="sticky top-[57px] z-10 -mx-4 flex flex-col gap-2 border-b border-zinc-200 bg-zinc-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:mx-0 lg:rounded-b-xl lg:border-x lg:px-4">
         <div className="relative">
           <svg
             viewBox="0 0 24 24"
@@ -876,13 +916,13 @@ export default function PlaceExplorer({ places }) {
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto">
           {[{ id: "all", label: "Tất cả" }, ...PLACE_TYPES].map((opt) => (
             <button
               key={opt.id}
               type="button"
               onClick={() => setType(opt.id)}
-              className={`cdp-pressable min-h-11 cursor-pointer rounded-lg px-4 text-sm font-medium ${
+              className={`cdp-pressable min-h-11 shrink-0 cursor-pointer rounded-lg px-4 text-sm font-medium ${
                 type === opt.id
                   ? "bg-zinc-900 text-white"
                   : "bg-zinc-100 text-zinc-600"
@@ -892,7 +932,9 @@ export default function PlaceExplorer({ places }) {
             </button>
           ))}
         </div>
+      </div>
 
+      <div className="mb-4 mt-2 flex flex-col gap-2">
         <div className="flex gap-2">
           <select
             value={ward}

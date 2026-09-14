@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
-import { PROVINCES, DEFAULT_PROVINCE } from "@/lib/provinces";
+import { PROVINCES } from "@/lib/provinces";
 import { fetchPickerPlaces } from "./routeActions";
 
 // Bộ chọn địa điểm DÙNG CHUNG (NOTE-07 §3) — cùng một component cho:
@@ -46,9 +46,9 @@ export function PlacePicker({
   const [busy, setBusy] = useState(false);
   const [customDraft, setCustomDraft] = useState("");
   const [customAddress, setCustomAddress] = useState("");
-  // Điểm riêng của khách có thể ở bất kỳ tỉnh nào — khách Hà Nội về Tuyên Quang chơi thì
-  // "Xuất phát tại nhà" nằm ở Hà Nội. Mặc định Tuyên Quang vì phần lớn điểm riêng vẫn ở đây.
-  const [customProvince, setCustomProvince] = useState(DEFAULT_PROVINCE);
+  // Không mặc định Tuyên Quang: "Winmart Hàng Bún" là Hà Nội. Chỗ ngoài danh bạ phải do
+  // chính người dùng khai tỉnh/thành, hệ thống không được đoán theo vùng hoạt động của CDP.
+  const [customProvince, setCustomProvince] = useState("");
   // Khách đã tự gõ vào ô điểm riêng chưa — chưa thì ô đó đi theo chữ đang tìm (xem customTitle
   // bên dưới), rồi thôi bám ngay khi khách sửa tay, không giật chữ khỏi tay người đang gõ.
   const [customTouched, setCustomTouched] = useState(false);
@@ -126,7 +126,7 @@ export function PlacePicker({
   function resetCustomInputs() {
     setCustomDraft("");
     setCustomAddress("");
-    setCustomProvince(DEFAULT_PROVINCE);
+    setCustomProvince("");
     setCustomTouched(false);
     setQuery("");
   }
@@ -135,7 +135,7 @@ export function PlacePicker({
     const title = customTitle.trim();
     const address = customAddress.trim();
     const province = customProvince;
-    if (!title || busy) return;
+    if (!title || !province || busy) return;
     // Đổi chỗ: điểm riêng vừa gõ chính là thứ thay cho điểm đang sửa, đi thẳng qua onConfirm
     // như khi chọn một địa điểm CDP.
     if (singlePick) {
@@ -154,8 +154,8 @@ export function PlacePicker({
     }
     setBusy(true);
     try {
-      await onAddCustomStop({ title, address: address || null, province });
-      resetCustomInputs();
+      const result = await onAddCustomStop({ title, address: address || null, province });
+      if (result?.ok) resetCustomInputs();
     } finally {
       setBusy(false);
     }
@@ -326,15 +326,16 @@ export function PlacePicker({
                   setCustomDraft(e.target.value);
                 }}
               />
-              {/* Cái tên khách tự đặt thì Google chịu, nên muốn chỉ đường tới được phải có địa
-                  chỉ. Để trống vẫn thêm được — điểm đó chỉ không nằm trong link Google Maps. */}
               <input
                 className="min-w-0 rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
                 value={customAddress}
                 maxLength={120}
-                placeholder="Địa chỉ, để Google dẫn đúng (không bắt buộc)"
+                placeholder="Địa chỉ chi tiết (không bắt buộc)"
                 onChange={(e) => setCustomAddress(e.target.value)}
               />
+              <p className="text-xs text-zinc-400">
+                Bỏ trống, Google Maps sẽ dùng tên điểm và tỉnh/thành bạn chọn.
+              </p>
               {/* Tỉnh phải CHỌN chứ không đoán: "31 Hàng Bún" là Hà Nội, gắn bừa Tuyên Quang
                   vào là Google dẫn đi nơi khác. Khách tỉnh khác về chơi thì điểm xuất phát của
                   họ nằm ngoài Tuyên Quang là chuyện thường. */}
@@ -344,15 +345,16 @@ export function PlacePicker({
                 onChange={(e) => setCustomProvince(e.target.value)}
                 aria-label="Tỉnh/thành của điểm riêng"
               >
+                <option value="" disabled>Chọn tỉnh/thành (bắt buộc)</option>
                 {PROVINCES.map((p) => (
                   <option key={p} value={p}>
-                    {p === DEFAULT_PROVINCE ? `${p} (tại đây)` : p}
+                    {p}
                   </option>
                 ))}
               </select>
               <button
                 type="button"
-                disabled={busy || !customTitle.trim()}
+                disabled={busy || !customTitle.trim() || !customProvince}
                 onClick={handleAddCustom}
                 className="cdp-pressable w-fit cursor-pointer rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-default disabled:opacity-40"
               >

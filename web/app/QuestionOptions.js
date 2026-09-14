@@ -63,7 +63,7 @@ export function QuestionOptions({ question, busy, onAnswer, children }) {
     <div>
       <p className="mb-2 text-sm text-zinc-700">{question.text}</p>
       <div className="flex flex-wrap gap-2">
-        {question.options.map((opt) => (
+        {question.options.filter((opt) => !opt.legacy).map((opt) => (
           <button
             key={opt.value}
             type="button"

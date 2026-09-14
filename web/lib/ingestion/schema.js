@@ -8,6 +8,9 @@ export const REVIEW_ITEM_TYPE = {
   DUPLICATE_CANDIDATE: "duplicate_candidate",
   STALE_PLACE: "stale_place",
   LOW_CONFIDENCE_PLACE: "low_confidence_place",
+  // NOTE-13: tín hiệu crawler khớp với một địa điểm đã đóng luôn phải qua người duyệt.
+  // Tách type riêng để action Admin không thể vô tình đi qua nhánh auto-publish địa điểm mới.
+  CLOSED_PLACE_MATCH: "closed_place_match",
 };
 
 export const REVIEW_STATUS = {

@@ -11,8 +11,8 @@
 
 export const DEFAULT_PROVINCE = "Tuyên Quang";
 
-// Tuyên Quang đứng đầu vì phần lớn điểm riêng vẫn nằm ngay tại đây (nhà người quen, điểm hẹn);
-// phần còn lại xếp theo bảng chữ cái để dò cho nhanh.
+// Tuyên Quang đứng đầu danh sách để người địa phương chọn nhanh, nhưng giao diện luôn bắt đầu
+// ở lựa chọn trống: thứ tự thuận tiện không được biến thành một phán đoán về vị trí.
 export const PROVINCES = [
   DEFAULT_PROVINCE,
   "An Giang",
@@ -50,12 +50,17 @@ export const PROVINCES = [
   "Vĩnh Long",
 ];
 
+export function isValidProvince(value) {
+  const text = (value ?? "").toString().trim();
+  return PROVINCES.includes(text);
+}
+
 /**
- * Điểm riêng cũ (trước 2026-09-11) không có trường này -> coi như Tuyên Quang, đúng bằng hành
- * vi trước đây. Giao diện hiện rõ ô đang chọn Tuyên Quang để khách đổi nếu sai, thay vì giấu
- * một giả định trong code.
+ * Hàm tương thích cho các ngữ cảnh cũ vốn chỉ nhận Tuyên Quang. Không dùng hàm này để nhận
+ * điểm riêng mới hay tạo từ khoá Maps: hai luồng đó bắt buộc kiểm tra `isValidProvince` để
+ * không đoán sai tỉnh của người dùng.
  */
 export function normalizeProvince(value) {
   const text = (value ?? "").toString().trim();
-  return PROVINCES.includes(text) ? text : DEFAULT_PROVINCE;
+  return isValidProvince(text) ? text : DEFAULT_PROVINCE;
 }

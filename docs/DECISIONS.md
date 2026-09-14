@@ -3,6 +3,122 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-14 — NOTE-13: closed thắng crawler; mở lại giữ ID, thay thế đi qua proposal
+
+**Quyết định:** `ingestBatch()` phải đối chiếu `places:closed` trước mọi nhánh auto-public.
+Match từ ngưỡng nghi trùng hiện có trở lên được gắn type riêng `closed_place_match` và luôn
+vào hàng chờ, không phụ thuộc confidence của nguồn. Guard cũng chạy trước bước gộp candidate
+đang chờ để item cũ loại `new_place` không lọt qua lịch sử đóng cửa.
+
+**Vì sao:** Khi đóng cửa, record rời `places:live`; matcher cũ vì thế hiểu lần crawler gặp
+lại là địa điểm hoàn toàn mới. Trạng thái đóng là quyết định đã qua người duyệt, nên phải có
+trọng lượng cao hơn một tín hiệu crawl đơn lẻ cho đến khi Admin xác minh.
+
+**Quyết định:** “Mở lại” phục hồi active record với chính ID cũ và ghi sự kiện vòng đời vào
+archive; record archive chuyển thành override `closed:false` thay vì bị xoá. “Địa điểm mới
+thay thế” chỉ tạo proposal có `replacesPlaceId`, vẫn chờ một lượt duyệt như flow NOTE-12.
+
+**Vì sao:** Xoá tombstone sẽ làm fallback từ lịch sử cũ tự kết luận closed trở lại và làm mất
+provenance. Còn business mới ở cùng vị trí là chủ thể khác, không được thừa hưởng ID hay độ
+tin cậy của chỗ cũ.
+
+**Quyết định:** Người nhận link route lưu thành một `route:{slug}` mới, tái sử dụng anon owner
+và owner index giống Notebook; không nhồi route vào Notebook và không tạo entity thứ ba.
+`copiedFrom` trỏ tới `route_share:{token}` vì nguồn copy là snapshot đóng băng, không phải
+route sống. Server chỉ nhận token rồi tự đọc snapshot; client không được gửi mảng stops.
+
+**Vì sao:** Route đã được tách khỏi Notebook từ quyết định 2026-09-10 vì có giờ, thời lượng,
+phương tiện, điểm proposal và điểm riêng. Ép bản copy về Notebook sẽ mất các field đó. Đọc
+snapshot phía server vừa giữ đúng thứ người gửi đã chia sẻ vừa không cho người nhận sửa payload
+để lách giới hạn.
+
+**Tương thích:** Snapshot mới lưu thêm `proposalId`, custom address/province và name snapshot.
+Snapshot cũ không có các field này vẫn copy được: CDP stop giữ `placeId`; proposed/custom thiếu
+ID được giữ thành điểm riêng có tên + maps query, không tự biến thành địa điểm CDP và không
+gãy trang sửa.
+
+## 2026-09-14 — NOTE-12: tombstone riêng; replacement là record mới qua hàng chờ
+
+**Quyết định:** Khi duyệt đóng cửa, archive nguyên record cũ vào hash `places:closed` trước
+khi gỡ khỏi `places:live`. URL cũ đọc một field từ hash và hiện “Địa điểm này đã đóng cửa”,
+không biến thành 404. Các báo cáo đã duyệt trước NOTE-12 được suy ra lúc đọc từ lịch sử góp ý/
+review; không migration toàn kho và không bịa lại field đã mất.
+
+**Vì sao:** `places:live` chỉ nên chứa danh bạ đang hoạt động, nhưng xoá hẳn record làm link
+đã lưu/chia sẻ bị vỡ và mất địa chỉ để đề xuất chỗ mới. Hash giữ tombstone theo `placeId`,
+cho URL cũ đọc đúng một field thay vì tải toàn bộ kho đóng cửa.
+
+**Quyết định:** Địa điểm thay thế luôn là proposal/record mới. User và Admin đều gửi vào
+`place_proposals:queue`, không public trực tiếp. Chỉ sau khi Admin duyệt mới nối hai chiều
+`old.replacedByPlaceId` và `new.replacesPlaceId`. Chỉ địa chỉ/khu vực/toạ độ cũ được dùng làm
+vị trí gợi ý; không tự kế thừa ảnh, giá, món, note, phiếu xác nhận hoặc trạng thái hoạt động.
+
+**Vì sao:** Cùng vị trí không có nghĩa cùng cơ sở kinh doanh. Tách record giữ lịch sử và độ
+tin cậy đúng chủ thể; dùng lại queue hiện có tránh dựng một hệ thống duyệt song song.
+
+**Tương thích/rủi ro đã biết:** Bốn địa điểm đóng trước NOTE-12 chỉ còn tên/id trong lịch sử;
+địa chỉ đã bị flow cũ xoá vật lý nên không thể phục hồi an toàn. UI Admin nói rõ thiếu vị trí
+và cho nhập tay nếu có nguồn thật. Mọi lượt đóng cửa mới sẽ giữ đủ record.
+
+## 2026-09-13 — NOTE-12: một context chỉ có một UI; chữ tự do luôn qua duyệt
+
+**Quyết định:** Khi một context trong khối đóng góp đang active, ẩn toàn bộ câu hỏi mặc định
+cuối thẻ. Đổi context phải xoá text, checkbox và trạng thái nhập của context trước. Structured
+option tiếp tục ghi phiếu đồng thuận; `Cách đến`, `Khác`, và nhánh “Khác — để tôi tự viết”
+luôn vào hàng chờ ghi chú, không public trực tiếp.
+
+**Vì sao:** So sánh mỗi `question.id` chỉ ngăn được hai câu giống hệt nhau; nó không ngăn
+“Lối vào thế nào?” nằm cùng “Gửi xe ở đâu?”. Text ẩn của context trước còn có thể bị gửi sai
+nhãn. Tách đường structured/free-text giữ thao tác bấm nhanh mà bảo vệ nội dung công khai.
+
+**Tương thích:** Context mới ghi `cach-den`; note cũ có `di-chuyen` được đọc với nhãn “Cách
+đến”. Không migration Redis và không thay nội dung đã duyệt.
+
+**Hierarchy:** Card chỉ mount nội dung đóng góp sau khi người dùng bấm “Xem thêm”, nên trên
+mobile khối này vốn đã được thu gọn. Không giữ thêm nút “Bổ sung” chung đứng ngay cạnh form;
+action sửa field/ảnh đổi thành “Sửa thông tin hoặc gửi ảnh”. Khi action này mở, context và
+câu hỏi nhanh ẩn. Trang chi tiết dùng cùng hierarchy thay vì thiếu hẳn luồng đóng góp.
+
+## 2026-09-13 — NOTE-11: một media set, storage adapter và migration khi chạm dữ liệu
+
+**Quyết định:** Tiếp tục dùng Vercel Blob, nhưng chỉ adapter
+`lib/media-storage/vercelBlob.js` được biết SDK nhà cung cấp. Domain gọi facade
+`lib/mediaStorage.js`; địa điểm lưu object `media` trung lập gồm URL/storage key/kích thước/
+dung lượng/loại file/chú thích/thứ tự/role/nguồn/ngày/người tải. Metadata riêng Vercel chỉ
+nằm trong `providerMeta`.
+
+**Vì sao:** Đây là thay đổi nhỏ nhất trên hạ tầng đang có, nhưng khi cần chuyển sang
+R2/S3/GCS chỉ thay adapter; không phải viết lại place, route, Sổ và UI.
+
+**Quyết định:** Một ảnh có mảng `roles[]`, thay vì tạo kho/file riêng cho ảnh thường, menu,
+bìa và dẫn đường. Chỉ một ảnh giữ role `cover`, một ảnh giữ role `navigation`; fallback dẫn
+đường là `navigation → entrance → cover → ảnh đầu theo order`.
+
+**Vì sao:** Cùng một ảnh mặt tiền có thể vừa làm bìa vừa giúp nhận đường. Mảng role diễn tả
+đúng điều đó, tránh copy cùng file và vẫn tương thích gợi ý `role` số ít trong NOTE-11.
+
+**Quyết định:** Không migration cả `places:live`. `placeMedia()` đọc và suy ra schema cũ
+`photos[]`/`menuPhotos[]`/`coverPhoto` trong bộ nhớ; chỉ đúng địa điểm được sửa/upload/duyệt
+ảnh mới được ghi thành `media[]`.
+
+**Vì sao:** Dữ liệu thật dùng chung dev/production; migration toàn kho không cần thiết và có
+rủi ro. Cách read-old/write-new giữ link, phiếu duyệt và địa điểm cũ hoạt động liên tục.
+
+**Quyết định:** Khách tối đa **5 ảnh mỗi lượt**, Admin 10; mỗi file tối đa 8MB. Trình duyệt
+nén trước để giảm request, server vẫn tự nhận dạng nội dung, xoay/resize tối đa 1600px và
+chuyển WebP bằng Sharp trước khi upload.
+
+**Vì sao:** Giới hạn ở cả UI và server mới chặn được request tự tạo; server không được tin
+đuôi file hay bước nén phía khách. Năm ảnh đủ cho một lượt đóng góp mà vẫn nằm trong giới hạn
+Server Action hiện tại.
+
+**Quyết định:** “Gỡ ảnh” P0 chỉ bỏ tham chiếu khỏi place, chưa xoá Blob vật lý. Upload thất
+bại trước khi Redis lưu thì rollback đúng file vừa tạo; dọn orphan hàng loạt để P1 sau khi
+có reference index và dry-run.
+
+**Vì sao:** Link `route_share:*` là snapshot đóng băng và có thể giữ URL ảnh dẫn đường. Xoá
+Blob ngay sẽ làm link đã gửi bị vỡ, trái quyết định snapshot không thay đổi.
+
 ## 2026-07-14 — Các quyết định nền tảng ban đầu
 
 **Quyết định:** Hình thức sản phẩm bản đầu là web app mobile-first (không phải Zalo Mini
@@ -963,8 +1079,8 @@ có thêm ô địa chỉ (không bắt buộc), và:
 - không có → **không vào link**, thà thiếu một chặng còn hơn dẫn người ta tới chỗ khác; trang
   lộ trình nói rõ đang thiếu mấy điểm như vậy
 
-Kèm theo: mọi chuỗi gửi Google đều tự gắn "Tuyên Quang" nếu chưa có. "Winmart Hàng Bún" hay
-"12 Trần Phú" gửi trần là Google đoán sang tỉnh khác.
+Kèm theo ở bản ngày 11/9: mọi chuỗi gửi Google đều tự gắn "Tuyên Quang" nếu chưa có. Quyết
+định này đã được **thay thế ngày 12/9** cho điểm riêng: người dùng phải tự chọn tỉnh/thành.
 
 **3. Thời lượng: lưu bằng phút, hiển thị bằng tiếng.** Một con số phút dễ cộng dồn cho timeline
 sau này, nên không đổi cách lưu. Chỗ đổi là lúc viết ra: "Ở đây khoảng 4 tiếng". Và **hai loại
@@ -997,11 +1113,10 @@ Bài học chung: **thứ gì thuộc về CDP thì suy được, thứ gì thu�
 điểm trong danh bạ và địa điểm đề xuất đều nằm ở Tuyên Quang nên gắn tỉnh là an toàn; điểm
 riêng là chỗ của riêng khách, nằm ở đâu chỉ khách biết.
 
-Cách làm: ô `<select>` 34 tỉnh/thành (sắp xếp hành chính có hiệu lực 01/7/2025), Tuyên Quang
-đứng đầu và là mặc định vì phần lớn điểm riêng vẫn ở ngay đây. Dùng **tên mới** — Google tra
-tên cũ vẫn ra, nhưng tên mới là thứ khách đang thấy trên giấy tờ. Điểm riêng cũ chưa có trường
-này thì hiểu là Tuyên Quang (đúng bằng hành vi trước đó) và **hiện rõ trên giao diện** để sửa,
-thay vì giấu một giả định trong code.
+Cách làm ban đầu: ô `<select>` 34 tỉnh/thành (sắp xếp hành chính có hiệu lực 01/7/2025), đặt
+Tuyên Quang làm mặc định. **Đính chính ngày 12/9:** mặc định vẫn là một cách đoán; Winmart
+Hàng Bún thực tế ở Hà Nội. Vì vậy ô phải bắt đầu trống và bắt buộc người dùng chọn. Điểm riêng
+cũ thiếu tỉnh cũng để trống cho người tạo sửa, không âm thầm hiểu là Tuyên Quang.
 
 ## 2026-09-11 (tối) — Timeline động: 3 lựa chọn
 
@@ -1019,3 +1134,162 @@ chiều nay tới 0h sáng mai chỉ cách 9 tiếng, chia 24 ra 0 và hiện "h
 **Dữ liệu lịch vẫn nằm trong file, sửa lịch vẫn phải deploy.** Content Monitor + admin duyệt
 diff là Phase 2, chưa làm. Nhưng lịch đã tách hẳn khỏi giao diện (`lib/postEvents/*`) nên khi
 chuyển sang đọc Redis chỉ phải thay chỗ lấy mảng, không đụng trang.
+
+## 2026-09-12 — Lịch admin sửa nằm ở Redis, file tĩnh là lưới an toàn
+
+**Quyết định:** Dùng một key `post_events:le-hoi-thanh-tuyen` chứa cả mảng lịch. Trang chủ và
+bài lễ hội luôn gọi cùng `getPostEvents()`. Nếu key chưa có, rỗng, sai khuôn hoặc Redis tạm
+lỗi thì dùng `FESTIVAL_EVENTS` trong file đang deploy; không để lỗi lịch làm sập trang.
+
+**Vì sao:** Lễ hội đang tới, một thay đổi giờ/địa điểm không nên buộc deploy code. Nhưng lịch
+là thông tin khách có thể dựa vào để đi thật, nên dữ liệu sửa tay vẫn phải kiểm tra khuôn,
+múi giờ và phiên admin. File tĩnh giữ một bản đã kiểm tra để trang còn hoạt động khi kho dữ
+liệu gặp sự cố.
+
+**Phạm vi:** Admin được sửa hoặc thêm mốc và chuyển mốc bị huỷ sang trạng thái “Đã huỷ”;
+không có nút xoá để tránh mất dấu một sự kiện đã công bố. Đây mới là sửa thủ công, chưa phải
+Content Monitor tự quét nguồn hay tự publish.
+
+## 2026-09-12 — Không bịa giờ; trạng thái thời gian và xác minh độc lập
+
+**Quyết định:** Mốc mới lưu thêm `timePrecision`: giờ chính xác, buổi sáng, buổi chiều, buổi
+tối, cả ngày hoặc chưa rõ. Nếu nguồn chỉ nói “tối 11/9”, lưu ngày 11/9 + `evening`, không gắn
+một giờ đoán. Dữ liệu cũ không migration: `allDay` được hiểu là cả ngày, có `startAt` được
+hiểu là giờ chính xác.
+
+**Quyết định:** Trạng thái thời gian (`today/live/upcoming/past`) do máy tính tự suy ra; trạng
+thái xác minh (`confirmed/tentative/updating/changed/cancelled/conflict`) do nguồn và admin
+quyết định. Một event bị huỷ vẫn giữ ngày cũ và hiện nhãn “Đã huỷ”, không biến mất hay giả
+thành “đã diễn ra”.
+
+**Quyết định:** Các hoạt động cùng ngày được gom vào một khung ngày; event kéo dài nhiều ngày
+giữ khung riêng. Mỗi lần admin sửa/thêm/hoàn tác lưu cả bản trước và sau trong
+`post_event_revisions:{slug}` (giữ 100 bản gần nhất). Nếu không đọc được log thì chặn ghi mới,
+tránh sự cố Redis làm mất lịch sử.
+
+## 2026-09-12 — Content Inbox phải phân tích ngay sau khi nhận (thay quyết định cũ)
+
+**Quyết định mới:** Mục 3 không được dừng ở `processingStatus: waiting`. Sau khi nhận một URL,
+nhiều URL hoặc nội dung copy, hệ thống phải chạy phân tích và hiện preview ngay. Mục cũ đã
+nhận nhưng chưa xử lý có nút “Phân tích ngay”, không bắt admin dán lại.
+
+**Vì sao thay đổi:** Đặc tả §6, §7 và Prompt bổ sung §G ghi rõ nút “Phân tích” và submit phải
+đi đến preview. Cách “nhận trước, phân tích sau” khiến người dùng bấm xong không có kết quả.
+Dù local chưa có khóa dịch vụ AI, giao diện phải chạy bộ phân tích quy tắc thật và nói rõ giới
+hạn; không được gắn nhãn AI giả. Mục 4 vẫn chịu trách nhiệm nối collector tự động vào cùng
+service này, mục 5 hoàn thiện dedupe/diff/duyệt/public.
+
+## 2026-09-12 — Bỏ qua có thể phục hồi; Public từ Inbox phải có audit
+
+**Quyết định:** Nút “Bỏ qua / gỡ khỏi danh sách” không xóa dữ liệu ngay mà chuyển item sang
+tab `ignored`, để khôi phục nếu bấm nhầm. Chỉ trong tab Bỏ qua mới có “Xóa hẳn”, kèm hộp xác
+nhận. Item đã Public giữ lại ở tab Đã đăng để biết nguồn nào tạo/cập nhật mốc nào.
+
+**Quyết định:** Admin được sửa candidate, lưu `draftEvent`, rồi chọn Public thành event mới
+hoặc cập nhật event nghi trùng. Public là hành động tay có xác nhận; bot vẫn không có đường tự
+Public. Lịch mới, revision và trạng thái Inbox được ghi trong cùng một Redis pipeline để tránh
+trạng thái “đã đăng” nhưng lịch chưa đổi, hoặc ngược lại.
+
+## 2026-09-12 — Tạm giữ ghi chú lộ trình ngắn; nội dung tự do công khai phải qua duyệt
+
+**Quyết định:** Chưa tăng giới hạn ghi chú của từng chặng lộ trình; giữ mức 140 ký tự như hiện
+tại. Ghi chú riêng tại địa điểm vẫn là nội dung cá nhân, tối đa 500 ký tự và chỉ nằm trong
+localStorage. Khi người dùng chủ động chuyển ghi chú riêng thành mẹo công khai, nội dung phải
+được rút còn tối đa 120 ký tự và vào hàng chờ admin duyệt như hiện tại.
+
+**Nguyên tắc sản phẩm:** Nội dung công khai mang tên CDP ưu tiên dữ liệu người dùng chọn/bấm từ
+các phương án CDP đã chuẩn bị. Nội dung chữ tự do có thể chứa lời không phù hợp và ảnh hưởng uy
+tín CDP, nên không được tự xuất hiện công khai nếu chưa qua duyệt.
+
+**Điểm cần hỏi lại trước khi sửa sau này:** `route.stop.note` hiện đi kèm link chia sẻ lộ
+trình, dù bản chất có thể được người viết coi là ghi chú cá nhân. Nếu muốn tăng độ dài, phải
+chốt một trong hai hướng: không đưa ghi chú cá nhân vào trang chia sẻ, hoặc xây cơ chế kiểm
+duyệt cho phần chữ tự do xuất hiện trên trang chia sẻ. Chưa chốt thì không đổi hành vi.
+
+## 2026-09-12 — Google Maps dùng tên ngắn cho địa điểm CDP, không nhét toàn bộ địa chỉ
+
+**Quyết định:** Chuỗi tìm một địa điểm đã có trong CDP dùng `tên + ward + tỉnh`; nếu chính tên
+đã có “Tuyên Quang” thì chỉ dùng tên. Không ghép nguyên `address`, vì dữ liệu thật có trường
+địa chỉ lẫn cả đoạn chỉ đường dài, khiến Google Maps coi cả đoạn văn là từ khóa.
+
+Điểm riêng và địa điểm đang đề xuất ưu tiên địa chỉ vì Google nhận diện chính xác hơn. Trước
+khi tạo URL phải bỏ phần chú thích từ dấu `(` trở đi và chỉ giữ 3–4 cụm địa chỉ đầu. Nếu điểm
+riêng không có địa chỉ thì dùng `tên + tỉnh/thành` để chỗ công cộng như Winmart Hàng Bún vẫn
+vào được Maps mà người dùng không phải gõ cùng một tên hai lần.
+Điểm riêng bắt buộc người dùng chọn tỉnh/thành cả khi thêm mới lẫn sửa; không có mặc định.
+Server kiểm tra lại và Maps bỏ qua điểm cũ thiếu tỉnh thay vì đoán. Ví dụ Winmart Hàng Bún là
+Hà Nội, không thuộc CDP và phải được người dùng khai Hà Nội.
+
+Link chia sẻ lộ trình là snapshot đóng băng nên link cũ giữ `mapsQuery` cũ. Chủ phải tạo link
+chia sẻ mới nếu muốn nhận cách rút gọn; không migration hay sửa ngầm nội dung link đã gửi.
+
+## 2026-09-12 — Danh sách ưu tiên độ tin cậy; chỉ ghim hai hàng thao tác chính
+
+**Thứ tự địa điểm trong từng nhóm — đính chính sau khi chủ dự án duyệt:** xác nhận của người
+dùng trong 30 ngày gần nhất đứng trước và xếp theo đúng thời điểm mới nhất; tiếp theo là mức
+đầy đủ của dữ liệu hữu ích; xác nhận quá 30 ngày chỉ phá hoà để đứng trên nơi chưa từng được
+xác nhận. `lastUpdatedAt`, `confidenceScore` và `sourceCount` chỉ là tín hiệu phá hoà cuối.
+Nếu mọi tín hiệu bằng nhau thì xếp theo tên để thứ tự ổn định.
+
+Mức đầy đủ chỉ đếm tối đa 6 **nhóm** thay vì cộng vô hạn từng field: giá; ảnh/menu; vị trí;
+liên hệ/giờ mở cửa; thông tin thực tế đã được đồng thuận; thông tin riêng của loại địa điểm.
+Nhờ vậy chỗ có rất nhiều field nhưng dữ liệu cũ không lấn át chỗ vừa được người dùng xác nhận.
+Kho hiện chỉ lưu lần xác nhận gần nhất, không có số lượt xác nhận, nên chưa đưa số lượt vào
+ranking và không tạo migration/key mới chỉ cho thay đổi này.
+
+**Vùng ghim trang chủ:** `SiteHeader` giữ hàng logo ở trên cùng; ô tìm kiếm và 5 nút loại ghim
+ngay bên dưới khi người dùng cuộn tới danh sách. Hai ô khu vực/giá không ghim vì trên iPhone
+chúng sẽ chiếm quá nhiều chiều cao và che nội dung. Mốc giao diện kiểm tra là iPhone 15 Plus
+430×932, hai vùng lần lượt chiếm 0–57px và 57–164px, không đè lên nhau.
+
+## 2026-09-13 — NOTE-08 dùng footer + onboarding, không làm nặng header hay dữ liệu
+
+**Quyết định:** Điểm vào cố định cho trang `/gioi-thieu` nằm ở footer toàn site. Trang chủ có
+thêm card hướng dẫn cho người lần đầu, nhưng không thêm `CDP là gì?` vào header vì hàng logo,
+Ghi chú và Sổ đã chật trên mobile. Card không phải modal, không chặn thao tác; nút đóng chỉ lưu
+`cdp_about_intro_dismissed` trong localStorage, không tạo hồ sơ và không ghi Redis.
+
+**Minh bạch theo ngữ cảnh:** đoạn đầy đủ về nguồn, độ mới và độ trễ nằm ở `/gioi-thieu`; footer
+chỉ dùng một câu mềm. Thẻ địa điểm tiếp tục dùng tín hiệu cập nhật/xác nhận đã có, không lặp
+disclaimer. Mẹo chữ và địa điểm đề xuất tiếp tục qua duyệt như hiện tại. Không thêm Terms,
+popup pháp lý, review, rating hoặc social layer trong NOTE-08.
+
+## 2026-09-13 — NOTE-09 P0 dùng schema cố định và chữ thuần, không xây CMS
+
+**Quyết định:** Nội dung `/gioi-thieu` lưu trong một object duy nhất ở
+`site_content:about`, theo schema cố định của các section NOTE-08. Bản mặc định vẫn nằm trong
+`lib/aboutPage.js`; key thiếu, sai khuôn hoặc Redis tạm lỗi thì public dùng bản mặc định. Admin
+chỉ sửa copy, không sửa ID anchor hay URL CTA. Khi test phải đặt `CDP_SITE_CONTENT_NAMESPACE`.
+
+**An toàn:** Mọi field có giới hạn độ dài, bắt buộc có nội dung và được kiểm tra lại trong
+Server Action sau khi xác thực phiên admin. UI chỉ render React text; không Markdown, HTML tự
+do hay `dangerouslySetInnerHTML`. Vì vậy không cần sanitizer phức tạp và một chuỗi giống
+`<script>` vẫn chỉ là chữ.
+
+**Phạm vi P0:** Chọn route riêng `/admin/gioi-thieu` thay vì nhét form lớn vào dashboard
+hoặc xây CMS tổng quát. Desktop/tablet dùng grid responsive nhưng mobile/onboarding/footer
+giữ hành vi cũ. Bật/tắt section, đổi thứ tự, preview trong Admin và mục lục sticky để P1 vì
+NOTE-09 cho phép hoãn các phần này nếu P0 chưa cần.
+
+## 2026-09-13 — NOTE-10 dùng một App Shell và khóa route navigation trong code
+
+**Quyết định:** Root Layout đọc một navigation config rồi truyền cho `AppShell`. Desktop dùng
+sidebar trái 248px, thu còn 72px; mobile/tablet dùng header + menu gọn. Hai bề mặt, footer và
+H1 của bốn trang chính đều đọc cùng config; không giữ navigation hard-code song song trong
+từng page. Sidebar bắt đầu ở breakpoint 1024px và chỉ nhớ trạng thái trên thiết bị bằng
+`cdp-sidebar-collapsed` trong localStorage.
+
+**An toàn và tương thích:** Redis `site_config:navigation` chỉ được phép thay `navLabel`,
+`pageTitle`, `enabled`, `order`. Bốn key/href nằm trong `NAVIGATION_DEFINITIONS`; Admin không
+có ô sửa và Server Action cũng không đọc key/href từ request. Key thiếu/hỏng/lỗi hoặc thứ tự
+trùng thì dùng bản mặc định, không migration. `hero.title` đã có của NOTE-09 vẫn được giữ làm
+fallback, nhưng tiêu đề H1 Giới thiệu chính thức do `pageTitle` quản lý để tránh hai nguồn.
+
+**Phạm vi menu:** Giữ bốn mục theo NOTE-10: Khám phá, Ghi chú, Sổ, CDP là gì. Lộ trình hiện
+là thực thể riêng nhưng chưa thêm mục thứ năm; đường vào vẫn là link chéo trong trang Sổ để
+không tự mở rộng phạm vi. Tắt menu chỉ ẩn điểm vào, không xoá route hay dữ liệu.
+
+**Desktop:** Homepage tối đa 1360px và card địa điểm hai cột; card nhiều thông tin nên không
+ép ba cột. Trang chi tiết dùng hai cột độc lập (media/nội dung và thông tin/liên hệ/thao tác)
+để không tạo khoảng trắng theo hàng; mobile dùng `display: contents` + `order` giữ nguyên thứ
+tự NOTE-02. `/gioi-thieu` chỉ thêm accent cam ở nhãn, đường viền và số bước, không redesign.

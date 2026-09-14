@@ -3,10 +3,11 @@ import Link from "next/link";
 import { getRoute, resolveRouteStops, stopTitle, transportModeLabel, TRANSPORT_MODES } from "@/lib/routes";
 import { routeMapsUrl, stopMapsQuery } from "@/lib/mapsUrl";
 import { formatStayDuration } from "@/lib/durationFormat";
-import { SiteHeader } from "@/app/SiteHeader";
 import { RouteOwnerActions } from "@/app/RouteOwnerActions";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { StopBadge } from "@/app/StopBadge";
+import { MediaImage } from "@/app/MediaImage";
+import { placeNavigationMedia } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,6 @@ export default async function RouteViewPage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <SiteHeader />
 
         <header className="mb-4">
           <h1 className="text-xl font-medium tracking-tight text-zinc-900">{route.title}</h1>
@@ -95,6 +95,7 @@ function RouteStopRow({ stop, index }) {
     : stop.deleted
       ? "Chỗ này không còn trong danh bạ"
       : (stop.proposal?.ward ?? null);
+  const navigationMedia = stop.place ? placeNavigationMedia(stop.place) : null;
 
   return (
     <li className="flex gap-3 rounded-xl bg-white px-[18px] py-4 shadow-sm">
@@ -123,6 +124,13 @@ function RouteStopRow({ stop, index }) {
         )}
         {stop.note && <p className="mt-1 text-sm text-zinc-700">💬 {stop.note}</p>}
       </div>
+      {navigationMedia && (
+        <MediaImage
+          media={navigationMedia}
+          className="h-16 w-16 shrink-0 rounded-lg bg-zinc-100 sm:h-20 sm:w-20"
+          sizes="(max-width: 639px) 64px, 80px"
+        />
+      )}
     </li>
   );
 }

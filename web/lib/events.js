@@ -27,6 +27,7 @@ export async function readNow() {
 
 export const EVENT_STATUS = {
   LIVE: "live", // đang diễn ra
+  TODAY: "today", // biết diễn ra hôm nay nhưng không có giờ chính xác / chưa tới giờ
   UPCOMING: "upcoming", // sắp tới
   PAST: "past", // đã diễn ra
   UNDATED: "undated", // biết có, chưa biết ngày
@@ -36,32 +37,63 @@ export const EVENT_STATUS = {
 // theo một cái lịch thì phải biết lịch đó chắc tới đâu.
 export const VERIFICATION = {
   CONFIRMED: "confirmed", // nguồn chính thức, có ngày giờ rõ
-  EXPECTED: "expected", // dự kiến, nguồn chưa chốt
+  EXPECTED: "expected", // giá trị cũ, vẫn đọc để không làm vỡ dữ liệu đã lưu
+  TENTATIVE: "tentative", // chính nguồn dùng chữ dự kiến/kế hoạch/tạm thời
+  UPDATING: "updating", // biết có sự kiện nhưng lịch chưa đủ rõ
+  CHANGED: "changed", // nguồn mới đã thay thông tin cũ
   CANCELLED: "cancelled",
+  CONFLICT: "conflict", // các nguồn đáng tin đang mâu thuẫn
 };
+
+export const TIME_PRECISION = {
+  EXACT: "exact",
+  MORNING: "morning",
+  AFTERNOON: "afternoon",
+  EVENING: "evening",
+  DAY: "day",
+  UNKNOWN: "unknown",
+};
+
+export function timePrecisionOf(event) {
+  if (Object.values(TIME_PRECISION).includes(event.timePrecision)) return event.timePrecision;
+  if (event.allDay) return TIME_PRECISION.DAY;
+  if (event.startAt) return TIME_PRECISION.EXACT;
+  return TIME_PRECISION.UNKNOWN;
+}
 
 /**
  * @param {object} event mốc đã khai trong lib/postEvents/*
  * @param {number} now epoch ms — truyền vào được để test, mặc định lấy giờ hiện tại
  */
 export function eventStatus(event, now = Date.now()) {
-  if (event.verificationStatus === VERIFICATION.CANCELLED) return EVENT_STATUS.PAST;
-  if (!event.startAt) return EVENT_STATUS.UNDATED;
+  const precision = timePrecisionOf(event);
+  const localDate = eventLocalDate(event);
+  if (precision !== TIME_PRECISION.EXACT) {
+    if (!localDate) return EVENT_STATUS.UNDATED;
+    const today = dayKey(now);
+    if (localDate < today) return EVENT_STATUS.PAST;
+    if (localDate === today) return EVENT_STATUS.TODAY;
+    return EVENT_STATUS.UPCOMING;
+  }
+  if (!event.startAt) return localDate ? EVENT_STATUS.UPCOMING : EVENT_STATUS.UNDATED;
   const start = new Date(event.startAt).getTime();
   // Không khai giờ kết thúc thì coi như kéo hết ngày hôm đó — mốc "20/9" không nên thành "đã
   // qua" ngay lúc 00:01 sáng 20/9.
   const end = event.endAt ? new Date(event.endAt).getTime() : start + 24 * 60 * 60 * 1000;
   if (now > end) return EVENT_STATUS.PAST;
   if (now >= start) return EVENT_STATUS.LIVE;
+  if (eventLocalDate(event) === dayKey(now)) return EVENT_STATUS.TODAY;
   return EVENT_STATUS.UPCOMING;
 }
 
 /** Sắp theo thời gian; mốc chưa có ngày xuống cuối vì không biết xếp vào đâu. */
 export function sortEvents(events) {
   return [...events].sort((a, b) => {
-    if (!a.startAt) return 1;
-    if (!b.startAt) return -1;
-    return new Date(a.startAt) - new Date(b.startAt);
+    const aTime = a.startAt ? Date.parse(a.startAt) : dateStart(a.date);
+    const bTime = b.startAt ? Date.parse(b.startAt) : dateStart(b.date);
+    if (!Number.isFinite(aTime)) return 1;
+    if (!Number.isFinite(bTime)) return -1;
+    return aTime - bTime;
   });
 }
 
@@ -72,10 +104,14 @@ export function sortEvents(events) {
 export function groupEvents(events, now = Date.now()) {
   const sorted = sortEvents(events);
   const live = sorted.filter((e) => eventStatus(e, now) === EVENT_STATUS.LIVE);
+  const today = sorted.filter((e) => eventStatus(e, now) === EVENT_STATUS.TODAY);
   const upcoming = sorted.filter((e) => eventStatus(e, now) === EVENT_STATUS.UPCOMING);
   const past = sorted.filter((e) => eventStatus(e, now) === EVENT_STATUS.PAST);
   const undated = sorted.filter((e) => eventStatus(e, now) === EVENT_STATUS.UNDATED);
-  return { live, upcoming, past, undated, next: upcoming[0] ?? null };
+  const visibleNow = [...live, ...today, ...upcoming].filter(
+    (event) => event.verificationStatus !== VERIFICATION.CANCELLED
+  );
+  return { live, today, upcoming, past, undated, next: visibleNow[0] ?? null };
 }
 
 const WEEKDAYS = ["Chủ nhật", "thứ Hai", "thứ Ba", "thứ Tư", "thứ Năm", "thứ Sáu", "thứ Bảy"];
@@ -105,8 +141,79 @@ function parts(iso) {
   };
 }
 
+function dateStart(value) {
+  return typeof value === "string" ? Date.parse(`${value}T00:00:00+07:00`) : NaN;
+}
+
+export function eventLocalDate(event) {
+  if (typeof event.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(event.date)) {
+    return event.date;
+  }
+  return event.startAt ? dayKey(event.startAt) : null;
+}
+
+const PRECISION_LABEL = {
+  [TIME_PRECISION.MORNING]: "Buổi sáng",
+  [TIME_PRECISION.AFTERNOON]: "Buổi chiều",
+  [TIME_PRECISION.EVENING]: "Buổi tối",
+};
+
+export function formatEventTime(event) {
+  const precision = timePrecisionOf(event);
+  if (PRECISION_LABEL[precision]) return PRECISION_LABEL[precision];
+  if (precision === TIME_PRECISION.DAY) return "Cả ngày";
+  if (precision !== TIME_PRECISION.EXACT || !event.startAt) {
+    return event.whenText ?? "Chưa rõ giờ";
+  }
+  const start = parts(event.startAt);
+  const end = event.endAt ? parts(event.endAt) : null;
+  return end && eventLocalDate(event) === dayKey(event.endAt)
+    ? `${start.hour}:${start.minute} – ${end.hour}:${end.minute}`
+    : `${start.hour}:${start.minute}`;
+}
+
+export function formatEventDateHeading(event) {
+  const date = eventLocalDate(event);
+  if (!date) return "Chưa có ngày cụ thể";
+  const value = parts(`${date}T12:00:00+07:00`);
+  return `${value.day}/${value.month} · ${value.weekday}`;
+}
+
+export function isEventRange(event) {
+  return Boolean(event.startAt && event.endAt && dayKey(event.startAt) !== dayKey(event.endAt));
+}
+
+/** Gom các hoạt động cùng ngày vào một khung; event kéo dài nhiều ngày giữ thành khung riêng. */
+export function groupEventsByDate(events) {
+  const groups = [];
+  const byDate = new Map();
+  for (const event of events) {
+    const date = eventLocalDate(event);
+    if (!date || isEventRange(event)) {
+      groups.push({ key: `${date ?? "undated"}:${event.id}`, date, range: true, events: [event] });
+      continue;
+    }
+    let group = byDate.get(date);
+    if (!group) {
+      group = { key: date, date, range: false, events: [] };
+      byDate.set(date, group);
+      groups.push(group);
+    }
+    group.events.push(event);
+  }
+  return groups;
+}
+
 /** "20/9 (chủ nhật) · 20:00" · "19 – 25/9" · "Tháng 9 — chưa có ngày cụ thể". */
 export function formatEventWhen(event) {
+  const precision = timePrecisionOf(event);
+  if (precision !== TIME_PRECISION.EXACT) {
+    const date = eventLocalDate(event);
+    if (!date) return event.whenText ?? "Chưa có ngày cụ thể";
+    const heading = formatEventDateHeading(event).replace(" · ", " (") + ")";
+    const label = PRECISION_LABEL[precision];
+    return label ? `${heading} · ${label}` : heading;
+  }
   if (!event.startAt) return event.whenText ?? "Chưa có ngày cụ thể";
   const s = parts(event.startAt);
   const e = event.endAt ? parts(event.endAt) : null;

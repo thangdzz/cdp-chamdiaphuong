@@ -19,7 +19,7 @@ export const NOTE_CONTEXTS = [
   { id: "gui-xe", label: "Gửi xe", hint: "VD: Tối lễ hội nên gửi xe phía sau chợ" },
   { id: "loi-vao", label: "Lối vào", hint: "VD: Cửa nhỏ, đi qua cổng sắt xanh cạnh số 12" },
   { id: "thoi-diem", label: "Thời điểm", hint: "VD: Trưa cuối tuần rất đông, nên đến trước 11h" },
-  { id: "di-chuyen", label: "Di chuyển", hint: "VD: Từ quảng trường đi bộ 5 phút theo đường Trần Phú" },
+  { id: "cach-den", label: "Cách đến", hint: "VD: Từ quảng trường đi bộ khoảng 5 phút, rẽ vào đường Trần Phú." },
   { id: "thanh-toan", label: "Thanh toán", hint: "VD: Chỉ nhận tiền mặt, không quẹt thẻ" },
   { id: "tien-ich", label: "Tiện ích", hint: "VD: Có chỗ ngồi ngoài trời, wifi khoẻ" },
   { id: "khac", label: "Khác", hint: "VD: Nghỉ thứ Hai hằng tuần" },
@@ -45,16 +45,21 @@ export const NOTE_CONTEXTS = [
 // "Gửi xe / Lối vào" vô nghĩa với một nhà xe ghép, còn "Điểm đón / Giờ chạy" thì vô nghĩa với
 // quán ăn — nên danh sách chip đổi theo family, subtype nào cần khác thì override (NOTE-05 §8,
 // NOTE-06 §9). Cùng cách khai báo với lib/questions.js để 2 bên không lệch nhau.
-const DEFAULT_CONTEXT_IDS = ["gui-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "tien-ich", "khac"];
+const DEFAULT_CONTEXT_IDS = ["gui-xe", "loi-vao", "thoi-diem", "thanh-toan", "tien-ich", "cach-den", "khac"];
+
+// Chỗ Đi lại chưa được phân subtype có thể là dịch vụ (không có vị trí vật lý) hoặc một điểm
+// thật. Chỉ hỏi các ngữ cảnh không cần đoán; khi Admin chọn subtype, bộ family hẹp hơn sẽ thay.
+const UNKNOWN_TRANSPORT_CONTEXT_IDS = ["thoi-diem", "thanh-toan", "khac"];
 
 const FAMILY_CONTEXT_IDS = {
   "pickup-service": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
+  "scheduled-route": ["diem-don", "diem-tra", "gio-chay", "thanh-toan", "tien-ich", "khac"],
   // Cửa hàng thuê xe: khách vẫn tới tận nơi nên giữ "Lối vào", nhưng thứ quyết định thuê được
   // hay không là cọc / giấy tờ / cách giao xe.
   "self-drive": ["loai-xe", "dat-coc", "giay-to", "nhan-xe", "loi-vao", "thoi-diem", "thanh-toan", "khac"],
   // Bãi / bến xe: chỗ vật lý thật, nên giữ Lối vào + Thời điểm; bỏ "Gửi xe" vì chính nó là
   // chỗ gửi xe, thay bằng phí và chuyện trông qua đêm.
-  "transport-place": ["phi-gui-xe", "trong-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "khac"],
+  "transport-place": ["phi-gui-xe", "trong-xe", "loi-vao", "thoi-diem", "cach-den", "thanh-toan", "khac"],
 };
 
 const SUBTYPE_CONTEXT_IDS = {
@@ -63,7 +68,8 @@ const SUBTYPE_CONTEXT_IDS = {
   taxi: ["loai-xe", "cach-goi", "gio-chay", "dat-xe", "thanh-toan", "tien-ich", "khac"],
   "xe-khach": ["loai-xe", "diem-don", "diem-tra", "gio-chay", "dat-xe", "thanh-toan", "hanh-ly", "tien-ich", "khac"],
   // Điểm đón/trả chỉ là chỗ đứng chờ, không giữ xe -> dùng lại bộ chung.
-  "diem-don-tra": ["gui-xe", "loi-vao", "thoi-diem", "di-chuyen", "thanh-toan", "khac"],
+  "diem-don-tra": ["thoi-diem", "cach-den", "khac"],
+  "xe-buyt": ["diem-don", "diem-tra", "gio-chay", "thanh-toan", "tien-ich", "khac"],
 };
 
 // Cùng một ngữ cảnh nhưng ở chỗ khác nhau thì ví dụ phải khác: "Tiện ích" ở quán ăn là wifi
@@ -76,7 +82,28 @@ const HINTS_BY_SUBTYPE = {
     "gio-chay": "VD: Tổng đài trực 24/7, khuya vẫn gọi được xe",
     "dat-xe": "VD: Giờ cao điểm gọi tổng đài phải chờ khá lâu",
     "cach-goi": "VD: Gọi tổng đài nhanh hơn hẳn gọi số lái xe",
-    khac: "VD: Có nhận chở ra sân bay Nội Bài",
+    khac: "VD: Ban đêm thường phải chờ lâu hơn.",
+  },
+  "xe-ghep": {
+    khac: "VD: Nhà xe thường gọi xác nhận trước giờ đón.",
+  },
+  "xe-buyt": {
+    khac: "VD: Giờ tan tầm xe thường đông hơn.",
+  },
+  "ben-xe": {
+    "cach-den": "VD: Cổng vào nằm phía đường Bình Thuận, không phải mặt đường chính.",
+  },
+  "bai-xe": {
+    "cach-den": "VD: Cổng vào nằm phía đường Bình Thuận, không phải mặt đường chính.",
+  },
+  "diem-don-tra": {
+    "cach-den": "VD: Điểm đón nằm cạnh cổng chính, phía bên phải đường.",
+  },
+  "thue-o-to": {
+    "loai-xe": "VD: Có xe 4 chỗ và 7 chỗ, xe số tự động cần đặt trước.",
+  },
+  "thue-xe-may": {
+    "loai-xe": "VD: Có xe số và xe ga, xe tay côn phải đặt trước.",
   },
   "thue-xe-co-lai": {
     "gio-chay": "VD: Nhận chạy cả đêm nếu báo trước",
@@ -116,15 +143,21 @@ const HINTS_BY_FAMILY = {
 };
 
 const HINTS_BY_TYPE = {
+  an: {
+    "cach-den": "VD: Từ quảng trường đi bộ khoảng 5 phút, rẽ vào đường Trần Phú.",
+    khac: "VD: Quán nghỉ thứ Hai hàng tuần.",
+  },
   ngu: {
     "thoi-diem": "VD: Cuối tuần dịp lễ hội hết phòng từ sớm",
     "tien-ich": "VD: Có thang máy, nước nóng ổn định",
-    khac: "VD: Nhận khách sau 22h nếu gọi báo trước",
+    "cach-den": "VD: Xe ô tô vào tận cửa, lối vào nằm phía sau tòa nhà.",
+    khac: "VD: Nên hỏi trước nếu cần nhận phòng muộn.",
   },
   choi: {
     "thoi-diem": "VD: Chiều muộn vắng người, chụp ảnh đẹp",
     "tien-ich": "VD: Có nhà vệ sinh sạch, chỗ ngồi có mái",
-    khac: "VD: Trời mưa là đóng cửa sớm",
+    "cach-den": "VD: Đi hết đường chính rồi rẽ trái ở cổng trường.",
+    khac: "VD: Nên đi buổi chiều vì khu này ít nắng hơn.",
   },
 };
 
@@ -135,7 +168,9 @@ const HINTS_BY_TYPE = {
 export function noteContextsForPlace(place, family = null) {
   const ids =
     (place?.type === "dilai" &&
-      (SUBTYPE_CONTEXT_IDS[place.transportSubtype] ?? FAMILY_CONTEXT_IDS[family])) ||
+      (SUBTYPE_CONTEXT_IDS[place.transportSubtype] ??
+        FAMILY_CONTEXT_IDS[family] ??
+        UNKNOWN_TRANSPORT_CONTEXT_IDS)) ||
     DEFAULT_CONTEXT_IDS;
 
   return ids
@@ -153,11 +188,13 @@ export function noteContextsForPlace(place, family = null) {
 }
 
 export function noteContextLabel(contextId) {
+  // Dữ liệu đã duyệt trước NOTE-12 dùng id `di-chuyen`; chỉ đổi nhãn lúc đọc, không migration.
+  if (contextId === "di-chuyen") return "Cách đến";
   return NOTE_CONTEXTS.find((c) => c.id === contextId)?.label ?? null;
 }
 
 export function isValidNoteContext(contextId) {
-  return NOTE_CONTEXTS.some((c) => c.id === contextId);
+  return contextId === "di-chuyen" || NOTE_CONTEXTS.some((c) => c.id === contextId);
 }
 const REPORTS_TTL_SECONDS = 90 * 24 * 60 * 60;
 

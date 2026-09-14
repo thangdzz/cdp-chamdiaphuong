@@ -16,13 +16,18 @@ export const KEYS = {
   CONFIRMED_DISTINCT: "ingestion:confirmed_distinct",
 };
 
+function storageKey(key) {
+  const namespace = process.env.CDP_INGESTION_NAMESPACE?.trim();
+  return namespace ? `${namespace}:${key}` : key;
+}
+
 async function getList(key) {
-  const data = await redis.get(key);
+  const data = await redis.get(storageKey(key));
   return data ?? [];
 }
 
 async function setList(key, list) {
-  await redis.set(key, list);
+  await redis.set(storageKey(key), list);
 }
 
 export async function getReviewQueue() {

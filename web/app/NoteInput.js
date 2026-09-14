@@ -19,10 +19,9 @@ const NOTE_MAX_LENGTH = 120;
 // hệ thống ĐÃ CÓ câu hỏi "Gửi xe ở đâu?" với đúng các đáp án đó ở cuối thẻ — khách phải gõ tay
 // lại thứ chỉ cần bấm. Giờ ngữ cảnh nào có câu hỏi thì đưa nút ra bấm luôn (1 chạm, vào đồng
 // thuận ngay, không cần duyệt); ô gõ chỉ mở khi thật sự cần.
-// `onActiveQuestion` báo cho thẻ cha biết khối này đang bày sẵn câu hỏi nào, để QuestionPrompt
-// ở cuối thẻ đừng hỏi lại đúng câu đó — "Gửi xe" vừa là chip đầu tiên vừa là câu hỏi đầu tiên
-// nên trùng nhau là chuyện thường, không phải hiếm.
-export function NoteInput({ place, onActiveQuestion }) {
+// `onActiveContext` báo cho thẻ cha biết khách đã chọn một ngữ cảnh. Khi đó câu mặc định ở
+// cuối thẻ phải ẩn hẳn — chỉ so questionId như bản cũ gây render chồng hai câu khác nhau.
+export function NoteInput({ place, onActiveContext, showPublishedNotes = true }) {
   const [notes, setNotes] = useState(place.notes ?? []);
   const [reportedIds, setReportedIds] = useState([]);
   const [text, setText] = useState("");
@@ -50,18 +49,18 @@ export function NoteInput({ place, onActiveQuestion }) {
   function pickContext(id) {
     const next = context === id ? null : id;
     setContext(next);
+    setText("");
+    setFestivalOnly(false);
     setTyping(false);
     setAnswerThanks(null);
     setErrorMessage(null);
-    const question = next
-      ? getQuestionForContext(next, place.type, place.transportSubtype ?? null, filledFields, family)
-      : null;
-    onActiveQuestion?.(question?.id ?? null);
+    onActiveContext?.(next);
   }
 
   function startTyping() {
     setTyping(true);
-    onActiveQuestion?.(null); // đã chuyển sang gõ tay -> nhường câu đó lại cho cuối thẻ
+    // Ô gõ vẫn thuộc context đang chọn, nên không được làm câu mặc định bên dưới hiện lại.
+    onActiveContext?.(context);
   }
 
   async function handleQuestionAnswer(value, followUpText) {
@@ -91,7 +90,7 @@ export function NoteInput({ place, onActiveQuestion }) {
       }
       setAnswerThanks({ pointsAwarded: result.pointsAwarded });
       setContext(null);
-      onActiveQuestion?.(null);
+      onActiveContext?.("completed");
     } finally {
       setAnswerBusy(false);
       answerBusyRef.current = false;
@@ -138,7 +137,7 @@ export function NoteInput({ place, onActiveQuestion }) {
     setFestivalOnly(false);
     setContext(null);
     setTyping(false);
-    onActiveQuestion?.(null);
+    onActiveContext?.("completed");
   }
 
   // Tối đa 3 mẹo hiện trên thẻ — nhiều hơn dễ rối, thẻ không phải nơi đọc hết mọi mẹo
@@ -147,7 +146,7 @@ export function NoteInput({ place, onActiveQuestion }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {visibleNotes.length > 0 && (
+      {showPublishedNotes && visibleNotes.length > 0 && (
         <div className="flex flex-col gap-2 text-sm text-zinc-700">
           {visibleNotes.map((note) => (
             <div key={note.id} className="flex items-start justify-between gap-2">
@@ -206,7 +205,7 @@ export function NoteInput({ place, onActiveQuestion }) {
           )}
 
           {/* Ngữ cảnh đã có sẵn câu hỏi bấm chọn -> bấm 1 phát là xong, vào đồng thuận ngay,
-              KHÔNG qua duyệt (NOTE-04 §5). Chỉ "Di chuyển"/"Khác" và các ngữ cảnh chưa có câu
+              KHÔNG qua duyệt (NOTE-04 §5). Chỉ "Cách đến"/"Khác" và các ngữ cảnh chưa có câu
               hỏi mới rơi xuống ô gõ bên dưới. */}
           {contextQuestion && !typing && (
             <div className="cdp-fade-in mt-1">
@@ -221,7 +220,7 @@ export function NoteInput({ place, onActiveQuestion }) {
                   onClick={startTyping}
                   className="mt-2 cursor-pointer text-xs text-zinc-400 underline"
                 >
-                  Không có ý nào đúng — để tôi tự viết
+                  Khác — để tôi tự viết
                 </button>
               </QuestionOptions>
               {errorMessage && <p className="mt-1.5 text-xs text-red-600">{errorMessage}</p>}

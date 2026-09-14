@@ -8,9 +8,9 @@ import { adminFilledFields } from "@/lib/transport";
 
 // Khối hỏi 1 câu tại 1 thời điểm (SPEC-chang-2.md §3.1). Giống CheckinButton.js: chưa có hồ
 // sơ ẩn danh thì tự tạo im lặng ngay lúc bấm (không phải lúc chỉ xem câu hỏi).
-// `hideQuestionId`: khối Mẹo phía trên đang bày sẵn đúng câu này rồi (xem NoteInput.js) —
-// hỏi lại lần nữa ngay dưới cùng một thẻ thì nhìn như hỏng.
-export function QuestionPrompt({ place, hideQuestionId = null }) {
+// Khi khách đã chọn một context ở NoteInput, `suspended` ẩn TOÀN BỘ câu mặc định. Chỉ so
+// questionId như bản cũ khiến chọn Lối vào vẫn còn câu mặc định Gửi xe ở bên dưới.
+export function QuestionPrompt({ place, suspended = false }) {
   const [question, setQuestion] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [thanks, setThanks] = useState(null);
@@ -101,7 +101,7 @@ export function QuestionPrompt({ place, hideQuestionId = null }) {
     );
   }
 
-  if (question.id === hideQuestionId) return null;
+  if (suspended) return null;
 
   return (
     <div className="cdp-fade-in border-t border-zinc-100 pt-5">

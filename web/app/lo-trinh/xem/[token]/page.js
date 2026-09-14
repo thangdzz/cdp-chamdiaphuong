@@ -4,9 +4,10 @@ import { getShareSnapshot } from "@/lib/routeShare";
 import { routeMapsUrl } from "@/lib/mapsUrl";
 import { formatStayDuration } from "@/lib/durationFormat";
 import { TRANSPORT_MODES, transportModeLabel } from "@/lib/routes";
-import { SiteHeader } from "@/app/SiteHeader";
 import { FALLBACK_COVER } from "@/lib/cover";
 import { StopBadge } from "@/app/StopBadge";
+import { MediaImage } from "@/app/MediaImage";
+import { SharedRouteSaveAction } from "@/app/SharedRouteSaveAction";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,11 @@ export async function generateMetadata({ params }) {
   return {
     title: `${snapshot.title} — ${SITE_NAME}`,
     description,
-    openGraph: { title: snapshot.title, description, images: [FALLBACK_COVER] },
+    openGraph: {
+      title: snapshot.title,
+      description,
+      images: [snapshot.stops.find((stop) => stop.navigationMedia?.url)?.navigationMedia.url ?? FALLBACK_COVER],
+    },
   };
 }
 
@@ -45,7 +50,6 @@ export default async function SharedRoutePage({ params }) {
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         {/* Người nhận link cần hiểu LỘ TRÌNH trước, nên các nút cá nhân hạ cấp thị giác —
             cùng cách trang địa điểm làm (NOTE-02 §9). */}
-        <SiteHeader quiet />
 
         <header className="mb-5">
           <h1 className="text-2xl font-semibold tracking-tight leading-snug text-zinc-900">
@@ -57,6 +61,8 @@ export default async function SharedRoutePage({ params }) {
               .join(" · ")}
           </p>
         </header>
+
+        <SharedRouteSaveAction token={token} />
 
         <ol className="flex flex-col gap-2">
           {snapshot.stops.map((stop, index) => (
@@ -88,6 +94,13 @@ export default async function SharedRoutePage({ params }) {
                 )}
                 {stop.note && <p className="mt-1 text-sm text-zinc-700">💬 {stop.note}</p>}
               </div>
+              {stop.navigationMedia?.url && (
+                <MediaImage
+                  media={stop.navigationMedia}
+                  className="h-16 w-16 shrink-0 rounded-lg bg-zinc-100 sm:h-20 sm:w-20"
+                  sizes="(max-width: 639px) 64px, 80px"
+                />
+              )}
             </li>
           ))}
         </ol>

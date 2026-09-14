@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getLivePlaces, getPendingPlaces } from "@/lib/redis";
@@ -9,6 +10,8 @@ import { PLACE_TYPES, getPlaceTypeLabel } from "@/lib/placeTypes";
 import { getAdminNotebookStats } from "@/lib/notebooks";
 import { getNoteQueue, noteContextLabel } from "@/lib/notes";
 import { getProposalQueue } from "@/lib/proposals";
+import { getPostEventRevisions, getPostEvents } from "@/lib/postEvents";
+import { FESTIVAL_EVENTS, POST_META } from "@/lib/postEvents/le-hoi-thanh-tuyen-2026";
 import {
   login,
   logout,
@@ -16,7 +19,12 @@ import {
   approvePending,
   rejectPending,
 } from "./actions";
-import { approveReviewItem, rejectReviewItem } from "./reviewActions";
+import {
+  approveReviewItem,
+  createReplacementFromClosedMatch,
+  rejectReviewItem,
+  reopenClosedPlaceFromReview,
+} from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
 import { approveNoteAction, rejectNoteAction } from "./noteActions";
 import { approveProposalAction, rejectProposalAction } from "./proposalActions";
@@ -24,6 +32,10 @@ import { IngestPasteBox } from "./IngestPasteBox";
 import { MergeDuplicatePanel } from "./MergeDuplicatePanel";
 import { Field, PlaceForm } from "./PlaceFormFields";
 import { LivePlacesManager } from "./LivePlacesManager";
+import { FestivalEventsManager } from "./FestivalEventsManager";
+import { MediaImage } from "@/app/MediaImage";
+import { getAllClosedPlaces } from "@/lib/closedPlaces";
+import { ClosedPlacesManager } from "./ClosedPlacesManager";
 
 const NOTE_QUESTION_LABEL = { tip: "Bạn có mẹo gì cho chỗ này không?" };
 
@@ -44,6 +56,7 @@ const REVIEW_TYPE_LABEL = {
   duplicate_candidate: "Nghi trùng lặp",
   stale_place: "Lâu chưa xác nhận",
   low_confidence_place: "Độ tin cậy thấp",
+  closed_place_match: "Có tín hiệu hoạt động trở lại — cần xác minh",
 };
 
 const REVIEW_ACTION_LABELS = {
@@ -86,7 +99,7 @@ function LoginForm({ hasError }) {
   );
 }
 
-function ReviewItemCard({ item }) {
+function ReviewItemCard({ item, closedPlace }) {
   const labels = REVIEW_ACTION_LABELS[item.type] ?? { approve: "Duyệt", reject: "Từ chối" };
   const c = item.candidate;
   const parsedPrice = c ? parsePriceRangeText(c.price_range_text) : null;
@@ -184,19 +197,77 @@ function ReviewItemCard({ item }) {
           </ul>
         )}
 
-        <div className="mt-3 flex gap-2">
-          <button
-            formAction={approveReviewItem}
-            className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
-          >
-            {labels.approve}
-          </button>
-          <button
-            formAction={rejectReviewItem}
-            className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
-          >
-            {labels.reject}
-          </button>
+        {item.type === "closed_place_match" && (
+          <div className="mt-3 rounded-xl border border-red-200 bg-white p-3">
+            <p className="text-sm font-semibold text-red-800">
+              Địa điểm này từng được xác nhận đã đóng.
+            </p>
+            <p className="mt-1 text-sm text-zinc-700">
+              <span className="font-medium">Hồ sơ cũ:</span>{" "}
+              {closedPlace?.name ?? item.matchedClosedPlaceId}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">
+              {[
+                closedPlace?.localArea,
+                closedPlace?.ward,
+                closedPlace?.address,
+                closedPlace?.closedAt
+                  ? `Đóng từ ${new Date(closedPlace.closedAt).toLocaleDateString("vi-VN")}`
+                  : null,
+              ].filter(Boolean).join(" · ") || "Hồ sơ cũ không còn dữ liệu vị trí/ngày đóng"}
+            </p>
+            {item.sources?.length > 0 && (
+              <p className="mt-2 text-xs text-zinc-500">
+                Nguồn mới: {item.sources.map((source) =>
+                  `${source.sourceId} · ${new Date(source.observedAt).toLocaleString("vi-VN")}`
+                ).join("; ")}
+              </p>
+            )}
+            <p className="mt-2 text-xs text-zinc-600">
+              Chỉ chọn “Mở lại” khi đúng cùng địa điểm/business. Nếu là quán mới ở vị trí cũ,
+              tạo đề xuất thay thế để duyệt thêm một lần trước khi công khai.
+            </p>
+          </div>
+        )}
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {item.type === "closed_place_match" ? (
+            <>
+              <button
+                formAction={reopenClosedPlaceFromReview}
+                className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+              >
+                Mở lại địa điểm cũ
+              </button>
+              <button
+                formAction={createReplacementFromClosedMatch}
+                className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white"
+              >
+                Tạo địa điểm mới thay thế
+              </button>
+              <button
+                formAction={rejectReviewItem}
+                className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+              >
+                Bỏ qua
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                formAction={approveReviewItem}
+                className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+              >
+                {labels.approve}
+              </button>
+              <button
+                formAction={rejectReviewItem}
+                className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+              >
+                {labels.reject}
+              </button>
+            </>
+          )}
         </div>
       </form>
 
@@ -254,16 +325,22 @@ function ProposalCard({ item }) {
   return (
     <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4">
       <span className="rounded-full bg-teal-200 px-2 py-0.5 text-xs font-medium text-teal-900">
-        Khách đề xuất từ lộ trình
+        {item.replacesPlaceId ? "Đề xuất thay thế địa điểm đã đóng" : "Khách đề xuất từ lộ trình"}
       </span>
       <p className="mt-2 text-sm font-medium text-zinc-800">{item.name}</p>
+      {item.replacesPlaceId && (
+        <p className="mt-1 text-sm text-zinc-700">
+          Thay cho: <span className="font-medium">{item.replacesPlaceName ?? item.replacesPlaceId}</span>
+        </p>
+      )}
       <p className="mt-1 text-xs text-zinc-500">
         {[getPlaceTypeLabel(item.type), item.ward, item.address].filter(Boolean).join(" · ")}
       </p>
       {item.note && <p className="mt-1 text-sm text-zinc-700">💬 {item.note}</p>}
       <p className="mt-2 text-xs text-zinc-500">
-        Duyệt = thêm vào danh bạ, lộ trình của khách tự bỏ nhãn &quot;chưa xác minh&quot;.
-        Bỏ = chỗ này thành điểm riêng của họ, không mất khỏi lộ trình.
+        {item.replacesPlaceId
+          ? "Duyệt = tạo record mới và nối URL cũ tới chỗ này. Bỏ = chỗ cũ vẫn giữ trạng thái đóng cửa."
+          : "Duyệt = thêm vào danh bạ, lộ trình của khách tự bỏ nhãn “chưa xác minh”. Bỏ = chỗ này thành điểm riêng của họ, không mất khỏi lộ trình."}
       </p>
 
       <form className="mt-3 flex gap-2">
@@ -302,11 +379,11 @@ function SuggestionCard({ item }) {
       <p className="mt-2 text-sm font-medium text-zinc-800">{item.placeName}</p>
 
       {item.type === "photo" ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.photoUrl}
-          alt=""
-          className="mt-2 h-32 w-32 rounded-lg object-cover"
+        <MediaImage
+          media={item.media}
+          src={item.media?.url ? undefined : item.photoUrl}
+          className="mt-2 h-32 w-32 rounded-lg"
+          sizes="128px"
         />
       ) : (
         <>
@@ -363,7 +440,20 @@ function SuggestionCard({ item }) {
   );
 }
 
-function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats, noteQueue, proposalQueue }) {
+function AdminDashboard({
+  live,
+  pending,
+  reviewQueue,
+  suggestions,
+  notebookStats,
+  noteQueue,
+  proposalQueue,
+  closedPlaces,
+  festivalEvents,
+  festivalRevisions,
+  festivalSaved,
+  festivalError,
+}) {
   const placeNameById = (id) => live.find((p) => p.id === id)?.name ?? "(chỗ không rõ, có thể đã bị xoá)";
   const pendingNotes = noteQueue.filter((n) => !n.reported);
   const reportedNotes = noteQueue.filter((n) => n.reported);
@@ -378,6 +468,27 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats
           <button className="text-sm text-zinc-500 underline">Đăng xuất</button>
         </form>
       </div>
+
+      <Link
+        href="/admin/content-inbox"
+        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
+      >
+        Content Inbox — nhận link hoặc nội dung mới →
+      </Link>
+
+      <Link
+        href="/admin/gioi-thieu"
+        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
+      >
+        Nội dung hệ thống → Giới thiệu CDP →
+      </Link>
+
+      <Link
+        href="/admin/navigation"
+        className="mb-6 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
+      >
+        Nội dung hệ thống → Menu &amp; tên trang →
+      </Link>
 
       <section className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
@@ -398,6 +509,23 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats
           </div>
         </div>
       </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">
+          Địa điểm đã đóng cửa ({closedPlaces.length})
+        </h2>
+        <p className="mb-3 text-sm text-zinc-500">
+          Giữ URL cũ và tạo đề xuất địa điểm mới cùng vị trí nếu có.
+        </p>
+        <ClosedPlacesManager places={closedPlaces} proposalQueue={proposalQueue} />
+      </section>
+
+      <FestivalEventsManager
+        events={festivalEvents}
+        revisions={festivalRevisions}
+        saved={festivalSaved}
+        error={festivalError}
+      />
 
       <section className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
@@ -456,7 +584,11 @@ function AdminDashboard({ live, pending, reviewQueue, suggestions, notebookStats
         )}
         <div className="flex flex-col gap-3">
           {reviewQueue.map((item) => (
-            <ReviewItemCard key={item.id} item={item} />
+            <ReviewItemCard
+              key={item.id}
+              item={item}
+              closedPlace={closedPlaces.find((place) => place.id === item.matchedClosedPlaceId)}
+            />
           ))}
         </div>
       </section>
@@ -563,7 +695,8 @@ export default async function AdminPage({ searchParams }) {
     return <LoginForm hasError={params?.error === "1"} />;
   }
 
-  const [live, pending, allReviewItems, allSuggestions, notebookStats, noteQueue, proposalQueue] =
+  const params = await searchParams;
+  const [live, pending, allReviewItems, allSuggestions, notebookStats, noteQueue, proposalQueue, closedPlaces, festivalEvents, festivalRevisions] =
     await Promise.all([
       getLivePlaces(),
       getPendingPlaces(),
@@ -572,6 +705,9 @@ export default async function AdminPage({ searchParams }) {
       getAdminNotebookStats(),
       getNoteQueue(),
       getProposalQueue(),
+      getAllClosedPlaces(),
+      getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
+      getPostEventRevisions(POST_META.slug),
     ]);
   const reviewQueue = allReviewItems.filter((i) => i.status === REVIEW_STATUS.PENDING);
   const suggestions = allSuggestions.filter((s) => s.status === "pending");
@@ -584,6 +720,11 @@ export default async function AdminPage({ searchParams }) {
       notebookStats={notebookStats}
       noteQueue={noteQueue}
       proposalQueue={proposalQueue}
+      closedPlaces={closedPlaces}
+      festivalEvents={festivalEvents}
+      festivalRevisions={festivalRevisions}
+      festivalSaved={params?.festivalSaved === "1"}
+      festivalError={params?.festivalError ?? null}
     />
   );
 }

@@ -5,7 +5,8 @@ import { mapsUrl } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { transportSummary, transportFamilyOf } from "@/lib/transport";
-import { placeCover } from "@/lib/cover";
+import { MediaImage } from "./MediaImage";
+import { placeCoverMedia, placeGeneralMedia, placeMenuMedia } from "@/lib/media";
 import { noteContextLabel } from "@/lib/notes";
 import { PlaceFacts } from "./PlaceFacts";
 import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
@@ -19,12 +20,16 @@ export function NotebookPlaceCard({ item }) {
   const [galleryIndex, setGalleryIndex] = useState(null);
   const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   const place = item.place;
-  const photos = place.photos ?? [];
-  const menuPhotos = place.menuPhotos ?? [];
+  const photos = placeGeneralMedia(place);
+  const menuPhotos = placeMenuMedia(place);
   const newestMenuPhotoAge =
     menuPhotos.length > 0
       ? formatRelativeAge(
-          menuPhotos.reduce((max, m) => (new Date(m.addedAt) > new Date(max) ? m.addedAt : max), menuPhotos[0].addedAt)
+          menuPhotos.reduce(
+            (max, media) =>
+              new Date(media.uploadedAt) > new Date(max) ? media.uploadedAt : max,
+            menuPhotos[0].uploadedAt,
+          )
         )
       : null;
   const signatureDishes = place.type === "an" ? (place.signatureDishes ?? []) : [];
@@ -35,7 +40,7 @@ export function NotebookPlaceCard({ item }) {
   // Chỗ "Đi lại" đã chọn loại thì nói rõ "Xe ghép · 7 chỗ" thay vì chỉ "Đi lại" (NOTE-04 §2).
   const typeLabel = PLACE_TYPES.find((t) => t.id === place.type)?.label ?? null;
   const subtitle = [transportSummary(place) ?? typeLabel, place.ward].filter(Boolean).join(" · ");
-  const cover = placeCover(place);
+  const cover = placeCoverMedia(place);
 
   return (
     <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
@@ -58,8 +63,7 @@ export function NotebookPlaceCard({ item }) {
           // Cố ý KHÔNG bấm được: ảnh ở đây để nhận diện chỗ, còn xem ảnh thì đã có khối "Ảnh
           // địa điểm" sau khi bung. Ảnh bìa có thể là ảnh menu (xem lib/cover.js), bấm vào mà
           // mở gallery ảnh thường sẽ nhảy sang một ảnh khác hẳn ảnh vừa bấm.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover} alt="" className="h-20 w-20 shrink-0 rounded-lg bg-zinc-100 object-cover" />
+          <MediaImage media={cover} className="h-20 w-20 shrink-0 rounded-lg bg-zinc-100" sizes="80px" />
         )}
       </div>
       {item.note && <p className="mt-3 text-sm text-zinc-700">💬 {item.note}</p>}
@@ -115,15 +119,14 @@ export function NotebookPlaceCard({ item }) {
             <div>
               <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh địa điểm</p>
               <div className="flex gap-2">
-                {photos.slice(0, 3).map((src, i) => (
+                {photos.slice(0, 3).map((media, i) => (
                   <button
-                    key={i}
+                    key={media.id}
                     type="button"
                     onClick={() => setGalleryIndex(i)}
                     className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <MediaImage media={media} className="h-full w-full" sizes="64px" />
                   </button>
                 ))}
               </div>
@@ -152,8 +155,7 @@ export function NotebookPlaceCard({ item }) {
                     onClick={() => setMenuGalleryIndex(i)}
                     className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={m.url} alt="" className="h-full w-full object-cover" />
+                    <MediaImage media={m} className="h-full w-full" sizes="64px" />
                   </button>
                 ))}
               </div>
@@ -238,7 +240,7 @@ export function NotebookPlaceCard({ item }) {
 
       {menuGalleryIndex !== null && (
         <PhotoGallery
-          photos={menuPhotos.map((m) => m.url)}
+          photos={menuPhotos}
           startIndex={menuGalleryIndex}
           onClose={() => setMenuGalleryIndex(null)}
         />

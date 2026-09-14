@@ -8,10 +8,17 @@ import {
   getContributorStanding,
   submitCorrection,
   submitPhotos,
+  submitReplacementProposal,
 } from "./contributionActions";
 import { CATEGORIES } from "@/lib/badges";
 import { BadgeIcon } from "./BadgeIcon";
 import { PencilIcon } from "./Icon";
+import {
+  compressImageForUpload,
+  CUSTOMER_UPLOAD_LIMIT,
+} from "@/lib/clientImageCompression";
+import { placeGeneralMedia } from "@/lib/media";
+import { ProposePlaceForm } from "./ProposePlaceForm";
 
 export const STORAGE_KEY = "cdp_contributor";
 
@@ -29,43 +36,14 @@ export function saveLocalContributor(data) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// Nén ảnh phía trình duyệt trước khi gửi — ảnh chụp điện thoại thường 2-8MB, dễ vượt giới
-// hạn gửi lên; đưa về tối đa 1600px cạnh dài + JPEG 82% vẫn đủ nét để xem trên web, giảm
-// dung lượng mạnh (thường còn vài trăm KB). createImageBitmap đọc được cả HEIC trên Safari
-// (trình duyệt tự giải mã), nên không cần thư viện ngoài. Nén lỗi thì gửi ảnh gốc, không
-// chặn người dùng.
-async function compressImage(file, { maxDim = 1600, quality = 0.82 } = {}) {
-  try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
-    const width = Math.round(bitmap.width * scale);
-    const height = Math.round(bitmap.height * scale);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(bitmap, 0, 0, width, height);
-    bitmap.close?.();
-
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
-    if (!blob) return file;
-
-    const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-    return new File([blob], newName, { type: "image/jpeg" });
-  } catch {
-    return file;
-  }
-}
-
 const inputClass = "rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
 const btnPrimary = "cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50";
 const btnGhost = "cdp-pressable cursor-pointer rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700";
 
-export function ContributionPanel({ place, onDone }) {
+export function ContributionPanel({ place, onDone, onOpenChange }) {
   // NOTE-01 §7.4: lời mời gửi ảnh nói rõ khách đang giúp việc gì, khác nhau tuỳ chỗ đã có
   // ảnh hay chưa — "Thêm ảnh" chung chung không cho khách lý do nào để bấm.
-  const hasPhotos = (place.photos ?? []).length > 0;
+  const hasPhotos = placeGeneralMedia(place).length > 0;
   const photoInvite = hasPhotos
     ? "Gửi ảnh mới — giúp người sau dễ nhận ra chỗ"
     : "Gửi ảnh đầu tiên cho chỗ này";
@@ -107,7 +85,13 @@ export function ContributionPanel({ place, onDone }) {
     setNote("");
     setDuplicateOfName("");
     setErrorMessage(null);
+    onOpenChange?.(false);
     onDone?.();
+  }
+
+  function openChoiceMenu() {
+    setMode("choiceMenu");
+    onOpenChange?.(true);
   }
 
   async function runAction(anonId, action) {
@@ -142,7 +126,7 @@ export function ContributionPanel({ place, onDone }) {
         setErrorMessage(result?.error || "Gửi chưa thành công. Thử lại sau.");
         return false;
       }
-      setMode("thanks");
+      setMode(action.type === "correction" && action.fields.closed ? "closedThanks" : "thanks");
       return true;
     } catch {
       // Không được nuốt lỗi im lặng — trước đây lỗi ở đây làm màn hình đứng im, rồi bấm
@@ -206,14 +190,20 @@ export function ContributionPanel({ place, onDone }) {
   }
 
   async function handleFilesChosen(e, tag) {
-    const files = Array.from(e.target.files ?? []).slice(0, 3);
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
     if (files.length === 0 || busyRef.current) return;
+    if (files.length > CUSTOMER_UPLOAD_LIMIT) {
+      setErrorMessage(
+        `Bạn đã chọn ${files.length} ảnh. Mỗi lần chỉ gửi tối đa ${CUSTOMER_UPLOAD_LIMIT} ảnh.`,
+      );
+      return;
+    }
     busyRef.current = true;
     setBusy(true);
     setErrorMessage(null);
     try {
-      const compressed = await Promise.all(files.map((f) => compressImage(f)));
+      const compressed = await Promise.all(files.map((file) => compressImageForUpload(file)));
       const formData = new FormData();
       formData.set("placeId", place.id);
       formData.set("placeName", place.name);
@@ -227,6 +217,20 @@ export function ContributionPanel({ place, onDone }) {
       setBusy(false);
       busyRef.current = false;
     }
+  }
+
+  async function handleReplacementSubmit(values) {
+    const local = loadLocalContributor();
+    if (!local?.anonId) return { ok: false, error: "Không tìm thấy hồ sơ đóng góp." };
+    const result = await submitReplacementProposal({
+      anonId: local.anonId,
+      replacesPlaceId: place.id,
+      name: values.name,
+      type: values.type,
+      note: values.note,
+    });
+    if (result.ok) setMode("replacementSent");
+    return result;
   }
 
   async function handleNicknameConfirm() {
@@ -341,11 +345,11 @@ export function ContributionPanel({ place, onDone }) {
       <>
         <button
           type="button"
-          onClick={() => setMode("choiceMenu")}
+          onClick={openChoiceMenu}
           className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
         >
           <PencilIcon size={15} />
-          Bổ sung
+          Sửa thông tin hoặc gửi ảnh
         </button>
         <button
           type="button"
@@ -441,6 +445,11 @@ export function ContributionPanel({ place, onDone }) {
               />
             </label>
           )}
+          <p className="text-xs leading-5 text-amber-700">
+            Tối đa {CUSTOMER_UPLOAD_LIMIT} ảnh mỗi lần. Ảnh sẽ được nén trước khi tải lên;
+            nếu chọn quá số lượng, hệ thống sẽ yêu cầu chọn lại.
+          </p>
+          {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
           <button type="button" onClick={close} className="self-start cursor-pointer text-xs text-zinc-400 underline">
             Huỷ
           </button>
@@ -544,6 +553,44 @@ export function ContributionPanel({ place, onDone }) {
             </button>
           </div>
         </form>
+      )}
+
+      {mode === "closedThanks" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-medium text-emerald-700">✓ Đã gửi báo cáo đóng cửa để Admin kiểm tra.</p>
+          <p className="text-sm text-zinc-700">
+            Bạn có biết chỗ nào mới mở tại địa chỉ này không?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setMode("replacementForm")} className={btnPrimary}>
+              Có, đề xuất chỗ mới
+            </button>
+            <button type="button" onClick={() => setMode("thanks")} className={btnGhost}>
+              Không
+            </button>
+          </div>
+        </div>
+      )}
+
+      {mode === "replacementForm" && (
+        <ProposePlaceForm
+          variant="replacement"
+          initialWard={place.ward ?? ""}
+          initialAddress={place.address ?? ""}
+          onSubmit={handleReplacementSubmit}
+          onClose={() => setMode("closedThanks")}
+        />
+      )}
+
+      {mode === "replacementSent" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-medium text-emerald-700">
+            ✓ Đã gửi địa điểm mới vào hàng chờ. Admin sẽ kiểm tra trước khi đưa lên danh bạ.
+          </p>
+          <button type="button" onClick={close} className={`${btnGhost} self-start`}>
+            Xong
+          </button>
+        </div>
       )}
 
       {mode === "duplicateForm" && (

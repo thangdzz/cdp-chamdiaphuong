@@ -20,11 +20,10 @@ import { PlacePicker } from "@/app/PlacePicker";
 import { ProposePlaceForm } from "@/app/ProposePlaceForm";
 import { StopBadge } from "@/app/StopBadge";
 import { loadLocalContributor } from "@/app/ContributionPanel";
-import { SiteHeader } from "@/app/SiteHeader";
 import { TRANSPORT_MODES, STOP_TYPES } from "@/lib/routes";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { formatDurationText } from "@/lib/durationFormat";
-import { PROVINCES, DEFAULT_PROVINCE } from "@/lib/provinces";
+import { PROVINCES } from "@/lib/provinces";
 
 // Chỉ chủ lộ trình vào được — getRouteForEdit tự kiểm tra ở server, trang này chỉ điều hướng
 // về trang xem khi không phải chủ, không tự chặn (cùng cách trang sửa Sổ làm).
@@ -181,7 +180,6 @@ export default function EditRoutePage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <SiteHeader />
         <Link href={`/lo-trinh/${slug}`} className="text-sm text-zinc-400 underline">
           ← Xem lộ trình
         </Link>
@@ -299,9 +297,9 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
   const [note, setNote] = useState(stop.note ?? "");
   const [customName, setCustomName] = useState(stop.customTitle ?? "");
   const [address, setAddress] = useState(stop.customAddress ?? "");
-  // Điểm riêng có từ trước khi có ô này thì chưa mang tỉnh — hiện Tuyên Quang, đúng bằng thứ
-  // hệ thống vẫn ngầm dùng trước đây, và để anh thấy mà đổi nếu chỗ đó ở tỉnh khác.
-  const [province, setProvince] = useState(stop.customProvince ?? DEFAULT_PROVINCE);
+  // Điểm riêng cũ thiếu tỉnh không được âm thầm coi là Tuyên Quang: người tạo phải chọn lại
+  // trước khi Google Maps dùng nó, vì tên như Winmart Hàng Bún có thể ở Hà Nội.
+  const [province, setProvince] = useState(stop.customProvince ?? "");
   const [saved, setSaved] = useState(null); // null | "ok" | lỗi
   const savedRef = useRef({
     plannedAt: stop.plannedAt ?? "",
@@ -309,7 +307,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
     note: stop.note ?? "",
     customName: stop.customTitle ?? "",
     address: stop.customAddress ?? "",
-    province: stop.customProvince ?? DEFAULT_PROVINCE,
+    province: stop.customProvince ?? "",
   });
   const isCustom = stop.type === STOP_TYPES.CUSTOM;
 
@@ -449,7 +447,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
           />
           {!address.trim() && (
             <span className="text-xs text-zinc-400">
-              Bỏ trống thì điểm này không nằm trong link Google Maps.
+              Bỏ trống, Google Maps sẽ dùng tên điểm và tỉnh/thành đã chọn.
             </span>
           )}
         </label>
@@ -467,9 +465,10 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
               save({ province: e.target.value });
             }}
           >
+            <option value="" disabled>Chọn tỉnh/thành (bắt buộc)</option>
             {PROVINCES.map((p) => (
               <option key={p} value={p}>
-                {p === DEFAULT_PROVINCE ? `${p} (tại đây)` : p}
+                {p}
               </option>
             ))}
           </select>

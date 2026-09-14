@@ -5,27 +5,31 @@ import { parsePriceRangeText, formatPriceText } from "../priceFormat.js";
 // Giá: cố gắng tách số từ price_range_text để dùng chung hệ thống định dạng đã có
 // (tránh lặp lại lỗi "priceText tự do không đúng định dạng" đã gặp trước đây).
 export function candidateToLivePlace(candidate, meta = {}) {
+  const base = meta.basePlace ?? {};
   const parsed = parsePriceRangeText(candidate.price_range_text);
-  const priceMin = parsed?.priceMin ?? null;
-  const priceMax = parsed?.priceMax ?? null;
-  const priceUnit = parsed?.priceUnit ?? null;
+  const priceMin = parsed?.priceMin ?? base.priceMin ?? null;
+  const priceMax = parsed?.priceMax ?? base.priceMax ?? null;
+  const priceUnit = parsed?.priceUnit ?? base.priceUnit ?? null;
 
   return {
-    id: `live-${crypto.randomUUID()}`,
-    name: candidate.name,
-    type: candidate.category_primary,
-    address: candidate.address_text ?? "",
-    ward: candidate.area_preset ?? null,
-    phone: candidate.phone ?? null,
+    ...base,
+    id: meta.id ?? `live-${crypto.randomUUID()}`,
+    name: candidate.name || base.name,
+    type: candidate.category_primary ?? base.type,
+    address: candidate.address_text ?? base.address ?? "",
+    ward: candidate.area_preset ?? base.ward ?? null,
+    phone: candidate.phone ?? base.phone ?? null,
     priceMin,
     priceMax,
     priceUnit,
     priceText: formatPriceText({ priceMin, priceMax, priceUnit }),
-    signatureDishes: candidate.signature_dishes?.length ? candidate.signature_dishes : null,
+    signatureDishes: candidate.signature_dishes?.length
+      ? candidate.signature_dishes
+      : base.signatureDishes ?? null,
     confidenceScore: candidate.confidence_score,
-    sourceCount: 1,
+    sourceCount: (base.sourceCount ?? 0) + 1,
     lastUpdatedAt: meta.observedAt ?? new Date().toISOString(),
-    autoPublished: true,
+    autoPublished: meta.autoPublished ?? true,
   };
 }
 

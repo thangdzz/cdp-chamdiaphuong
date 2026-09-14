@@ -16,12 +16,14 @@
 import { redis } from "./redis.js";
 import { stopTitle, STOP_TYPES } from "./routes.js";
 import { stopMapsQuery } from "./mapsUrl.js";
+import { placeNavigationMedia } from "./media.js";
+import { routeStorageKey } from "./routeStorageKeys.js";
 
 const SHARE_CHARS = "23456789abcdefghjkmnpqrstuvwxyz";
 const TOKEN_LENGTH = 10; // dài hơn slug lộ trình: link này đi ra ngoài, đừng để đoán được
 
 function shareKey(token) {
-  return `route_share:${token}`;
+  return routeStorageKey(`route_share:${token}`);
 }
 
 function randomToken() {
@@ -59,10 +61,20 @@ export async function createShareSnapshot({ route, resolvedStops }) {
         ? [stop.place.ward, stop.place.priceText].filter(Boolean).join(" · ") || null
         : (stop.proposal?.ward ?? null),
       address: stop.place?.address ?? null,
-      placeId: stop.placeId ?? null, // chỉ để dựng link tới trang địa điểm, không dùng đọc dữ liệu
+      // Proposal đã duyệt được resolve thành place nhưng stop gốc vẫn có placeId=null. Lấy
+      // id từ place trước để bản copy không biến địa điểm chính thức thành điểm riêng.
+      placeId: stop.place?.id ?? stop.placeId ?? null,
+      proposalId: stop.proposalId ?? null,
+      customTitle: stop.customTitle ?? null,
+      customAddress: stop.customAddress ?? stop.proposal?.address ?? null,
+      customProvince: stop.customProvince ?? null,
+      nameSnapshot: stop.nameSnapshot ?? stopTitle(stop),
       plannedAt: stop.plannedAt ?? null,
       durationMinutes: stop.durationMinutes ?? null,
       note: stop.note ?? null,
+      // Bản chụp đóng băng cả ảnh nhận diện. Link cũ thiếu field này vẫn render bình thường;
+      // link mới không đổi ảnh nếu Admin đổi cover/navigation về sau.
+      navigationMedia: stop.place ? placeNavigationMedia(stop.place) : null,
     })),
   };
 

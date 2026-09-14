@@ -54,15 +54,21 @@ export const QUESTIONS = [
     text: "Lối vào thế nào?",
     multi: false,
     options: [
-      { value: "street", label: "Mặt đường dễ thấy" },
+      { value: "street", label: "Dễ thấy" },
       { value: "alley", label: "Trong ngõ" },
-      { value: "upstairs", label: "Trên tầng" },
+      { value: "walk", label: "Phải đi bộ một đoạn" },
+      { value: "stairs", label: "Có bậc thang" },
+      { value: "wheelchair", label: "Có lối cho xe lăn" },
+      // Giữ đáp án cũ để đồng thuận đã lưu vẫn đọc được, nhưng không tiếp tục đưa những lựa
+      // chọn NOTE-12 đã thay thế ra giao diện.
+      { value: "upstairs", label: "Trên tầng", legacy: true },
       {
         value: "diff_sign",
         label: "Biển hiệu khác tên",
         followUp: { label: "Trên biển ghi gì?", maxLength: 40 },
+        legacy: true,
       },
-      { value: "shared", label: "Chung cửa với chỗ khác" },
+      { value: "shared", label: "Chung cửa với chỗ khác", legacy: true },
     ],
   },
   {
@@ -76,13 +82,14 @@ export const QUESTIONS = [
     text: "Giờ nào đông?",
     multi: true,
     options: [
-      { value: "morning", label: "Sáng 6–8h" },
-      { value: "noon", label: "Trưa 11–13h" },
+      { value: "morning", label: "Sáng" },
+      { value: "noon", label: "Trưa" },
       { value: "afternoon", label: "Chiều" },
-      { value: "evening", label: "Tối 18–21h" },
-      { value: "late", label: "Khuya" },
-      { value: "weekend", label: "Cuối tuần" },
-      { value: "festival", label: "Dịp lễ hội" },
+      { value: "evening", label: "Tối" },
+      { value: "weekend", label: "Cuối tuần đông" },
+      { value: "rush", label: "Giờ cao điểm" },
+      { value: "late", label: "Khuya", legacy: true },
+      { value: "festival", label: "Dịp lễ hội", legacy: true },
     ],
   },
   {
@@ -140,6 +147,9 @@ export const QUESTIONS = [
     options: [
       { value: "wifi", label: "Wifi" },
       { value: "aircon", label: "Điều hoà" },
+      { value: "toilet", label: "Nhà vệ sinh" },
+      { value: "outdoor", label: "Chỗ ngồi ngoài trời" },
+      { value: "private_room", label: "Phòng riêng" },
       { value: "kid_chair", label: "Ghế trẻ em" },
     ],
   },
@@ -361,7 +371,7 @@ export const QUESTIONS = [
     id: "pickup",
     scope: "dilai",
     families: ["pickup-service"],
-    subtypes: ["xe-khach"],
+    subtypes: ["xe-khach", "xe-buyt"],
     // Taxi thì luôn đón đúng chỗ khách đứng — hỏi "đón thế nào" là thừa (NOTE-06 §6).
     skipSubtypes: ["taxi"],
     icon: "🚐",
@@ -378,7 +388,7 @@ export const QUESTIONS = [
     id: "dropoff",
     scope: "dilai",
     families: ["pickup-service"],
-    subtypes: ["xe-khach"],
+    subtypes: ["xe-khach", "xe-buyt"],
     skipSubtypes: ["taxi"], // taxi trả khách ở đâu khách bảo, không có điểm trả cố định
     icon: "📍",
     label: "Trả",
@@ -429,7 +439,7 @@ export const QUESTIONS = [
     id: "vehicle_amenities",
     scope: "dilai",
     families: ["pickup-service"],
-    subtypes: ["xe-khach"],
+    subtypes: ["xe-khach", "xe-buyt"],
     icon: "✨",
     label: "Trên xe có",
     text: "Trên xe có gì?",
@@ -479,7 +489,7 @@ export const QUESTIONS = [
   {
     id: "schedule",
     scope: "dilai",
-    subtypes: ["xe-ghep", "xe-khach"],
+    subtypes: ["xe-ghep", "xe-khach", "xe-buyt"],
     icon: "🕐",
     label: "Chạy",
     text: "Xe thường chạy khi nào?",

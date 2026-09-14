@@ -25,6 +25,48 @@ function addressSimilarity(a, b) {
 }
 
 /**
+ * Guard NOTE-13 chạy TRƯỚC nhánh new/changed place. Một match với hồ sơ đã đóng chỉ cần
+ * đạt ngưỡng nghi trùng hiện có (0.55) là đủ để chặn auto-public; quyết định mở lại hay tạo
+ * business mới thuộc về Admin, không thuộc về crawler.
+ *
+ * Tombstone legacy có thể thiếu `type`/địa chỉ, nên type rỗng không được làm mất một match
+ * tên rõ ràng. Khi type đã biết và khác nhau thì vẫn bỏ qua để giảm báo nhầm.
+ */
+export function matchAgainstClosedPlaces(candidate, closedPlaces) {
+  const candidatePhone = normalizePhone(candidate.phone);
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const closed of closedPlaces ?? []) {
+    if (closed.type && closed.type !== candidate.category_primary) continue;
+
+    const nameScore = nameSimilarity(candidate.normalized_name, slugifyName(closed.name));
+    const addrScore = addressSimilarity(candidate.address_text, closed.address);
+    const phoneMatch = Boolean(
+      candidatePhone && normalizePhone(closed.phone) === candidatePhone
+    );
+    const score = phoneMatch ? 1 : Math.max(nameScore, (nameScore + addrScore) / 2);
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = { closed, nameScore, addrScore, phoneMatch };
+    }
+  }
+
+  if (!bestMatch || bestScore < 0.55) return null;
+
+  return {
+    type: REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH,
+    matchedClosedPlaceId: bestMatch.closed.id,
+    diff: computeDiff(candidate, bestMatch.closed),
+    reasons: [
+      `Khớp địa điểm đã đóng "${bestMatch.closed.name}" (điểm khớp ${bestScore.toFixed(2)}) — cần xác minh trước khi công khai`,
+    ],
+    matchScore: bestScore,
+  };
+}
+
+/**
  * So khớp 1 NormalizedPlace với danh sách địa điểm hiện có (đang public + đang trong
  * review_queue) để quyết định loại review item.
  *

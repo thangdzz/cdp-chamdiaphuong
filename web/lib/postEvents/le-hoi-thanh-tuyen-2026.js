@@ -6,10 +6,10 @@
 //
 // Nội dung giữ NGUYÊN VĂN như bản đang chạy — đây là chuyển chỗ chứa, không phải viết lại lịch.
 //
-// Chưa đọc từ Redis: sửa lịch vẫn phải deploy (§Phase 2 mới làm Content Monitor + admin duyệt
-// diff). Đổi về sau chỉ cần thay hàm trả mảng này, phần còn lại không đụng tới.
+// Đây cũng là bản dự phòng an toàn: trang đọc Redis trước, nhưng sẽ quay về mảng này nếu key
+// chưa có, rỗng, sai khuôn hoặc Redis tạm lỗi. Nhờ vậy lỗi dữ liệu không làm sập bài lễ hội.
 
-import { VERIFICATION } from "../events.js";
+import { TIME_PRECISION, VERIFICATION } from "../events.js";
 
 const SOURCE_UBND = {
   name: "Kế hoạch số 246/KH-UBND, UBND tỉnh Tuyên Quang",
@@ -72,6 +72,21 @@ export const PLAN_TEMPLATE = {
 };
 
 export const FESTIVAL_EVENTS = [
+  {
+    id: "thi-mo-hinh-nong-tien",
+    title: "Đêm hội Trung thu phường Nông Tiến",
+    description:
+      "Chấm mô hình đèn, văn nghệ, diễn diễu và chọn 5 mô hình tham dự Đêm hội Thành Tuyên.",
+    location: "Nhà khách Minh Thanh, TDP 9, phường Nông Tiến",
+    date: "2026-09-11",
+    startAt: null,
+    endAt: null,
+    timePrecision: TIME_PRECISION.EVENING,
+    verificationStatus: VERIFICATION.CONFIRMED,
+    source: {
+      name: "UBND phường Nông Tiến",
+    },
+  },
   {
     id: "dieu-dieu-hang-ngay",
     title: "Diễu diễu mô hình đèn hằng ngày",
