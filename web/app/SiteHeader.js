@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 function isActive(item, pathname) {
@@ -15,8 +16,8 @@ export function SiteHeader({ navigation, pathname, open, onOpenChange }) {
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur lg:hidden">
       <div className="mx-auto flex min-h-[57px] w-full items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
-        <Link href="/" onClick={() => onOpenChange(false)} className="inline-flex min-w-0 items-baseline gap-2">
-          <span className="shrink-0 text-xl font-bold text-[#c8553d]">CDP</span>
+        <Link href="/" onClick={() => onOpenChange(false)} className="inline-flex min-w-0 items-center gap-2.5">
+          <Image src="/cdp-logo.png" alt="CDP" width={280} height={121} priority className="h-[26px] w-auto shrink-0" />
           <span className="truncate text-sm font-bold text-zinc-900 sm:text-base">Chạm Địa Phương</span>
         </Link>
         <button

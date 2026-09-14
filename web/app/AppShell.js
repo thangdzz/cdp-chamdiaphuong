@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { createContext, useContext, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
@@ -99,9 +100,18 @@ function DesktopSidebar({ navigation, pathname }) {
       }`}
       aria-label="Điều hướng chính"
     >
-      <div className={`flex h-[72px] items-center border-b border-zinc-100 ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
-        <Link href="/" className="inline-flex min-w-0 items-baseline gap-2">
-          <span className="shrink-0 text-xl font-bold text-[#c8553d]">CDP</span>
+      <div className={`flex h-[72px] items-center border-b border-zinc-100 ${collapsed ? "justify-center px-2" : "justify-between pl-4 pr-2"}`}>
+        <Link href="/" className="inline-flex min-w-0 items-center gap-2">
+          {/* public/cdp-logo.png tỉ lệ 280×121. Cao 24px (rộng ~56px) để "Chạm Địa Phương"
+              không bị cắt trong sidebar 248px; thu gọn còn 20px để lọt khung 72px. */}
+          <Image
+            src="/cdp-logo.png"
+            alt="CDP"
+            width={280}
+            height={121}
+            priority
+            className={`shrink-0 w-auto ${collapsed ? "h-5" : "h-6"}`}
+          />
           {!collapsed && <span className="truncate text-sm font-semibold text-zinc-900">Chạm Địa Phương</span>}
         </Link>
         {!collapsed && (
@@ -109,7 +119,7 @@ function DesktopSidebar({ navigation, pathname }) {
             type="button"
             onClick={() => setSidebarCollapsed(true)}
             aria-label="Thu gọn thanh điều hướng"
-            className="cdp-pressable flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+            className="cdp-pressable flex h-10 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
           >
             <span aria-hidden="true">‹</span>
           </button>
