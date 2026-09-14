@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getMyNotebooks } from "@/app/notebookActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { PageTitle } from "@/app/AppShell";
+import { NotebookCardActions } from "@/app/NotebookCardActions";
 
 // Cần biết "tôi là ai" ngay từ đầu (anonId trong localStorage) nên làm Client Component,
 // giống CheckinButton/QuestionPrompt — Server Component không đọc được localStorage.
@@ -47,20 +48,7 @@ export default function MyNotebooksPage() {
               <li key={nb.slug} className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
                 <p className="text-lg font-medium tracking-tight text-zinc-900">{nb.title}</p>
                 <p className="mt-1 text-[13px] text-zinc-500">{nb.itemCount} chỗ</p>
-                <div className="mt-3 flex gap-2">
-                  <Link
-                    href={`/so/${nb.slug}`}
-                    className="cdp-pressable rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700"
-                  >
-                    Xem
-                  </Link>
-                  <Link
-                    href={`/so/${nb.slug}/sua`}
-                    className="cdp-pressable rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white"
-                  >
-                    Sửa
-                  </Link>
-                </div>
+                <NotebookCardActions slug={nb.slug} itemCount={nb.itemCount} />
               </li>
             ))}
           </ul>

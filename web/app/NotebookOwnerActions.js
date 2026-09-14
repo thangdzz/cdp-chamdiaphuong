@@ -6,7 +6,7 @@ import Link from "next/link";
 import { saveNotebookAsMine, checkNotebookOwnership } from "./notebookActions";
 import { createRouteFromNotebookAction } from "./routeActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
-import { notebookShareUrl } from "@/lib/siteUrl";
+import { useNotebookShare } from "./useShareActions";
 
 // Khối hành động của trang xem sổ (SPEC-chang-4.md §3.2, §3.4). Từ 2026-09-09 nằm NGAY DƯỚI
 // tên sổ thay vì cuối trang (NOTE-03 §6 xếp CTA ở bậc 5, trên danh sách): chủ sổ mở link ra
@@ -20,12 +20,17 @@ import { notebookShareUrl } from "@/lib/siteUrl";
 // đúng/sai riêng cho người đang xem.
 // "Sao chép link" trước đây chỉ có ở trang Sửa, chủ sổ phải bấm thêm 1 bước mới lấy được
 // link — giờ thêm luôn ở đây cho tiện (2026-08-20, phản hồi thật lúc anh tự bấm thử).
+// 2026-09-14: đổi thành "Chia sẻ sổ", mở bảng chia sẻ của điện thoại như nút của lộ trình.
 export function NotebookOwnerActions({ slug, itemCount = 0 }) {
   const router = useRouter();
   const [isOwner, setIsOwner] = useState(null); // null = chưa biết
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
-  const [copyLabel, setCopyLabel] = useState("Sao chép link");
+  const { share: shareNotebook, label: shareLabel } = useNotebookShare({
+    slug,
+    itemCount,
+    idleLabel: "Chia sẻ sổ",
+  });
   const [routeLabel, setRouteLabel] = useState("Tạo lộ trình từ sổ này");
 
   useEffect(() => {
@@ -79,18 +84,6 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
     }
   }
 
-  async function copyLink() {
-    if (itemCount === 0) return; // §9: sổ trống thì đừng cho gửi link
-    const url = notebookShareUrl(slug);
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopyLabel("✓ Đã sao chép");
-      setTimeout(() => setCopyLabel("Sao chép link"), 2000);
-    } catch {
-      setCopyLabel("Không sao chép được, tự chọn link.");
-    }
-  }
-
   if (isOwner === null) return null; // đợi biết chắc mới hiện, tránh nhấp nháy sai nút
 
   if (isOwner) {
@@ -99,10 +92,10 @@ export function NotebookOwnerActions({ slug, itemCount = 0 }) {
         <button
           type="button"
           disabled={itemCount === 0}
-          onClick={copyLink}
+          onClick={shareNotebook}
           className="cdp-pressable w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
         >
-          {copyLabel}
+          {shareLabel}
         </button>
         <Link
           href={`/so/${slug}/sua`}
