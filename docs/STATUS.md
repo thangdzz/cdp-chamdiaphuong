@@ -6,6 +6,18 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 — Polish MVP1 Săn đèn, chỉ local:** theo phản hồi chủ dự án sửa 4
+điểm, không mở rộng phạm vi. (1) Điểm bản đồ có badge `×N`, popup ghi số lượt tối nay + lần gần
+nhất; thêm đếm theo ngày + số người khác nhau cho thống kê sau này (chưa UI). (2) Nền bản đồ đổi
+style OpenFreeMap "liberty" chỉnh màu kiểu Google + tên tiếng Việt (trước đó style Positron ưu tiên
+tên tiếng Anh). (3) Bottom sheet vuốt xuống để đóng, đi theo tay, khoá trang phía sau kiểu iOS.
+(4) Hết nháy bản đồ khi cuộn: nguyên nhân chính là MapLibre tự resize canvas theo sự kiện resize
+của Safari khi thanh địa chỉ co/giãn — xem DECISIONS 2026-09-15. Kiểm thử: store test namespace
+riêng; Playwright Chromium iPhone 13 (kéo ngắn bật về, kéo dài/vuốt nhanh đóng, vuốt lên giữ, chạm
+nền đóng, kéo bản đồ trong sheet không đóng, vị trí cuộn được trả lại), WebKit iPhone 13 và desktop
+1440: cuộn 30 lần + 20 resize → 0 thay đổi canvas, 0 remount, 0 vẽ lại marker; không lỗi JS. Dữ liệu
+test đã dọn. Build đạt, lint đúng 1 lỗi nền. **Chưa deploy.**
+
 **Cập nhật mới nhất 2026-09-14 (khuya, cuối) — Game layer MVP1 "Săn đèn Thành Tuyên", chỉ local:**
 theo NOTE-03 (tư duy dài hạn) + NOTE-04 (spec MVP1), chủ dự án cho triển khai thẳng. Code thành
 primitive dùng lại ở `web/lib/game/`; Thành Tuyên 2026 chỉ là một file season. Trang

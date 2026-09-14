@@ -14,7 +14,7 @@ import {
   resolveObjectId,
 } from "./catalog.js";
 import { areaCell, isWithinBounds } from "./geo.js";
-import { buildMarkers } from "./mapLayer.js";
+import { buildMarkers, buildTonightStats } from "./mapLayer.js";
 import { generateQuests } from "./quests.js";
 import { resolveObjectStats } from "./progress.js";
 import { EVENT_PHASE, eventPhase } from "./registry.js";
@@ -38,6 +38,10 @@ export const GAME_KEYS = {
   sightingsByTime: (e) => key(e, "sightings:by-time"),
   objectStats: (e) => key(e, "object-stats"),
   objectPhotos: (e) => key(e, "object-photos"),
+  // Số lượt theo NGÀY giờ VN — nguồn cho "mô hình được nhìn thấy nhiều nhất" từng đêm.
+  objectStatsDay: (e, day) => key(e, `object-stats:day:${day}`),
+  // HyperLogLog: ước lượng số NGƯỜI khác nhau đã thấy một object, 12KB/object, không lưu ai.
+  objectSeers: (e, objectId) => key(e, `object-seers:${objectId}`),
   firsts: (e) => key(e, "firsts"),
   flags: (e) => key(e, "flags"),
   counters: (e) => key(e, "counters"),
@@ -70,6 +74,13 @@ function parseHash(hash) {
 }
 
 export class GameInputError extends Error {}
+
+const VN_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" });
+
+// "2026-09-20" theo giờ Việt Nam — một đêm hội qua 0h UTC vẫn tính cùng một ngày.
+export function vnDayKey(iso) {
+  return VN_DAY.format(new Date(iso));
+}
 
 // ───────────────────────────── Catalog (Object) ─────────────────────────────
 
@@ -197,6 +208,8 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   tx.lpush(GAME_KEYS.userSightings(event.id, anonId), sighting.id);
   tx.ltrim(GAME_KEYS.userSightings(event.id, anonId), 0, HISTORY_LIMIT - 1);
   tx.hincrby(GAME_KEYS.objectStats(event.id), target.id, 1);
+  tx.hincrby(GAME_KEYS.objectStatsDay(event.id, vnDayKey(now)), target.id, 1);
+  tx.pfadd(GAME_KEYS.objectSeers(event.id, target.id), anonId);
   tx.hincrby(GAME_KEYS.counters(event.id), "sightings", 1);
   tx.hincrby(GAME_KEYS.areaActivity(event.id), areaCell(cleanLocation), 1);
   if (photo) tx.hincrby(GAME_KEYS.objectPhotos(event.id), target.id, 1);
@@ -298,6 +311,7 @@ export async function getGameSnapshot(event) {
   const index = catalogIndex(catalog);
   const recent = await readSightingsByIds(event, recentIds ?? []);
   const markers = buildMarkers(recent, index, flags ?? {});
+  const tonight = buildTonightStats(recent, index, flags ?? {});
   const stats = resolveObjectStats(objectStats ?? {}, catalog);
   const photos = resolveObjectStats(photoCounts ?? {}, catalog);
 
@@ -307,6 +321,7 @@ export async function getGameSnapshot(event) {
     catalog: catalog.filter((object) => !object.hidden),
     objectStats: stats,
     markers,
+    tonight,
     firsts: publicFirsts(parseHash(firsts), catalog),
     quests: generateQuests({
       catalog: catalog.filter((object) => !object.hidden),
@@ -316,6 +331,21 @@ export async function getGameSnapshot(event) {
       noun: event.copy.objectNoun,
     }),
     totalSightings: Number(counters?.sightings) || 0,
+  };
+}
+
+/**
+ * Số lượt được nhìn thấy theo object — cả mùa hoặc một ngày (`day: "2026-09-20"`), kèm số người
+ * khác nhau (ước lượng) cho các object được hỏi. Chưa có UI; dùng với progress.rankMostSeen().
+ */
+export async function readObjectSightingStats(event, { day = null, peopleFor = [] } = {}) {
+  const [objectStats, people] = await Promise.all([
+    redis.hgetall(day ? GAME_KEYS.objectStatsDay(event.id, day) : GAME_KEYS.objectStats(event.id)),
+    Promise.all(peopleFor.map((id) => redis.pfcount(GAME_KEYS.objectSeers(event.id, id)))),
+  ]);
+  return {
+    objectStats: objectStats ?? {},
+    people: Object.fromEntries(peopleFor.map((id, i) => [id, Number(people[i]) || 0])),
   };
 }
 
@@ -398,6 +428,8 @@ export async function adminDeleteSighting(event, sightingId) {
   tx.hdel(GAME_KEYS.sightings(event.id), sightingId);
   tx.zrem(GAME_KEYS.sightingsByTime(event.id), sightingId);
   tx.hincrby(GAME_KEYS.objectStats(event.id), sighting.objectId, -1);
+  tx.hincrby(GAME_KEYS.objectStatsDay(event.id, vnDayKey(sighting.createdAt)), sighting.objectId, -1);
+  // HyperLogLog không gỡ được một người — số người khác nhau có thể dư 1 sau khi xoá, chấp nhận.
   tx.hincrby(GAME_KEYS.counters(event.id), "sightings", -1);
   tx.hdel(GAME_KEYS.flags(event.id), sightingId);
   if (sighting.photo) tx.hincrby(GAME_KEYS.objectPhotos(event.id), sighting.objectId, -1);

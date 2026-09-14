@@ -35,6 +35,7 @@ export default async function GameEventPage({ params, searchParams }) {
       catalog: mergeCatalog(event.objects, {}, event.id),
       objectStats: {},
       markers: [],
+      tonight: {},
       firsts: {},
       quests: [],
       totalSightings: 0,

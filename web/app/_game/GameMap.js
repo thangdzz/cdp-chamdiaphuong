@@ -2,7 +2,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
-import { FALLBACK_MAP_STYLE, GAME_MAP_STYLE_URL } from "@/lib/game/mapStyle";
+import { FALLBACK_MAP_STYLE, loadGameMapStyle } from "@/lib/game/mapStyle";
 
 // Primitive "Map Layer" phía giao diện: một bản đồ MapLibre + OSM nhận danh sách marker chung
 // chung ({id, lat, lng, icon, ...}). Không biết gì về đèn Trung thu — mùa khác, lớp khác
@@ -24,18 +24,34 @@ function buildMarkerElement(marker) {
   el.innerHTML = `
     <span data-role="pulse" class="pointer-events-none absolute left-1/2 top-0 hidden h-11 w-11 -translate-x-1/2 rounded-full bg-[#e0a526]/50"></span>
     <span data-role="bubble" class="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-[24px] leading-none shadow-md ring-2 transition-transform duration-150 group-active:scale-95"></span>
+    <span data-role="count" class="pointer-events-none absolute -right-2.5 -top-1.5 hidden min-w-[26px] rounded-full bg-[#c8553d] px-1.5 py-px text-center text-[11px] font-medium leading-4 text-white shadow ring-2 ring-white"></span>
     <span class="-mt-1 h-2.5 w-2.5 rotate-45 bg-white shadow-sm"></span>
   `;
   return el;
 }
 
+// Chữ ký nội dung marker: chỉ chạm DOM khi thứ hiển thị thật sự đổi. Trước đây mỗi lần parent
+// render lại (đồng hồ 30 giây, làm mới dữ liệu) đều gỡ/gắn lại class → trình duyệt tính lại
+// style cho mọi marker nằm trên canvas WebGL, góp phần gây nháy khi cuộn.
+function markerSignature(marker) {
+  return [marker.icon, marker.tone, marker.faded ? 1 : 0, marker.label, marker.count ?? 1].join("|");
+}
+
 function paintMarkerElement(el, marker) {
+  const count = el.querySelector('[data-role="count"]');
+  // Cùng mô hình được báo nhiều lượt quanh một chỗ: 🐇 ×4 (lượt, không phải người).
+  if ((marker.count ?? 1) > 1) {
+    count.textContent = `×${marker.count}`;
+    count.classList.remove("hidden");
+  } else {
+    count.classList.add("hidden");
+  }
   const bubble = el.querySelector('[data-role="bubble"]');
   bubble.textContent = marker.icon;
   bubble.className = bubble.className.replace(/ring-\[[^\]]+\]|ring-zinc-400/g, "").trim();
   bubble.classList.add(...(MARKER_TONE[marker.tone] ?? MARKER_TONE.normal).split(" "));
   el.style.opacity = marker.faded ? "0.72" : "1";
-  el.setAttribute("aria-label", marker.label);
+  el.setAttribute("aria-label", (marker.count ?? 1) > 1 ? `${marker.label}, ${marker.count} lượt` : marker.label);
 }
 
 export function GameMap({
@@ -69,17 +85,21 @@ export function GameMap({
     let resizeObserver = null;
     const markerMap = markerRefs.current;
 
-    import("maplibre-gl")
-      .then((mod) => {
+    Promise.all([import("maplibre-gl"), loadGameMapStyle().catch(() => FALLBACK_MAP_STYLE)])
+      .then(([mod, style]) => {
         if (cancelled || !containerRef.current) return;
         const maplibregl = mod.default ?? mod;
         libRef.current = maplibregl;
         const { center: c, zoom: z } = initialView.current;
         const map = new maplibregl.Map({
           container: containerRef.current,
-          style: GAME_MAP_STYLE_URL,
+          style,
           center: [c.lng, c.lat],
           zoom: z,
+          // Tắt nghe `window.resize` của MapLibre: Safari iOS bắn resize liên tục khi thanh địa
+          // chỉ co/giãn lúc cuộn trang; mỗi lần MapLibre gán lại kích thước canvas là WebGL xoá
+          // trắng một khung hình => nháy. Kích thước do ResizeObserver bên dưới lo, có chặn trùng.
+          trackResize: false,
           attributionControl: { compact: true },
           dragRotate: false,
           pitchWithRotate: false,
@@ -134,7 +154,18 @@ export function GameMap({
 
         mapRef.current = map;
         // Map nằm trong tab có thể đang ẩn (display:none) — hiện ra thì phải đo lại kích thước.
-        resizeObserver = new ResizeObserver(() => map.resize());
+        // Chỉ resize khi khung ĐỔI CỠ THẬT (làm tròn px) và gộp vào một frame.
+        let lastSize = "";
+        let frame = 0;
+        resizeObserver = new ResizeObserver((entries) => {
+          const box = entries[0]?.contentRect;
+          if (!box || box.width === 0 || box.height === 0) return;
+          const size = `${Math.round(box.width)}x${Math.round(box.height)}`;
+          if (size === lastSize) return;
+          lastSize = size;
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(() => map.resize());
+        });
         resizeObserver.observe(containerRef.current);
       })
       .catch(() => {
@@ -177,7 +208,7 @@ export function GameMap({
         const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
           .setLngLat([data.lng, data.lat])
           .addTo(map);
-        entry = { marker, el };
+        entry = { marker, el, signature: null, lng: data.lng, lat: data.lat };
         current.set(data.id, entry);
         if (data.isNew) {
           const bubble = el.querySelector('[data-role="bubble"]');
@@ -187,10 +218,16 @@ export function GameMap({
           pulse.classList.add("cdp-game-pulse");
           pulse.addEventListener("animationend", () => pulse.classList.add("hidden"), { once: true });
         }
-      } else {
+      } else if (entry.lng !== data.lng || entry.lat !== data.lat) {
         entry.marker.setLngLat([data.lng, data.lat]);
+        entry.lng = data.lng;
+        entry.lat = data.lat;
       }
-      paintMarkerElement(entry.el, data);
+      const signature = markerSignature(data);
+      if (entry.signature !== signature) {
+        paintMarkerElement(entry.el, data);
+        entry.signature = signature;
+      }
     }
   }, [markers, ready]);
 
@@ -205,7 +242,9 @@ export function GameMap({
   }, [focus, ready, picker]);
 
   return (
-    <div className={`relative overflow-hidden bg-[#efe9df] ${className}`}>
+    // Lớp compositing riêng (translateZ + isolate): Safari hay nháy khi canvas WebGL nằm trong
+    // khối bo góc + overflow:hidden cuộn dưới header sticky có backdrop-blur.
+    <div className={`relative isolate overflow-hidden bg-[#f5f3ef] [transform:translateZ(0)] ${className}`}>
       {/* maplibre-gl.css ép .maplibregl-map về position:relative, nên KHÔNG dùng absolute inset-0
           ở đây (khung sẽ cao 0) — cho khung ăn đủ chiều cao khối cha. */}
       <div ref={containerRef} className="h-full w-full" />

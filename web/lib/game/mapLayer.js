@@ -35,15 +35,39 @@ export function confidenceLabel(marker) {
  * @param index catalogIndex() để gom sighting của object đã ghép về object đích
  * @param flags { sightingId: số lượt báo sai }
  */
-export function buildMarkers(sightings, index, flags = {}) {
-  const sorted = [...sightings]
+// Sighting còn hiển thị được: chưa bị báo sai quá ngưỡng, object còn tồn tại/không ẩn. Mới nhất
+// đứng trước. Trả kèm objectId đã quy về object đích.
+function visibleSightings(sightings, index, flags) {
+  return [...sightings]
     .filter((s) => (Number(flags[s.id]) || 0) < HIDE_AFTER_FLAGS)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .map((s) => ({ sighting: s, objectId: resolveObjectId(s.objectId, index) }))
+    .filter(({ objectId }) => index.has(objectId) && !index.get(objectId).hidden);
+}
 
+/**
+ * Tổng hợp "tối nay" theo object (mọi chỗ cộng lại): số lượt, số người, lần gần nhất, số điểm
+ * khác nhau trên bản đồ. Popup dùng để nói "tối nay được nhìn thấy N lượt"; về sau cũng là
+ * nguồn cho bảng "mô hình được nhìn thấy nhiều nhất" theo khung giờ.
+ */
+export function buildTonightStats(sightings, index, flags = {}) {
+  const stats = {};
+  for (const { sighting, objectId } of visibleSightings(sightings, index, flags)) {
+    const entry = (stats[objectId] ??= { reports: 0, people: new Set(), lastSeenAt: sighting.createdAt });
+    entry.reports += 1;
+    entry.people.add(sighting.anonId);
+  }
+  return Object.fromEntries(
+    Object.entries(stats).map(([objectId, s]) => [
+      objectId,
+      { reports: s.reports, people: s.people.size, lastSeenAt: s.lastSeenAt },
+    ])
+  );
+}
+
+export function buildMarkers(sightings, index, flags = {}) {
   const clustersByObject = new Map();
-  for (const sighting of sorted) {
-    const objectId = resolveObjectId(sighting.objectId, index);
-    if (!index.has(objectId) || index.get(objectId).hidden) continue;
+  for (const { sighting, objectId } of visibleSightings(sightings, index, flags)) {
     const clusters = clustersByObject.get(objectId) ?? [];
     // Mới nhất đi trước nên cụm được neo ở lượt báo MỚI NHẤT — marker hiện đúng chỗ vừa thấy.
     const cluster = clusters.find(

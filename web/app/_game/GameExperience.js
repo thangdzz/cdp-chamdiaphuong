@@ -113,6 +113,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
                 : "normal",
           faded: now - Date.parse(marker.lastSeenAt) > FADE_AFTER_MINUTES * 60000,
           label: objectDisplayName(object, noun),
+          count: marker.reports,
           isNew: newMarkerIds.has(marker.id),
         };
       }),
@@ -252,7 +253,9 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             onMarkerClick={openMarker}
             focus={mapFocus}
             showLocate
-            className="h-[58dvh] min-h-80 rounded-2xl shadow-sm lg:h-[calc(100dvh-7rem)]"
+            // svh (không phải dvh): chiều cao KHÔNG đổi khi thanh địa chỉ Safari co/giãn lúc cuộn,
+            // nên cuộn trang không kéo theo resize bản đồ (nguyên nhân nháy canvas).
+            className="h-[58svh] min-h-80 rounded-2xl shadow-sm lg:h-[calc(100svh-7rem)]"
           />
         </section>
 
@@ -296,7 +299,12 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
 
       {/* CTA quan trọng nhất luôn trong tầm ngón cái (NOTE-04 §7). */}
       {live && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#faf6f0] via-[#faf6f0]/90 to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6 lg:hidden">
+        <div
+          // Gradient sRGB viết tay: bản Tailwind (oklab + color-mix) bị WebKit pha màu trong suốt
+          // thành dải xám phía trên nút.
+          style={{ background: "linear-gradient(to top, #faf6f0 0%, rgba(250,246,240,0.92) 55%, rgba(250,246,240,0) 100%)" }}
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6 lg:hidden"
+        >
           <div className="pointer-events-auto mx-auto max-w-lg">{reportButton}</div>
         </div>
       )}
@@ -327,6 +335,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           first={snapshot.firsts[detailObject.id] ?? null}
           myHash={player.anonIdHash}
           sightingCount={snapshot.objectStats[detailObject.id] ?? 0}
+          tonight={snapshot.tonight?.[detailObject.id] ?? null}
           now={now}
           canReport={live}
           onReport={(objectId, marker) =>

@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 — Polish MVP1 Săn đèn ĐÃ CODE, CHƯA DEPLOY.** Badge ×N + popup lượt tối nay, nền
+bản đồ style chỉnh sẵn trong `lib/game/mapStyle.js`, vuốt đóng trong `app/_game/BottomSheet.js`,
+chống nháy trong `app/_game/GameMap.js` (**đừng bật lại `trackResize` hay dùng `dvh` cho khung
+bản đồ** — lý do ở DECISIONS 2026-09-15). Server `localhost:3100` vẫn chạy namespace
+`cdp-test-game-owner`. Việc tiếp: chủ dự án thử trên iPhone thật → quyết định deploy.
+
 **2026-09-14 (khuya, cuối) — Game layer MVP1 "Săn đèn Thành Tuyên 2026" ĐÃ CODE, CHƯA DEPLOY.**
 Spec: `docs/13-NOTE-04-…` (MVP1) + `docs/12-NOTE-03-…` (dài hạn) — lưu ý 2 file này trùng số
 thứ tự với NOTE-03/NOTE-04 cũ, tra theo tên đầy đủ. Lõi `web/lib/game/` (xem ARCHITECTURE §2

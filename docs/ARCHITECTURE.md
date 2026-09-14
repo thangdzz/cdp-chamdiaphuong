@@ -96,7 +96,9 @@ nên dùng hash/zset/list + lệnh nguyên tử, **không** phải mảng JSON. 
 | `objects` | Hash, field = objectId | Object do admin sửa/thêm + bí ẩn khách tạo. Ghi đè từng trường lên seed trong file season. `matchedTo` = đã ghép vào object khác |
 | `sightings` | Hash, field = sightingId | Bản ghi đầy đủ (có `anonId`, toạ độ gốc, `photo.status`) — KHÔNG trả ra public |
 | `sightings:by-time` | ZSET, score = ms | Dòng thời gian để lấy "tối nay" (ZRANGE BYSCORE REV) |
-| `object-stats` / `object-photos` | Hash, HINCRBY | Số lượt báo / số ảnh theo objectId thô |
+| `object-stats` / `object-photos` | Hash, HINCRBY | Số lượt báo / số ảnh theo objectId thô (cả mùa) |
+| `object-stats:day:{YYYY-MM-DD}` | Hash, HINCRBY | Số lượt báo theo ngày giờ VN — nguồn cho "được nhìn thấy nhiều nhất" (chưa có UI) |
+| `object-seers:{objectId}` | HyperLogLog (PFADD) | Ước lượng số người khác nhau đã thấy, không lưu danh tính |
 | `firsts` | Hash, HSETNX | Người ghi nhận đầu tiên `{anonId, nickname, at, sightingId}` |
 | `collection:{anonId}` | Hash, HSETNX | objectId → lần đầu gặp. HSETNX = không bao giờ đếm trùng |
 | `user-sightings:{anonId}` | List (200 gần nhất) | Lịch sử riêng của một người |
@@ -509,7 +511,8 @@ web/
 │   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
 │   │   ├── quests.js              Nhiệm vụ tự sinh từ data gap (thiếu ảnh/vị trí lệch/chưa tên)
 │   │   ├── mapLayer.js            Gom sighting → marker công khai + mức tin cậy
-│   │   ├── mapStyle.js            Nhà cung cấp tile (OpenFreeMap, dự phòng OSM)
+│   │   ├── mapStyle.js            Tile OpenFreeMap "liberty" + chỉnh màu/nhãn tiếng Việt lúc tải,
+│   │   │                          dự phòng tile OSM
 │   │   ├── geo.js · format.js     Khoảng cách/khung tỉnh · "X phút trước", tìm không dấu
 │   │   └── store.js               (server) Redis: ghi sighting nguyên tử, snapshot, admin
 │   ├── provinces.js         (60)  34 tỉnh/thành (sắp xếp 01/7/2025) cho ô chọn của điểm riêng;

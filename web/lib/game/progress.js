@@ -54,6 +54,20 @@ export function computeProgress({ catalog, collection, objectStats }) {
   };
 }
 
+/**
+ * Xếp object theo số lượt được nhìn thấy (đã quy alias, bỏ object ẩn/đã ghép). Chưa có UI —
+ * chuẩn bị cho thống kê "mô hình được nhìn thấy nhiều nhất". `objectStats` có thể là cả mùa
+ * (`object-stats`) hoặc một ngày (`object-stats:day:{YYYY-MM-DD}`), xem store.readObjectSightingStats.
+ */
+export function rankMostSeen({ catalog, objectStats, limit = 10 }) {
+  const counts = resolveObjectStats(objectStats, catalog);
+  return catalog
+    .filter((object) => !object.hidden && !object.matchedTo && counts[object.id] > 0)
+    .map((object) => ({ objectId: object.id, count: counts[object.id] }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
 export function hasMet(objectId, resolvedCollection) {
   return Boolean(resolvedCollection?.[objectId]);
 }

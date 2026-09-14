@@ -3,6 +3,46 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — Polish MVP1 Săn đèn: nhiều lượt thấy, nền bản đồ, vuốt đóng sheet, nháy bản đồ
+
+**1. Nhiều lượt thấy cùng một mô hình.** Giữ nguyên: bộ sưu tập chỉ tính mô hình duy nhất
+(HSETNX); bản đồ vẫn gom lượt báo cùng mô hình trong 250m thành một điểm, điểm cách xa hiện
+riêng. Điểm có nhiều lượt hiện badge `×N` (N = lượt, không phải người). Popup ghi "Tối nay được
+nhìn thấy N lượt · gần nhất X" (tổng mọi điểm trong cửa sổ 180 phút) + riêng chỗ vừa bấm. Chuẩn
+bị thống kê "được nhìn thấy nhiều nhất": thêm hash đếm theo ngày giờ VN
+`object-stats:day:{YYYY-MM-DD}` và HyperLogLog `object-seers:{objectId}` (ước lượng số người,
+không lưu danh tính); hàm `progress.rankMostSeen()` + `store.readObjectSightingStats()`. Chưa có
+UI. Đánh đổi: xoá lượt báo trừ được số đếm nhưng không trừ được HyperLogLog (có thể dư 1 người).
+
+**2. Nền bản đồ.** Nguyên nhân "chưa cập nhật tốt": style Positron (a) ưu tiên `name_en` trước
+`name` nên hiện "Tan Trao Road", "Lo River" thay vì tên tiếng Việt, (b) màu xám nhạt, nước xám,
+gần như không có lớp công viên/POI. Dữ liệu tile OpenFreeMap dựng lại từ OSM khoảng mỗi tuần
+(bản đang dùng: 06/09/2026) — sửa trên OSM sau mốc đó sẽ có ở bản dựng kế tiếp, CDP không điều
+khiển được. Quyết định: vẫn MapLibre + OpenFreeMap, đổi sang style gốc "liberty" (đủ lớp) và chỉnh
+lúc tải trong `lib/game/mapStyle.js`: tên địa phương trước, nền #f5f3ef, đường trắng viền xám,
+quốc lộ vàng nhạt, nước #aad3f0, công viên xanh nhẹ, bỏ nhà 3D/mũi tên một chiều/POI hạng thấp,
+POI còn lại chỉ từ zoom 16. Không tự host tile, không đổi kiến trúc. Tải style lỗi → tile OSM dự phòng.
+
+**3. Vuốt xuống để đóng bottom sheet.** Viết tay bằng touch event `passive:false` (không qua React
+state) cho mượt trên Safari iOS: sheet đi theo tay, qua 25% chiều cao (tối đa 160px) hoặc vuốt
+nhanh >0,55px/ms thì đóng, chưa qua thì bật về 260ms. Chỉ nhận kéo xuống khi nội dung sheet đã ở
+đầu (hoặc nắm thanh kéo); kéo trong bản đồ chọn vị trí không đóng sheet. Khoá trang phía sau bằng
+`body{position:fixed; top:-scrollY}` thay cho `overflow:hidden` (Safari iOS vẫn cuộn/nảy trang với
+cách cũ), trả đúng vị trí cuộn khi đóng. Nền/Esc/vuốt đều trượt xuống rồi mới gỡ.
+
+**4. Bản đồ nháy khi cuộn trang — 4 nguyên nhân, sửa cả 4:**
+- MapLibre mặc định nghe `window.resize`; Safari iOS bắn resize liên tục khi thanh địa chỉ co/giãn
+  lúc cuộn, và mỗi lần MapLibre gán lại `canvas.width` (theo chuẩn HTML là xoá trắng canvas dù kích
+  thước không đổi) → khung trắng. Sửa: `trackResize:false`, ResizeObserver chỉ resize khi khung đổi
+  cỡ thật (làm tròn px, gộp một frame).
+- Chiều cao bản đồ `58dvh` đổi theo thanh địa chỉ → khung đổi cỡ thật khi cuộn. Sửa: `58svh`.
+- Mỗi lần GameExperience render lại (đồng hồ 30 giây, làm mới dữ liệu) marker bị gỡ/gắn lại class
+  dù không đổi gì. Sửa: chỉ ghi DOM khi "chữ ký" marker (icon, màu, mờ, nhãn, số lượt) đổi.
+- Canvas WebGL trong khối bo góc + overflow:hidden cuộn dưới header sticky có backdrop-blur là ca
+  Safari hay nháy. Sửa: tách lớp compositing (`translateZ(0)` + `isolation:isolate`).
+Map instance không bị remount (đo được). Kèm sửa dải xám sau nút cam trên WebKit (gradient Tailwind
+oklab/color-mix → gradient sRGB viết tay).
+
 ## 2026-09-14 — Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04)
 
 Chủ dự án yêu cầu đọc 2 spec (`docs/12-NOTE-03-Game-Layer-MVP1-Thanh-Tuyen.md`,

@@ -19,6 +19,7 @@ export function ObjectSheet({
   first,
   myHash,
   sightingCount,
+  tonight,
   now,
   canReport,
   onReport,
@@ -65,17 +66,23 @@ export function ObjectSheet({
         </div>
       </div>
 
-      {/* Luôn "được nhìn thấy ở đây X phút trước", không bao giờ "đang ở đây" (NOTE-04 §6). */}
+      {/* Luôn "được nhìn thấy X phút trước", không bao giờ "đang ở đây" (NOTE-04 §6). Một mô
+          hình có thể có nhiều điểm trên bản đồ tối nay: dòng trên là tổng cả tối, khối dưới là
+          riêng chỗ vừa bấm. */}
+      {tonight && (
+        <p className="mt-5 text-[15px] text-zinc-900">
+          Tối nay được nhìn thấy <b className="font-medium">{tonight.reports} lượt</b>
+          <span className="text-zinc-400"> · </span>
+          gần nhất <b className="font-medium">{formatAgo(tonight.lastSeenAt, now)}</b>
+        </p>
+      )}
       {marker && (
-        <div className="mt-5 rounded-xl bg-[#f7f0e6] px-4 py-3">
+        <div className={`${tonight ? "mt-2" : "mt-5"} rounded-xl bg-[#f7f0e6] px-4 py-3`}>
           <p className="text-[15px] text-zinc-900">
-            Được nhìn thấy ở đây <b className="font-medium">{formatAgo(marker.lastSeenAt, now)}</b>
+            Ở chỗ này: được nhìn thấy <b className="font-medium">{formatAgo(marker.lastSeenAt, now)}</b>
           </p>
           <p className="mt-1 text-[13px] text-zinc-600">
-            {marker.people > 1
-              ? `${marker.people} người đã báo gần khu vực này`
-              : "1 người đã báo gần khu vực này"}{" "}
-            · {confidenceLabel(marker)}
+            {marker.reports} lượt quanh đây · {marker.people} người đã báo · {confidenceLabel(marker)}
           </p>
           {marker.conflicting && (
             <p className="mt-1 text-[13px] text-[#8a5a10]">📍 Có báo cáo khác ở chỗ xa hơn — mô hình có thể đã di chuyển.</p>
@@ -90,7 +97,7 @@ export function ObjectSheet({
       {object.story && <p className="mt-3 text-sm leading-6 text-zinc-600">{object.story}</p>}
 
       <div className="mt-4 flex flex-col gap-1 text-[13px] text-zinc-500">
-        {sightingCount > 0 && <p>Cộng đồng đã báo {sightingCount} lượt</p>}
+        {sightingCount > 0 && <p>Cả mùa: cộng đồng đã báo {sightingCount} lượt</p>}
         {first && (
           <p>
             {first.anonIdHash && first.anonIdHash === myHash

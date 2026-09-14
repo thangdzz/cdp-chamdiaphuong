@@ -21,7 +21,10 @@
   - [x] `/admin/game`: ghép bí ẩn, đặt tên/sửa/ẩn mô hình, duyệt ảnh, xoá lượt báo
   - [x] Test Redis namespace riêng (đếm trùng, ghép, song song, cờ báo sai, không lộ anonId) +
         Playwright iPhone 13 + desktop 1440, dọn sạch dữ liệu test; build đạt, lint đúng 1 lỗi nền
-  - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh) tại localhost:3100
+  - [x] Polish 15/9: badge ×N + popup "tối nay N lượt · gần nhất", thống kê theo ngày/số người;
+        nền bản đồ sáng kiểu Google + tên tiếng Việt; vuốt xuống đóng sheet; hết nháy bản đồ khi
+        cuộn (Chromium + WebKit + desktop: 0 lần resize canvas/remount/vẽ lại marker khi cuộn)
+  - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh, vuốt sheet) tại localhost:3100
   - [ ] Thay 10 tên mô hình tạm bằng danh sách thật ở `/admin/game`
   - [ ] Quyết định deploy trước 19/9
 
