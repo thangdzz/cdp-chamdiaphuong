@@ -6,6 +6,14 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (Claude Code tiếp nhận từ Codex):** chưa sửa code. Đã đồng bộ
+git: kéo 4 commit quét tự động ngày 13–14/9, rebase commit bàn giao lên trên (không xung đột,
+hash mới `93695a5`) và push lên GitHub. Đã kiểm tra push **không** tự deploy: Vercel không nối
+git (production chỉ có bản deploy tay bằng CLI), GitHub Action chỉ chạy khi đổi
+`data/pending-scan.json`. NOTE-11/12/13 vẫn local, chưa deploy. Còn lệch nhỏ trong tài liệu:
+số địa điểm ghi 210/223/225 ở các chỗ khác nhau (chưa đối chiếu lại); đoạn "Bước tiếp theo"
+về Món đặc trưng (mục dưới, 2026-08-24) đã cũ — xem HANDOFF §5 cho bước tiếp theo đúng.
+
 **Cập nhật mới nhất 2026-09-14 — NOTE-13 P0 local xong, chưa deploy:** crawler nay đọc
 `places:closed` trước nhánh auto-public. Candidate khớp hồ sơ đóng luôn thành
 `closed_place_match` trong verify queue, kể cả nguồn confidence cao; item đang chờ cũ cũng

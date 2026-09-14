@@ -155,7 +155,12 @@ Link chia sẻ cũ là snapshot nên không đổi; phải chia sẻ lại để
 
 ## 3. File vừa sửa (4 commit gần nhất)
 
-Chưa commit: `web/lib/navigation.js` · `web/app/AppShell.js` ·
+**Đã commit + push (2026-09-14):** toàn bộ việc của Codex (NOTE-08 → NOTE-13, gồm cả code đã
+deploy lẫn NOTE-11/12/13 chưa deploy) nằm gọn trong **một** commit `93695a5` "handoff from
+Codex to Claude" (101 file). Không còn gì chưa commit. Lưu ý: vì gộp một commit nên không
+revert riêng từng NOTE bằng git được — muốn tách phải làm tay.
+
+Danh sách file cũ dưới đây giữ để tra cứu: `web/lib/navigation.js` · `web/app/AppShell.js` ·
 `web/app/admin/navigation/*` · `web/lib/events.js` · `web/lib/postEvents.js` · `web/lib/postEventForm.js` ·
 `web/lib/contentInbox.js` · `web/lib/contentAnalyzer.js` · `web/app/admin/content-inbox/*` ·
 `web/app/admin/FestivalEventsManager.js` · `web/app/admin/festivalEventActions.js` ·
@@ -198,11 +203,13 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 
 Xếp theo mức đáng làm trước lễ hội:
 
-1. **Chủ dự án kiểm tra NOTE-11 ở localhost**; nếu ổn mới deploy production.
+1. **Chủ dự án kiểm tra NOTE-11 + NOTE-12 + NOTE-13 ở localhost**; nếu ổn mới deploy
+   production — nên trước 19/9 (tuần lễ hội chỉ đo số liệu, không code). Cả ba ghi vào Redis
+   thật dùng chung dev/production, nên test kỹ luồng tải ảnh và duyệt đóng cửa.
 2. **Bàn hướng xử lý giá mùa cao điểm** — cần chủ dự án chốt trước, đừng tự code.
-3. **Lộ trình mẫu của CDP** (`is_featured`) + nút "Dùng lộ trình này" (clone sang tài khoản
-   người dùng) — `CDP_P1-P8 §Phase 2`. Toàn bộ hạ tầng Route đã có, chỉ thiếu cờ featured và
-   hàm clone.
+3. **Lộ trình mẫu của CDP** (`is_featured`) + nút "Dùng lộ trình này" — `CDP_P1-P8 §Phase 2`.
+   Phần copy route đã có từ NOTE-13 (`copyRouteFromShare`, copy từ snapshot share); còn thiếu
+   cờ featured, nơi hiển thị lộ trình mẫu và copy từ route sống thay vì snapshot.
 4. **Toạ độ địa điểm** — mở khoá bản đồ và khoảng cách/thời gian.
 5. Phase 2 còn lại: Source Registry, Content Monitor, admin duyệt diff.
 
