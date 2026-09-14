@@ -11,6 +11,9 @@
 
 ## 🚧 IN PROGRESS
 
+- [x] **Logo ảnh ở header/sidebar — 🚀 Đã deploy 2026-09-14** (`web-rdrc3fg1c`)
+- [x] **Link chia sẻ cũ (trước NOTE-11) hiện ảnh địa điểm — 🚀 Đã deploy 2026-09-14**
+
 - [x] **Deploy NOTE-11 + NOTE-12 + NOTE-13 — 🚀 Đã deploy 2026-09-14** (`web-gz3gex60d`).
       Kiểm tra production chỉ-xem đạt trên iPhone 15 Plus + desktop 1440.
   - [ ] Chủ dự án bấm thử nhóm B trên production (ảnh, mẹo `Khác`, lưu route share)

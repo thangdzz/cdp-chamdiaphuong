@@ -8,6 +8,13 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 (sau) — Logo + ảnh ở link chia sẻ cũ ĐÃ DEPLOY** (`web-rdrc3fg1c`). Logo ảnh
+`public/cdp-logo.png` (cắt từ `data/cdp-logo.PNG`, nền trong suốt) thay chữ "CDP" ở header
+mobile (26px) và sidebar desktop (24px mở / 20px thu gọn; lề hàng logo `pl-4 pr-2` để
+"Chạm Địa Phương" không bị cắt). Link chia sẻ tạo trước NOTE-11 nay mượn ảnh hiện tại của địa
+điểm (`withLegacyNavigationMedia`, xem DECISIONS). Production: 6/6 link cũ hiện ảnh cho mọi
+điểm có ảnh, header vẫn 65px, không tràn, không lỗi JS.
+
 **2026-09-14 — NOTE-11 + NOTE-12 + NOTE-13 ĐÃ DEPLOY production** (deployment
 `web-gz3gex60d`, alias `chamdiaphuong.io.vn`, từ commit `bdd13ef`). Trước deploy: build đạt,
 lint đúng 1 lỗi nền, env production đủ (không có biến `CDP_*_NAMESPACE` — đúng). Sau deploy:

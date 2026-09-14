@@ -6,6 +6,15 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (sau) — Logo + ảnh link chia sẻ cũ, đã deploy:** thay chữ
+"CDP" bằng logo ảnh của chủ dự án ở header mobile và sidebar desktop; lần chụp đầu thấy sidebar
+mở bị cắt chữ "Chạm Địa Ph…" nên thu logo còn 24px và nới lề, đo lại ở 1024/1440 không cắt.
+Lỗi người nhận link lộ trình không thấy ảnh: nguyên nhân là cả 6 bản chụp `route_share:*` tạo
+11–14/9, trước khi NOTE-11 thêm `navigationMedia`. Chủ dự án chọn phương án B: link cũ mượn
+ảnh hiện tại của địa điểm, link mới vẫn đóng băng ảnh. Build/lint đạt; deployment
+`web-rdrc3fg1c` Ready; production 6/6 link hiện ảnh đúng số điểm có ảnh, không lỗi JS. Ghi
+chú cho chủ dự án: lộ trình `888mkfjp` đang tên "Đi trung Tuyên Quang 19/9" (thiếu "thu").
+
 **Cập nhật mới nhất 2026-09-14 — Deploy NOTE-11/12/13:** chủ dự án yêu cầu deploy. Đã tắt 2
 server CDP cũ (3002 build 12/9, 3010 dev), chốt một server test duy nhất `localhost:3100`
 (ghi ở AGENTS.md §5). Build đạt, lint đúng 1 lỗi nền, env production đủ và không có biến
