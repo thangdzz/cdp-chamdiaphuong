@@ -94,6 +94,13 @@ npm run build    # build production (phải sạch trước khi giao)
 npm run lint     # eslint
 ```
 
+- **Server test cho chủ dự án: DUY NHẤT `http://localhost:3100`** (chốt 2026-09-14). Trước khi
+  mở, tắt mọi server CDP cũ (kiểm tra `lsof -iTCP -sTCP:LISTEN -P`), rồi `npm run build` +
+  `npx next start -p 3100`. Không mở thêm cổng khác cho CDP. Các cổng 3001/3998/3999 là dự án
+  khác của anh (sinh-qr, ClassFlow) — không đụng.
+- ⚠️ Localhost **ghi vào Redis/Blob thật** (namespace test chỉ phủ một phần key). Hành động
+  không hoàn tác được (duyệt đóng cửa, crawler) chỉ test bằng namespace riêng, không bấm tay.
+
 - **`npm run lint` hiện còn ĐÚNG 1 lỗi cũ đã biết** ở `app/PlaceExplorer.js`
   (`react-hooks/set-state-in-effect`). Lỗi này có từ trước, chưa sửa. **Thêm lỗi mới là
   không đạt** — mốc so sánh là "vẫn đúng 1 lỗi đó".
