@@ -6,6 +6,12 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (tối, sau) — Menu "Lộ trình của tôi", đã deploy:** trước đây
+chỉ vào `/lo-trinh` qua link nhỏ ở `/so`. Đã thêm vào navigation config (sau Sổ, có icon đường
+đi), Admin đổi nhãn/thứ tự/ẩn được như mục khác. Đã kiểm tra `site_config:navigation` trên
+production đang trống trước khi thêm, vì `normalizeNavigation()` bỏ bản đã lưu nếu lệch số
+mục. Build/lint đạt; local và production `web-jxi3j7u43` đủ 5 mục ở mobile + desktop, không lỗi.
+
 **Cập nhật mới nhất 2026-09-14 (tối) — Quay lại + chia sẻ từ danh sách, đã deploy:** theo phản
 hồi chủ dự án, trang xem lộ trình/sổ có link quay về danh sách của mình, chỉ hiện khi đã kiểm
 chắc là chủ (người nhận link không thấy). Hai trang danh sách có nút Chia sẻ trên từng thẻ;

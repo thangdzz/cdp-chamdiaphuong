@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 (tối, sau) — Menu "Lộ trình của tôi" ĐÃ DEPLOY** (`web-jxi3j7u43`). Thêm key
+`routes` → `/lo-trinh` vào `NAVIGATION_DEFINITIONS` (order 4, "CDP là gì?" xuống 5), icon riêng
+trong sidebar, H1 trang `/lo-trinh` đọc `pageTitle` qua `PageTitle`. Production chưa có
+`site_config:navigation` nên không mất cấu hình Admin. Kiểm tra production: menu mobile +
+sidebar desktop đủ 5 mục, bấm về `/lo-trinh`, mục active đúng, không lỗi JS.
+
 **2026-09-14 (tối) — Link quay lại + nút Chia sẻ ở danh sách ĐÃ DEPLOY** (`web-rbd3watu6`).
 Trang xem lộ trình/sổ có "← Lộ trình của tôi"/"← Sổ của tôi" chỉ cho chủ (`OwnerBackLink`).
 Thẻ trong `/lo-trinh` và `/so` có Xem · Sửa · Chia sẻ; logic chia sẻ gom vào
