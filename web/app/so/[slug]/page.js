@@ -3,6 +3,7 @@ import { getNotebook, resolveNotebookItems } from "@/lib/notebooks";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
+import { OwnerBackLink } from "@/app/OwnerBackLink";
 import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { notebookCover, FALLBACK_COVER } from "@/lib/cover";
@@ -92,6 +93,7 @@ export default async function NotebookViewPage({ params }) {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <NotebookViewTracker slug={slug} />
+        <OwnerBackLink kind="notebook" slug={slug} />
 
         {/* NOTE-03 §6 + §13: cover dạng collage 3 ảnh đầu (chưa có trường cover riêng — đó là
             P1), rồi mới tới tên sổ và metadata "N địa điểm · Nhóm chính". */}
