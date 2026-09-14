@@ -3,6 +3,22 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-14 — Ảnh "Menu" thành ảnh bảng giá theo ngữ cảnh cho mọi nhóm
+
+**Quyết định:** Nút ảnh riêng không còn chỉ cho Ăn. Tên theo nhóm/loại (`lib/priceListPhoto.js`):
+Ăn "Ảnh menu"; Chơi "Ảnh bảng giá vé"; Ngủ "Ảnh bảng giá phòng"; Đi lại — xe khách/xe buýt/bến
+xe "Ảnh lịch chạy & giá vé", taxi/xe ghép/thuê xe có lái "Ảnh bảng giá", thuê ô tô/xe máy
+"Ảnh bảng giá thuê", bãi xe "Ảnh bảng giá gửi xe", điểm đón/trả không có nút riêng. Gợi ý trong
+nút ảnh chung cũng theo nhóm. Admin thấy nhãn chung "Menu / bảng giá".
+
+**Vì sao:** Giá trị của ảnh menu là "ảnh chụp giá/dịch vụ có ghi ngày chụp", nhóm nào cũng
+cần nhưng chữ "Menu" sai ngữ cảnh với khách sạn, khu vui chơi, nhà xe. Ảnh bảng giá phòng có
+ngày chụp còn giảm một phần rủi ro giá mùa cao điểm mà không đổi mô hình giá.
+
+**Cách làm:** Dữ liệu giữ nguyên role `menu` (nghĩa: menu/bảng giá) — không migration, ảnh menu
+cũ không đổi, luồng duyệt/gộp/cảnh báo ảnh cũ dùng lại nguyên. Đánh đổi: tên role trong code
+hẹp hơn nghĩa thật; đã ghi chú ở `lib/priceListPhoto.js`. Không thêm nút ảnh thứ ba.
+
 ## 2026-09-14 — Chuyển trang kiểu iOS bằng View Transitions của trình duyệt
 
 **Quyết định:** Bật `experimental.viewTransition` của Next 16 và bọc nội dung trang trong

@@ -12,7 +12,7 @@ export const MEDIA_ROLES = [
   { id: "general", label: "Ảnh thường" },
   { id: "entrance", label: "Lối vào / mặt tiền" },
   { id: "parking", label: "Bãi đỗ" },
-  { id: "menu", label: "Menu" },
+  { id: "menu", label: "Menu / bảng giá" },
   { id: "interior", label: "Không gian bên trong" },
 ];
 

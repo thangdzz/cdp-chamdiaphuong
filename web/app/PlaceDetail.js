@@ -24,6 +24,7 @@ import { noteContextLabel } from "@/lib/notes";
 import { placeShareUrl } from "@/lib/siteUrl";
 import { MediaImage } from "./MediaImage";
 import { placeCoverMedia, placeGeneralMedia, placeMenuMedia } from "@/lib/media";
+import { priceListPhotoContext, priceListPhotoTitle } from "@/lib/priceListPhoto";
 import {
   transportSummary,
   transportDetailLine,
@@ -215,7 +216,7 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
 
         {menuPhotos.length > 0 && (
           <div className="order-4 lg:order-none">
-            <p className="mb-1.5 text-[13px] text-zinc-500">Ảnh menu · khách gửi {newestMenuPhotoAge}</p>
+            <p className="mb-1.5 text-[13px] text-zinc-500">{priceListPhotoTitle(priceListPhotoContext(place).name ?? "Bảng giá")} · khách gửi {newestMenuPhotoAge}</p>
             <div className="flex gap-2">
               {menuPhotos.slice(0, 3).map((m, i) => (
                 <button
@@ -240,7 +241,7 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             {/* !== null chứ không phải `staleMenuMonths &&` — xem chú thích ở PlaceExplorer.js */}
             {staleMenuMonths !== null && (
               <p className="mt-1.5 text-[13px] text-zinc-400">
-                Menu này đã {staleMenuMonths} tháng. Bạn có ảnh mới hơn?
+                {priceListPhotoContext(place).name ?? "Bảng giá"} này đã {staleMenuMonths} tháng. Bạn có ảnh mới hơn?
               </p>
             )}
           </div>

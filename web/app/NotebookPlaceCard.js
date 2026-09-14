@@ -7,6 +7,7 @@ import { PLACE_TYPES } from "@/lib/placeTypes";
 import { transportSummary, transportFamilyOf } from "@/lib/transport";
 import { MediaImage } from "./MediaImage";
 import { placeCoverMedia, placeGeneralMedia, placeMenuMedia } from "@/lib/media";
+import { priceListPhotoContext, priceListPhotoTitle } from "@/lib/priceListPhoto";
 import { noteContextLabel } from "@/lib/notes";
 import { PlaceFacts } from "./PlaceFacts";
 import { PhotoGallery, confidenceLabel, formatDate, formatRelativeAge } from "./PlaceExplorer";
@@ -145,7 +146,7 @@ export function NotebookPlaceCard({ item }) {
           {menuPhotos.length > 0 && (
             <div>
               <p className="mb-1.5 text-[13px] text-zinc-500">
-                Ảnh menu · khách gửi {newestMenuPhotoAge}
+                {priceListPhotoTitle(priceListPhotoContext(place).name ?? "Bảng giá")} · khách gửi {newestMenuPhotoAge}
               </p>
               <div className="flex gap-2">
                 {menuPhotos.slice(0, 3).map((m, i) => (

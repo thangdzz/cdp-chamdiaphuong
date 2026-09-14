@@ -36,6 +36,7 @@ import { FestivalEventsManager } from "./FestivalEventsManager";
 import { MediaImage } from "@/app/MediaImage";
 import { getAllClosedPlaces } from "@/lib/closedPlaces";
 import { ClosedPlacesManager } from "./ClosedPlacesManager";
+import { PRICE_LIST_ROLE_LABEL } from "@/lib/priceListPhoto";
 
 const NOTE_QUESTION_LABEL = { tip: "Bạn có mẹo gì cho chỗ này không?" };
 
@@ -369,7 +370,7 @@ function SuggestionCard({ item }) {
         <span className="rounded-full bg-sky-200 px-2 py-0.5 text-xs font-medium text-sky-900">
           {item.type === "photo"
             ? item.photoTag === "menu"
-              ? "Ảnh menu"
+              ? `Ảnh ${PRICE_LIST_ROLE_LABEL.toLowerCase()}`
               : "Ảnh góp ý"
             : "Báo sai / đề xuất sửa"}
         </span>

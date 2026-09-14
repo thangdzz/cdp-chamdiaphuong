@@ -12,6 +12,7 @@ import {
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { formatRelativeAge } from "../PlaceExplorer";
 import { placeGeneralMedia, placeMenuMedia } from "@/lib/media";
+import { PRICE_LIST_ROLE_LABEL } from "@/lib/priceListPhoto";
 import { MediaImage } from "@/app/MediaImage";
 
 const inputClass = "w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900";
@@ -358,7 +359,7 @@ export function MergeDuplicatePanel({ mode, suggestion, reviewItem }) {
 
       {(placeMenuMedia(placeA).length > 0 || placeMenuMedia(placeB).length > 0) && (
         <div className="mb-2">
-          <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh menu giữ lại (bỏ tick để không giữ)</p>
+          <p className="mb-1 text-xs font-medium text-zinc-500">Ảnh {PRICE_LIST_ROLE_LABEL.toLowerCase()} giữ lại (bỏ tick để không giữ)</p>
           <div className="flex flex-wrap gap-2">
             {(() => {
               const union = [...placeMenuMedia(placeA), ...placeMenuMedia(placeB)];

@@ -18,6 +18,7 @@ import {
   CUSTOMER_UPLOAD_LIMIT,
 } from "@/lib/clientImageCompression";
 import { placeGeneralMedia } from "@/lib/media";
+import { priceListPhotoContext, priceListPhotoTitle } from "@/lib/priceListPhoto";
 import { ProposePlaceForm } from "./ProposePlaceForm";
 
 export const STORAGE_KEY = "cdp_contributor";
@@ -44,6 +45,7 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
   // NOTE-01 §7.4: lời mời gửi ảnh nói rõ khách đang giúp việc gì, khác nhau tuỳ chỗ đã có
   // ảnh hay chưa — "Thêm ảnh" chung chung không cho khách lý do nào để bấm.
   const hasPhotos = placeGeneralMedia(place).length > 0;
+  const priceListPhoto = priceListPhotoContext(place);
   const photoInvite = hasPhotos
     ? "Gửi ảnh mới — giúp người sau dễ nhận ra chỗ"
     : "Gửi ảnh đầu tiên cho chỗ này";
@@ -395,14 +397,14 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
           >
             Báo chỗ này đã đóng cửa
           </button>
-          {place.type === "an" ? (
+          {priceListPhoto.name ? (
             <>
               <label
                 className={`w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-left text-sm font-medium text-zinc-700 ${
                   busy ? "opacity-50" : "cursor-pointer"
                 }`}
               >
-                {busy ? "Đang gửi..." : "Ảnh menu"}
+                {busy ? "Đang gửi..." : priceListPhotoTitle(priceListPhoto.name)}
                 <input
                   type="file"
                   accept="image/*"
@@ -417,7 +419,7 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
                   busy ? "opacity-50" : "cursor-pointer"
                 }`}
               >
-                {busy ? "Đang gửi..." : `${photoInvite} (món ăn, không gian...)`}
+                {busy ? "Đang gửi..." : `${photoInvite} (${priceListPhoto.generalHint})`}
                 <input
                   type="file"
                   accept="image/*"
