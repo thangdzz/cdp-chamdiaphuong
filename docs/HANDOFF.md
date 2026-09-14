@@ -8,6 +8,15 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 — NOTE-11 + NOTE-12 + NOTE-13 ĐÃ DEPLOY production** (deployment
+`web-gz3gex60d`, alias `chamdiaphuong.io.vn`, từ commit `bdd13ef`). Trước deploy: build đạt,
+lint đúng 1 lỗi nền, env production đủ (không có biến `CDP_*_NAMESPACE` — đúng). Sau deploy:
+Playwright iPhone 15 Plus + desktop 1440 trên trang chủ, chi tiết có ảnh (`ngu-01`), URL chỗ
+đã đóng (Chang's Restaurant) và link share `67ukq88dec`: không tràn ngang, không ảnh vỡ,
+không lỗi JS; `_next/image` từ Blob tải được. Chỉ kiểm tra xem, không ghi dữ liệu. Chủ dự án
+chưa bấm hết checklist nhóm B (tải/gỡ ảnh, gửi mẹo `Khác`, lưu route share) — nên làm trên
+production. Các đoạn "chưa deploy" bên dưới là lịch sử trước lần deploy này.
+
 **NOTE-13 P0 đã code local, chưa deploy — chặng A+B đã xong:** pipeline ingestion đọc cả
 `places:closed` trước nhánh auto-public. Candidate khớp hồ sơ đã đóng có type riêng
 `closed_place_match`, luôn vào verify queue dù confidence cao. Admin có đúng ba lối: mở lại
@@ -187,7 +196,7 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 
 | Mức | Việc |
 |---|---|
-| 🟢 | **NOTE-11 P0 local xong, chưa deploy.** P1 còn thumbnail vật lý, usage/error metrics, reference index + cleanup orphan dry-run và UX caption/role nâng cao. |
+| 🟢 | **NOTE-11 P0 đã deploy 14/9.** P1 còn thumbnail vật lý, usage/error metrics, reference index + cleanup orphan dry-run và UX caption/role nâng cao. |
 | 🟢 | **Timeline + màn sửa/lịch sử hoàn tác đã deploy.** Các lần đổi lịch sau làm ngay trong `/admin`, không cần deploy code. |
 | 🔴 | **Giá mùa cao điểm.** `places:live` chỉ có **một ô giá**. Khách sạn 900k ngày thường có thể 2,5 triệu dịp lễ hội → đúng tuần đông khách nhất thì web hiển thị sai với chính nhóm cần nó nhất. Là rủi ro uy tín, chưa có hướng xử lý, cần bàn trước khi code. |
 | 🟡 | **0/210 địa điểm có toạ độ.** Chặn toàn bộ P2 của NOTE-07 và Phase 3 của P1-P8: bản đồ, khoảng cách/thời gian từng chặng, tối ưu tuyến. Hướng đề xuất: chỉ geocode những chỗ thực sự được dùng trong lộ trình. |
@@ -203,9 +212,9 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 
 Xếp theo mức đáng làm trước lễ hội:
 
-1. **Chủ dự án kiểm tra NOTE-11 + NOTE-12 + NOTE-13 ở localhost**; nếu ổn mới deploy
-   production — nên trước 19/9 (tuần lễ hội chỉ đo số liệu, không code). Cả ba ghi vào Redis
-   thật dùng chung dev/production, nên test kỹ luồng tải ảnh và duyệt đóng cửa.
+1. **Chủ dự án bấm thử NOTE-11/12/13 trên production** (đã deploy 14/9): Admin tải → gỡ ảnh,
+   khách gửi 6 ảnh thấy báo đỏ, gửi mẹo `Khác` → từ chối, lưu một route share → sửa bản copy.
+   Lỗi gì sửa trước 19/9 (tuần lễ hội chỉ đo số liệu, không code).
 2. **Bàn hướng xử lý giá mùa cao điểm** — cần chủ dự án chốt trước, đừng tự code.
 3. **Lộ trình mẫu của CDP** (`is_featured`) + nút "Dùng lộ trình này" — `CDP_P1-P8 §Phase 2`.
    Phần copy route đã có từ NOTE-13 (`copyRouteFromShare`, copy từ snapshot share); còn thiếu

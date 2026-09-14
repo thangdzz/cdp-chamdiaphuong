@@ -6,6 +6,15 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 — Deploy NOTE-11/12/13:** chủ dự án yêu cầu deploy. Đã tắt 2
+server CDP cũ (3002 build 12/9, 3010 dev), chốt một server test duy nhất `localhost:3100`
+(ghi ở AGENTS.md §5). Build đạt, lint đúng 1 lỗi nền, env production đủ và không có biến
+namespace test. Deployment `web-gz3gex60d` Ready, alias `chamdiaphuong.io.vn`. Kiểm tra sau
+deploy chỉ-xem: 7 route trả 200; URL chỗ đóng cửa hiện "đã đóng cửa"; route share có "Lưu lộ
+trình này"; ảnh qua `_next/image` tải được từ Blob; Playwright iPhone 15 Plus + desktop 1440
+không tràn ngang, không ảnh vỡ, không lỗi JS. Chưa bấm các luồng ghi dữ liệu (nhóm B) — chờ
+chủ dự án thử trên production.
+
 **Cập nhật mới nhất 2026-09-14 (Claude Code tiếp nhận từ Codex):** chưa sửa code. Đã đồng bộ
 git: kéo 4 commit quét tự động ngày 13–14/9, rebase commit bàn giao lên trên (không xung đột,
 hash mới `93695a5`) và push lên GitHub. Đã kiểm tra push **không** tự deploy: Vercel không nối

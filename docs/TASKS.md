@@ -11,7 +11,11 @@
 
 ## 🚧 IN PROGRESS
 
-- [x] **NOTE-13 P0 — Closed crawler guard + shared route copy — ✅ Local xong, chưa deploy:**
+- [x] **Deploy NOTE-11 + NOTE-12 + NOTE-13 — 🚀 Đã deploy 2026-09-14** (`web-gz3gex60d`).
+      Kiểm tra production chỉ-xem đạt trên iPhone 15 Plus + desktop 1440.
+  - [ ] Chủ dự án bấm thử nhóm B trên production (ảnh, mẹo `Khác`, lưu route share)
+
+- [x] **NOTE-13 P0 — Closed crawler guard + shared route copy — 🚀 Đã deploy 2026-09-14:**
   - [x] Audit crawler: root cause là chỉ match `places:live`, không đọc `places:closed`
   - [x] Candidate khớp closed luôn thành `closed_place_match` trong verify queue, không
         auto-public; guard chạy trước de-dupe item đang chờ
@@ -29,7 +33,7 @@
   - [ ] P1 backlog: compare view sâu hơn, lifecycle/provenance đầy đủ hơn và nhận ra route đã
         copy để tránh người dùng vô tình lưu lặp
 
-- [x] **NOTE-12 P0 + P1 — Contribution Audit + Place Replacement — ✅ Local xong, chưa deploy:**
+- [x] **NOTE-12 P0 + P1 — Contribution Audit + Place Replacement — 🚀 Đã deploy 2026-09-14:**
   - [x] Audit code + dữ liệu thật; xác định lỗi `QuestionPrompt` chỉ ẩn câu trùng id
   - [x] Một context active chỉ render UI của context đó; đổi context xoá text/state cũ
   - [x] `Cách đến`/`Khác` là free-text qua Admin; structured option giữ luồng đồng thuận
@@ -44,9 +48,9 @@
         hiện closed/replacement thay vì 404
   - [x] Backward compatibility: suy ra 4 tombstone cũ lúc đọc, không migration; dữ liệu vị
         trí đã mất từ flow cũ được ghi rõ là không còn, không tự đoán
-  - [ ] Chờ chủ dự án test local và yêu cầu deploy; không còn hạng mục code P0/P1
+  - [x] Deploy production 2026-09-14
 
-- [x] **NOTE-11 P0 — Media Pipeline bằng Vercel Blob + Redis — ✅ Local xong, chưa deploy:**
+- [x] **NOTE-11 P0 — Media Pipeline bằng Vercel Blob + Redis — 🚀 Đã deploy 2026-09-14:**
       một `media[]` cho nhiều ảnh/place, role bìa/dẫn đường/menu..., reorder + caption + gỡ
       trong Admin, upload nhiều ảnh, server resize WebP, `next/image` responsive/lazy và ảnh
       nhận diện ở lộ trình. Khách tối đa **5 ảnh/lần** (cảnh báo tĩnh + báo đỏ khi chọn quá),
