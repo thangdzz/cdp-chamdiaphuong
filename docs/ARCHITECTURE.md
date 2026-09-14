@@ -77,7 +77,7 @@ text nên nội dung giống thẻ HTML không được thực thi. Khi test dù
 
 | Key | Chứa gì |
 |---|---|
-| `site_config:navigation` | Bốn item có `key`, `navLabel`, `pageTitle`, `enabled`, `order`; `href` lưu kèm để đọc/debug nhưng luôn bị code ghi đè bằng route cố định |
+| `site_config:navigation` | Năm item (explore, notes, notebooks, routes, about) có `key`, `navLabel`, `pageTitle`, `enabled`, `order`; `href` lưu kèm để đọc/debug nhưng luôn bị code ghi đè bằng route cố định |
 
 `AppShell` desktop, menu mobile, footer và H1 của bốn trang chính đọc cùng object này. Key
 thiếu, Redis lỗi hoặc dữ liệu sai khuôn/thứ tự trùng thì dùng `NAVIGATION_DEFINITIONS` trong

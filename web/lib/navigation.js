@@ -37,14 +37,24 @@ export const NAVIGATION_DEFINITIONS = [
     order: 3,
   },
   {
+    key: "routes",
+    href: "/lo-trinh",
+    navLabel: "Lộ trình của tôi",
+    pageTitle: "Lộ trình của tôi",
+    enabled: true,
+    order: 4,
+  },
+  {
     key: "about",
     href: "/gioi-thieu",
     navLabel: "CDP là gì?",
     pageTitle: "Chạm Địa Phương là gì?",
     enabled: true,
-    order: 4,
+    order: 5,
   },
 ];
+// Lưu ý khi thêm key: normalizeNavigation() bắt đúng số mục, nên bản Admin đã lưu với số mục cũ
+// sẽ bị bỏ và rơi về mặc định. Lúc thêm "routes" (2026-09-14) production chưa lưu bản nào.
 
 export function navigationKey() {
   const namespace = process.env.CDP_SITE_CONTENT_NAMESPACE?.trim();
