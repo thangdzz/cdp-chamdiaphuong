@@ -15,11 +15,11 @@ thích ngắn ngay sau đó.
 ## Chia việc giữa các công cụ (cập nhật 2026-09-14)
 - **Cowork (Claude desktop):** bàn hướng đi, thiết kế, brainstorm, và **cập nhật tài liệu
   `.md`**. Không code ở đây.
-- **Claude Code:** nơi viết code chính (vẫn trình kế hoạch trước khi code).
-- **Codex:** chỉ dự phòng khi Claude hết usage.
+- **Antigravity:** nơi viết code thật. Trong Antigravity, agent code chính là **Claude Code**
+  (vẫn trình kế hoạch trước khi code); **Codex** chỉ dự phòng khi Claude hết usage.
 
 Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub — quy tắc ở
-[AGENTS.md](AGENTS.md) §7. (Từ 2026-08-11 đến trước tháng 9, code được viết ở Antigravity.)
+[AGENTS.md](AGENTS.md) §7.
 
 ## Quy tắc làm việc bắt buộc
 
