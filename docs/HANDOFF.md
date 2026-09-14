@@ -8,6 +8,15 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 (tối) — Link quay lại + nút Chia sẻ ở danh sách ĐÃ DEPLOY** (`web-rbd3watu6`).
+Trang xem lộ trình/sổ có "← Lộ trình của tôi"/"← Sổ của tôi" chỉ cho chủ (`OwnerBackLink`).
+Thẻ trong `/lo-trinh` và `/so` có Xem · Sửa · Chia sẻ; logic chia sẻ gom vào
+`app/useShareActions.js` (`useRouteShare` tạo bản chụp, `useNotebookShare` gửi link sống) dùng
+chung với trang chi tiết. Nút chủ sổ đổi "Sao chép link" → "Chia sẻ sổ", mở bảng chia sẻ của
+điện thoại. Chưa tự bấm tạo link lộ trình từ thẻ (sẽ ghi bản chụp thật) — logic chuyển nguyên
+từ `RouteOwnerActions`; chủ dự án bấm thử một lần. Trang xem sổ chưa mở bằng trình duyệt tự
+động vì mỗi lượt mở ghi view thật.
+
 **2026-09-14 (sau) — Logo + ảnh ở link chia sẻ cũ ĐÃ DEPLOY** (`web-rdrc3fg1c`). Logo ảnh
 `public/cdp-logo.png` (cắt từ `data/cdp-logo.PNG`, nền trong suốt) thay chữ "CDP" ở header
 mobile (26px) và sidebar desktop (24px mở / 20px thu gọn; lề hàng logo `pl-4 pr-2` để

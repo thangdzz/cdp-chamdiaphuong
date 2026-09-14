@@ -11,7 +11,11 @@
 
 ## 🚧 IN PROGRESS
 
+- [x] **Link "← Lộ trình của tôi"/"← Sổ của tôi" (chỉ chủ) + nút Chia sẻ ở thẻ danh sách +
+      nút chủ sổ thành "Chia sẻ sổ" — 🚀 Đã deploy 2026-09-14** (`web-rbd3watu6`)
+  - [ ] Chủ dự án bấm thử: Chia sẻ một lộ trình từ danh sách; mở Sổ cafe → thấy "← Sổ của tôi"
 - [x] **Logo ảnh ở header/sidebar — 🚀 Đã deploy 2026-09-14** (`web-rdrc3fg1c`)
+- [ ] Header thiếu link "Lộ trình của tôi" trong menu (chỉ có link chéo ở `/so`) — việc cũ, vẫn còn
 - [x] **Link chia sẻ cũ (trước NOTE-11) hiện ảnh địa điểm — 🚀 Đã deploy 2026-09-14**
 
 - [x] **Deploy NOTE-11 + NOTE-12 + NOTE-13 — 🚀 Đã deploy 2026-09-14** (`web-gz3gex60d`).

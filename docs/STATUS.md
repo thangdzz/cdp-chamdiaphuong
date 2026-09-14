@@ -6,6 +6,16 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (tối) — Quay lại + chia sẻ từ danh sách, đã deploy:** theo phản
+hồi chủ dự án, trang xem lộ trình/sổ có link quay về danh sách của mình, chỉ hiện khi đã kiểm
+chắc là chủ (người nhận link không thấy). Hai trang danh sách có nút Chia sẻ trên từng thẻ;
+lộ trình tạo bản chụp mới và hiện link + nhắc "sửa xong bấm chia sẻ lại", sổ gửi link sống.
+Nút chủ sổ đổi thành "Chia sẻ sổ". Build/lint đạt. Local: chủ thấy link quay lại và bấm về
+đúng `/lo-trinh`, người lạ không thấy; 4 thẻ lộ trình + 3 thẻ sổ đủ nút, không tràn; bấm Chia
+sẻ sổ trên desktop chép đúng link. Production `web-rbd3watu6`: kiểm lại owner/stranger và số
+nút, không lỗi JS. Chưa bấm tạo link lộ trình và chưa mở trang xem sổ bằng test tự động để
+không ghi dữ liệu thật.
+
 **Cập nhật mới nhất 2026-09-14 (sau) — Logo + ảnh link chia sẻ cũ, đã deploy:** thay chữ
 "CDP" bằng logo ảnh của chủ dự án ở header mobile và sidebar desktop; lần chụp đầu thấy sidebar
 mở bị cắt chữ "Chạm Địa Ph…" nên thu logo còn 24px và nới lề, đo lại ở 1024/1440 không cắt.
