@@ -6,6 +6,14 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (khuya) — Icon menu mobile + chuyển trang, đã deploy:** menu
+mobile dùng cùng bộ icon với sidebar. Thêm hiệu ứng chuyển trang bằng View Transitions của
+trình duyệt (không thêm thư viện): trang mới trượt 28px + hiện dần 260ms, link "←" trượt
+ngược, header/sidebar đứng yên, Back/vuốt Back của trình duyệt và "giảm chuyển động" không
+chạy, làm mới cùng trang không trượt. Kiểm thử bằng cách bắt `startViewTransition` và đọc
+animation thật: local (mobile/desktop/reduced motion) và production `web-bgv0djbky` đều đúng
+hướng, không tràn, không lỗi JS. SPEC-giao-dien §7 nay có 4 chỗ chuyển động; lý do ở DECISIONS.
+
 **Cập nhật mới nhất 2026-09-14 (tối, sau) — Menu "Lộ trình của tôi", đã deploy:** trước đây
 chỉ vào `/lo-trinh` qua link nhỏ ở `/so`. Đã thêm vào navigation config (sau Sổ, có icon đường
 đi), Admin đổi nhãn/thứ tự/ẩn được như mục khác. Đã kiểm tra `site_config:navigation` trên

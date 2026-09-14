@@ -8,6 +8,13 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 (khuya) — Icon menu mobile + chuyển trang kiểu iOS ĐÃ DEPLOY** (`web-bgv0djbky`).
+Icon tách ra `app/NavigationIcon.js` dùng chung sidebar + menu mobile. Chuyển trang:
+`app/PageTransition.js` + CSS `cdp-page-enter` trong `globals.css`, bật bằng
+`experimental.viewTransition` trong `next.config.mjs` (đặt `false` là tắt). Link "←" gắn
+`transitionTypes={["nav-back"]}` — **link quay lại mới phải gắn thêm prop này**. Production:
+đi tới trượt +28px, link ← trượt −28px, Back trình duyệt không chạy, 5 icon mobile, không lỗi.
+
 **2026-09-14 (tối, sau) — Menu "Lộ trình của tôi" ĐÃ DEPLOY** (`web-jxi3j7u43`). Thêm key
 `routes` → `/lo-trinh` vào `NAVIGATION_DEFINITIONS` (order 4, "CDP là gì?" xuống 5), icon riêng
 trong sidebar, H1 trang `/lo-trinh` đọc `pageTitle` qua `PageTitle`. Production chưa có
