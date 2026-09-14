@@ -11,6 +11,20 @@
 
 ## 🚧 IN PROGRESS
 
+- [x] **Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04) — 💻 Chỉ local, chưa deploy**
+  - [x] Primitive dùng lại `lib/game/` (Event · Object · Sighting · Collection · Progress · Quest · Map Layer)
+  - [x] Route chung `/cham/[eventSlug]` 4 tab + khối game trên `/le-hoi-thanh-tuyen`
+  - [x] Báo 3 bước (mô hình/"Không biết tên" → GPS hoặc kéo ghim → ảnh tuỳ chọn), không đếm trùng
+  - [x] Bản đồ MapLibre + OpenFreeMap (OSM), marker gom cụm + mức tin cậy, "được nhìn thấy X phút trước"
+  - [x] Màn "Đã Chạm!" + animation + âm thanh Web Audio + nút 🔊/🔇; reduced motion tắt hiệu ứng
+  - [x] Nhiệm vụ tự sinh (thiếu ảnh · vị trí lệch · có ảnh chưa tên), lịch sử riêng
+  - [x] `/admin/game`: ghép bí ẩn, đặt tên/sửa/ẩn mô hình, duyệt ảnh, xoá lượt báo
+  - [x] Test Redis namespace riêng (đếm trùng, ghép, song song, cờ báo sai, không lộ anonId) +
+        Playwright iPhone 13 + desktop 1440, dọn sạch dữ liệu test; build đạt, lint đúng 1 lỗi nền
+  - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh) tại localhost:3100
+  - [ ] Thay 10 tên mô hình tạm bằng danh sách thật ở `/admin/game`
+  - [ ] Quyết định deploy trước 19/9
+
 - [x] **Link "← Lộ trình của tôi"/"← Sổ của tôi" (chỉ chủ) + nút Chia sẻ ở thẻ danh sách +
       nút chủ sổ thành "Chia sẻ sổ" — 🚀 Đã deploy 2026-09-14** (`web-rbd3watu6`)
   - [ ] Chủ dự án bấm thử: Chia sẻ một lộ trình từ danh sách; mở Sổ cafe → thấy "← Sổ của tôi"

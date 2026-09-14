@@ -141,6 +141,143 @@ body {
   animation: none;
 }
 
+/* ───────── Game layer (NOTE-04 §10) ─────────
+   Ngoại lệ có chủ đích của SPEC-giao-dien §7 "không có gì nảy": chỉ áp trong trang game và
+   chỉ sau hành động của người chơi. Toàn bộ dùng transform/opacity, ngắn 600–1200ms, và bị
+   tắt bởi khối prefers-reduced-motion cuối file. */
+.cdp-game-sheet-backdrop {
+  animation: cdp-fade-in 220ms ease-out both;
+}
+
+@keyframes cdp-game-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.cdp-game-sheet {
+  animation: cdp-game-sheet-up 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cdp-game-marker-enter {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cdp-game-marker-enter {
+  animation: cdp-game-marker-enter 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cdp-game-pulse {
+  from {
+    transform: scale(0.9);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+.cdp-game-pulse {
+  animation: cdp-game-pulse 1100ms ease-out 2;
+}
+
+@keyframes cdp-game-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cdp-game-pop {
+  animation: cdp-game-pop 640ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cdp-game-glow {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.cdp-game-glow {
+  animation: cdp-game-glow 1000ms ease-out both;
+}
+
+@keyframes cdp-game-particle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.4);
+    opacity: 0;
+  }
+}
+
+.cdp-game-particle {
+  animation: cdp-game-particle 900ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* Thẻ bộ sưu tập vừa mở: xám -> đủ màu + sáng nhẹ. */
+@keyframes cdp-game-unlock {
+  0% {
+    filter: grayscale(1);
+    opacity: 0.55;
+  }
+  100% {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+}
+
+.cdp-game-unlock {
+  animation: cdp-game-unlock 900ms ease-out both;
+}
+
+@keyframes cdp-game-card-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(224, 165, 38, 0);
+  }
+  40% {
+    box-shadow: 0 0 0 6px rgba(224, 165, 38, 0.28);
+  }
+}
+
+.cdp-game-card-glow {
+  animation: cdp-game-card-glow 1200ms ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cdp-game-particle,
+  .cdp-game-glow,
+  .cdp-game-pulse {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

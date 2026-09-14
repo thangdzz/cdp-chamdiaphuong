@@ -3,6 +3,63 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-14 — Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04)
+
+Chủ dự án yêu cầu đọc 2 spec (`docs/12-NOTE-03-Game-Layer-MVP1-Thanh-Tuyen.md`,
+`docs/13-NOTE-04-MVP1-San-Den-Thanh-Tuyen-Claude-Spec.md`) rồi **tự xác định cách tích hợp và
+triển khai trực tiếp** (không qua bước duyệt kế hoạch). Các lựa chọn chính:
+
+**1. Primitive dùng lại, mùa game là dữ liệu.** `web/lib/game/`: `registry.js` (Event),
+`catalog.js` (Object + fallback), `store.js` (Sighting/Collection/first discovery trên Redis),
+`progress.js`, `quests.js`, `mapLayer.js`. Thành Tuyên 2026 chỉ là một file cấu hình
+`lib/game/seasons/thanh-tuyen-2026.js`. Route chung `/cham/[eventSlug]`, admin chung `/admin/game`.
+Mùa khác = thêm một file season + đăng ký trong registry, không đụng UI.
+
+**2. "Login để submit" = hồ sơ ẩn danh sẵn có.** CDP không có tài khoản. Lượt báo đầu tiên tự
+tạo hồ sơ im lặng như nút "Vẫn mở" (SPEC-chang-1 §2.3). Chống spam: khoá 3 phút/người/mô hình,
+tối đa 20 lượt/10 phút/người, mỗi người báo sai một marker 1 lần, ≥3 lượt báo sai thì marker tự ẩn.
+Không cộng điểm/coin (NOTE-04 §1).
+
+**3. Redis nguyên tử, không đọc-sửa-ghi mảng.** Nhiều khách báo cùng lúc giữa phố: HSETNX cho
+bộ sưu tập + người ghi nhận đầu tiên (không đếm trùng dù bấm song song), HINCRBY cho số đếm,
+ZSET cho dòng thời gian. Snapshot công khai ~8 lệnh/lượt; client làm mới 2 phút/lần khi tab mở.
+
+**4. Unknown → ghép bằng con trỏ `matchedTo`, suy ra lúc đọc.** "Không biết tên" tạo một object
+`unknown` có mã (#A1B2); người sau chọn lại được bí ẩn đó. Admin ghép vào mô hình đúng hoặc đặt
+tên (giữ id). Sighting/bộ sưu tập cũ KHÔNG bị ghi lại — `resolveObjectId()` quy về object đích
+lúc đọc; ghép nhầm thì "Bỏ ghép" là hoàn tác sạch (AGENTS §3.6).
+
+**5. Không hard-code tổng.** Mẫu số bộ sưu tập = số mô hình CDP **đang biết**. Con số "45 mô hình
+đêm 20/9" chỉ hiện làm thông tin có nguồn (KH 246/KH-UBND). 10 mô hình mở đầu là **tên kiểu mô
+hình tạm** (`source: cdp_seed_placeholder`, `unverified`) vì chưa có danh sách chính thức theo
+tên — admin đổi tên/ghép/ẩn ở `/admin/game` khi có dữ liệu thật.
+
+**6. Ảnh khách chờ duyệt, bỏ EXIF.** Ảnh là tuỳ chọn (trước hoặc sau khi gửi). Ảnh sighting lưu
+`status: pending`, chỉ lên public khi admin "Dùng làm ảnh mô hình" — cùng nguyên tắc ảnh khách
+của CDP. Sharp xuất WebP không kèm metadata nên toạ độ GPS trong ảnh bị bỏ. Lỗi ảnh không làm mất
+lượt báo; lượt báo bị từ chối thì dọn đúng file Blob vừa tải.
+
+**7. Riêng tư.** Marker công khai chỉ có mô hình + vị trí làm tròn ~11m + thời gian + số người
+(không anonId). Lịch sử vị trí chỉ trả cho đúng chủ anonId. First discovery chỉ hiện biệt danh
+(mặc định "một người chơi ẩn danh"), so "có phải mình" bằng hash.
+
+**8. Bản đồ: MapLibre + OpenFreeMap (dữ liệu OSM), tile OSM chính chủ chỉ là dự phòng.** Test
+14/9 thấy DNS mạng nhà (router 192.168.1.1) trả `127.0.0.1` cho `tile.openstreetmap.org` → bản đồ
+trắng; thêm nữa chính sách tile công cộng OSM không cho app lưu lượng lớn. OpenFreeMap miễn phí,
+không key, cho dùng thương mại, làm riêng cho MapLibre. Đổi nhà cung cấp chỉ sửa
+`lib/game/mapStyle.js`. **Rủi ro:** phụ thuộc một dịch vụ miễn phí trong tuần lễ hội; nếu chậm
+thì phương án là MapTiler (có key) hoặc tự host PMTiles.
+
+**9. Animation/âm thanh là ngoại lệ có phạm vi của SPEC-giao-dien §7.** Chỉ trong trang game và
+chỉ sau hành động của người chơi (NOTE-04 §10–§11): bottom sheet trượt, marker nảy + pulse, icon
+bật + glow + 8 hạt, thẻ xám → màu, số đếm chạy. Âm thanh tổng hợp bằng Web Audio (0 file tải),
+không autoplay, có nút 🔊/🔇 nhớ trong localStorage. `prefers-reduced-motion` tắt hết.
+
+**Không làm (NOTE-04 §27):** leaderboard, coin, trust graph, websocket, AI nhận diện ảnh, fog of war.
+
+**Đánh đổi đã biết:** xoá sighting ở admin không gỡ mục đã vào bộ sưu tập của người báo; ô gợi ý
+cho bí ẩn chỉ admin nhập (chữ tự do của khách không lên public khi chưa duyệt).
+
 ## 2026-09-14 — Ảnh "Menu" thành ảnh bảng giá theo ngữ cảnh cho mọi nhóm
 
 **Quyết định:** Nút ảnh riêng không còn chỉ cho Ăn. Tên theo nhóm/loại (`lib/priceListPhoto.js`):

@@ -485,6 +485,13 @@ function AdminDashboard({
       </Link>
 
       <Link
+        href="/admin/game"
+        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
+      >
+        Game layer → Săn đèn Thành Tuyên: ghép bí ẩn, duyệt ảnh, sửa mô hình →
+      </Link>
+
+      <Link
         href="/admin/navigation"
         className="mb-6 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
       >

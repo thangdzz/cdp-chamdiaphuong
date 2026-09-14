@@ -271,6 +271,12 @@ nhấp nháy.
 
 Ngoài ba chỗ trên: **không có gì nhấp nháy, không có gì nảy, không có gì tự chạy.**
 
+**Ngoại lệ duy nhất — game layer (`/cham/*`, thêm 2026-09-14, NOTE-04 §10–§11):** trong trang
+game được có bottom sheet trượt 300ms, marker mới nảy + pulse 2 lần, màn "Đã Chạm!" (icon bật,
+glow, 8 hạt, 600–1200ms), thẻ bộ sưu tập xám → màu, số đếm chạy, và âm thanh ngắn. Chỉ chạy sau
+hành động của người chơi, chỉ transform/opacity, tắt theo `prefers-reduced-motion`. Không mang
+các hiệu ứng này ra trang thường. Class có tiền tố `cdp-game-` trong `globals.css`.
+
 ---
 
 ## 8. Điện thoại

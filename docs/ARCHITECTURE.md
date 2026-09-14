@@ -85,6 +85,27 @@ code. Admin tại `/admin/navigation` không có ô sửa key/route; Server Acti
 bốn item từ definition và bỏ qua mọi key/href do request gửi. Test dùng chung biến namespace
 `CDP_SITE_CONTENT_NAMESPACE` với content Giới thiệu.
 
+### Game layer (`lib/game/store.js` — hằng số `GAME_KEYS`, NOTE-03/NOTE-04)
+
+Mọi key có dạng `game:{eventId}:…` (VD `game:thanh-tuyen-2026:sightings`). Thao tác của khách
+nên dùng hash/zset/list + lệnh nguyên tử, **không** phải mảng JSON. Test đặt
+`CDP_GAME_NAMESPACE` để tách hẳn khỏi key thật.
+
+| Hậu tố key | Kiểu | Chứa gì |
+|---|---|---|
+| `objects` | Hash, field = objectId | Object do admin sửa/thêm + bí ẩn khách tạo. Ghi đè từng trường lên seed trong file season. `matchedTo` = đã ghép vào object khác |
+| `sightings` | Hash, field = sightingId | Bản ghi đầy đủ (có `anonId`, toạ độ gốc, `photo.status`) — KHÔNG trả ra public |
+| `sightings:by-time` | ZSET, score = ms | Dòng thời gian để lấy "tối nay" (ZRANGE BYSCORE REV) |
+| `object-stats` / `object-photos` | Hash, HINCRBY | Số lượt báo / số ảnh theo objectId thô |
+| `firsts` | Hash, HSETNX | Người ghi nhận đầu tiên `{anonId, nickname, at, sightingId}` |
+| `collection:{anonId}` | Hash, HSETNX | objectId → lần đầu gặp. HSETNX = không bao giờ đếm trùng |
+| `user-sightings:{anonId}` | List (200 gần nhất) | Lịch sử riêng của một người |
+| `counters` / `area-activity` / `flags` | Hash | Tổng lượt báo · lượt báo theo ô ~110m · số lượt báo sai |
+| `cooldown:{anonId}:{objectId}` · `rate:{anonId}:{bucket}` · `flag-lock:…` | String TTL | Chống spam |
+
+Object đã ghép **không** ghi lại sighting/bộ sưu tập: `resolveObjectId()` trong
+`lib/game/catalog.js` quy về object đích lúc đọc (cả bộ sưu tập, số đếm, first discovery).
+
 ### Pipeline AI quét dữ liệu (`lib/ingestion/store.js` — hằng số `KEYS`)
 
 | Key | Chứa gì |
@@ -307,7 +328,17 @@ web/
 │   ├── occupancy.js         (29)  Nhãn "còn chỗ" 3 mức — suy theo LỊCH, không theo dữ liệu
 │   ├── BadgeIcon.js        (136)  SVG huy hiệu theo bậc
 │   ├── layout.js            (29)
-│   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh)
+│   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh) + khối game
+│   │                              `GameEntryCard` (ẩn nếu Redis lỗi)
+│   ├── cham/[eventSlug]/page.js    ⭐ Game layer: route CHUNG mọi mùa (`/cham/thanh-tuyen-2026`),
+│   │                              `?bao=1` mở sẵn bảng báo
+│   ├── gameActions.js              Server Action game: báo sighting (tạo hồ sơ ẩn danh im
+│   │                              lặng), thêm ảnh, báo sai vị trí, tải snapshot/người chơi
+│   ├── _game/                      Component game (thư mục `_` = không thành route):
+│   │                              GameExperience (4 tab + CTA đáy) · GameMap (MapLibre, marker
+│   │                              + chế độ ghim) · ReportSheet (3 bước) · SuccessSheet · ObjectSheet
+│   │                              · GameViews · GameProgress · ObjectIcon · BottomSheet · gameSound
+│   ├── admin/game/                 Ghép bí ẩn, đặt tên/sửa/ẩn mô hình, duyệt ảnh, xoá lượt báo
 │   ├── AddToNotebook.js   (156)  Chặng 4: nút "+ Thêm vào sổ" trên thẻ — chưa có sổ nào thì
 │   │                              tự tạo luôn, có rồi thì hiện menu chọn
 │   ├── PhoneBlock.js      (139)  Khối "Liên hệ": số dạng chữ + nhãn xác nhận + nút Gọi /
@@ -471,6 +502,16 @@ web/
 │   │                              chung cho mọi Post, không dính Trung thu
 │   ├── postEvents/                Dữ liệu lịch từng bài, tách hẳn khỏi giao diện
 │   │   └── le-hoi-thanh-tuyen-2026.js  11 mốc + PLAN_TEMPLATE (khung Interactive Plan)
+│   ├── game/                      ⭐ Game layer primitive (NOTE-03/04). Thuần = client dùng được:
+│   │   ├── registry.js            Event: đăng ký mùa, pha upcoming/live/ended
+│   │   ├── seasons/thanh-tuyen-2026.js  Cấu hình mùa (copy, bản đồ, category, seed object)
+│   │   ├── catalog.js             Object: chuẩn hoá + fallback tên/icon, gộp seed + Redis, ghép
+│   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
+│   │   ├── quests.js              Nhiệm vụ tự sinh từ data gap (thiếu ảnh/vị trí lệch/chưa tên)
+│   │   ├── mapLayer.js            Gom sighting → marker công khai + mức tin cậy
+│   │   ├── mapStyle.js            Nhà cung cấp tile (OpenFreeMap, dự phòng OSM)
+│   │   ├── geo.js · format.js     Khoảng cách/khung tỉnh · "X phút trước", tìm không dấu
+│   │   └── store.js               (server) Redis: ghi sighting nguyên tử, snapshot, admin
 │   ├── provinces.js         (60)  34 tỉnh/thành (sắp xếp 01/7/2025) cho ô chọn của điểm riêng;
 │   │                              mặc định + fallback là Tuyên Quang
 │   ├── routeShare.js        (95)  ⭐ Chia sẻ bằng BẢN CHỤP (§P6) — `route_share:{token}` đóng

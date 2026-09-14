@@ -8,6 +8,16 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 (khuya, cuối) — Game layer MVP1 "Săn đèn Thành Tuyên 2026" ĐÃ CODE, CHƯA DEPLOY.**
+Spec: `docs/13-NOTE-04-…` (MVP1) + `docs/12-NOTE-03-…` (dài hạn) — lưu ý 2 file này trùng số
+thứ tự với NOTE-03/NOTE-04 cũ, tra theo tên đầy đủ. Lõi `web/lib/game/` (xem ARCHITECTURE §2
+"Game layer" + bản đồ file), route `/cham/[eventSlug]`, admin `/admin/game`, khối game trên
+`/le-hoi-thanh-tuyen`. Server test của chủ dự án đang chạy `localhost:3100` với
+`CDP_GAME_NAMESPACE=cdp-test-game-owner` (lượt báo khi thử không lẫn vào dữ liệu thật; hồ sơ ẩn
+danh tạo khi báo lần đầu vẫn ghi vào `contributors:all` như mọi đóng góp khác). **Khi deploy
+production KHÔNG đặt biến namespace.** Việc tiếp: chủ dự án thử trên máy thật → thay 10 tên mô
+hình tạm ở `/admin/game` → deploy trước 19/9.
+
 **2026-09-14 (khuya, sau) — Ảnh bảng giá theo ngữ cảnh ĐÃ DEPLOY** (`web-eyywjhnh2`). Nút ảnh
 riêng cho mọi nhóm, tên lấy từ `lib/priceListPhoto.js` (Ăn "Ảnh menu", Chơi "Ảnh bảng giá vé",
 Ngủ "Ảnh bảng giá phòng", Đi lại theo subtype; điểm đón/trả không có). Dữ liệu vẫn role `menu`,

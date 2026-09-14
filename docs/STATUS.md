@@ -6,6 +6,19 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (khuya, cuối) — Game layer MVP1 "Săn đèn Thành Tuyên", chỉ local:**
+theo NOTE-03 (tư duy dài hạn) + NOTE-04 (spec MVP1), chủ dự án cho triển khai thẳng. Code thành
+primitive dùng lại ở `web/lib/game/`; Thành Tuyên 2026 chỉ là một file season. Trang
+`/cham/thanh-tuyen-2026` có 4 tab (Bản đồ tối nay · Bộ sưu tập · Nhiệm vụ · Lịch sử), CTA cam
+cố định đáy, bảng báo 3 bước, màn "Đã Chạm!" có animation + âm thanh + nút tắt tiếng. Khối game
+đặt ngay dưới ảnh bài lễ hội. Admin ghép bí ẩn/duyệt ảnh ở `/admin/game`. Thêm dependency
+`maplibre-gl@5`. Phát hiện DNS mạng nhà chặn `tile.openstreetmap.org` → dùng OpenFreeMap làm nền
+chính (xem DECISIONS). Kiểm thử: script Redis trong namespace riêng (không đếm trùng, ghép bí ẩn
+đúng, cooldown chặn bấm song song, cờ báo sai ẩn marker, snapshot không lộ anonId); Playwright
+iPhone 13 + desktop 1440 chạy trọn luồng, không tràn ngang, không lỗi JS. Dữ liệu test + 3 hồ sơ
+ẩn danh test đã xoá. Build đạt, lint đúng 1 lỗi nền. **Chưa deploy.** Còn dở: chủ dự án thử trên
+điện thoại thật; 10 tên mô hình đang là tên tạm cần thay bằng danh sách thật.
+
 **Cập nhật mới nhất 2026-09-14 (khuya, sau) — Ảnh bảng giá theo ngữ cảnh, đã deploy:** chủ dự
 án thấy chỉ Ăn có ảnh Menu riêng. Đã đề xuất và được duyệt: mọi nhóm có nút ảnh bảng giá với tên
 đúng ngữ cảnh, gợi ý nút ảnh chung theo nhóm, tiêu đề "… · khách gửi …" và lời nhắc ảnh cũ theo

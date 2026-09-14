@@ -14,6 +14,18 @@ import { FESTIVAL_EVENTS, POST_META, PLAN_TEMPLATE } from "@/lib/postEvents/le-h
 import { getPostEvents } from "@/lib/postEvents";
 import { InteractivePlan } from "@/app/InteractivePlan";
 import { EventCard } from "./EventCard";
+import { GameEntryCard } from "@/app/_game/GameEntryCard";
+import {
+  EVENT_PHASE,
+  eventPhase,
+  gameEventHref,
+  getGameEvent,
+  publicEventConfig,
+} from "@/lib/game/registry";
+import { getGameTeaser } from "@/lib/game/store";
+
+// Mùa game gắn với bài viết này. Bài lễ hội năm sau chỉ đổi slug, không đổi code game.
+const FESTIVAL_GAME_SLUG = "thanh-tuyen-2026";
 
 // Trạng thái mốc lịch tính lúc MỞ TRANG, không phải lúc build (CDP_P1-P8 §"Dynamic Timeline":
 // "không cần deploy code mỗi khi thời gian chuyển trạng thái"). Trang này trước đây là trang
@@ -60,9 +72,11 @@ function TimelineGroups({ events, now }) {
 }
 
 export default async function LeHoiThanhTuyenPage() {
-  const [now, events] = await Promise.all([
+  const gameEvent = getGameEvent(FESTIVAL_GAME_SLUG);
+  const [now, events, gameTeaser] = await Promise.all([
     readNow(),
     getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
+    gameEvent ? getGameTeaser(gameEvent).catch(() => null) : null,
   ]);
   const { live, today, upcoming, past, undated, next } = groupEvents(events, now);
   const countdown = formatCountdown(next, now);
@@ -93,6 +107,17 @@ export default async function LeHoiThanhTuyenPage() {
 
         <h1 className="mt-4 text-2xl font-bold text-zinc-900">{POST_META.title}</h1>
         <p className="mt-1 text-sm text-zinc-500">{POST_META.subtitle}</p>
+
+        {/* NOTE-04 §3: game layer phủ lên chính bài lễ hội, ở chỗ dễ thấy ngay dưới ảnh. Redis lỗi
+            thì ẩn khối game, bài viết vẫn mở bình thường. */}
+        {gameTeaser && (
+          <GameEntryCard
+            event={publicEventConfig(gameEvent)}
+            href={gameEventHref(gameEvent)}
+            teaser={gameTeaser}
+            live={eventPhase(gameEvent) === EVENT_PHASE.LIVE}
+          />
+        )}
 
         {/* §"Phần 2 — Sắp diễn ra gần nhất": mở trang ra là thấy ngay cái sắp tới, không phải
             tự dò trong danh sách xem hôm nay đến lượt gì. */}

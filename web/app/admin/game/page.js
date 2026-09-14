@@ -1,0 +1,332 @@
+import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
+import { getGameEvent, listGameEvents, gameEventHref } from "@/lib/game/registry";
+import {
+  OBJECT_KIND,
+  VERIFICATION_LABEL,
+  VERIFICATION_STATUSES,
+  catalogIndex,
+  objectDisplayName,
+  objectIcon,
+  resolveObjectId,
+} from "@/lib/game/catalog";
+import { resolveObjectStats } from "@/lib/game/progress";
+import { HIDE_AFTER_FLAGS } from "@/lib/game/mapLayer";
+import { adminReadEverything } from "@/lib/game/store";
+import { formatClock, formatDayMonth } from "@/lib/game/format";
+import { MediaImage } from "@/app/MediaImage";
+import {
+  deleteGameSighting,
+  matchGameObject,
+  reviewSightingPhoto,
+  saveGameObject,
+  unmatchGameObject,
+} from "./actions";
+
+export const dynamic = "force-dynamic";
+
+const inputClass =
+  "mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-[#c8553d]";
+const buttonClass = "cursor-pointer rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white";
+const ghostClass = "cursor-pointer rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-700";
+
+function when(iso) {
+  return `${formatClock(iso)} ${formatDayMonth(iso)}`;
+}
+
+function ObjectFields({ event, object }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <label className="text-sm text-zinc-600">
+        Tên
+        <input name="name" defaultValue={object?.name ?? ""} className={inputClass} />
+      </label>
+      <label className="text-sm text-zinc-600">
+        Icon (emoji)
+        <input name="icon" defaultValue={object?.icon ?? ""} className={inputClass} />
+      </label>
+      <label className="text-sm text-zinc-600">
+        Nhóm
+        <select name="category" defaultValue={object?.category ?? ""} className={inputClass}>
+          <option value="">—</option>
+          {event.categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.icon} {c.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="text-sm text-zinc-600">
+        Xác minh
+        <select name="verificationStatus" defaultValue={object?.verificationStatus ?? "admin_verified"} className={inputClass}>
+          {VERIFICATION_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {VERIFICATION_LABEL[s]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="text-sm text-zinc-600">
+        Phường
+        <input name="ward" defaultValue={object?.ward ?? ""} className={inputClass} />
+      </label>
+      <label className="text-sm text-zinc-600">
+        Tổ / khu
+        <input name="neighborhood" defaultValue={object?.neighborhood ?? ""} className={inputClass} />
+      </label>
+      <label className="text-sm text-zinc-600 sm:col-span-2">
+        Mô tả ngắn
+        <input name="description" defaultValue={object?.description ?? ""} className={inputClass} />
+      </label>
+      <label className="text-sm text-zinc-600 sm:col-span-2">
+        Câu chuyện
+        <textarea name="story" rows={2} defaultValue={object?.story ?? ""} className={inputClass} />
+      </label>
+      <label className="flex items-center gap-2 text-sm text-zinc-600">
+        <input type="checkbox" name="hidden" defaultChecked={object?.hidden ?? false} /> Ẩn khỏi game
+      </label>
+    </div>
+  );
+}
+
+export default async function GameAdminPage({ searchParams }) {
+  const cookieStore = await cookies();
+  if (!verifySessionToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value)) redirect("/admin");
+
+  const params = await searchParams;
+  const event = getGameEvent(params?.event ?? "") ?? listGameEvents()[0];
+  const { catalog, sightings, objectStats, flags } = await adminReadEverything(event);
+  const index = catalogIndex(catalog);
+  const counts = resolveObjectStats(objectStats, catalog);
+  const noun = event.copy.objectNoun;
+
+  const models = catalog.filter((o) => o.kind === OBJECT_KIND.MODEL && !o.matchedTo);
+  const mysteries = catalog.filter((o) => o.kind === OBJECT_KIND.UNKNOWN && !o.matchedTo && !o.hidden);
+  const matched = catalog.filter((o) => o.matchedTo);
+  const photosByObject = new Map();
+  for (const s of sightings) {
+    if (!s.photo || s.photo.status === "rejected") continue;
+    const id = resolveObjectId(s.objectId, index);
+    photosByObject.set(id, [...(photosByObject.get(id) ?? []), s]);
+  }
+  const pendingPhotos = sightings.filter((s) => s.photo?.status === "pending");
+  const flagged = sightings.filter((s) => Number(flags[s.id]) > 0);
+
+  return (
+    <main className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6">
+      <Link href="/admin" className="text-sm text-zinc-500 underline">
+        ← Trang duyệt dữ liệu
+      </Link>
+      <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-medium text-zinc-900">Game layer · {event.name}</h1>
+          <p className="text-sm text-zinc-500">
+            {sightings.length} lượt báo · {models.length} {noun} có tên · {mysteries.length} bí ẩn chưa ghép
+          </p>
+        </div>
+        <Link href={gameEventHref(event)} target="_blank" className={ghostClass}>
+          Mở game ↗
+        </Link>
+      </div>
+
+      {params?.saved === "1" && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã lưu.</p>}
+      {params?.error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{params.error}</p>}
+
+      <section className="mt-8">
+        <h2 className="text-lg font-medium text-zinc-900">Ảnh chờ duyệt ({pendingPhotos.length})</h2>
+        <p className="text-sm text-zinc-500">Ảnh khách chỉ lên công khai sau khi dùng làm ảnh {noun}.</p>
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+          {pendingPhotos.map((s) => {
+            const object = index.get(resolveObjectId(s.objectId, index));
+            return (
+              <li key={s.id} className="rounded-xl bg-white p-3 shadow-sm">
+                <MediaImage src={s.photo.url} alt="" sizes="360px" className="aspect-[4/3] w-full rounded-lg bg-zinc-100" />
+                <p className="mt-2 text-sm text-zinc-900">
+                  {objectIcon(object, event.categories)} {objectDisplayName(object, noun)}
+                </p>
+                <p className="text-xs text-zinc-500">{when(s.createdAt)}</p>
+                <form action={reviewSightingPhoto} className="mt-2 flex flex-wrap gap-2">
+                  <input type="hidden" name="slug" value={event.slug} />
+                  <input type="hidden" name="sightingId" value={s.id} />
+                  <button name="decision" value="cover" className={buttonClass}>Dùng làm ảnh {noun}</button>
+                  <button name="decision" value="approve" className={ghostClass}>Duyệt, chưa dùng</button>
+                  <button name="decision" value="reject" className={ghostClass}>Từ chối</button>
+                </form>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-medium text-zinc-900">Bí ẩn chưa ghép ({mysteries.length})</h2>
+        <p className="text-sm text-zinc-500">
+          Ghép vào {noun} có sẵn, hoặc đặt tên để biến thành {noun} mới. Không sửa sighting cũ — ghép nhầm thì bỏ ghép.
+        </p>
+        <ul className="mt-3 flex flex-col gap-3">
+          {mysteries.map((object) => (
+            <li key={object.id} className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-sm font-medium text-zinc-900">
+                ❓ {objectDisplayName(object, noun)} · {counts[object.id] ?? 0} lượt báo
+                {object.createdAt ? ` · tạo ${when(object.createdAt)}` : ""}
+              </p>
+              {(photosByObject.get(object.id) ?? []).length > 0 && (
+                <div className="mt-2 flex gap-2 overflow-x-auto">
+                  {photosByObject.get(object.id).slice(0, 6).map((s) => (
+                    <MediaImage key={s.id} src={s.photo.url} alt="" sizes="96px" className="h-20 w-20 shrink-0 rounded-lg bg-zinc-100" />
+                  ))}
+                </div>
+              )}
+              <form action={matchGameObject} className="mt-3 flex flex-wrap items-end gap-2">
+                <input type="hidden" name="slug" value={event.slug} />
+                <input type="hidden" name="sourceId" value={object.id} />
+                <label className="min-w-48 flex-1 text-sm text-zinc-600">
+                  Là {noun} nào?
+                  <select name="targetId" className={inputClass} defaultValue="">
+                    <option value="" disabled>Chọn…</option>
+                    {models.map((m) => (
+                      <option key={m.id} value={m.id}>{m.icon} {objectDisplayName(m, noun)}</option>
+                    ))}
+                  </select>
+                </label>
+                <button className={buttonClass}>Ghép</button>
+              </form>
+              <details className="mt-3">
+                <summary className="cursor-pointer text-sm text-zinc-600">Đặt tên thành {noun} mới / thêm gợi ý</summary>
+                <form action={saveGameObject} className="mt-3 flex flex-col gap-3">
+                  <input type="hidden" name="slug" value={event.slug} />
+                  <input type="hidden" name="id" value={object.id} />
+                  <input type="hidden" name="kind" value={OBJECT_KIND.UNKNOWN} />
+                  <label className="text-sm text-zinc-600">
+                    Gợi ý hiển thị khi chưa có tên (VD: Minh Xuân · chủ đề cổ tích)
+                    <input name="hint" defaultValue={object.hint ?? ""} className={inputClass} />
+                  </label>
+                  <ObjectFields event={event} object={object} />
+                  <button className={`${buttonClass} self-start`}>Lưu</button>
+                </form>
+              </details>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-medium text-zinc-900">{noun.charAt(0).toUpperCase() + noun.slice(1)} có tên ({models.length})</h2>
+        <ul className="mt-3 flex flex-col gap-2">
+          {models.map((object) => (
+            <li key={object.id} className="rounded-xl bg-white p-3 shadow-sm">
+              <details>
+                <summary className="cursor-pointer text-sm text-zinc-900">
+                  {objectIcon(object, event.categories)} {objectDisplayName(object, noun)} · {counts[object.id] ?? 0} lượt ·{" "}
+                  {VERIFICATION_LABEL[object.verificationStatus]}
+                  {object.hidden ? " · đang ẩn" : ""}
+                  {object.source === "cdp_seed_placeholder" ? " · tên tạm" : ""}
+                </summary>
+                <form action={saveGameObject} className="mt-3 flex flex-col gap-3">
+                  <input type="hidden" name="slug" value={event.slug} />
+                  <input type="hidden" name="id" value={object.id} />
+                  <ObjectFields event={event} object={object} />
+                  <button className={`${buttonClass} self-start`}>Lưu</button>
+                </form>
+              </details>
+            </li>
+          ))}
+        </ul>
+        <details className="mt-3 rounded-xl bg-white p-4 shadow-sm">
+          <summary className="cursor-pointer text-sm font-medium text-zinc-900">+ Thêm {noun}</summary>
+          <form action={saveGameObject} className="mt-3 flex flex-col gap-3">
+            <input type="hidden" name="slug" value={event.slug} />
+            <ObjectFields event={event} object={null} />
+            <button className={`${buttonClass} self-start`}>Thêm</button>
+          </form>
+        </details>
+      </section>
+
+      {matched.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-medium text-zinc-900">Đã ghép ({matched.length})</h2>
+          <ul className="mt-3 flex flex-col gap-2">
+            {matched.map((object) => (
+              <li key={object.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white p-3 text-sm shadow-sm">
+                <span>
+                  {objectDisplayName(object, noun)} → {objectDisplayName(index.get(object.matchedTo), noun)}
+                </span>
+                <form action={unmatchGameObject}>
+                  <input type="hidden" name="slug" value={event.slug} />
+                  <input type="hidden" name="id" value={object.id} />
+                  <button className={ghostClass}>Bỏ ghép</button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="mt-10">
+        <h2 className="text-lg font-medium text-zinc-900">Lượt báo bị báo sai ({flagged.length})</h2>
+        <p className="text-sm text-zinc-500">Từ {HIDE_AFTER_FLAGS} lượt báo sai trở lên thì marker tự ẩn khỏi bản đồ.</p>
+        <SightingTable event={event} sightings={flagged} index={index} flags={flags} noun={noun} />
+      </section>
+
+      <section className="mt-10 mb-12">
+        <h2 className="text-lg font-medium text-zinc-900">50 lượt báo gần nhất</h2>
+        <SightingTable event={event} sightings={sightings.slice(0, 50)} index={index} flags={flags} noun={noun} />
+      </section>
+    </main>
+  );
+}
+
+function SightingTable({ event, sightings, index, flags, noun }) {
+  if (sightings.length === 0) return <p className="mt-3 text-sm text-zinc-400">Không có.</p>;
+  return (
+    <div className="mt-3 overflow-x-auto rounded-xl bg-white shadow-sm">
+      <table className="w-full min-w-[560px] text-left text-sm">
+        <thead className="text-xs text-zinc-500">
+          <tr>
+            <th className="px-3 py-2 font-normal">Lúc</th>
+            <th className="px-3 py-2 font-normal">{noun}</th>
+            <th className="px-3 py-2 font-normal">Vị trí</th>
+            <th className="px-3 py-2 font-normal">Người báo</th>
+            <th className="px-3 py-2 font-normal" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-zinc-100">
+          {sightings.map((s) => {
+            const object = index.get(resolveObjectId(s.objectId, index));
+            return (
+              <tr key={s.id}>
+                <td className="px-3 py-2 text-zinc-500">{when(s.createdAt)}</td>
+                <td className="px-3 py-2">
+                  {objectIcon(object, event.categories)} {objectDisplayName(object, noun)}
+                  {Number(flags[s.id]) > 0 ? ` · ⚑ ${flags[s.id]}` : ""}
+                  {s.photo ? " · 📷" : ""}
+                </td>
+                <td className="px-3 py-2">
+                  <a
+                    className="text-zinc-600 underline"
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`https://www.openstreetmap.org/?mlat=${s.lat}&mlon=${s.lng}#map=18/${s.lat}/${s.lng}`}
+                  >
+                    {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
+                  </a>
+                  <span className="text-xs text-zinc-400"> · {s.locationSource}{s.accuracy ? ` ±${s.accuracy}m` : ""}</span>
+                </td>
+                <td className="px-3 py-2 text-xs text-zinc-400">{s.anonId.slice(0, 10)}…</td>
+                <td className="px-3 py-2 text-right">
+                  <form action={deleteGameSighting}>
+                    <input type="hidden" name="slug" value={event.slug} />
+                    <input type="hidden" name="sightingId" value={s.id} />
+                    <button className="cursor-pointer text-xs text-red-600 underline">Xoá</button>
+                  </form>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
