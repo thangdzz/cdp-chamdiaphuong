@@ -6,6 +6,13 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-14 (khuya, sau) — Ảnh bảng giá theo ngữ cảnh, đã deploy:** chủ dự
+án thấy chỉ Ăn có ảnh Menu riêng. Đã đề xuất và được duyệt: mọi nhóm có nút ảnh bảng giá với tên
+đúng ngữ cảnh, gợi ý nút ảnh chung theo nhóm, tiêu đề "… · khách gửi …" và lời nhắc ảnh cũ theo
+tên mới, Admin nhãn "Menu / bảng giá". Giữ role `menu` nên không đụng dữ liệu. Build đạt, lint
+đúng 1 lỗi nền. Kiểm tra mapping 9 trường hợp + UI local và production `web-eyywjhnh2` trên
+iPhone 15 Plus (chỉ mở khung gửi ảnh, không gửi), không lỗi JS.
+
 **Cập nhật mới nhất 2026-09-14 (khuya) — Icon menu mobile + chuyển trang, đã deploy:** menu
 mobile dùng cùng bộ icon với sidebar. Thêm hiệu ứng chuyển trang bằng View Transitions của
 trình duyệt (không thêm thư viện): trang mới trượt 28px + hiện dần 260ms, link "←" trượt

@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-14 (khuya, sau) — Ảnh bảng giá theo ngữ cảnh ĐÃ DEPLOY** (`web-eyywjhnh2`). Nút ảnh
+riêng cho mọi nhóm, tên lấy từ `lib/priceListPhoto.js` (Ăn "Ảnh menu", Chơi "Ảnh bảng giá vé",
+Ngủ "Ảnh bảng giá phòng", Đi lại theo subtype; điểm đón/trả không có). Dữ liệu vẫn role `menu`,
+không migration. **Chỗ mới hiện chữ về ảnh menu/bảng giá phải lấy tên từ helper này.**
+Production: nút đúng cho Ngủ/Chơi/Bến xe, ảnh menu cũ của Min Garden vẫn đúng, không lỗi JS.
+
 **2026-09-14 (khuya) — Icon menu mobile + chuyển trang kiểu iOS ĐÃ DEPLOY** (`web-bgv0djbky`).
 Icon tách ra `app/NavigationIcon.js` dùng chung sidebar + menu mobile. Chuyển trang:
 `app/PageTransition.js` + CSS `cdp-page-enter` trong `globals.css`, bật bằng

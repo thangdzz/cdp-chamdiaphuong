@@ -15,6 +15,7 @@
       nút chủ sổ thành "Chia sẻ sổ" — 🚀 Đã deploy 2026-09-14** (`web-rbd3watu6`)
   - [ ] Chủ dự án bấm thử: Chia sẻ một lộ trình từ danh sách; mở Sổ cafe → thấy "← Sổ của tôi"
 - [x] **Logo ảnh ở header/sidebar — 🚀 Đã deploy 2026-09-14** (`web-rdrc3fg1c`)
+- [x] **Ảnh bảng giá theo ngữ cảnh cho Chơi/Ngủ/Đi lại — 🚀 Đã deploy 2026-09-14** (`web-eyywjhnh2`)
 - [x] **Icon menu mobile + chuyển trang kiểu iOS — 🚀 Đã deploy 2026-09-14** (`web-bgv0djbky`)
 - [x] **Menu có "Lộ trình của tôi" (key `routes`, sau Sổ) — 🚀 Đã deploy 2026-09-14** (`web-jxi3j7u43`)
 - [x] **Link chia sẻ cũ (trước NOTE-11) hiện ảnh địa điểm — 🚀 Đã deploy 2026-09-14**
