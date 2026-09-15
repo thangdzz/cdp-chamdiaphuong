@@ -8,7 +8,7 @@
 
 ## 1. Task hiện tại
 
-**2026-09-16 — Sửa 3 lỗi sau NOTE-08 ĐÃ CODE, CHƯA DEPLOY (chờ chủ dự án bảo).** Chi tiết DECISIONS
+**2026-09-16 — Sửa 3 lỗi sau NOTE-08 ĐÃ DEPLOY (`web-4tl2b0ue6`), chủ dự án đã thử iPhone thật OK.** Chi tiết DECISIONS
 2026-09-16. Trang lễ hội 1 khối game; thẻ game nổi trang chủ (`app/_game/HomeGameEntry.js` +
 `HomeGameDock.js`); `BottomSheet` bám visualViewport + prop `expanded`. Thêm (sau): chặn cuộn xuyên trong
 `BottomSheet` (vuốt danh sách ngắn làm nền chạy). Việc tiếp: chủ dự án thử lại iPhone thật → deploy. Các việc treo trước đó (theo dõi tự động đêm 18/9, kênh thông báo ntfy) **để sau** theo lời
@@ -330,20 +330,33 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 
 ## 5. Bước tiếp theo nên làm
 
-Xếp theo mức đáng làm trước lễ hội:
+Cập nhật 2026-09-16. Xếp theo hạn: game live **18/9 19:00**, lễ hội **19–25/9**.
 
-0. **Chốt `docs/PLAN-dem-18-9-redis.md` §7** (gói Upstash + giảm lệnh B1–B3) và làm trước 18/9 19:00;
-   theo dõi đêm 18/9 theo §6. NOTE-08 Phần 4 (menu admin + Dashboard + Người dùng) sau. Chi tiết kế hoạch ở DECISIONS 2026-09-15 "NOTE-08".
+**A. Trước 18/9 19:00**
+1. **Chủ dự án:** chuyển Upstash Pay-as-you-go + hạn mức $10 (đã chốt, chưa làm).
+2. **Theo dõi tự động đêm 18/9** — kế hoạch `docs/PLAN-dem-18-9-redis.md` §8 đã duyệt, CHƯA code (chủ dự án
+   bảo để sau). Kênh báo: đề xuất app ntfy + email GitHub, chủ dự án chưa chốt. Không làm kịp thì dùng lịch
+   tay §6.
+3. **Chủ dự án nghe/xem ở `/admin/game`:** "Nghe so sánh cùng họ", "Nghe lần lượt" 45 tiếng, "Xem trước bộ
+   huy hiệu" trên điện thoại; báo hình/tiếng chưa hợp.
+4. Điền tên thật 11 slot "Mô hình chưa xác định #35–45" khi có danh sách (sửa ở `/admin/game`, không deploy).
+5. Routine quét nâng 2–3 lần/ngày trong tuần lễ hội; gọi điện xác minh 10–15 chỗ quan trọng.
 
-1. **Chủ dự án bấm thử NOTE-11/12/13 trên production** (đã deploy 14/9): Admin tải → gỡ ảnh,
-   khách gửi 6 ảnh thấy báo đỏ, gửi mẹo `Khác` → từ chối, lưu một route share → sửa bản copy.
-   Lỗi gì sửa trước 19/9 (tuần lễ hội chỉ đo số liệu, không code).
-2. **Bàn hướng xử lý giá mùa cao điểm** — cần chủ dự án chốt trước, đừng tự code.
-3. **Lộ trình mẫu của CDP** (`is_featured`) + nút "Dùng lộ trình này" — `CDP_P1-P8 §Phase 2`.
-   Phần copy route đã có từ NOTE-13 (`copyRouteFromShare`, copy từ snapshot share); còn thiếu
-   cờ featured, nơi hiển thị lộ trình mẫu và copy từ route sống thay vì snapshot.
-4. **Toạ độ địa điểm** — mở khoá bản đồ và khoảng cách/thời gian.
-5. Phase 2 còn lại: Source Registry, Content Monitor, admin duyệt diff.
+**B. Đêm 18/9 và tuần lễ hội**
+6. 19:00 kiểm game tự live trên production; theo dõi lượt báo đầu tiên, duyệt ảnh ở `/admin/game`.
+7. Sau đêm đầu: xem số lệnh Upstash thật → thay số giả định trong PLAN §3–§4; vượt dự tính thì
+   `CDP_ANALYTICS_DISABLED=1`.
+
+**C. Sau lễ hội / khi rảnh**
+8. NOTE-08 Phần 4: tách menu admin, Dashboard `/admin` (duyệt dữ liệu → `/admin/duyet`), `/admin/users` —
+   số liệu đã ghi từ 15/9.
+9. Rủi ro đã biết: `contributors:all` đọc-cả-mảng/ghi-cả-mảng → nhiều người báo lần đầu cùng lúc có thể đè
+   mất hồ sơ nhau. Chưa xử lý; cân nhắc trước khi đông.
+10. Chủ dự án bấm thử NOTE-11/12/13 trên production (ảnh, mẹo `Khác`, lưu route share) + chia sẻ lộ trình.
+11. Bàn hướng giá mùa cao điểm (chủ dự án chốt trước, đừng tự code).
+12. Backlog: lộ trình mẫu `is_featured`, toạ độ địa điểm (0/210) → Routes API, Source Registry/Content
+    Monitor, tuổi dữ liệu `lastVerifiedAt`, lint cũ `PlaceExplorer.js`, đưa test Playwright vào repo, nhãn
+    "còn chỗ" viết cứng ngày 2026, ô biệt danh `ContributionPanel` chưa điền tên nháp, feed "X vừa báo thấy…".
 
 **Trước khi bắt tay bất kỳ việc nào:** đọc [/AGENTS.md](../AGENTS.md) §6 (những thứ không
 được tự ý đổi) và trình kế hoạch ngắn cho chủ dự án duyệt.

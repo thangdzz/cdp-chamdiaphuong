@@ -11,14 +11,14 @@
 
 ## 🚧 IN PROGRESS
 
-- [x] **Sửa 3 lỗi sau NOTE-08 (2026-09-16) — 💻 chỉ local, CHƯA deploy (chờ chủ dự án bảo)**
+- [x] **Sửa 3 lỗi sau NOTE-08 (2026-09-16) — 🚀 Đã deploy 2026-09-16 (`web-4tl2b0ue6`)**
   - [x] `/le-hoi-thanh-tuyen` chỉ còn 1 khối game (GameEntryCard dưới tiêu đề), bỏ GameBanner
   - [x] Thẻ game nổi mép phải ở trang chủ: tự mở lần đầu mỗi ngày, tab nhỏ các lần sau, "Ẩn hôm nay"
   - [x] Bảng "Bạn vừa thấy mô hình nào?" không tụt ra sau bàn phím (visualViewport + chiều cao cố định + ô tìm kiếm sticky)
   - [x] iPhone thật (chủ dự án): bàn phím hết che ô tìm kiếm
   - [x] Vuốt danh sách sau khi gõ làm nền chạy theo/khựng → chặn cuộn xuyên trong BottomSheet
-  - [ ] Chủ dự án thử lại iPhone thật: gõ 1–2 ký tự rồi vuốt danh sách; thẻ game trang chủ
-  - [ ] Deploy khi chủ dự án yêu cầu
+  - [x] Chủ dự án thử lại iPhone thật: gõ rồi vuốt danh sách — OK
+  - [x] Deploy — production kiểm: lễ hội 1 khối game, thẻ nổi trang chủ, lọc không tụt, danh sách ngắn chặn cuộn xuyên
 
 - [ ] **NOTE-08 — Banner game, tên ẩn danh, theo dõi người dùng (4 phần, kế hoạch duyệt 15/9)**
   - [x] Phần 1: banner cổng vào game trên `/le-hoi-thanh-tuyen` — 💻 chỉ local, chưa deploy

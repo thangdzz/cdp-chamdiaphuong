@@ -6,6 +6,12 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 — ĐÃ DEPLOY đợt sửa 3 lỗi + chặn cuộn xuyên** (`web-4tl2b0ue6`). Chủ dự án
+xác nhận iPhone thật OK. Production kiểm (WebKit iPhone 13, chặn `/api/track`): `/le-hoi-thanh-tuyen` đúng 1
+khối game, không còn chữ banner cũ; trang chủ hiện thẻ nổi 336×159 "Mở màn 19:00 · 18/9"; bảng báo lọc "long"
+ô tìm kiếm vẫn ở trên (y=148); danh sách ngắn vuốt dọc bị chặn cuộn xuyên (Chromium TouchEvent); không tạo
+hồ sơ, không lỗi JS.
+
 **Cập nhật mới nhất 2026-09-16 (sau) — chặn cuộn xuyên sau bảng báo (chỉ local, chưa deploy):** chủ dự án
 thử iPhone thật: bàn phím hết che, nhưng gõ rồi vuốt danh sách thì nền chạy theo + khựng. Nguyên nhân: danh
 sách ngắn hơn khung nên không cuộn được → Safari chuyển cú vuốt ra trang; bàn phím mở thì visualViewport còn
