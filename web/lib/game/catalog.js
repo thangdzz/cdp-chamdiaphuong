@@ -42,28 +42,14 @@ export function isUnnamedSlot(object) {
   return object?.kind === OBJECT_KIND.MODEL && !object?.name;
 }
 
-const DEFAULT_TINT = "#fbf3e6";
-
-// Icon của object là một KHOÁ tra trong `event.iconSet` (NOTE-05 §12, §22): { glyph, badge?, tint? }
-// — glyph là hình chính, badge là hình phụ nhỏ ở góc để phân biệt các mô hình cùng con vật (rồng
-// LED vs rồng cuốn nước). Không có khoá hợp lệ thì: icon tự do (emoji admin gõ) → icon nhóm →
-// đèn lồng. Không bao giờ trả rỗng.
-export function objectIconSpec(object, event) {
-  const category = event?.categories?.find((c) => c.id === object?.category);
-  const tint = category?.tint ?? DEFAULT_TINT;
-  if (object?.kind === OBJECT_KIND.UNKNOWN && !object?.icon) {
-    return { glyph: UNKNOWN_ICON, badge: null, tint: DEFAULT_TINT };
-  }
-  const fromSet = object?.icon ? event?.iconSet?.[object.icon] : null;
-  if (fromSet) return { glyph: fromSet.glyph, badge: fromSet.badge ?? null, tint: fromSet.tint ?? tint };
-  if (object?.icon && !/^[a-z0-9-]+$/.test(object.icon)) return { glyph: object.icon, badge: null, tint };
-  return { glyph: category?.icon ?? DEFAULT_ICON, badge: null, tint };
-}
-
-// Chuỗi ngắn cho chỗ chỉ hiện được chữ (admin, nhãn marker).
+// Emoji cho chỗ chỉ hiện được CHỮ (ô chọn admin, nhãn văn bản). Hình huy hiệu thật dựng ở
+// lib/game/badge.js (NOTE-07). Không bao giờ trả rỗng.
 export function objectIcon(object, event) {
-  const spec = objectIconSpec(object, event);
-  return spec.badge ? `${spec.glyph}${spec.badge}` : spec.glyph;
+  if (object?.kind === OBJECT_KIND.UNKNOWN && !object?.icon) return UNKNOWN_ICON;
+  const fromSet = object?.icon ? event?.iconSet?.[object.icon] : null;
+  if (fromSet?.emoji) return fromSet.emoji;
+  if (object?.icon && !/^[a-z0-9-]+$/.test(object.icon)) return object.icon;
+  return event?.categories?.find((c) => c.id === object?.category)?.icon ?? DEFAULT_ICON;
 }
 
 function cleanSlugList(value, max = 12) {

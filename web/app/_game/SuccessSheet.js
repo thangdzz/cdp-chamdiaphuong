@@ -108,7 +108,6 @@ export function SuccessSheet({
             event={event}
             size="lg"
             state={result.isNewForUser ? "unlocked" : "met"}
-            className="shadow-lg"
           />
         </div>
 

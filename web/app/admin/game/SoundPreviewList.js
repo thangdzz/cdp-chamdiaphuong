@@ -16,7 +16,11 @@ function seconds(value) {
   return `${value.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} s`;
 }
 
-export function SoundPreviewList({ models, eventSounds }) {
+function BadgeGlyph({ html }) {
+  return <span className="inline-flex shrink-0" aria-hidden="true" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+export function SoundPreviewList({ models, eventSounds, compareGroups = [] }) {
   const [playing, setPlaying] = useState(null);
   const [queue, setQueue] = useState(null); // index đang phát khi "Nghe lần lượt"
   const timers = useRef([]);
@@ -42,16 +46,16 @@ export function SoundPreviewList({ models, eventSounds }) {
     setPlaying(null);
   }
 
-  // Phát lần lượt từng mô hình, cách nhau nửa giây — nghe một mạch để so độ to giữa các con.
-  function playAll(from = 0) {
-    if (from >= models.length) {
+  // Phát lần lượt, cách nhau nửa giây — nghe một mạch để so độ to/độ dữ giữa các con.
+  function playAll(list = models, from = 0, queueId = "all") {
+    if (from >= list.length) {
       stopQueue();
       return;
     }
-    const item = models[from];
-    setQueue(from);
+    const item = list[from];
+    setQueue({ id: queueId, index: from, total: list.length });
     play(item);
-    timers.current.push(window.setTimeout(() => playAll(from + 1), item.recipe.duration * 1000 + 500));
+    timers.current.push(window.setTimeout(() => playAll(list, from + 1, queueId), item.recipe.duration * 1000 + 600));
   }
 
   const rowClass = (id) =>
@@ -78,6 +82,52 @@ export function SoundPreviewList({ models, eventSounds }) {
         </ul>
       </div>
 
+      {compareGroups.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-zinc-700">Nghe so sánh cùng họ (NOTE-07)</h3>
+          <ul className="mt-2 flex flex-col gap-2">
+            {compareGroups.map((group, groupIndex) => {
+              const queueId = `group-${groupIndex}`;
+              return (
+                <li key={queueId} className="rounded-lg bg-zinc-50 p-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+                    <span className="text-sm text-zinc-700">{group.label}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        stopQueue();
+                        if (queue?.id !== queueId) playAll(group.items, 0, queueId);
+                      }}
+                      className="min-h-10 cursor-pointer rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white"
+                    >
+                      {queue?.id === queueId ? `■ Dừng (${queue.index + 1}/${queue.total})` : "▶ Nghe cả nhóm"}
+                    </button>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {group.items.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => play(item)}
+                        className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-left text-sm ${
+                          playing === item.id ? "bg-[#fbf0d9] text-[#8a5a10]" : "bg-white text-zinc-800 shadow-sm"
+                        }`}
+                      >
+                        <BadgeGlyph html={item.badge} />
+                        <span>
+                          {item.name}
+                          <span className="block text-xs text-zinc-400">{seconds(item.recipe.duration)}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-medium text-zinc-700">Âm mở khoá từng mô hình ({models.length})</h3>
@@ -89,10 +139,13 @@ export function SoundPreviewList({ models, eventSounds }) {
             >
               ▶ Tiếng gặp lại
             </button>
-            {queue === null ? (
+            {queue?.id !== "all" ? (
               <button
                 type="button"
-                onClick={() => playAll(0)}
+                onClick={() => {
+                  stopQueue();
+                  playAll(models, 0, "all");
+                }}
                 className="min-h-10 cursor-pointer rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white"
               >
                 ▶ Nghe lần lượt
@@ -103,7 +156,7 @@ export function SoundPreviewList({ models, eventSounds }) {
                 onClick={stopQueue}
                 className="min-h-10 cursor-pointer rounded-lg bg-[#c8553d] px-3 text-sm font-medium text-white"
               >
-                ■ Dừng ({queue + 1}/{models.length})
+                ■ Dừng ({queue.index + 1}/{queue.total})
               </button>
             )}
           </div>
@@ -114,7 +167,7 @@ export function SoundPreviewList({ models, eventSounds }) {
               <button type="button" aria-label={`Nghe ${model.name}`} className={playButton} onClick={() => play(model)}>
                 {playing === model.id ? "🔊" : "▶"}
               </button>
-              <span className="w-11 shrink-0 whitespace-nowrap text-center text-base" aria-hidden="true">{model.glyph}</span>
+              <BadgeGlyph html={model.badge} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{model.name}</span>
                 <span className="block truncate text-xs text-zinc-500">

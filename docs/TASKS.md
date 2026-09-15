@@ -40,6 +40,11 @@
         hội + đám đông; `/admin/game` nghe lần lượt cả 45 kèm thời lượng, đổi tiếng bằng ô chọn
   - [x] 15/9: nút định vị trên bản đồ game không còn bị khoá (icon gạch chéo) sau khi bị từ chối —
         bấm lại được, bấm để tắt, có thông báo lý do + nút tải lại trang
+  - [x] 15/9 NOTE-07: tiếng hổ oai hơn, Mãng long "boss" hơn Rồng vàng, 4 rồng 4 giọng, nghê ≠ hổ,
+        cá chép ≠ cửu ngư (8 mẫu CC0 mới); huy hiệu sưu tập một hình hero (game-icons.net CC BY 3.0 +
+        2 hình tự vẽ), khung theo nhóm, trạng thái chưa gặp/đã gặp/vừa mở/bí ẩn, marker bản đồ tròn,
+        ảnh thật + icon góc; `/admin/game` có "Nghe so sánh cùng họ" + "Xem trước bộ huy hiệu"
+  - [ ] Nghe "Nghe so sánh cùng họ" + xem "Xem trước bộ huy hiệu" ở `/admin/game`, báo lại hình/tiếng chưa hợp
   - [ ] Nghe "Nghe lần lượt" 45 mô hình ở `/admin/game` trên điện thoại thật, đổi tiếng nào chưa hợp
   - [ ] Điền tên thật cho 11 slot "Mô hình chưa xác định #35–45" khi có danh sách
   - [ ] Quyết định deploy trước 19/9

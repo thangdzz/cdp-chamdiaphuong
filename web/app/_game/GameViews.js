@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ObjectIcon } from "./ObjectIcon";
+import { ObjectIcon, ObjectMedia } from "./ObjectIcon";
+import { ICON_ART_LICENSE, artAuthors } from "@/lib/game/badge";
 import { OBJECT_KIND, isUnnamedSlot, objectDisplayName, openMysteries } from "@/lib/game/catalog";
 import { RARITY, RARITY_LABEL, nightHighlights } from "@/lib/game/collections";
 import { formatAgo, formatClock, formatDayMonth } from "@/lib/game/format";
@@ -142,7 +143,13 @@ function CollectionCard({ event, object, met, highlight, myCount, communityCount
         met ? "bg-white" : "bg-white/60"
       } ${highlight ? "cdp-game-card-glow" : ""}`}
     >
-      <ObjectIcon object={object} event={event} size="md" state={highlight ? "unlocked" : met ? "met" : "locked"} />
+      <ObjectMedia
+        object={object}
+        event={event}
+        state={met ? "met" : "locked"}
+        className="aspect-[4/3] w-full"
+        fallback={<ObjectIcon object={object} event={event} size="md" state={highlight ? "unlocked" : met ? "met" : "locked"} />}
+      />
       <span
         className={`mt-2 line-clamp-2 text-sm font-medium leading-snug ${met ? "text-zinc-900" : "text-zinc-500"}`}
       >
@@ -278,6 +285,16 @@ export function CollectionView({
       <p className="text-xs leading-5 text-zinc-400">
         Danh sách {noun} mở rộng dần khi cộng đồng ghi nhận thêm. Tên chưa xác minh có thể được CDP sửa lại.
         {event.catalogNote ? ` ${event.catalogNote.text} Nguồn: ${event.catalogNote.source}.` : ""}
+      </p>
+      <p className="-mt-2 text-[11px] leading-5 text-zinc-400">
+        Hình huy hiệu dựa trên{" "}
+        <a href="https://game-icons.net" target="_blank" rel="noreferrer" className="underline underline-offset-2">
+          game-icons.net
+        </a>{" "}
+        ({artAuthors().join(", ")}) ·{" "}
+        <a href={ICON_ART_LICENSE.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+          {ICON_ART_LICENSE.name}
+        </a>
       </p>
     </section>
   );

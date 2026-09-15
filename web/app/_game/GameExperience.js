@@ -24,9 +24,9 @@ import {
   OBJECT_KIND,
   catalogIndex,
   objectDisplayName,
-  objectIconSpec,
   resolveObjectId,
 } from "@/lib/game/catalog";
+import { badgeSpec } from "@/lib/game/badge";
 import { computeCollections, diffCollections } from "@/lib/game/collections";
 import { formatCountdownTo, formatDayMonth } from "@/lib/game/format";
 import { computeProgress, resolveCollection, resolveObjectStats } from "@/lib/game/progress";
@@ -187,7 +187,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           id: marker.id,
           lat: marker.lat,
           lng: marker.lng,
-          icon: objectIconSpec(object, event),
+          icon: badgeSpec(object, event),
           tone:
             object?.kind === OBJECT_KIND.UNKNOWN
               ? "mystery"

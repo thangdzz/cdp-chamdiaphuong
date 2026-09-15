@@ -6,6 +6,19 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (khuya, cuối) — NOTE-07 tiếng + huy hiệu sưu tập, chỉ local:**
+tiếng: thêm 8 mẫu CC0, làm lại công thức hổ (gầm dài + gầm ngực + nổ trầm + vang đuôi), 4 con rồng 4
+giọng gốc (Mãng long boss dài/trầm/nặng nhất), nghê gằn + chuông, cá chép vút + quẫy mạnh, cửu ngư nhiều
+gợn nhỏ; đo trộn offline: hổ +3,6 dB và trầm hơn nhiều, Mãng long +3,3 dB và năng lượng ×2,5 so với Rồng
+vàng. Icon: hệ huy hiệu `lib/game/badge.js` 4 lớp (khung theo nhóm, viền kim loại, một hình hero từ
+game-icons.net CC BY 3.0 + mặt trống đồng/đèn lồng bí ẩn tự vẽ, trạng thái CSS); dùng ở bộ sưu tập,
+sheet, màn mở khoá, danh sách chọn, marker bản đồ (tròn); ảnh thật có huy hiệu góc trên trái; dòng ghi
+công tác giả cuối Bộ sưu tập. `/admin/game`: nghe so sánh cùng họ, xem trước 45 huy hiệu ở 32/48/64px
+và 4 trạng thái + ảnh+icon. Kiểm thử: test dữ liệu (34 hình khác nhau, mỗi huy hiệu đúng 1 hình, emoji
+admin gõ được escape, 4 rồng 4 giọng, mọi công thức ≤ 2 giây) + test NOTE-06; Playwright WebKit/Chromium
+mở khoá/gặp lại/bí ẩn/tắt tiếng đạt; hồi quy chống nháy (0 lần sửa marker khi cuộn) + nút định vị đạt.
+Build đạt, lint đúng 1 lỗi nền. **Chưa deploy. Chưa ai nghe/nhìn duyệt.**
+
 **Cập nhật mới nhất 2026-09-15 (khuya, sau) — Sửa nút định vị bản đồ game, chỉ local:** nút của
 MapLibre tự khoá vĩnh viễn sau một lần bị từ chối quyền vị trí (qua link http trong mạng nhà luôn bị
 từ chối) → thay bằng nút tự viết: bấm lại được, bấm để tắt, thông báo lý do (http / bị chặn / chưa bắt

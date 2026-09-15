@@ -198,6 +198,16 @@ const SYNTHS = {
     arp(c, t, d, [1047, 1319, 1568, 2093, 2637], { step: 0.05, duration: 0.35, type: "triangle", gain: 0.04 });
     noise(c, t, d, { start: 0.05, duration: 0.6, filter: "highpass", freq: 5000, gain: 0.018 });
   },
+  // Lấp lánh vàng kiểu "showpiece": hợp âm trưởng đi lên sáng rực (NOTE-07 §2.3 Rồng vàng).
+  "regal-shimmer": (c, t, d) => {
+    arp(c, t, d, [784, 988, 1175, 1568, 1976], { step: 0.06, duration: 0.5, type: "triangle", gain: 0.045 });
+    [1568, 1976].forEach((freq) => bell(c, t, d, { freq, start: 0.3, duration: 0.6, gain: 0.03 }));
+  },
+  // Luồng vút đi lên (cá chép vượt vũ môn): nhiễu quét cao dần + nốt trượt lên.
+  "rise-sweep": (c, t, d) => {
+    noise(c, t, d, { duration: 0.55, freq: 400, to: 5000, q: 1.4, gain: 0.07 });
+    tone(c, t, d, { freq: 330, to: 1320, duration: 0.5, type: "triangle", gain: 0.04, attack: 0.05 });
+  },
   "ceremonial-chime": (c, t, d) => {
     bell(c, t, d, { freq: 523, duration: 0.9, gain: 0.07 });
     bell(c, t, d, { freq: 784, start: 0.18, duration: 0.7, gain: 0.05 });

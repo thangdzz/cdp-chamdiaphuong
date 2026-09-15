@@ -11,6 +11,15 @@ export const SOUND_SAMPLES = {
     "originalFilename": "Anvil Hit 2",
     "downloadedAt": "2026-09-15"
   },
+  "big-swoosh": {
+    "file": "/game-sounds/big-swoosh.m4a",
+    "duration": 0.7,
+    "sourceUrl": "https://freesound.org/people/Electroviolence/sounds/234547/",
+    "license": "CC0 1.0",
+    "author": "Electroviolence",
+    "originalFilename": "Big Swoosh",
+    "downloadedAt": "2026-09-15"
+  },
   "big-tom": {
     "file": "/game-sounds/big-tom.m4a",
     "duration": 1.4,
@@ -18,6 +27,15 @@ export const SOUND_SAMPLES = {
     "license": "CC0 1.0",
     "author": "Johnnie_Holiday",
     "originalFilename": "JH Big Tom 1 (C 2 sec).wav",
+    "downloadedAt": "2026-09-15"
+  },
+  "boss-roar": {
+    "file": "/game-sounds/boss-roar.m4a",
+    "duration": 2,
+    "sourceUrl": "https://freesound.org/people/icyjim/sounds/476083/",
+    "license": "CC0 1.0",
+    "author": "icyjim",
+    "originalFilename": "cloverfield roar.wav",
     "downloadedAt": "2026-09-15"
   },
   "bubbles": {
@@ -74,6 +92,15 @@ export const SOUND_SAMPLES = {
     "originalFilename": "Small crowd cheering",
     "downloadedAt": "2026-09-15"
   },
+  "dino-dragon-roar": {
+    "file": "/game-sounds/dino-dragon-roar.m4a",
+    "duration": 1.8,
+    "sourceUrl": "https://freesound.org/people/999999990/sounds/320345/",
+    "license": "CC0 1.0",
+    "author": "999999990",
+    "originalFilename": "Dino Hiss Dragon Roar",
+    "downloadedAt": "2026-09-15"
+  },
   "dragon-roar": {
     "file": "/game-sounds/dragon-roar.m4a",
     "duration": 1.6,
@@ -81,6 +108,24 @@ export const SOUND_SAMPLES = {
     "license": "CC0 1.0",
     "author": "JoelAudio",
     "originalFilename": "DRAGON_ROAR.wav",
+    "downloadedAt": "2026-09-15"
+  },
+  "dragon-roar-bright": {
+    "file": "/game-sounds/dragon-roar-bright.m4a",
+    "duration": 1.6,
+    "sourceUrl": "https://freesound.org/people/qubodup/sounds/442964/",
+    "license": "CC0 1.0",
+    "author": "qubodup",
+    "originalFilename": "Dragon Roar",
+    "downloadedAt": "2026-09-15"
+  },
+  "dragon-snarl": {
+    "file": "/game-sounds/dragon-snarl.m4a",
+    "duration": 1.3,
+    "sourceUrl": "https://freesound.org/people/Breviceps/sounds/466830/",
+    "license": "CC0 1.0",
+    "author": "Breviceps",
+    "originalFilename": "Dragon: Snarl, Roar + Attack",
     "downloadedAt": "2026-09-15"
   },
   "drum-loop": {
@@ -171,6 +216,15 @@ export const SOUND_SAMPLES = {
     "license": "CC0 1.0",
     "author": "stratcat322",
     "originalFilename": "lion_growls.wav",
+    "downloadedAt": "2026-09-15"
+  },
+  "lion-roar-big": {
+    "file": "/game-sounds/lion-roar-big.m4a",
+    "duration": 1.3,
+    "sourceUrl": "https://freesound.org/people/_justMonke_/sounds/611721/",
+    "license": "CC0 1.0",
+    "author": "_justMonke_",
+    "originalFilename": "Big Lion Roar",
     "downloadedAt": "2026-09-15"
   },
   "low-rumble": {
@@ -290,6 +344,15 @@ export const SOUND_SAMPLES = {
     "originalFilename": "Scraping Stone",
     "downloadedAt": "2026-09-15"
   },
+  "sub-boom": {
+    "file": "/game-sounds/sub-boom.m4a",
+    "duration": 1.2,
+    "sourceUrl": "https://freesound.org/people/Snapper4298/sounds/157245/",
+    "license": "CC0 1.0",
+    "author": "Snapper4298",
+    "originalFilename": "boom.wav",
+    "downloadedAt": "2026-09-15"
+  },
   "sword-clash": {
     "file": "/game-sounds/sword-clash.m4a",
     "duration": 0.55,
@@ -326,13 +389,13 @@ export const SOUND_SAMPLES = {
     "originalFilename": "Thunder Clap 1",
     "downloadedAt": "2026-09-15"
   },
-  "tiger-roar": {
-    "file": "/game-sounds/tiger-roar.m4a",
-    "duration": 1.2,
-    "sourceUrl": "https://freesound.org/people/Vaporpup/sounds/571288/",
+  "tiger-roar-long": {
+    "file": "/game-sounds/tiger-roar-long.m4a",
+    "duration": 1.55,
+    "sourceUrl": "https://freesound.org/people/lauramellis/sounds/263115/",
     "license": "CC0 1.0",
-    "author": "Vaporpup",
-    "originalFilename": "tiger_roar.wav",
+    "author": "lauramellis",
+    "originalFilename": "Tiger Roar",
     "downloadedAt": "2026-09-15"
   },
   "tractor-engine": {

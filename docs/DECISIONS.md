@@ -3,6 +3,37 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — NOTE-07: làm lại tiếng họ rồng/hổ/cá + hệ huy hiệu sưu tập một biểu tượng
+
+Chủ dự án yêu cầu "đọc `docs/16-NOTE-07-Sound-Rework-and-Gaming-Icon-System.md` và làm phù hợp".
+(Có 2 file cùng số 16-NOTE-07; file này là `…-Sound-Rework-and-Gaming-Icon-System.md`.)
+
+**Tiếng.** Đo phổ cho thấy tiếng hổ cũ rất "mỏng" (tần số trung bình ~930 Hz) — nguyên nhân nghe
+không oai. Thêm 8 mẫu CC0 (hổ gầm dài, sư tử gầm to, tiếng gầm quái vật trầm, 3 giọng rồng khác nhau,
+nổ trầm, luồng khí lớn), bỏ mẫu hổ cũ. Phân hoá theo 5 trục NOTE-07 §3 bằng CÔNG THỨC trong file
+mùa, không đổi kiến trúc: 4 con rồng dùng 4 giọng gầm gốc khác nhau; Mãng long = boss (giọng trầm
+nhất + lớp gầm chồng + rung ngực + nổ trầm + luồng khí, dài 2 giây); Rồng vàng = giọng sáng + lấp
+lánh vàng; Long cuốn thủy = nước; Hào khí = chiêng/chuông nghi lễ; Nghê = gằn ngắn + chuông, không
+gầm. Kiểm bằng trộn offline rồi đo: Hổ mới to hơn cũ +3,6 dB, năng lượng ×2, tần số trung bình
+783→281 Hz; Mãng long to hơn Rồng vàng +3,3 dB, năng lượng ×2,5, 192 Hz vs 667 Hz. Chưa ai nghe bằng tai.
+
+**Icon: hình hero lấy từ game-icons.net (CC BY 3.0), không tự vẽ 34 hình.** Bộ này đúng phong cách
+silhouette game, đọc rõ ở 32px, có sẵn hình đúng nghĩa (đầu rồng gai, đầu hổ, sư tử, voi, hạc…).
+Đổi lại phải ghi công tác giả: dòng ghi công nhỏ cuối Bộ sưu tập + danh sách từng hình ở `/admin/game`.
+Chỉ lấy 33 hình cần dùng vào `lib/game/iconArt.js` (sinh bởi `scripts/game-icons/build.mjs`, ~71 KB
+chưa nén), không thêm thư viện. Mặt trống đồng và đèn lồng bí ẩn tự vẽ (`iconArtCustom.js`).
+
+**Huy hiệu dựng bằng HTML + clip-path, không SVG `<defs>`/id.** Một hàm thuần `badgeHtml()` dùng cho
+React, marker MapLibre (HTML thuần) và admin. Gradient trong SVG cần id; id trùng hoặc nằm trong tab
+`display:none` làm Safari/Chrome không vẽ gradient — clip-path + CSS gradient tránh hẳn lỗi đó.
+4 lớp: khung theo `categories[].frame` (linh vật răng sắc, lịch sử khiên, truyền thuyết vành mềm,
+văn hoá bát giác, công nghệ/đồng hành lục giác, bí ẩn tròn) → viền kim loại → MỘT hình hero → trạng
+thái bằng class CSS `cdp-badge--*`. Bỏ hẳn icon đôi (glyph + badge) của NOTE-05.
+
+**Ảnh thật (Mode C):** chỉ khi admin đã đặt ảnh bìa (Blob); thẻ bộ sưu tập và sheet chi tiết hiện
+ảnh lớn + huy hiệu nhỏ góc trên trái, ảnh lỗi thì quay về huy hiệu. Marker bản đồ luôn là huy hiệu
+tròn (NOTE-07 §7), vòng ngoài vẫn báo mức tin cậy.
+
 ## 2026-09-15 — Nút "vị trí của tôi" trên bản đồ game tự viết, bỏ GeolocateControl của MapLibre
 
 Chủ dự án bấm nút định vị trên iPhone, tắt rồi bật lại thì nút thành icon gạch chéo, không bấm được.

@@ -20,6 +20,8 @@ export const SYNTH_DURATIONS = {
   "seen-again": 0.35,
   "question-tone": 0.7,
   "magic-shimmer": 0.7,
+  "regal-shimmer": 0.9,
+  "rise-sweep": 0.6,
   "ceremonial-chime": 0.9,
   "digital-blip": 0.3,
   "digital-sweep": 0.6,

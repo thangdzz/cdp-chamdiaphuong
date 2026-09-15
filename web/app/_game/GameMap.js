@@ -4,6 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import { FALLBACK_MAP_STYLE, loadGameMapStyle } from "@/lib/game/mapStyle";
 import { venueBounds, venueFeatureCollection, venueLabelPoint } from "@/lib/game/venues";
+import { badgeHtml } from "@/lib/game/badge";
 
 // Primitive "Map Layer" phía giao diện: một bản đồ MapLibre + OSM nhận danh sách marker chung
 // chung ({id, lat, lng, icon, ...}). Không biết gì về đèn Trung thu — mùa khác, lớp khác
@@ -182,8 +183,7 @@ function buildMarkerElement(marker) {
   el.className = "group relative flex cursor-pointer flex-col items-center focus:outline-none";
   el.innerHTML = `
     <span data-role="pulse" class="pointer-events-none absolute left-1/2 top-0 hidden h-11 w-11 -translate-x-1/2 rounded-full bg-[#e0a526]/50"></span>
-    <span data-role="bubble" class="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-[24px] leading-none shadow-md ring-2 transition-transform duration-150 group-active:scale-95"></span>
-    <span data-role="badge" class="pointer-events-none absolute left-[26px] top-[24px] hidden h-5 w-5 items-center justify-center rounded-full bg-white text-[11px] leading-none shadow-sm"></span>
+    <span data-role="bubble" class="relative flex h-11 w-11 items-center justify-center rounded-full ring-2 transition-transform duration-150 group-active:scale-95"></span>
     <span data-role="count" class="pointer-events-none absolute -right-2.5 -top-1.5 hidden min-w-[26px] rounded-full bg-[#c8553d] px-1.5 py-px text-center text-[11px] font-medium leading-4 text-white shadow ring-2 ring-white"></span>
     <span class="-mt-1 h-2.5 w-2.5 rotate-45 bg-white shadow-sm"></span>
   `;
@@ -194,7 +194,7 @@ function buildMarkerElement(marker) {
 // render lại (đồng hồ 30 giây, làm mới dữ liệu) đều gỡ/gắn lại class → trình duyệt tính lại
 // style cho mọi marker nằm trên canvas WebGL, góp phần gây nháy khi cuộn.
 function markerSignature(marker) {
-  return [marker.icon?.glyph, marker.icon?.badge, marker.icon?.tint, marker.tone, marker.faded ? 1 : 0, marker.label, marker.count ?? 1].join("|");
+  return [marker.icon?.key, marker.tone, marker.faded ? 1 : 0, marker.label, marker.count ?? 1].join("|");
 }
 
 function paintMarkerElement(el, marker) {
@@ -206,18 +206,9 @@ function paintMarkerElement(el, marker) {
   } else {
     count.classList.add("hidden");
   }
-  const badge = el.querySelector('[data-role="badge"]');
-  if (marker.icon?.badge) {
-    badge.textContent = marker.icon.badge;
-    badge.classList.remove("hidden");
-    badge.classList.add("flex");
-  } else {
-    badge.classList.add("hidden");
-    badge.classList.remove("flex");
-  }
   const bubble = el.querySelector('[data-role="bubble"]');
-  bubble.textContent = marker.icon?.glyph ?? "🏮";
-  bubble.style.backgroundColor = marker.icon?.tint ?? "#ffffff";
+  // Marker tròn, bên trong là huy hiệu của mô hình (NOTE-07 §7); vòng ngoài báo mức tin cậy.
+  bubble.innerHTML = badgeHtml(marker.icon, { size: 44, shape: "circle" });
   bubble.className = bubble.className.replace(/ring-\[[^\]]+\]|ring-zinc-400/g, "").trim();
   bubble.classList.add(...(MARKER_TONE[marker.tone] ?? MARKER_TONE.normal).split(" "));
   el.style.opacity = marker.faded ? "0.72" : "1";

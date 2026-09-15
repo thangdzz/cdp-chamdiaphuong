@@ -8,6 +8,13 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (khuya, cuối) — NOTE-07 (tiếng + huy hiệu) ĐÃ CODE, CHƯA DEPLOY.** Huy hiệu:
+`lib/game/badge.js` (khung/`badgeHtml`), hình ở `lib/game/iconArt.js` (**sinh bởi
+`scripts/game-icons/build.mjs` từ `icons.json`, đừng sửa tay**) + `iconArtCustom.js` (tự vẽ); khoá hình
+trong `iconSet` file mùa (`{ art, emoji }`), khung trong `categories[].frame`. Hình game-icons là CC BY
+3.0 — thêm hình mới phải ghi đúng thư mục tác giả trong `icons.json`. Tiếng mới vẫn qua
+`scripts/game-sounds/sources.json`. Việc tiếp: chủ dự án duyệt ở `/admin/game` → deploy trước 19/9.
+
 **2026-09-15 (khuya) — NOTE-06 (45 slot + âm thanh thật) ĐÃ CODE, CHƯA DEPLOY.** 11 slot
 `tt26-slot-35…45` cuối mảng `objects` file mùa; công thức tiếng `soundSet`/`soundFamilies` cũng trong
 file mùa; bộ phát `app/_game/gameSound.js`, logic thuần `lib/game/sounds.js`; mẫu âm `web/public/

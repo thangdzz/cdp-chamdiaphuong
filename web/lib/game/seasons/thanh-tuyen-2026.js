@@ -95,56 +95,59 @@ export const THANH_TUYEN_2026 = {
   // giờ không còn giúp ai đi tìm.
   recentWindowMinutes: 180,
 
-  // Nhóm hiển thị (một mô hình một nhóm) + màu nền icon theo nhóm.
+  // Nhóm hiển thị (một mô hình một nhóm). `frame` = khung huy hiệu trong lib/game/badge.js
+  // (NOTE-07 §9): linh vật sắc cạnh, lịch sử khiên, truyền thuyết vành mềm, văn hoá bát giác,
+  // công nghệ/đồng hành lục giác, bí ẩn tròn.
   categories: [
-    { id: "linh-vat", label: "Linh vật & muông thú", icon: "🐉", tint: "#fdefd8" },
-    { id: "truyen-thuyet", label: "Truyện & truyền thuyết", icon: "🌕", tint: "#efe9fb" },
-    { id: "lich-su", label: "Lịch sử", icon: "⚔️", tint: "#fbe5df" },
-    { id: "van-hoa", label: "Văn hóa Việt", icon: "🥁", tint: "#e8f2e0" },
-    { id: "hien-dai", label: "Hiện đại & công nghệ", icon: "🚀", tint: "#e3effa" },
-    { id: "dong-hanh", label: "Doanh nghiệp đồng hành", icon: "🤝", tint: "#eceff3" },
-    { id: "khac", label: "Khác", icon: "🏮", tint: "#fbf3e6" },
+    { id: "linh-vat", label: "Linh vật & muông thú", icon: "🐉", tint: "#fdefd8", frame: "creature" },
+    { id: "truyen-thuyet", label: "Truyện & truyền thuyết", icon: "🌕", tint: "#efe9fb", frame: "legend" },
+    { id: "lich-su", label: "Lịch sử", icon: "⚔️", tint: "#fbe5df", frame: "heroic" },
+    { id: "van-hoa", label: "Văn hóa Việt", icon: "🥁", tint: "#e8f2e0", frame: "folk" },
+    { id: "hien-dai", label: "Hiện đại & công nghệ", icon: "🚀", tint: "#e3effa", frame: "tech" },
+    { id: "dong-hanh", label: "Doanh nghiệp đồng hành", icon: "🤝", tint: "#eceff3", frame: "sponsor" },
+    { id: "khac", label: "Khác", icon: "🏮", tint: "#fbf3e6", frame: "mystery" },
   ],
 
-  // Bộ icon: khoá → hình chính + hình phụ (NOTE-05 §12). Chỉ dùng emoji Unicode ≤ 13 để máy cũ
-  // không hiện ô trống. Mô hình khó vẽ thì ghép hình gần nghĩa nhất (tiến sĩ giấy + robot...).
+  // Bộ icon: khoá → MỘT hình hero (NOTE-07 §4.2) + emoji dự phòng cho chỗ chỉ hiện chữ (ô chọn admin).
+  // `art` là tên hình trong lib/game/iconArt.js (game-icons.net, CC BY 3.0) hoặc iconArtCustom.js.
+  // Cùng họ phải khác hình: 4 con rồng 4 dáng, hổ ≠ nghê, cá chép ≠ cửu ngư (NOTE-07 §2.3, §10).
   iconSet: {
-    "dragon-gather": { glyph: "🐲", badge: "✨" },
-    "banyan-gate": { glyph: "🌳", badge: "🏘️" },
-    "paper-scholar-ai": { glyph: "🎓", badge: "🤖" },
-    "dragon-gold": { glyph: "🐉", badge: "💡" },
-    phoenix: { glyph: "🦚", badge: "🔥" },
-    "war-elephant": { glyph: "🐘", badge: "⚔️" },
-    "turtle-giant": { glyph: "🐢", badge: "🌿" },
-    horses: { glyph: "🐎", badge: "🌈" },
-    "jade-rabbit": { glyph: "🐇", badge: "🦋" },
-    "reed-flag": { glyph: "🐃", badge: "🚩" },
-    "trung-sisters": { glyph: "🐘", badge: "👑" },
-    "saint-giong": { glyph: "🐴", badge: "🎋" },
-    "sword-lake": { glyph: "🐢", badge: "🗡️" },
-    "orange-flag": { glyph: "🍊", badge: "🚩" },
-    "mouse-wedding": { glyph: "🐭", badge: "💐" },
-    "toad-sky": { glyph: "🐸", badge: "⛈️" },
-    watermelon: { glyph: "🍉", badge: "🏝️" },
-    "carp-leap": { glyph: "🐟", badge: "🐉" },
-    "hundred-eggs": { glyph: "🥚", badge: "🐉" },
-    "thach-sanh": { glyph: "⚔️", badge: "👹" },
-    cricket: { glyph: "🦗", badge: "🍃" },
-    "mountain-water": { glyph: "⛰️", badge: "🌊" },
-    "bronze-drum": { glyph: "🥁", badge: "✨" },
-    "cuoi-moon": { glyph: "🌕", badge: "🌳" },
-    "dragon-water": { glyph: "🐉", badge: "💧" },
-    "lac-bird": { glyph: "🕊️", badge: "✨" },
-    tiger: { glyph: "🐅", badge: "⛰️" },
-    "nine-carp": { glyph: "🎏", badge: "🌸" },
-    "nghe-pearl": { glyph: "🦁", badge: "🔮" },
-    "farm-boat": { glyph: "⛵", badge: "🌾" },
-    "satellite-turtle": { glyph: "🛰️", badge: "🐢" },
-    rocket: { glyph: "🚀", badge: "⭐" },
-    diamond: { glyph: "💎", badge: "✨" },
-    "dragon-lotus": { glyph: "🐉", badge: "🌸" },
-    // Slot chưa rõ tên: đèn lồng + dấu hỏi, không dùng ảnh vỡ (NOTE-06 §10).
-    "mystery-slot": { glyph: "🏮", badge: "❔", tint: "#efe9fb" },
+    "dragon-gather": { art: "spiked-dragon-head", emoji: "🐲" },
+    "dragon-gold": { art: "dragon-head", emoji: "🐉" },
+    "dragon-water": { art: "sea-dragon", emoji: "🐉" },
+    "dragon-lotus": { art: "dragon-spiral", emoji: "🐉" },
+    tiger: { art: "tiger-head", emoji: "🐅" },
+    "nghe-pearl": { art: "lion", emoji: "🦁" },
+    phoenix: { art: "fire-tail", emoji: "🦚" },
+    "lac-bird": { art: "heron", emoji: "🕊️" },
+    "war-elephant": { art: "elephant", emoji: "🐘" },
+    "turtle-giant": { art: "tortoise", emoji: "🐢" },
+    horses: { art: "horse-head", emoji: "🐴" },
+    "jade-rabbit": { art: "rabbit", emoji: "🐇" },
+    "carp-leap": { art: "fish-escape", emoji: "🐟" },
+    "nine-carp": { art: "circling-fish", emoji: "🎏" },
+    cricket: { art: "cricket", emoji: "🦗" },
+    "reed-flag": { art: "flying-flag", emoji: "🚩" },
+    "trung-sisters": { art: "queen-crown", emoji: "👑" },
+    "saint-giong": { art: "bamboo", emoji: "🎋" },
+    "orange-flag": { art: "orange", emoji: "🍊" },
+    "sword-lake": { art: "broadsword", emoji: "🗡️" },
+    "toad-sky": { art: "frog", emoji: "🐸" },
+    watermelon: { art: "watermelon", emoji: "🍉" },
+    "hundred-eggs": { art: "egg-clutch", emoji: "🥚" },
+    "thach-sanh": { art: "ogre", emoji: "👹" },
+    "mountain-water": { art: "mountains", emoji: "⛰️" },
+    "cuoi-moon": { art: "moon", emoji: "🌕" },
+    "mouse-wedding": { art: "seated-mouse", emoji: "🐭" },
+    "bronze-drum": { art: "bronze-drum-face", emoji: "🥁" },
+    "banyan-gate": { art: "willow-tree", emoji: "🌳" },
+    "paper-scholar-ai": { art: "graduate-cap", emoji: "🎓" },
+    "farm-boat": { art: "wheat", emoji: "🌾" },
+    "satellite-turtle": { art: "satellite-communication", emoji: "🛰️" },
+    rocket: { art: "rocket", emoji: "🚀" },
+    diamond: { art: "cut-diamond", emoji: "💎" },
+    // Slot chưa rõ tên: đèn lồng + dấu hỏi (NOTE-06 §10, NOTE-07 §6).
+    "mystery-slot": { art: "mystery-lantern", emoji: "🏮" },
   },
 
   // Sound identity (NOTE-06 §2–§4, §6): khoá → các lớp [âm, lúc bắt đầu (s), độ to, tốc độ phát].
@@ -152,20 +155,25 @@ export const THANH_TUYEN_2026 = {
   // thức 0,7–2 giây. Đổi tiếng một mô hình = đổi `soundKey` của nó ở /admin/game, không sửa component.
   soundSet: {
     // Rồng — mỗi con một sắc thái để nghe là phân biệt.
-    "dragon-roar": { label: "Rồng gầm + đập cánh + rung trầm", layers: [["dragon-roar"], ["wing-flap-heavy", 0.15, 0.7], ["low-rumble", 0, 0.45]] },
-    "dragon-gather": { label: "Rồng gầm trầm + trống hội tụ", layers: [["dragon-roar", 0, 0.9, 0.9], ["big-tom", 0.05, 0.55], ["wing-flap-heavy", 0.5, 0.6], ["low-rumble", 0, 0.4]] },
-    "dragon-water": { label: "Rồng gầm + sóng nước cuộn", layers: [["dragon-roar", 0, 0.9], ["ocean-wave", 0, 0.5], ["water-splash", 0.55, 0.55]] },
-    "dragon-ceremony": { label: "Tiếng rồng trầm + chuông nghi lễ", layers: [["dragon-roar", 0, 0.85, 0.82], ["temple-bell", 0.35, 0.4]] },
+    // Rồng vàng: uy nghi, sáng, "showpiece" — giọng gầm sáng hơn, ít trầm, lấp lánh vàng.
+    "dragon-roar": { label: "Rồng vàng: gầm uy nghi + đập cánh + lấp lánh", layers: [["dragon-roar-bright", 0, 0.95], ["wing-flap-heavy", 0.2, 0.65], ["synth:regal-shimmer", 0.55, 0.8]] },
+    // Mãng long = boss: giọng gầm trầm nhất, dài nhất, nhiều lớp gầm chồng ("tụ hội"), rung ngực,
+    // nổ trầm và luồng khí đẩy — to và nặng hơn Rồng vàng rõ rệt (NOTE-07 §2.2).
+    "dragon-gather": { label: "Mãng long (boss): gầm trầm nhiều lớp + rung ngực + nổ trầm + luồng khí", layers: [["dragon-roar", 0, 1, 0.88], ["boss-roar", 0, 0.6], ["dragon-snarl", 0.35, 0.22, 1.12], ["low-rumble", 0, 0.6, 0.9], ["sub-boom", 0.1, 0.85, 0.8], ["big-swoosh", 0.55, 0.55, 0.85]] },
+    "dragon-water": { label: "Long cuốn thủy: gầm gằn + nước dâng + sóng vỗ", layers: [["dragon-snarl", 0, 0.85], ["ocean-wave", 0.05, 0.65], ["water-splash", 0.5, 0.7], ["bubbles", 0.8, 0.35]] },
+    "dragon-ceremony": { label: "Hào khí: tiếng rồng trầm + chiêng + chuông nghi lễ", layers: [["dino-dragon-roar", 0, 0.8, 0.95], ["gong", 0.25, 0.45, 1.1], ["synth:ceremonial-chime", 0.7, 0.8]] },
     // Muông thú
     "elephant-trumpet": { label: "Voi rống + rung trầm", layers: [["elephant-trumpet"], ["low-rumble", 0, 0.45]] },
-    "tiger-roar": { label: "Hổ gầm", layers: [["tiger-roar"], ["low-rumble", 0.1, 0.35]] },
+    // Hổ vàng hạ sơn: chúa sơn lâm — hổ gầm dài hơi + sư tử gầm ngực + nổ trầm + vang đuôi (NOTE-07 §2.1).
+    "tiger-roar": { label: "Hổ gầm dài + gầm ngực + nổ trầm + vang đuôi", layers: [["tiger-roar-long", 0, 1], ["lion-roar-big", 0.05, 0.55, 0.92], ["sub-boom", 0.12, 0.7, 0.85], ["tiger-roar-long", 0.28, 0.18, 0.95]] },
     "horse-neigh": { label: "Ngựa hí + vó ngựa", layers: [["horse-neigh"], ["horse-gallop", 0.15, 0.5]] },
     phoenix: { label: "Chim hót + vỗ cánh + lửa bùng", layers: [["peacock-call"], ["wing-flap", 0.05, 0.8], ["fire-whoosh", 0.45, 0.5]] },
     "lac-bird": { label: "Tiếng chim hạc + vỗ cánh", layers: [["crane-call"], ["wing-flap", 0.3, 0.8], ["wing-flap", 0.65, 0.6, 1.1]] },
-    "carp-leap": { label: "Cá quẫy nước + bong bóng + hoá rồng", layers: [["water-splash", 0, 0.9], ["bubbles", 0.2, 0.5], ["whoosh", 0.75, 0.6], ["synth:magic-shimmer", 0.95, 0.7]] },
-    "nine-carp": { label: "Cá quẫy + bong bóng + chuông sen", layers: [["water-splash-small"], ["water-splash-small", 0.3, 0.8, 1.15], ["bubbles", 0.1, 0.45], ["singing-bowl", 0.2, 0.35]] },
+    "carp-leap": { label: "Cá chép: vút lên + quẫy nước mạnh + lấp lánh", layers: [["synth:rise-sweep", 0, 0.9], ["big-swoosh", 0.05, 0.5, 1.15], ["water-splash", 0.35, 1], ["synth:magic-shimmer", 0.9, 0.8]] },
+    "nine-carp": { label: "Cửu ngư: nhiều gợn nước nhỏ hội tụ + chuông sen", layers: [["water-splash-small", 0, 0.95], ["water-splash-small", 0.18, 0.85, 1.2], ["water-splash-small", 0.36, 0.8, 0.9], ["water-splash-small", 0.55, 0.75, 1.3], ["bubbles", 0.1, 0.55], ["singing-bowl", 0.15, 0.4]] },
     "turtle-shell": { label: "Mai rùa miết đá + nước", layers: [["stone-scrape", 0, 0.9], ["water-splash-small", 0.6, 0.7], ["bubbles", 0.7, 0.4]] },
-    "nghe-growl-bell": { label: "Nghê gầm + chuông đồng nhẹ", layers: [["lion-growl"], ["temple-bell", 0.35, 0.45]] },
+    // Nghê: gằn ngắn của linh thú + chuông đồng — không gầm như hổ.
+    "nghe-growl-bell": { label: "Nghê: gằn ngắn + chuông đồng + ngân linh thú", layers: [["lion-growl", 0, 0.9, 1.08], ["temple-bell", 0.3, 0.5], ["synth:ceremonial-chime", 0.5, 0.35]] },
     "rabbit-hop": { label: "Thỏ nhảy lá xào xạc + kêu khẽ", layers: [["leaves-rustle", 0, 0.7], ["rabbit-thump", 0.08, 0.9], ["rabbit-thump", 0.36, 0.7, 1.15], ["squeak-soft", 0.55, 0.8], ["cricket-chirp", 0.45, 0.35]] },
     cricket: { label: "Dế gáy + lá tre", layers: [["cricket-chirp"], ["leaves-rustle", 0.3, 0.6]] },
     // Lịch sử
@@ -199,6 +207,13 @@ export const THANH_TUYEN_2026 = {
     "tech-blip": { label: "Mặc định công nghệ: blip số", layers: [["synth:digital-blip"], ["synth:digital-sweep", 0.2, 0.7]] },
     "village-wood": { label: "Mặc định truyền thống: mõ + chuông", layers: [["wood-block"], ["wood-block", 0.2, 0.7, 1.2], ["temple-bell", 0.35, 0.4]] },
   },
+
+  // Nhóm nghe so sánh ở /admin/game (NOTE-07 §12): cùng họ phải nghe khác nhau.
+  soundCompareGroups: [
+    { label: "Hổ · Nghê · Rồng vàng · Mãng long", objectIds: ["tt26-ho-vang", "tt26-nghe-than", "tt26-rong-vang", "tt26-mang-long-tu-hoi"] },
+    { label: "Họ rồng", objectIds: ["tt26-rong-vang", "tt26-mang-long-tu-hoi", "tt26-long-cuon-thuy", "tt26-hao-khi-dat-viet-xuan-truong"] },
+    { label: "Họ cá", objectIds: ["tt26-ca-chep-vuot-vu-mon", "tt26-cuu-ngu-quan-hoi"] },
+  ],
 
   // Mô hình chưa có âm riêng dùng khoá theo nhóm (NOTE-06 §6).
   soundFamilies: {

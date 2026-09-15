@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { BottomSheet } from "./BottomSheet";
-import { ObjectIcon } from "./ObjectIcon";
+import { ObjectIcon, ObjectMedia } from "./ObjectIcon";
 import { reportWrongLocation } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { OBJECT_KIND, VERIFICATION_LABEL, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
@@ -45,6 +45,14 @@ export function ObjectSheet({
 
   return (
     <BottomSheet open={open} onClose={onClose} labelledBy="game-object-title">
+      {/* Có ảnh thật: ảnh lớn + huy hiệu góc trên trái (NOTE-07 §5 Mode C). */}
+      <ObjectMedia
+        object={object}
+        event={event}
+        state={met ? "met" : marker ? "plain" : "locked"}
+        sizes="(max-width: 640px) 100vw, 480px"
+        className="mb-4 aspect-[16/10] w-full"
+      />
       <div className="flex items-start gap-4 pt-2">
         <ObjectIcon object={object} event={event} size="lg" state={met ? "met" : marker ? "plain" : "locked"} />
         <div className="min-w-0 flex-1 pt-1">

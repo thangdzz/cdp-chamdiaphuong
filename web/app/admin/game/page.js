@@ -20,6 +20,8 @@ import { formatClock, formatDayMonth } from "@/lib/game/format";
 import { EVENT_SOUND_RECIPES, SOUND_SAMPLES, eventSoundRecipe, soundFamilyOf, soundRecipeFor } from "@/lib/game/sounds";
 import { MediaImage } from "@/app/MediaImage";
 import { SoundPreviewList } from "./SoundPreviewList";
+import { IconPreview } from "./IconPreview";
+import { badgeHtml, badgeSpec } from "@/lib/game/badge";
 import {
   deleteGameSighting,
   matchGameObject,
@@ -71,8 +73,7 @@ function ObjectFields({ event, object }) {
         <datalist id={listId}>
           {Object.entries(event.iconSet ?? {}).map(([key, spec]) => (
             <option key={key} value={key}>
-              {spec.glyph}
-              {spec.badge ?? ""}
+              {spec.emoji ?? ""} {spec.art}
             </option>
           ))}
         </datalist>
@@ -165,6 +166,15 @@ export default async function GameAdminPage({ searchParams }) {
 
   const models = catalog.filter((o) => o.kind === OBJECT_KIND.MODEL && !o.matchedTo);
   const unnamedSlots = models.filter((o) => isUnnamedSlot(o));
+  const previewItems = models
+    .filter((object) => !object.hidden)
+    .map((object) => ({
+      id: object.id,
+      name: objectDisplayName(object, noun),
+      badge: badgeHtml(badgeSpec(object, event), { size: 36 }),
+      soundFamily: soundFamilyOf(object),
+      recipe: soundRecipeFor(object, event),
+    }));
   const mysteries = catalog.filter((o) => o.kind === OBJECT_KIND.UNKNOWN && !o.matchedTo && !o.hidden);
   const matched = catalog.filter((o) => o.matchedTo);
   const photosByObject = new Map();
@@ -220,19 +230,15 @@ export default async function GameAdminPage({ searchParams }) {
       <section className="mt-6 rounded-xl bg-white p-4 shadow-sm">
         <h2 className="text-lg font-medium text-zinc-900">Nghe thử âm thanh</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Người chơi nghe tiếng riêng khi Chạm một {noun} lần đầu; gặp lại chỉ có tiếng xác nhận ngắn. iPhone đang gạt
+          Người chơi nghe tiếng riêng khi Chạm một {noun}{" "}lần đầu; gặp lại chỉ có tiếng xác nhận ngắn. iPhone đang gạt
           chế độ im lặng thì trình duyệt không phát tiếng. Đổi tiếng/nhóm/icon: bấm &quot;Sửa&quot; ở từng dòng.
         </p>
         <SoundPreviewList
-          models={models
-            .filter((object) => !object.hidden)
-            .map((object) => ({
-              id: object.id,
-              name: objectDisplayName(object, noun),
-              glyph: objectIcon(object, event),
-              soundFamily: soundFamilyOf(object),
-              recipe: soundRecipeFor(object, event),
-            }))}
+          models={previewItems}
+          compareGroups={(event.soundCompareGroups ?? []).map((group) => ({
+            label: group.label,
+            items: group.objectIds.map((id) => previewItems.find((item) => item.id === id)).filter(Boolean),
+          }))}
           eventSounds={Object.keys(EVENT_SOUND_RECIPES)
             .filter((name) => name !== "tap-soft")
             .map((name) => ({ id: `event-${name}`, label: EVENT_SOUND_RECIPES[name].label, recipe: eventSoundRecipe(name) }))}
@@ -253,6 +259,14 @@ export default async function GameAdminPage({ searchParams }) {
             ))}
           </ul>
         </details>
+      </section>
+
+      <section className="mt-6 rounded-xl bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-medium text-zinc-900">Xem trước bộ huy hiệu</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Mỗi {noun}{" "}một hình chính; khung + màu theo nhóm. Đổi hình: bấm &quot;Sửa&quot; ở danh sách âm thanh → ô Icon.
+        </p>
+        <IconPreview event={event} models={models.filter((object) => !object.hidden)} />
       </section>
 
       {params?.saved === "1" && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã lưu.</p>}

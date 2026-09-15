@@ -518,6 +518,10 @@ web/
 │   │   ├── venues.js              Venue → GeoJSON, điểm đặt nhãn, khung bao để căn bản đồ
 │   │   ├── catalog.js             Object: chuẩn hoá + fallback tên/icon, gộp seed + Redis, ghép
 │   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
+│   │   ├── badge.js               Huy hiệu sưu tập (NOTE-07): khung theo nhóm + 1 hình hero + trạng
+│   │   │                          thái → chuỗi HTML dùng chung React/marker/admin — thuần
+│   │   ├── iconArt.js             SINH TỰ ĐỘNG bởi scripts/game-icons/build.mjs — hình game-icons.net
+│   │   │                          (CC BY 3.0, ghi công). iconArtCustom.js = hình CDP tự vẽ
 │   │   ├── sounds.js              Sound identity (NOTE-06): công thức lớp theo soundKey/soundFamily,
 │   │   │                          âm sự kiện, thời lượng — thuần; bộ phát ở app/_game/gameSound.js
 │   │   ├── soundSamples.js        SINH TỰ ĐỘNG bởi scripts/game-sounds/build.mjs — file .m4a CC0 +
@@ -556,6 +560,7 @@ web/
     ├── run-daily-ingest.mjs      Chạy pipeline thủ công
     ├── seed-redis.mjs
     ├── backfill-price-unit.mjs
+    ├── game-icons/               Lấy hình hero huy hiệu (NOTE-07): icons.json (tên → tác giả) + build.mjs
     └── game-sounds/              Dựng âm thanh game (NOTE-06, chạy tay trên Mac cần afconvert):
         ├── sources.json          Mẫu CC0 Freesound: nguồn, tác giả, giấy phép, đoạn cắt
         └── build.mjs             Tải → cắt → chuẩn hoá âm lượng → AAC → public/game-sounds/
