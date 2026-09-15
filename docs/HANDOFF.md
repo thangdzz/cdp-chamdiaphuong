@@ -8,6 +8,14 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (khuya) — NOTE-06 (45 slot + âm thanh thật) ĐÃ CODE, CHƯA DEPLOY.** 11 slot
+`tt26-slot-35…45` cuối mảng `objects` file mùa; công thức tiếng `soundSet`/`soundFamilies` cũng trong
+file mùa; bộ phát `app/_game/gameSound.js`, logic thuần `lib/game/sounds.js`; mẫu âm `web/public/
+game-sounds/*.m4a` sinh bởi `web/scripts/game-sounds/build.mjs` từ `sources.json` (**không sửa tay
+`lib/game/soundSamples.js`**). Thêm mẫu mới: chỉ lấy CC0, ghi nguồn vào `sources.json`, chạy script
+trên Mac. Việc tiếp: chủ dự án nghe "Nghe lần lượt" ở `/admin/game` trên iPhone → đổi tiếng chưa hợp
+→ quyết định deploy trước 19/9.
+
 **2026-09-15 (tối) — NOTE-05 Săn đèn ĐÃ CODE, CHƯA DEPLOY.** Pha pre-game tới `gameLiveAt`
 (file mùa, admin ghi đè ở hash `game:{eventId}:config`); 34 mô hình + `iconSet`/`collections`/
 `milestones` trong `lib/game/seasons/thanh-tuyen-2026.js`; logic bộ sưu tập/độ hiếm ở

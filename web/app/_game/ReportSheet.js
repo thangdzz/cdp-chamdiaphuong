@@ -4,11 +4,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "./BottomSheet";
 import { GameMap } from "./GameMap";
 import { ObjectIcon } from "./ObjectIcon";
-import { playGameSound } from "./gameSound";
+import { playGameSound, prefetchObjectSound } from "./gameSound";
 import { reportSighting } from "@/app/gameActions";
 import { loadLocalContributor, saveLocalContributor } from "@/app/ContributionPanel";
 import { compressImageForUpload } from "@/lib/clientImageCompression";
-import { OBJECT_KIND, UNKNOWN_ICON, objectDisplayName } from "@/lib/game/catalog";
+import { OBJECT_KIND, UNKNOWN_ICON, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
 import { foldText, formatAgo } from "@/lib/game/format";
 
 const STEP = { PICK: "pick", LOCATE: "locate", PHOTO: "photo" };
@@ -66,7 +66,7 @@ export function ReportSheet({
   const models = useMemo(() => {
     const q = foldText(query);
     return snapshot.catalog
-      .filter((o) => o.kind === OBJECT_KIND.MODEL && !o.matchedTo)
+      .filter((o) => o.kind === OBJECT_KIND.MODEL && !o.matchedTo && !isUnnamedSlot(o))
       .filter((o) => !q || foldText(`${o.name ?? ""} ${o.ward ?? ""}`).includes(q));
   }, [snapshot.catalog, query]);
 
@@ -115,6 +115,8 @@ export function ReportSheet({
       return;
     }
     playGameSound("tap-soft");
+    // Tải trước đúng tiếng của mô hình vừa chọn (vài chục KB) để lúc báo xong phát kịp, không tải cả thư viện.
+    prefetchObjectSound(id === "unknown" ? { kind: OBJECT_KIND.UNKNOWN } : byId.get(id), event);
     setObjectId(id);
     setStep(STEP.LOCATE);
     setError(null);
@@ -139,6 +141,7 @@ export function ReportSheet({
     if (busy) return;
     setBusy(true);
     setError(null);
+    prefetchObjectSound(selected ?? { kind: OBJECT_KIND.UNKNOWN }, event);
     const local = loadLocalContributor();
     const form = new FormData();
     form.set("slug", event.slug);

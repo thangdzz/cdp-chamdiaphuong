@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ObjectIcon } from "./ObjectIcon";
-import { OBJECT_KIND, objectDisplayName, openMysteries } from "@/lib/game/catalog";
+import { OBJECT_KIND, isUnnamedSlot, objectDisplayName, openMysteries } from "@/lib/game/catalog";
 import { RARITY, RARITY_LABEL, nightHighlights } from "@/lib/game/collections";
 import { formatAgo, formatClock, formatDayMonth } from "@/lib/game/format";
 import { confidenceLabel } from "@/lib/game/mapLayer";
@@ -247,7 +247,7 @@ export function CollectionView({
                 highlight={object.id === justUnlockedId}
                 myCount={myCounts[object.id] ?? 0}
                 communityCount={objectStats[object.id] ?? 0}
-                rarity={rarity?.[object.id] ?? null}
+                rarity={isUnnamedSlot(object) ? null : (rarity?.[object.id] ?? null)}
                 onOpen={onOpen}
               />
             </li>

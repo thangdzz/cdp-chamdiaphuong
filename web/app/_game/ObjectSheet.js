@@ -5,7 +5,7 @@ import { BottomSheet } from "./BottomSheet";
 import { ObjectIcon } from "./ObjectIcon";
 import { reportWrongLocation } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
-import { OBJECT_KIND, VERIFICATION_LABEL, objectDisplayName } from "@/lib/game/catalog";
+import { OBJECT_KIND, VERIFICATION_LABEL, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
 import { formatAgo } from "@/lib/game/format";
 import { confidenceLabel } from "@/lib/game/mapLayer";
 import { RarityChip } from "./GameViews";
@@ -120,7 +120,15 @@ export function ObjectSheet({
         )}
       </div>
 
-      {canReport && (
+      {isUnnamedSlot(object) && !marker && (
+        <p className="mt-4 rounded-xl bg-[#f4effb] px-3 py-2.5 text-[13px] leading-5 text-[#5b4a86]">
+          CDP chưa rõ tên {noun} này. Gặp {noun} lạ chưa có trong danh sách thì chọn <b className="font-medium">Không biết tên</b> khi báo
+          — CDP sẽ ghép vào đây.
+        </p>
+      )}
+
+      {/* Slot chưa có tên thì không ai biết "#37" là con nào — chỉ cho "Tôi cũng vừa thấy" khi đã có marker. */}
+      {canReport && (marker || !isUnnamedSlot(object)) && (
         <button
           type="button"
           onClick={() => onReport(object.id, marker)}

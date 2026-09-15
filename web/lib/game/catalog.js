@@ -32,7 +32,14 @@ export function objectDisplayName(object, noun = "mô hình") {
   if (object?.kind === OBJECT_KIND.UNKNOWN) {
     return `${capitalize(noun)} chưa biết tên${object.code ? ` #${object.code}` : ""}`;
   }
-  return `${capitalize(noun)} chưa xác định`;
+  // Slot giữ chỗ trong tổng số đã công bố (NOTE-06 §1): "Mô hình chưa xác định #35".
+  return `${capitalize(noun)} chưa xác định${object?.code ? ` #${object.code}` : ""}`;
+}
+
+// Slot model chưa có tên: đếm vào tổng, hiện trong bộ sưu tập, nhưng người chơi không chọn được khi
+// báo (không ai biết "#37" là con nào) — gặp thì báo "Không biết tên", admin ghép vào slot sau.
+export function isUnnamedSlot(object) {
+  return object?.kind === OBJECT_KIND.MODEL && !object?.name;
 }
 
 const DEFAULT_TINT = "#fbf3e6";
@@ -152,7 +159,8 @@ export function aliasesOf(objectId, catalog, index) {
     .map((object) => object.id);
 }
 
-// "Tổng số đã biết" (NOTE-03 §1 "Bộ sưu tập của tôi"): model có tên, chưa bị ghép đi, không ẩn.
+// Mẫu số bộ sưu tập (NOTE-03 §1, NOTE-06 §1): mọi slot model chưa bị ghép đi, không ẩn — kể cả slot
+// chưa có tên, để tổng là 45 như số mô hình đã công bố chứ không phải số tên CDP đang biết.
 export function knownModels(catalog) {
   return catalog.filter(
     (object) => object.kind === OBJECT_KIND.MODEL && !object.matchedTo && !object.hidden

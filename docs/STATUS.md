@@ -6,6 +6,22 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (khuya) — NOTE-06 Săn đèn: 45 slot + âm thanh thật, chỉ local:**
+bộ sưu tập tổng 45 = 34 mô hình có tên + 11 slot "Mô hình chưa xác định #35…#45" (không chọn được khi
+báo; admin ghép bí ẩn vào slot hoặc điền tên ngay trên slot, dữ liệu cũ giữ nguyên); thêm mốc 40, trọn
+bộ = 45/45. Âm thanh: tải 45 mẫu thật giấy phép CC0 từ Freesound (kiểm giấy phép từng file), cắt
+đoạn + chuẩn hoá âm lượng + limiter + nén AAC (~10 KB/file) bằng `web/scripts/game-sounds/build.mjs`;
+34 công thức ghép lớp riêng cho 34 mô hình (voi rống + rung trầm, cóc + sấm, Thánh Gióng ngựa hí + vó
++ tiếng sắt…) khai trong file mùa; gặp lại chỉ có 2 nốt xác nhận; bí ẩn = vút gió + nốt hỏi; trọn bộ
+= trống hội + đám đông + chuông. Chỉ tải tiếng của mô hình vừa chọn. `/admin/game` có "Nghe lần lượt"
+cả 45 kèm nhóm, tên công thức, thời lượng, link sửa; ô "Tiếng mở khoá" là danh sách chọn; mục nguồn âm
+thanh. Kiểm thử: test dữ liệu (45 slot, 34 tiếng riêng, mọi công thức 0,6–2 giây, ghép bí ẩn → slot →
+đặt tên vẫn 2/45, mốc 40/45); Playwright iPhone WebKit + Chromium: mở trang 0 file âm/0 tiếng, chọn Voi
+chiến chỉ tải 2 file của nó, mở khoá phát 2 mẫu thật (giải mã đạt), gặp lại 0 mẫu + 2 nốt, bí ẩn phát
+whoosh + nốt hỏi, tắt tiếng không tải/không phát; admin iPhone + desktop; hồi quy test NOTE-05 (dữ
+liệu + pre-game UI) đạt sau khi đổi 34 → 45. Dữ liệu + 4 hồ sơ test đã dọn. Build đạt, lint đúng 1 lỗi
+nền. **Chưa deploy. Chưa ai nghe bằng tai** — chủ dự án duyệt ở `/admin/game`.
+
 **Cập nhật mới nhất 2026-09-15 (tối) — NOTE-05 Săn đèn: pre-game, bộ sưu tập, icon & âm thanh, chỉ
 local:** trước 18/9 19:00 game ở pre-game — banner đếm ngược, bản đồ ghi "chưa có đèn rước", báo thử
 ra 3 câu đùa theo lần thử, server từ chối mọi lượt báo; admin đổi giờ mở ở `/admin/game`. Thay 10 mô

@@ -3,6 +3,49 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — NOTE-06: tổng 45 slot, âm thanh thật CC0 ghép lớp theo công thức
+
+Chủ dự án yêu cầu "đọc `docs/15-NOTE-06-Thanh-Tuyen-45-Models-Sound-System.md` và tiến hành phù
+hợp với dự án". Các lựa chọn:
+
+**1. 45 = 34 mô hình có tên + 11 slot model chưa có tên (`tt26-slot-35`…`45`) trong file mùa.**
+Slot là object `kind: model`, `name: null`, `code` = số thứ tự → hiện "Mô hình chưa xác định #35",
+tính vào mẫu số (`knownModels` giờ đếm mọi slot model chưa ghép/ẩn), mốc "complete" = 45/45. Bỏ
+nguyên tắc cũ "mẫu số = số tên CDP đang biết" (NOTE-05) vì NOTE-06 §1 yêu cầu UI dùng 45. Người
+chơi **không chọn được slot khi báo** (không ai biết "#37" là con nào; thẻ slot cũng không có nút
+"Tôi vừa thấy") — gặp mô hình lạ vẫn báo "Không biết tên", admin ghép bí ẩn vào slot. Biết tên thì
+admin sửa ngay trên slot, id giữ nguyên → lượt báo/tiến độ cũ không mất (đọc-thì-suy-ra như cũ).
+Thêm mốc 40.
+
+**2. Âm thanh thật lấy từ Freesound, CHỈ giấy phép CC0.** 45 mẫu (voi rống thật, hổ gầm, rồng gầm,
+ngựa hí, cóc kêu, chim, nước, sấm, trống, chiêng, đám đông…). Chọn CC0 để không phải thêm trang ghi
+công cho khách; giấy phép từng file đã kiểm lại trên trang Freesound (không tin bộ lọc tìm kiếm).
+Không dùng âm rip từ game thương mại. Nguồn/tác giả/tên file gốc/ngày tải nằm trong
+`web/scripts/game-sounds/sources.json` và `web/lib/game/soundSamples.js` (hiện ở `/admin/game`).
+Dùng bản preview của Freesound (cùng giấy phép với bản gốc; tải bản gốc cần tài khoản).
+
+**3. Xử lý offline, không xử lý lúc chạy.** `web/scripts/game-sounds/build.mjs` (chạy tay trên Mac,
+cần `afconvert`) cắt đoạn → chuẩn hoá RMS phần có tiếng về −18 dBFS → limiter −1 dBFS → fade → AAC
+mono 48 kbps `.m4a` (Safari + Chrome giải mã được). Mỗi file ~10 KB, cả thư viện ~560 KB, nằm ở
+`web/public/game-sounds/`. Trong trình duyệt thêm một bộ nén chung (DynamicsCompressor) cho mọi tiếng.
+
+**4. Công thức ghép lớp là DỮ LIỆU của mùa** (`soundSet` + `soundFamilies` trong file mùa): khoá →
+các lớp `[âm, lúc bắt đầu, độ to, tốc độ]`, âm là mẫu thật hoặc `synth:*` (hiệu ứng Web Audio: blip,
+chuông, nốt hỏi). Object chỉ trỏ `soundKey` — không lưu `sound_layers` trên từng object như ví dụ
+NOTE-06 §6, để 2 mô hình dùng chung một công thức và admin đổi tiếng bằng một ô chọn. Thiếu công
+thức → khoá theo `soundFamily` → chuông mặc định; không bao giờ im vì sai cấu hình. 34 mô hình có
+34 công thức riêng, dài 0,8–1,95 giây; âm sự kiện chung mọi mùa ở `lib/game/sounds.js`.
+
+**5. Tải và phát:** không tải trước cả thư viện — chọn mô hình trong luồng báo thì tải đúng các mẫu
+của công thức đó; lúc phát chờ tối đa 0,7 giây rồi phát những lớp đã có (mạng chậm vẫn có tiếng
+synth/chuông). Gặp lần đầu = tiếng riêng; gặp lại = tiếng xác nhận 2 nốt ngắn; bí ẩn/slot = vút gió
++ nốt hỏi; trọn bộ 45/45 = trống hội + đám đông + chuông. Tắt tiếng thì không tải, không phát,
+animation vẫn chạy. Vẫn không autoplay, không nhạc nền.
+
+**Chưa làm được / cần người:** chưa ai nghe bằng tai — Claude chỉ đo được độ lớn và kiểm tra có
+phát. Chủ dự án duyệt ở `/admin/game` → "Nghe lần lượt"; tiếng nào chưa hợp thì đổi khoá ở ô "Tiếng
+mở khoá" hoặc sửa đoạn cắt trong `sources.json` rồi chạy lại script.
+
 ## 2026-09-15 — Cookie phiên admin: `secure` theo giao thức thật, không theo NODE_ENV
 
 **Vấn đề:** server test `next start` (NODE_ENV=production) mở qua `http://192.168.1.178` → cookie

@@ -8,6 +8,7 @@ import {
   VERIFICATION_LABEL,
   VERIFICATION_STATUSES,
   catalogIndex,
+  isUnnamedSlot,
   objectDisplayName,
   objectIcon,
   resolveObjectId,
@@ -16,6 +17,7 @@ import { resolveObjectStats } from "@/lib/game/progress";
 import { HIDE_AFTER_FLAGS } from "@/lib/game/mapLayer";
 import { adminReadEverything, loadGameEvent } from "@/lib/game/store";
 import { formatClock, formatDayMonth } from "@/lib/game/format";
+import { EVENT_SOUND_RECIPES, SOUND_SAMPLES, eventSoundRecipe, soundFamilyOf, soundRecipeFor } from "@/lib/game/sounds";
 import { MediaImage } from "@/app/MediaImage";
 import { SoundPreviewList } from "./SoundPreviewList";
 import {
@@ -38,7 +40,7 @@ function when(iso) {
   return `${formatClock(iso)} ${formatDayMonth(iso)}`;
 }
 
-const SOUND_FAMILIES = ["animal", "history", "folklore", "technology", "traditional"];
+const SOUND_FAMILIES = ["animal", "history", "folklore", "technology", "traditional", "mystery"];
 
 // "2026-09-18T19:00" theo giờ VN cho ô datetime-local.
 function toVnInputValue(iso) {
@@ -82,7 +84,7 @@ function ObjectFields({ event, object }) {
       <label className="text-sm text-zinc-600">
         Nhóm âm thanh
         <select name="soundFamily" defaultValue={object?.soundFamily ?? ""} className={inputClass}>
-          <option value="">— (chuông mặc định)</option>
+          <option value="">—</option>
           {SOUND_FAMILIES.map((family) => (
             <option key={family} value={family}>
               {family}
@@ -91,8 +93,18 @@ function ObjectFields({ event, object }) {
         </select>
       </label>
       <label className="text-sm text-zinc-600">
-        Khoá âm thanh (tuỳ chọn: rabbit, elephant, tiger, bird, fish, turtle, dragon, drum, magic, bell…)
-        <input name="soundKey" defaultValue={object?.soundKey ?? ""} className={inputClass} />
+        Tiếng mở khoá (nghe thử ở mục &quot;Nghe thử âm thanh&quot;)
+        <select name="soundKey" defaultValue={object?.soundKey ?? ""} className={inputClass}>
+          <option value="">— theo nhóm âm thanh</option>
+          {Object.entries(event.soundSet ?? {}).map(([key, recipe]) => (
+            <option key={key} value={key}>
+              {recipe.label}
+            </option>
+          ))}
+          {object?.soundKey && !event.soundSet?.[object.soundKey] && (
+            <option value={object.soundKey}>{object.soundKey} (không còn trong bộ âm — sẽ dùng tiếng nhóm)</option>
+          )}
+        </select>
       </label>
       <label className="text-sm text-zinc-600">
         Nhóm
@@ -152,6 +164,7 @@ export default async function GameAdminPage({ searchParams }) {
   const noun = event.copy.objectNoun;
 
   const models = catalog.filter((o) => o.kind === OBJECT_KIND.MODEL && !o.matchedTo);
+  const unnamedSlots = models.filter((o) => isUnnamedSlot(o));
   const mysteries = catalog.filter((o) => o.kind === OBJECT_KIND.UNKNOWN && !o.matchedTo && !o.hidden);
   const matched = catalog.filter((o) => o.matchedTo);
   const photosByObject = new Map();
@@ -172,7 +185,8 @@ export default async function GameAdminPage({ searchParams }) {
         <div>
           <h1 className="text-2xl font-medium text-zinc-900">Game layer · {event.name}</h1>
           <p className="text-sm text-zinc-500">
-            {sightings.length} lượt báo · {models.length} {noun} có tên · {mysteries.length} bí ẩn chưa ghép
+            {sightings.length} lượt báo · {models.length} slot {noun} ({models.length - unnamedSlots.length} có tên,{" "}
+            {unnamedSlots.length} chưa xác định) · {mysteries.length} bí ẩn chưa ghép
           </p>
         </div>
         <Link href={gameEventHref(event)} target="_blank" className={ghostClass}>
@@ -206,8 +220,8 @@ export default async function GameAdminPage({ searchParams }) {
       <section className="mt-6 rounded-xl bg-white p-4 shadow-sm">
         <h2 className="text-lg font-medium text-zinc-900">Nghe thử âm thanh</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Người chơi chỉ nghe tiếng {noun} khi báo thành công một {noun} mới. iPhone đang gạt chế độ im lặng thì
-          trình duyệt không phát tiếng.
+          Người chơi nghe tiếng riêng khi Chạm một {noun} lần đầu; gặp lại chỉ có tiếng xác nhận ngắn. iPhone đang gạt
+          chế độ im lặng thì trình duyệt không phát tiếng. Đổi tiếng/nhóm/icon: bấm &quot;Sửa&quot; ở từng dòng.
         </p>
         <SoundPreviewList
           models={models
@@ -216,10 +230,29 @@ export default async function GameAdminPage({ searchParams }) {
               id: object.id,
               name: objectDisplayName(object, noun),
               glyph: objectIcon(object, event),
-              soundKey: object.soundKey,
-              soundFamily: object.soundFamily,
+              soundFamily: soundFamilyOf(object),
+              recipe: soundRecipeFor(object, event),
             }))}
+          eventSounds={Object.keys(EVENT_SOUND_RECIPES)
+            .filter((name) => name !== "tap-soft")
+            .map((name) => ({ id: `event-${name}`, label: EVENT_SOUND_RECIPES[name].label, recipe: eventSoundRecipe(name) }))}
         />
+        <details className="mt-4">
+          <summary className="cursor-pointer text-sm text-zinc-600">
+            Nguồn {Object.keys(SOUND_SAMPLES).length} âm thanh thật (đều CC0 — dùng tự do, không cần ghi công)
+          </summary>
+          <ul className="mt-2 grid gap-1 text-xs text-zinc-500 sm:grid-cols-2">
+            {Object.entries(SOUND_SAMPLES).map(([key, sample]) => (
+              <li key={key}>
+                <b className="font-medium text-zinc-700">{key}</b> ·{" "}
+                <a href={sample.sourceUrl} target="_blank" rel="noreferrer" className="underline">
+                  {sample.originalFilename}
+                </a>{" "}
+                · {sample.author} · {sample.license} · tải {sample.downloadedAt}
+              </li>
+            ))}
+          </ul>
+        </details>
       </section>
 
       {params?.saved === "1" && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã lưu.</p>}
@@ -278,7 +311,7 @@ export default async function GameAdminPage({ searchParams }) {
                   <select name="targetId" className={inputClass} defaultValue="">
                     <option value="" disabled>Chọn…</option>
                     {models.map((m) => (
-                      <option key={m.id} value={m.id}>{m.icon} {objectDisplayName(m, noun)}</option>
+                      <option key={m.id} value={m.id}>{objectIcon(m, event)} {objectDisplayName(m, noun)}</option>
                     ))}
                   </select>
                 </label>
@@ -304,16 +337,23 @@ export default async function GameAdminPage({ searchParams }) {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-lg font-medium text-zinc-900">{noun.charAt(0).toUpperCase() + noun.slice(1)} có tên ({models.length})</h2>
+        <h2 className="text-lg font-medium text-zinc-900">
+          {noun.charAt(0).toUpperCase() + noun.slice(1)} ({models.length} slot)
+        </h2>
+        <p className="text-sm text-zinc-500">
+          Slot &quot;chưa xác định&quot; vẫn tính vào tổng. Biết tên thì mở slot đó, điền tên + icon + tag + tiếng rồi Lưu —
+          lượt báo và tiến độ cũ giữ nguyên.
+        </p>
         <ul className="mt-3 flex flex-col gap-2">
           {models.map((object) => (
-            <li key={object.id} className="rounded-xl bg-white p-3 shadow-sm">
+            <li key={object.id} id={`object-${object.id}`} className="scroll-mt-4 rounded-xl bg-white p-3 shadow-sm">
               <details>
                 <summary className="cursor-pointer text-sm text-zinc-900">
                   {objectIcon(object, event)} {objectDisplayName(object, noun)} · {counts[object.id] ?? 0} lượt ·{" "}
                   {VERIFICATION_LABEL[object.verificationStatus]}
                   {object.hidden ? " · đang ẩn" : ""}
                   {object.source === "cdp_seed_placeholder" ? " · tên tạm" : ""}
+                  {isUnnamedSlot(object) ? " · slot chờ tên" : ""}
                 </summary>
                 <form action={saveGameObject} className="mt-3 flex flex-col gap-3">
                   <input type="hidden" name="slug" value={event.slug} />

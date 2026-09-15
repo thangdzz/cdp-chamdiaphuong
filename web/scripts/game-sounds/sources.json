@@ -1,0 +1,636 @@
+{
+  "dragon-roar": {
+    "freesoundId": 85568,
+    "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+    "license": "CC0 1.0",
+    "author": "JoelAudio",
+    "originalFilename": "DRAGON_ROAR.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.6,
+      "fadeIn": 0.005,
+      "fadeOut": 0.35
+    }
+  },
+  "monster-growl": {
+    "freesoundId": 171178,
+    "sourceUrl": "https://freesound.org/people/yatoimtop/sounds/171178/",
+    "license": "CC0 1.0",
+    "author": "yatoimtop",
+    "originalFilename": "MonsterGrowl.mp3",
+    "previewUrl": "https://cdn.freesound.org/previews/171/171178_2816123-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.6,
+      "fadeIn": 0.01,
+      "fadeOut": 0.3
+    }
+  },
+  "elephant-trumpet": {
+    "freesoundId": 527845,
+    "sourceUrl": "https://freesound.org/people/D.jones/sounds/527845/",
+    "license": "CC0 1.0",
+    "author": "D.jones",
+    "originalFilename": "Elephant Trumpets Growls.flac",
+    "previewUrl": "https://cdn.freesound.org/previews/527/527845_11431915-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.05,
+      "length": 1.3,
+      "fadeIn": 0.01,
+      "fadeOut": 0.2
+    }
+  },
+  "tiger-roar": {
+    "freesoundId": 571288,
+    "sourceUrl": "https://freesound.org/people/Vaporpup/sounds/571288/",
+    "license": "CC0 1.0",
+    "author": "Vaporpup",
+    "originalFilename": "tiger_roar.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/571/571288_11058236-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.2
+    }
+  },
+  "lion-growl": {
+    "freesoundId": 270383,
+    "sourceUrl": "https://freesound.org/people/stratcat322/sounds/270383/",
+    "license": "CC0 1.0",
+    "author": "stratcat322",
+    "originalFilename": "lion_growls.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/270/270383_1808829-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 3.4,
+      "length": 1,
+      "fadeIn": 0.02,
+      "fadeOut": 0.2
+    }
+  },
+  "horse-neigh": {
+    "freesoundId": 269571,
+    "sourceUrl": "https://freesound.org/people/shadoWisp/sounds/269571/",
+    "license": "CC0 1.0",
+    "author": "shadoWisp",
+    "originalFilename": "horse neigh shortened.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/269/269571_4564240-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.1,
+      "length": 1.3,
+      "fadeIn": 0.01,
+      "fadeOut": 0.15
+    }
+  },
+  "horse-gallop": {
+    "freesoundId": 197212,
+    "sourceUrl": "https://freesound.org/people/HebronTheatre/sounds/197212/",
+    "license": "CC0 1.0",
+    "author": "HebronTheatre",
+    "originalFilename": "Horse Gallop - Loopable.mp3",
+    "previewUrl": "https://cdn.freesound.org/previews/197/197212_3001728-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.2,
+      "length": 1.4,
+      "fadeIn": 0.01,
+      "fadeOut": 0.25
+    }
+  },
+  "frog-croak": {
+    "freesoundId": 354132,
+    "sourceUrl": "https://freesound.org/people/betterchinese/sounds/354132/",
+    "license": "CC0 1.0",
+    "author": "betterchinese",
+    "originalFilename": "Frog croaking sound effect",
+    "previewUrl": "https://cdn.freesound.org/previews/354/354132_5462031-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.6,
+      "length": 0.45
+    }
+  },
+  "peacock-call": {
+    "freesoundId": 688203,
+    "sourceUrl": "https://freesound.org/people/Kinoton/sounds/688203/",
+    "license": "CC0 1.0",
+    "author": "Kinoton",
+    "originalFilename": "Bird, Peacock Call",
+    "previewUrl": "https://cdn.freesound.org/previews/688/688203_2247456-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.25,
+      "length": 0.8
+    }
+  },
+  "crane-call": {
+    "freesoundId": 424141,
+    "sourceUrl": "https://freesound.org/people/straget/sounds/424141/",
+    "license": "CC0 1.0",
+    "author": "straget",
+    "originalFilename": "Cranes 4.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/424/424141_7707368-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.3,
+      "length": 1.1
+    }
+  },
+  "wing-flap": {
+    "freesoundId": 389634,
+    "sourceUrl": "https://freesound.org/people/_stubb/sounds/389634/",
+    "license": "CC0 1.0",
+    "author": "_stubb",
+    "originalFilename": "Wing Flap 1.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/389/389634_6068748-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.05,
+      "length": 0.45
+    }
+  },
+  "wing-flap-heavy": {
+    "freesoundId": 561364,
+    "sourceUrl": "https://freesound.org/people/GearArcanaNo37/sounds/561364/",
+    "license": "CC0 1.0",
+    "author": "GearArcanaNo37",
+    "originalFilename": "Wing Flap Heavy (prototype).mp3",
+    "previewUrl": "https://cdn.freesound.org/previews/561/561364_4582672-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.05,
+      "length": 0.7
+    }
+  },
+  "rabbit-thump": {
+    "freesoundId": 386007,
+    "sourceUrl": "https://freesound.org/people/kessir/sounds/386007/",
+    "license": "CC0 1.0",
+    "author": "kessir",
+    "originalFilename": "Rabbit Thump on Soil",
+    "previewUrl": "https://cdn.freesound.org/previews/386/386007_4521595-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.65,
+      "length": 0.35
+    }
+  },
+  "leaves-rustle": {
+    "freesoundId": 538152,
+    "sourceUrl": "https://freesound.org/people/Fupicat/sounds/538152/",
+    "license": "CC0 1.0",
+    "author": "Fupicat",
+    "originalFilename": "Game Rustle Leaves",
+    "previewUrl": "https://cdn.freesound.org/previews/538/538152_7724198-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.6
+    }
+  },
+  "squeak-soft": {
+    "freesoundId": 154381,
+    "sourceUrl": "https://freesound.org/people/semccab/sounds/154381/",
+    "license": "CC0 1.0",
+    "author": "semccab",
+    "originalFilename": "squeak.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/154/154381_2592496-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.75,
+      "length": 0.25
+    }
+  },
+  "mouse-squeak": {
+    "freesoundId": 536753,
+    "sourceUrl": "https://freesound.org/people/egomassive/sounds/536753/",
+    "license": "CC0 1.0",
+    "author": "egomassive",
+    "originalFilename": "Rat.ogg",
+    "previewUrl": "https://cdn.freesound.org/previews/536/536753_1415754-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.05,
+      "length": 0.5
+    }
+  },
+  "cricket-chirp": {
+    "freesoundId": 400663,
+    "sourceUrl": "https://freesound.org/people/Sojan/sounds/400663/",
+    "license": "CC0 1.0",
+    "author": "Sojan",
+    "originalFilename": "Cricket Chirp",
+    "previewUrl": "https://cdn.freesound.org/previews/400/400663_5477651-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.2,
+      "length": 0.75
+    }
+  },
+  "crickets-night": {
+    "freesoundId": 424871,
+    "sourceUrl": "https://freesound.org/people/joanaseabra/sounds/424871/",
+    "license": "CC0 1.0",
+    "author": "joanaseabra",
+    "originalFilename": "Sound of crickets at night",
+    "previewUrl": "https://cdn.freesound.org/previews/424/424871_8521755-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 2,
+      "length": 1.5,
+      "fadeIn": 0.25,
+      "fadeOut": 0.4
+    }
+  },
+  "rooster-crow": {
+    "freesoundId": 200339,
+    "sourceUrl": "https://freesound.org/people/jsbarrett/sounds/200339/",
+    "license": "CC0 1.0",
+    "author": "jsbarrett",
+    "originalFilename": "Rooster crow",
+    "previewUrl": "https://cdn.freesound.org/previews/200/200339_3159560-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 1.2,
+      "length": 1.6,
+      "fadeIn": 0.02,
+      "fadeOut": 0.35
+    }
+  },
+  "water-splash": {
+    "freesoundId": 442773,
+    "sourceUrl": "https://freesound.org/people/qubodup/sounds/442773/",
+    "license": "CC0 1.0",
+    "author": "qubodup",
+    "originalFilename": "Big Water Splash",
+    "previewUrl": "https://cdn.freesound.org/previews/442/442773_71257-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.3,
+      "fadeIn": 0.005,
+      "fadeOut": 0.35
+    }
+  },
+  "water-splash-small": {
+    "freesoundId": 737233,
+    "sourceUrl": "https://freesound.org/people/qubodup/sounds/737233/",
+    "license": "CC0 1.0",
+    "author": "qubodup",
+    "originalFilename": "Small Water Splash",
+    "previewUrl": "https://cdn.freesound.org/previews/737/737233_71257-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.45
+    }
+  },
+  "bubbles": {
+    "freesoundId": 539823,
+    "sourceUrl": "https://freesound.org/people/ristooooo1/sounds/539823/",
+    "license": "CC0 1.0",
+    "author": "ristooooo1",
+    "originalFilename": "Bubbles 001.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/539/539823_6205597-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 1,
+      "length": 1.2
+    }
+  },
+  "ocean-wave": {
+    "freesoundId": 442944,
+    "sourceUrl": "https://freesound.org/people/qubodup/sounds/442944/",
+    "license": "CC0 1.0",
+    "author": "qubodup",
+    "originalFilename": "Ocean Wave",
+    "previewUrl": "https://cdn.freesound.org/previews/442/442944_71257-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 1.8,
+      "length": 1.6,
+      "fadeIn": 0.3,
+      "fadeOut": 0.5
+    }
+  },
+  "thunder": {
+    "freesoundId": 338091,
+    "sourceUrl": "https://freesound.org/people/jzielke011/sounds/338091/",
+    "license": "CC0 1.0",
+    "author": "jzielke011",
+    "originalFilename": "Thunder Clap 1",
+    "previewUrl": "https://cdn.freesound.org/previews/338/338091_4535165-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.55,
+      "length": 1.6,
+      "fadeIn": 0.01,
+      "fadeOut": 0.5
+    }
+  },
+  "wind-gust": {
+    "freesoundId": 381853,
+    "sourceUrl": "https://freesound.org/people/sqeeeek/sounds/381853/",
+    "license": "CC0 1.0",
+    "author": "sqeeeek",
+    "originalFilename": "wind_gust_short_sqeeeek.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/381/381853_4277312-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.4,
+      "length": 1.2,
+      "fadeIn": 0.1,
+      "fadeOut": 0.3
+    }
+  },
+  "stone-scrape": {
+    "freesoundId": 321488,
+    "sourceUrl": "https://freesound.org/people/dslrguide/sounds/321488/",
+    "license": "CC0 1.0",
+    "author": "dslrguide",
+    "originalFilename": "Scraping Stone",
+    "previewUrl": "https://cdn.freesound.org/previews/321/321488_5485024-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.9
+    }
+  },
+  "fire-whoosh": {
+    "freesoundId": 244926,
+    "sourceUrl": "https://freesound.org/people/hnhnh/sounds/244926/",
+    "license": "CC0 1.0",
+    "author": "hnhnh",
+    "originalFilename": "fire-whoosh.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/244/244926_3983630-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.1,
+      "length": 1,
+      "fadeIn": 0.02,
+      "fadeOut": 0.35
+    }
+  },
+  "whoosh": {
+    "freesoundId": 60030,
+    "sourceUrl": "https://freesound.org/people/qubodup/sounds/60030/",
+    "license": "CC0 1.0",
+    "author": "qubodup",
+    "originalFilename": "Swosh / Whoosh / Air Cut",
+    "previewUrl": "https://cdn.freesound.org/previews/60/60030_71257-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.4
+    }
+  },
+  "drum-loop": {
+    "freesoundId": 342465,
+    "sourceUrl": "https://freesound.org/people/PearceWilsonKing/sounds/342465/",
+    "license": "CC0 1.0",
+    "author": "PearceWilsonKing",
+    "originalFilename": "Tribe Drum Loop",
+    "previewUrl": "https://cdn.freesound.org/previews/342/342465_3906011-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.8,
+      "length": 2,
+      "fadeIn": 0.005,
+      "fadeOut": 0.3
+    }
+  },
+  "big-tom": {
+    "freesoundId": 687925,
+    "sourceUrl": "https://freesound.org/people/Johnnie_Holiday/sounds/687925/",
+    "license": "CC0 1.0",
+    "author": "Johnnie_Holiday",
+    "originalFilename": "JH Big Tom 1 (C 2 sec).wav",
+    "previewUrl": "https://cdn.freesound.org/previews/687/687925_4819210-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.4
+    }
+  },
+  "gong": {
+    "freesoundId": 537206,
+    "sourceUrl": "https://freesound.org/people/Logicogonist/sounds/537206/",
+    "license": "CC0 1.0",
+    "author": "Logicogonist",
+    "originalFilename": "Magyar gong.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/537/537206_3797507-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.05,
+      "length": 1.8,
+      "fadeIn": 0.003,
+      "fadeOut": 0.6
+    }
+  },
+  "wood-block": {
+    "freesoundId": 218461,
+    "sourceUrl": "https://freesound.org/people/thomasjaunism/sounds/218461/",
+    "license": "CC0 1.0",
+    "author": "thomasjaunism",
+    "originalFilename": "wood block",
+    "previewUrl": "https://cdn.freesound.org/previews/218/218461_3344538-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.35
+    }
+  },
+  "sword-draw": {
+    "freesoundId": 107589,
+    "sourceUrl": "https://freesound.org/people/Qat/sounds/107589/",
+    "license": "CC0 1.0",
+    "author": "Qat",
+    "originalFilename": "unsheath_sword.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/107/107589_1855536-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.05,
+      "length": 0.6
+    }
+  },
+  "sword-clash": {
+    "freesoundId": 326868,
+    "sourceUrl": "https://freesound.org/people/JohnBuhr/sounds/326868/",
+    "license": "CC0 1.0",
+    "author": "JohnBuhr",
+    "originalFilename": "Sword_Clash (7).wav",
+    "previewUrl": "https://cdn.freesound.org/previews/326/326868_4077311-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.55,
+      "fadeIn": 0.002,
+      "fadeOut": 0.2
+    }
+  },
+  "anvil": {
+    "freesoundId": 270588,
+    "sourceUrl": "https://freesound.org/people/michorvath/sounds/270588/",
+    "license": "CC0 1.0",
+    "author": "michorvath",
+    "originalFilename": "Anvil Hit 2",
+    "previewUrl": "https://cdn.freesound.org/previews/270/270588_3094998-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.45,
+      "length": 0.65,
+      "fadeOut": 0.2
+    }
+  },
+  "cloth-flap": {
+    "freesoundId": 391945,
+    "sourceUrl": "https://freesound.org/people/ssierra1202/sounds/391945/",
+    "license": "CC0 1.0",
+    "author": "ssierra1202",
+    "originalFilename": "cloth flap",
+    "previewUrl": "https://cdn.freesound.org/previews/391/391945_6450069-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.7
+    }
+  },
+  "temple-bell": {
+    "freesoundId": 337048,
+    "sourceUrl": "https://freesound.org/people/shinephoenixstormcrow/sounds/337048/",
+    "license": "CC0 1.0",
+    "author": "shinephoenixstormcrow",
+    "originalFilename": "131348__kaonaya__bell-at-daitokuji-temple-kyoto_modified.mp3",
+    "previewUrl": "https://cdn.freesound.org/previews/337/337048_3232293-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.6,
+      "fadeIn": 0.003,
+      "fadeOut": 0.5
+    }
+  },
+  "singing-bowl": {
+    "freesoundId": 271370,
+    "sourceUrl": "https://freesound.org/people/inoshirodesign/sounds/271370/",
+    "license": "CC0 1.0",
+    "author": "inoshirodesign",
+    "originalFilename": "singing bowl strike sound",
+    "previewUrl": "https://cdn.freesound.org/previews/271/271370_5159066-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1.8,
+      "fadeIn": 0.003,
+      "fadeOut": 0.6
+    }
+  },
+  "paper-flip": {
+    "freesoundId": 615337,
+    "sourceUrl": "https://freesound.org/people/Rookster/sounds/615337/",
+    "license": "CC0 1.0",
+    "author": "Rookster",
+    "originalFilename": "Paper_Flip_01",
+    "previewUrl": "https://cdn.freesound.org/previews/615/615337_13649160-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.6
+    }
+  },
+  "rocket-launch": {
+    "freesoundId": 521377,
+    "sourceUrl": "https://freesound.org/people/Jarusca/sounds/521377/",
+    "license": "CC0 1.0",
+    "author": "Jarusca",
+    "originalFilename": "Rocket Launch",
+    "previewUrl": "https://cdn.freesound.org/previews/521/521377_10847299-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.85,
+      "fadeIn": 0.005,
+      "fadeOut": 0.3
+    }
+  },
+  "radio-static": {
+    "freesoundId": 151903,
+    "sourceUrl": "https://freesound.org/people/carroll27/sounds/151903/",
+    "license": "CC0 1.0",
+    "author": "carroll27",
+    "originalFilename": "Radio static.aif",
+    "previewUrl": "https://cdn.freesound.org/previews/151/151903_2094213-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 0.8,
+      "fadeIn": 0.02,
+      "fadeOut": 0.2
+    }
+  },
+  "tractor-engine": {
+    "freesoundId": 707745,
+    "sourceUrl": "https://freesound.org/people/lauderson/sounds/707745/",
+    "license": "CC0 1.0",
+    "author": "lauderson",
+    "originalFilename": "tractor engine on",
+    "previewUrl": "https://cdn.freesound.org/previews/707/707745_9745622-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0,
+      "length": 1,
+      "fadeIn": 0.02,
+      "fadeOut": 0.25
+    }
+  },
+  "glass-shimmer": {
+    "freesoundId": 361704,
+    "sourceUrl": "https://freesound.org/people/Dasgoat/sounds/361704/",
+    "license": "CC0 1.0",
+    "author": "Dasgoat",
+    "originalFilename": "Shimmer glass",
+    "previewUrl": "https://cdn.freesound.org/previews/361/361704_3424781-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.5,
+      "length": 1.5,
+      "fadeIn": 0.05,
+      "fadeOut": 0.5
+    }
+  },
+  "crowd-cheer": {
+    "freesoundId": 400590,
+    "sourceUrl": "https://freesound.org/people/misjoc/sounds/400590/",
+    "license": "CC0 1.0",
+    "author": "misjoc",
+    "originalFilename": "Small crowd cheering",
+    "previewUrl": "https://cdn.freesound.org/previews/400/400590_3372256-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 0.6,
+      "length": 1.8,
+      "fadeIn": 0.15,
+      "fadeOut": 0.5
+    }
+  },
+  "low-rumble": {
+    "freesoundId": 132873,
+    "sourceUrl": "https://freesound.org/people/ecfike/sounds/132873/",
+    "license": "CC0 1.0",
+    "author": "ecfike",
+    "originalFilename": "Monster Low Rumble 2.wav",
+    "previewUrl": "https://cdn.freesound.org/previews/132/132873_2337290-hq.mp3",
+    "downloadedAt": "2026-09-15",
+    "trim": {
+      "start": 3,
+      "length": 1.5,
+      "fadeIn": 0.25,
+      "fadeOut": 0.5
+    }
+  }
+}

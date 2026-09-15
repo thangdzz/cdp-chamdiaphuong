@@ -98,8 +98,8 @@ npm run lint     # eslint
   mở, tắt mọi server CDP cũ (kiểm tra `lsof -iTCP -sTCP:LISTEN -P`), rồi `npm run build` +
   `npx next start -p 3100`. Không mở thêm cổng khác cho CDP. Các cổng 3001/3998/3999 là dự án
   khác của anh (sinh-qr, ClassFlow) — không đụng.
-- **Thử trên điện thoại qua wifi:** địa chỉ LAN của máy Mac đổi theo router (đã đổi .20 → .178
-  ngày 15/9) — luôn lấy lại bằng `ipconfig getifaddr en0` trước khi gửi link. Qua `http://192.168…`
+- **Thử trên điện thoại qua wifi:** địa chỉ LAN của máy Mac đổi theo router (15/9 đổi qua lại
+  .20 ↔ .178) — luôn lấy lại bằng `ipconfig getifaddr en0` trước khi gửi link. Qua `http://192.168…`
   **không lấy được GPS** (trình duyệt chỉ cho trên https) — kéo ghim trên bản đồ. Đăng nhập `/admin`
   qua LAN dùng được từ 15/9 (cookie phiên chỉ bật `secure` khi request thật sự là https, xem
   `isHttpsRequest` trong `lib/adminAuth.js`). Trang admin game là `/admin/game`, không phải `/cham/admin`.

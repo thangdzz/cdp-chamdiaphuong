@@ -107,6 +107,10 @@ nên dùng hash/zset/list + lệnh nguyên tử, **không** phải mảng JSON. 
 | `counters` / `area-activity` / `flags` | Hash | Tổng lượt báo · lượt báo theo ô ~110m · số lượt báo sai |
 | `cooldown:{anonId}:{objectId}` · `rate:{anonId}:{bucket}` · `flag-lock:…` | String TTL | Chống spam |
 
+Tổng bộ sưu tập = mọi slot model chưa ghép/ẩn, kể cả slot chưa có tên (NOTE-06: 45 = 34 tên + 11
+slot). Âm thanh game là file tĩnh `public/game-sounds/*.m4a` (CC0, sinh bằng
+`scripts/game-sounds/build.mjs` từ `sources.json`), không nằm trong Redis/Blob.
+
 Object đã ghép **không** ghi lại sighting/bộ sưu tập: `resolveObjectId()` trong
 `lib/game/catalog.js` quy về object đích lúc đọc (cả bộ sưu tập, số đếm, first discovery).
 
@@ -514,6 +518,10 @@ web/
 │   │   ├── venues.js              Venue → GeoJSON, điểm đặt nhãn, khung bao để căn bản đồ
 │   │   ├── catalog.js             Object: chuẩn hoá + fallback tên/icon, gộp seed + Redis, ghép
 │   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
+│   │   ├── sounds.js              Sound identity (NOTE-06): công thức lớp theo soundKey/soundFamily,
+│   │   │                          âm sự kiện, thời lượng — thuần; bộ phát ở app/_game/gameSound.js
+│   │   ├── soundSamples.js        SINH TỰ ĐỘNG bởi scripts/game-sounds/build.mjs — file .m4a CC0 +
+│   │   │                          nguồn/giấy phép. Đừng sửa tay
 │   │   ├── collections.js         Bộ sưu tập theo luật tag, bộ ẩn, combo, milestone, độ hiếm theo
 │   │   │                          đêm, thống kê cuối đêm (NOTE-05) — thuần
 │   │   ├── quests.js              Nhiệm vụ tự sinh từ data gap (thiếu ảnh/vị trí lệch/chưa tên)
@@ -547,7 +555,10 @@ web/
     ├── export-known-places.mjs   Xuất data/known-places-snapshot.json (chạy tay)
     ├── run-daily-ingest.mjs      Chạy pipeline thủ công
     ├── seed-redis.mjs
-    └── backfill-price-unit.mjs
+    ├── backfill-price-unit.mjs
+    └── game-sounds/              Dựng âm thanh game (NOTE-06, chạy tay trên Mac cần afconvert):
+        ├── sources.json          Mẫu CC0 Freesound: nguồn, tác giả, giấy phép, đoạn cắt
+        └── build.mjs             Tải → cắt → chuẩn hoá âm lượng → AAC → public/game-sounds/
 ```
 
 **Ba file quan trọng nhất nếu chỉ đọc được 3:** `lib/ingestion/ingestBatch.js` ·

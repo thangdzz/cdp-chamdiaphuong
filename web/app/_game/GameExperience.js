@@ -12,8 +12,10 @@ import { SuccessSheet } from "./SuccessSheet";
 import {
   playCelebrationAfter,
   playGameSound,
+  playSeenAgainSound,
   playUnlockSound,
   setSoundEnabled,
+  unlockSoundDurationMs,
   useSoundEnabled,
 } from "./gameSound";
 import { loadGameSnapshot, loadPlayerState } from "@/app/gameActions";
@@ -48,6 +50,8 @@ const EMPTY_PLAYER = { collection: {}, counts: {}, history: [], anonIdHash: null
 // Chọn MỘT lớp ăn mừng phía sau tiếng mở khoá — mốc > combo > hoàn thành bộ > mở bộ ẩn > người
 // đầu tiên. Không chồng nhiều tiếng lên nhau (NOTE-05 §17, §19).
 function celebrationSound({ diff, firstDiscovery }) {
+  // Trọn bộ có tiếng riêng: trống hội + đám đông + chuông hoàn thành (NOTE-06 §8).
+  if (diff.milestone?.count === "complete") return "grand-complete";
   if (diff.milestone) return "milestone";
   if (diff.completed.some((c) => c.combo)) return "combo";
   if (diff.completed.length > 0) return "collection-complete";
@@ -252,12 +256,13 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
     setPlayer(result.player);
     setReport(null);
 
-    // Icon + tiếng mở khoá xuất hiện cùng nhau; lớp ăn mừng (nếu có) phát sau (NOTE-05 §16).
-    if (result.isNewForUser) playUnlockSound(object);
-    else playGameSound("tap-soft");
+    // Icon + tiếng "nhân vật" xuất hiện cùng nhau; gặp lại chỉ có tiếng xác nhận ngắn. Lớp ăn mừng
+    // (nếu có) chờ tiếng mở khoá gần hết mới phát, không chồng lên nhau (NOTE-05 §16, NOTE-06 §7).
+    if (result.isNewForUser) playUnlockSound(object, event);
+    else playSeenAgainSound();
     playCelebrationAfter(
       celebrationSound({ diff, firstDiscovery: result.isFirstDiscovery && object?.kind === OBJECT_KIND.MODEL }),
-      result.isNewForUser ? 800 : 200
+      result.isNewForUser ? Math.min(2000, Math.max(700, unlockSoundDurationMs(object, event) - 250)) : 350
     );
 
     if (result.isNewForUser) setJustUnlockedId(result.objectId);
