@@ -6,6 +6,15 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (đêm) — NOTE-08 Phần 1: banner cổng vào game, chỉ local:** kế hoạch 4
+phần được duyệt (xem DECISIONS). Banner `GameBanner` ngay dưới tiêu đề `/le-hoi-thanh-tuyen`: 5 huy hiệu
+xếp vòng cung (khai báo `bannerObjectIds`), vầng trăng thở chậm, nút "🏮 Vào chơi ngay", cả khối bấm vào
+game. Pre-game hiện "Mở màn 19:00 · 18/9 · còn …"; live hiện X/45 đã ghi nhận + lượt thấy tối nay + được
+thấy nhiều nhất tối nay; hết mùa "Xem lại bộ sưu tập". `GameEntryCard` dời xuống dưới phần giới thiệu.
+Kiểm thử Playwright iPhone 13: pre-game và live (giả lập trong namespace test `cdp-test-game-owner`,
+đã xoá lại đúng 2 key đã ghi) — hiển thị đúng, slot chưa tên bị bỏ qua, không lỗi console. Build đạt,
+lint đúng 1 lỗi nền. Server test `localhost:3100` chạy lại bản mới (namespace test). **Chưa deploy.**
+
 **Cập nhật mới nhất 2026-09-15 (tối muộn) — ĐÃ DEPLOY game Săn đèn lên production** (`web-lqtaavabq`,
 chamdiaphuong.io.vn). Trước deploy: xác nhận Vercel không có `CDP_GAME_NAMESPACE`, Redis thật chưa có
 key game (→ pre-game tới 18/9 19:00). Sau deploy kiểm bằng WebKit iPhone trên production: banner

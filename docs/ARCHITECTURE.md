@@ -336,8 +336,10 @@ web/
 │   ├── occupancy.js         (29)  Nhãn "còn chỗ" 3 mức — suy theo LỊCH, không theo dữ liệu
 │   ├── BadgeIcon.js        (136)  SVG huy hiệu theo bậc
 │   ├── layout.js            (29)
-│   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh) + khối game
-│   │                              `GameEntryCard` (ẩn nếu Redis lỗi)
+│   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh) + banner cổng vào game
+│   │                              `GameBanner` (NOTE-08, ngay dưới tiêu đề) + khối tiến độ riêng
+│   │                              `GameEntryCard` (dưới "Lễ hội là gì?"); cả hai ẩn nếu Redis lỗi.
+│   │                              Cùng một `getGameTeaser` (3 lệnh Redis) cho cả hai
 │   ├── cham/[eventSlug]/page.js    ⭐ Game layer: route CHUNG mọi mùa (`/cham/thanh-tuyen-2026`),
 │   │                              `?bao=1` mở sẵn bảng báo
 │   ├── gameActions.js              Server Action game: báo sighting (tạo hồ sơ ẩn danh im

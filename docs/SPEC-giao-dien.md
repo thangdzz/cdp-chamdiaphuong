@@ -278,6 +278,11 @@ glow, 8 hạt, 600–1200ms), thẻ bộ sưu tập xám → màu, số đếm c
 hành động của người chơi, chỉ transform/opacity, tắt theo `prefers-reduced-motion`. Không mang
 các hiệu ứng này ra trang thường. Class có tiền tố `cdp-game-` trong `globals.css`.
 
+**Ngoại lệ banner game trên bài lễ hội (thêm 2026-09-15, NOTE-08 §1):** `GameBanner` trên
+`/le-hoi-thanh-tuyen` được một vầng sáng sau huy hiệu thở chậm (5 giây, chỉ opacity,
+`cdp-game-banner-halo`), tắt hẳn theo `prefers-reduced-motion`. Chỉ vậy — không nảy, không hạt,
+không số chạy trên trang thường.
+
 ---
 
 ## 8. Điện thoại

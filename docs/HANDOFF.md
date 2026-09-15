@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (đêm) — NOTE-08 ĐANG LÀM, Phần 1/4 (banner) ĐÃ CODE, CHƯA DEPLOY.** Spec:
+`docs/17-NOTE-08-Game-Banner-Anonymous-Name-Admin-Tracking.md` (trùng số với NOTE-08 Giới thiệu cũ).
+Kế hoạch 4 phần đã duyệt ở DECISIONS 2026-09-15; tiến độ ở TASKS mục IN PROGRESS. Banner
+`app/_game/GameBanner.js`, huy hiệu chọn ở `bannerObjectIds` file mùa, `getGameTeaser` giờ trả thêm
+`tonightStats`. Việc tiếp: Phần 2 (tên ngẫu nhiên + đổi tên) — trình chủ dự án bấm thử banner trước.
+
 **2026-09-15 (tối muộn) — GAME SĂN ĐÈN ĐÃ DEPLOY PRODUCTION** (`web-lqtaavabq`, alias
 chamdiaphuong.io.vn; gồm MVP1 + polish + điểm tổ chức + NOTE-05/06/07 + sửa admin cookie + nút định vị).
 Production KHÔNG có `CDP_GAME_NAMESPACE`; Redis thật chưa có key `game:thanh-tuyen-2026:*` → game ở
@@ -295,6 +301,9 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 ## 5. Bước tiếp theo nên làm
 
 Xếp theo mức đáng làm trước lễ hội:
+
+0. **NOTE-08 Phần 2 → 3** (tên ẩn danh, ghi nhận hoạt động) rồi deploy trước 18/9 19:00; Phần 4
+   (menu admin + Dashboard) sau. Chi tiết kế hoạch ở DECISIONS 2026-09-15 "NOTE-08".
 
 1. **Chủ dự án bấm thử NOTE-11/12/13 trên production** (đã deploy 14/9): Admin tải → gỡ ảnh,
    khách gửi 6 ảnh thấy báo đỏ, gửi mẹo `Khác` → từ chối, lưu một route share → sửa bản copy.

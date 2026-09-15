@@ -382,12 +382,33 @@ body {
   animation: cdp-game-wobble 800ms ease-in-out both;
 }
 
+/* Banner cổng vào game trên bài lễ hội (NOTE-08 §1) — ngoại lệ duy nhất chạy lặp ngoài /cham/*:
+   chỉ vầng sáng sau huy hiệu thở chậm bằng opacity, không có gì nảy hay nhấp nháy. */
+@keyframes cdp-game-banner-halo {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.cdp-game-banner-halo {
+  animation: cdp-game-banner-halo 5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cdp-game-ring,
   .cdp-game-particle,
   .cdp-game-glow,
   .cdp-game-pulse {
     display: none;
+  }
+
+  /* Khối chung bên dưới rút thời lượng về 0,01ms — với vòng lặp vô hạn thì thành nhấp nháy, nên tắt hẳn. */
+  .cdp-game-banner-halo {
+    animation: none;
   }
 }
 

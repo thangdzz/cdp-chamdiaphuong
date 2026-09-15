@@ -3,6 +3,28 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — NOTE-08: banner game, tên ẩn danh, theo dõi người dùng — chia 4 phần
+
+Chủ dự án duyệt kế hoạch chia `docs/17-NOTE-08-Game-Banner-Anonymous-Name-Admin-Tracking.md` thành
+4 phần, mỗi phần một commit: (1) banner cổng vào game → (2) tên ngẫu nhiên + đổi tên → (3) ghi nhận
+hoạt động ẩn danh → (4) tách menu admin + Dashboard + Người dùng. Phần 1–3 nên lên production trước
+18/9 vì số liệu chỉ có từ lúc Phần 3 chạy; Phần 4 (màn xem) làm sau không mất dữ liệu.
+(Có 2 file cùng số 17-NOTE-08; file kia là trang Giới thiệu, đã xong từ trước.)
+
+Đã chốt trong kế hoạch: `/admin` sẽ thành Dashboard, trang duyệt dữ liệu cũ chuyển `/admin/duyet`;
+trang "Analytics" riêng gộp vào Dashboard; dòng tin "X vừa báo thấy…" chưa làm (hiện chưa có feed).
+Rủi ro có sẵn đã báo, CHƯA sửa (ngoài phạm vi): `contributors:all` đọc-cả-mảng/ghi-cả-mảng nên nhiều
+người báo lần đầu cùng lúc có thể đè mất hồ sơ nhau.
+
+**Phần 1 — banner.** Banner `app/_game/GameBanner.js` đặt ngay dưới tiêu đề bài; khối `GameEntryCard`
+giữ nguyên nội dung nhưng dời xuống dưới "Lễ hội Thành Tuyên là gì?" — để hai khối game đứng sát nhau
+thì trùng lặp. Banner nói số liệu CỘNG ĐỒNG (X/45 đã ghi nhận, lượt thấy tối nay, được thấy nhiều nhất
+tối nay), GameEntryCard nói tiến độ RIÊNG. Huy hiệu bày trên banner khai báo ở `bannerObjectIds` trong
+file mùa (không viết cứng trong component, giữ quy tắc không hard-code Trung thu). "Tối nay" = ngày giờ
+VN, đọc thêm 1 hash `object-stats:day:*` (teaser 2 → 3 lệnh Redis). "Được thấy nhiều nhất" bỏ qua slot
+chưa tên/bí ẩn. Nền tím đêm + vầng trăng vàng thở chậm là ngoại lệ chuyển động thứ hai ngoài `/cham/*`
+(ghi ở SPEC-giao-dien §7), tắt theo reduced motion.
+
 ## 2026-09-15 — NOTE-07: làm lại tiếng họ rồng/hổ/cá + hệ huy hiệu sưu tập một biểu tượng
 
 Chủ dự án yêu cầu "đọc `docs/16-NOTE-07-Sound-Rework-and-Gaming-Icon-System.md` và làm phù hợp".

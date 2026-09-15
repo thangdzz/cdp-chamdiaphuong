@@ -35,7 +35,20 @@ export const THANH_TUYEN_2026 = {
       { emoji: "🤔", text: "Thật không bạn để tôi còn đi đồn? 🤔" },
       { emoji: "😆", text: "Tôi xin lỗi bạn, thứ 6 tôi mới làm việc cơ 😆" },
     ],
+    // Banner "cổng vào game" trên bài lễ hội (NOTE-08 §1).
+    bannerTagline: "Tối nay bạn tìm được bao nhiêu mô hình?",
+    bannerCta: "Vào chơi ngay",
   },
+
+  // 5 huy hiệu bày trên banner (NOTE-08 §1), mỗi cái một khung khác nhau cho thấy bộ sưu tập đa dạng.
+  // Cái giữa (thứ 3) to nhất. Id không còn trong catalog (bị ẩn/ghép) thì banner tự bỏ qua.
+  bannerObjectIds: [
+    "tt26-hai-ba-trung",
+    "tt26-chu-cuoi",
+    "tt26-rong-vang",
+    "tt26-trong-dong-dong-son",
+    "tt26-ket-noi-khong-gian-vnpt",
+  ],
 
   // Nguồn của con số 45. Mẫu số bộ sưu tập không đọc từ đây mà đếm số slot trong `objects` bên dưới
   // (34 mô hình có tên + 11 slot chưa xác định = 45, NOTE-06 §1) — thêm/bớt slot là đổi mẫu số.

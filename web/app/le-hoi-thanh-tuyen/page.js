@@ -14,6 +14,7 @@ import { FESTIVAL_EVENTS, POST_META, PLAN_TEMPLATE } from "@/lib/postEvents/le-h
 import { getPostEvents } from "@/lib/postEvents";
 import { InteractivePlan } from "@/app/InteractivePlan";
 import { EventCard } from "./EventCard";
+import { GameBanner } from "@/app/_game/GameBanner";
 import { GameEntryCard } from "@/app/_game/GameEntryCard";
 import { eventPhase, gameEventHref, publicEventConfig } from "@/lib/game/registry";
 import { getGameTeaser, loadGameEvent } from "@/lib/game/store";
@@ -72,6 +73,8 @@ export default async function LeHoiThanhTuyenPage() {
     getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
     gameEvent ? getGameTeaser(gameEvent).catch(() => null) : null,
   ]);
+  const gameConfig = gameEvent ? publicEventConfig(gameEvent) : null;
+  const gamePhase = gameEvent ? eventPhase(gameEvent, now) : null;
   const { live, today, upcoming, past, undated, next } = groupEvents(events, now);
   const countdown = formatCountdown(next, now);
   const nextStatus = next ? eventStatus(next, now) : null;
@@ -102,14 +105,14 @@ export default async function LeHoiThanhTuyenPage() {
         <h1 className="mt-4 text-2xl font-bold text-zinc-900">{POST_META.title}</h1>
         <p className="mt-1 text-sm text-zinc-500">{POST_META.subtitle}</p>
 
-        {/* NOTE-04 §3: game layer phủ lên chính bài lễ hội, ở chỗ dễ thấy ngay dưới ảnh. Redis lỗi
-            thì ẩn khối game, bài viết vẫn mở bình thường. */}
+        {/* NOTE-08 §1: banner "cổng vào game" ngay dưới phần đầu bài — chỗ dễ thấy nhất. Redis lỗi
+            thì ẩn cả banner lẫn khối game, bài viết vẫn mở bình thường. */}
         {gameTeaser && (
-          <GameEntryCard
-            event={publicEventConfig(gameEvent)}
+          <GameBanner
+            event={gameConfig}
             href={gameEventHref(gameEvent)}
             teaser={gameTeaser}
-            phase={eventPhase(gameEvent, now)}
+            phase={gamePhase}
             now={now}
           />
         )}
@@ -135,6 +138,18 @@ export default async function LeHoiThanhTuyenPage() {
             khắp phố. Năm 2026, lễ hội tổ chức ở quy mô cấp tỉnh.
           </p>
         </section>
+
+        {/* NOTE-04 §3: khối game trong bài (tiến độ RIÊNG + nút báo nhanh). NOTE-08 §1 giữ nguyên khối
+            này, chỉ dời xuống dưới phần giới thiệu vì banner phía trên đã làm việc kéo vào game. */}
+        {gameTeaser && (
+          <GameEntryCard
+            event={gameConfig}
+            href={gameEventHref(gameEvent)}
+            teaser={gameTeaser}
+            phase={gamePhase}
+            now={now}
+          />
+        )}
 
         <section className="mt-5">
           <h2 className="text-lg font-bold text-zinc-900">Lịch hoạt động</h2>

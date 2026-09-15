@@ -434,14 +434,22 @@ export async function readObjectSightingStats(event, { day = null, peopleFor = [
   };
 }
 
-/** Tóm tắt nhẹ cho khối game trên trang bài viết — 2 lệnh Redis. */
+/**
+ * Tóm tắt nhẹ cho khối game + banner trên trang bài viết — 3 lệnh Redis. `tonightStats` là số lượt
+ * báo theo object trong ngày giờ VN hiện tại (banner NOTE-08 §1: "Y lượt nhìn thấy tối nay").
+ */
 export async function getGameTeaser(event) {
-  const [storedObjects, objectStats] = await Promise.all([
+  const [storedObjects, objectStats, dayStats] = await Promise.all([
     redis.hgetall(GAME_KEYS.objects(event.id)),
     redis.hgetall(GAME_KEYS.objectStats(event.id)),
+    redis.hgetall(GAME_KEYS.objectStatsDay(event.id, vnDayKey(new Date().toISOString()))),
   ]);
   const catalog = mergeCatalog(event.objects, parseHash(storedObjects), event.id);
-  return { catalog: catalog.filter((o) => !o.hidden), objectStats: resolveObjectStats(objectStats ?? {}, catalog) };
+  return {
+    catalog: catalog.filter((o) => !o.hidden),
+    objectStats: resolveObjectStats(objectStats ?? {}, catalog),
+    tonightStats: resolveObjectStats(dayStats ?? {}, catalog),
+  };
 }
 
 /** Dữ liệu RIÊNG của một người: bộ sưu tập + lịch sử báo. Chỉ trả cho đúng anonId đó. */
