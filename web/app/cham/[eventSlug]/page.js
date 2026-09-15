@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { eventGameLiveAt, eventPhase, getGameEvent, publicEventConfig } from "@/lib/game/registry";
 import { mergeCatalog } from "@/lib/game/catalog";
-import { getGameSnapshot, loadGameEvent } from "@/lib/game/store";
+import { getSharedGameSnapshot, loadGameEventShared } from "@/lib/game/store";
 import { GameExperience } from "@/app/_game/GameExperience";
 
 // Marker "tối nay" và tiến độ cộng đồng đổi liên tục — đọc Redis mỗi lượt mở.
@@ -20,12 +20,12 @@ export async function generateMetadata({ params }) {
 // Route chung cho mọi mùa game (NOTE-04 §28: không code riêng một trò Trung thu).
 export default async function GameEventPage({ params, searchParams }) {
   const [{ eventSlug }, query] = await Promise.all([params, searchParams]);
-  const event = await loadGameEvent(eventSlug);
+  const event = await loadGameEventShared(eventSlug);
   if (!event) notFound();
 
   let snapshot;
   try {
-    snapshot = await getGameSnapshot(event);
+    snapshot = await getSharedGameSnapshot(event);
   } catch (error) {
     // Redis tạm lỗi: vẫn mở được game với danh mục seed, chỉ thiếu dữ liệu cộng đồng.
     console.error("[game] snapshot failed", error);

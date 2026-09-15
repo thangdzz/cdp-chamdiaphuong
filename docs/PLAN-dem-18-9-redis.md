@@ -6,6 +6,17 @@
 
 ---
 
+## 0. Đã chốt (2026-09-15 khuya)
+
+- ✅ Chuyển Upstash **Pay-as-you-go**, hạn mức ngân sách **$10/tháng** — chủ dự án tự làm trên dashboard.
+- ✅ **B1 + B2 + B3 đã code, test và deploy** (xem §5B). Thêm một sửa phát sinh: điện thoại bỏ qua
+  snapshot cũ hơn bản đang có, để marker người vừa báo không biến mất.
+- ✅ Giữ công tắc `CDP_ANALYTICS_DISABLED`. ✅ **Không sửa luồng ghi lượt báo** trước 18/9.
+- ⏳ Theo dõi đêm 18/9 phải **tự động** (chủ dự án cũng đi săn đèn), kế hoạch chờ duyệt.
+- ⚠️ $10 ≈ 5 triệu lệnh/tháng. Sau B: kịch bản thấp/vừa dư sức. Kịch bản cao (1.000 người chơi mỗi đêm
+  × 7 đêm ≈ 5,8 triệu) có thể chạm hạn mức cuối tuần lễ hội → bị rate limit. Báo cáo tự động phải canh
+  tổng tháng so với $10.
+
 ## 1. Tóm tắt 30 giây
 
 - Game mở thật **18/9 19:00**. Web, game và số liệu truy cập **dùng chung một Redis Upstash, gói miễn phí

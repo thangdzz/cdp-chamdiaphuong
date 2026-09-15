@@ -111,6 +111,11 @@ Tổng bộ sưu tập = mọi slot model chưa ghép/ẩn, kể cả slot chưa
 slot). Âm thanh game là file tĩnh `public/game-sounds/*.m4a` (CC0, sinh bằng
 `scripts/game-sounds/build.mjs` từ `sources.json`), không nằm trong Redis/Blob.
 
+**Bộ nhớ đệm đọc 20 giây (2026-09-15, PLAN-dem-18-9 §5 B1):** trang game + `loadGameSnapshot` +
+`loadPlayerState` dùng `loadGameEventShared`/`getSharedGameSnapshot` (bộ nhớ máy chủ, mỗi instance
+Vercel). Luồng ghi (báo, ảnh, admin) dùng bản đọc mới. Client bỏ qua snapshot cũ hơn bản đang có
+(`applySnapshot` so `generatedAt`) — đừng bỏ phép so này khi sửa GameExperience.
+
 Object đã ghép **không** ghi lại sighting/bộ sưu tập: `resolveObjectId()` trong
 `lib/game/catalog.js` quy về object đích lúc đọc (cả bộ sưu tập, số đếm, first discovery).
 

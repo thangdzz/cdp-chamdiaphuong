@@ -16,7 +16,10 @@
   - [x] Phần 2: tên ngẫu nhiên không trùng mô hình + đổi tên + tên tra lúc hiển thị — 💻 chỉ local
   - [x] Phần 3: ghi nhận hoạt động ẩn danh (gom sự kiện, ít lệnh Redis) — 💻 chỉ local, cần deploy trước 18/9
   - [x] Deploy Phần 1–3 — 🚀 2026-09-15 (`web-l2j8wqis8`)
-  - [ ] Chủ dự án chốt `docs/PLAN-dem-18-9-redis.md` §7: Upstash Pay-as-you-go? làm B1–B3 giảm lệnh?
+  - [x] Chốt PLAN-dem-18-9 §7: Pay-as-you-go $10 · B1–B3 · giữ kill switch · không sửa luồng báo
+  - [ ] Chủ dự án: thêm thanh toán Upstash (Pay-as-you-go) + đặt hạn mức $10 — sáng 16/9 hoặc 17/9
+  - [x] B1 bộ đệm snapshot 20s · B2 analytics 2 phút · B3 quay lại tab ≥ 30s + sửa snapshot cũ ghi đè
+  - [ ] Theo dõi tự động đêm 18/9 — kế hoạch chờ duyệt
   - [ ] Đêm 18/9: theo dõi theo PLAN §6, sau đó thay số giả định bằng số thật
   - [ ] Phần 4: tách menu admin, Dashboard `/admin`, duyệt dữ liệu → `/admin/duyet`, `/admin/users`
 

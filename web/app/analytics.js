@@ -6,7 +6,8 @@ import { SESSION_GAP_MS } from "@/lib/analytics/events";
 
 // Ghi nhận hoạt động ẩn danh phía trình duyệt (NOTE-08 §8). Gom sự kiện rồi gửi theo đợt để giữ số
 // lệnh Redis thấp (xem lib/analytics/store.js): đợt đầu của phiên gửi sau vài giây (khách vào xem rồi
-// thoát nhanh vẫn được đếm), sau đó tối đa 30 giây một lần, và luôn gửi nốt khi rời/ẩn trang.
+// thoát nhanh vẫn được đếm), sau đó tối đa 2 phút một lần (PLAN-dem-18-9 §5 B2), và luôn gửi nốt khi
+// rời/ẩn trang.
 
 const VISITOR_KEY = "cdp_visitor_id";
 const LAST_ACTIVE_KEY = "cdp_visitor_last_active";
@@ -16,7 +17,7 @@ const CONTRIBUTOR_KEY = "cdp_contributor"; // app/ContributionPanel.js STORAGE_K
 const DRAFT_NAME_KEY = "cdp_display_name_draft"; // app/_game/playerName.js
 
 const FIRST_FLUSH_MS = 4000;
-const FLUSH_MS = 30000;
+const FLUSH_MS = 2 * 60 * 1000;
 const ENDPOINT = "/api/track";
 
 let queue = { paths: [], counts: {}, sessionStart: false, referrer: "" };

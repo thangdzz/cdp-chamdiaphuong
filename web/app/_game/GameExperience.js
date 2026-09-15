@@ -39,6 +39,7 @@ import { EVENT_PHASE, livePhaseAt } from "@/lib/game/registry";
 // Không có websocket (NOTE-04 §27): làm mới nhẹ khi tab đang mở + khi quay lại tab. 2 phút là
 // đủ cho mô hình diễu chậm, và giữ số lệnh Redis trong gói miễn phí.
 const REFRESH_MS = 2 * 60 * 1000;
+const RETURN_REFRESH_MIN_MS = 30 * 1000;
 const FADE_AFTER_MINUTES = 60;
 
 const TABS = [
@@ -131,6 +132,11 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   }, [snapshot]);
 
   const applySnapshot = useCallback((next) => {
+    // Snapshot dùng chung 20 giây (PLAN-dem-18-9 §5 B1) có thể CŨ hơn bản đang có — VD vừa báo xong
+    // (server trả bản mới) thì tới lượt tự làm mới nhận bản tạo trước lượt báo: marker của chính mình
+    // biến mất tới 2 phút. Bản cũ hơn thì bỏ qua.
+    if (Date.parse(next.generatedAt) < Date.parse(snapshotRef.current.generatedAt)) return;
+    snapshotRef.current = next; // cập nhật ngay, không đợi effect — phản hồi tới sát nhau vẫn so đúng
     const fresh = next.markers.filter((m) => !knownMarkerIds.current.has(m.id)).map((m) => m.id);
     next.markers.forEach((m) => knownMarkerIds.current.add(m.id));
     setNewMarkerIds(new Set(fresh));
@@ -140,13 +146,14 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
 
   // Hỏi lại server trạng thái mới nhất (pha game, marker…). Gọi định kỳ, khi quay lại tab, và mỗi
   // lần người chơi mở luồng báo — để máy này không giữ pha cũ khi admin vừa đổi giờ mở game.
-  const syncSnapshot = useCallback(
-    () =>
-      loadGameSnapshot(event.slug).then((result) => {
-        if (result.ok) applySnapshot(result.snapshot);
-      }),
-    [event.slug, applySnapshot]
-  );
+  // Trang vừa render từ server = vừa có snapshot mới; quay lại tab ngay sau đó không cần hỏi lại.
+  const lastSyncRef = useRef(Date.parse(initialSnapshot.generatedAt));
+  const syncSnapshot = useCallback(() => {
+    lastSyncRef.current = Date.now();
+    return loadGameSnapshot(event.slug).then((result) => {
+      if (result.ok) applySnapshot(result.snapshot);
+    });
+  }, [event.slug, applySnapshot]);
 
   // Vào game là có tên ngay (NOTE-08 §10) — tên nháp trên máy, chưa ghi server.
   const initialModelNames = useRef(modelNames);
@@ -194,12 +201,18 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       }
       setNow(t);
     }, 30000);
+    // Mở khoá màn hình/quay lại tab liên tục giữa phố: chỉ hỏi lại server nếu lần gần nhất đã quá
+    // 30 giây (PLAN-dem-18-9 §5 B3) — mỗi lần hỏi là ~11 lệnh Redis.
+    const refreshOnReturn = () => {
+      if (Date.now() - lastSyncRef.current < RETURN_REFRESH_MIN_MS) return;
+      refresh();
+    };
     timer = window.setInterval(refresh, REFRESH_MS);
-    document.addEventListener("visibilitychange", refresh);
+    document.addEventListener("visibilitychange", refreshOnReturn);
     return () => {
       window.clearInterval(clock);
       window.clearInterval(timer);
-      document.removeEventListener("visibilitychange", refresh);
+      document.removeEventListener("visibilitychange", refreshOnReturn);
     };
   }, [syncSnapshot]);
 

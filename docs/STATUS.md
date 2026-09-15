@@ -6,6 +6,15 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis:** chủ dự án chốt Pay-as-you-go $10,
+B1–B3, giữ kill switch, không sửa luồng báo, theo dõi đêm 18/9 tự động. Code: bộ đệm đọc 20 giây (trang
+game, tải snapshot/người chơi), analytics gửi ≤ 2 phút/lần, quay lại tab chỉ làm mới sau ≥ 30 giây. Test
+Playwright namespace test: 2 lượt tải trong 20s cùng `generatedAt`; quay lại tab ngay = 0 server action;
+không có đợt analytics thừa trong 10s; khách khác thấy marker sau khi bộ đệm hết hạn. Test làm lộ lỗi:
+bản đệm cũ ghi đè snapshot mới sau khi báo → marker của mình biến mất; sửa bằng so `generatedAt`, test lại
+đạt (marker còn sau khi nhận bản đệm cũ). Dọn: xoá hồ sơ thử `c-f49b0863…`, `c-…` (lượt test lại) theo
+đúng anonId, namespace test trống, `contributors:all` = 22. Build đạt, lint đúng 1 lỗi nền.
+
 **Cập nhật mới nhất 2026-09-15 (khuya) — DEPLOY NOTE-08 Phần 1–3** (`web-l2j8wqis8`). Trước deploy:
 `vercel env ls production` không có `CDP_GAME_NAMESPACE`/`CDP_ANALYTICS_*`. Sau deploy trên
 chamdiaphuong.io.vn (Playwright iPhone 13, chặn `/api/track` để không tạo khách giả): banner "Mở màn

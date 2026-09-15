@@ -105,6 +105,40 @@ export async function readEventRuntimeConfig(event) {
   return gameLiveAt ? { gameLiveAt } : {};
 }
 
+// ───────────────────── Bộ nhớ đệm dùng chung cho lượt ĐỌC công khai ─────────────────────
+// PLAN-dem-18-9-redis §5 B1: Upstash tính TỪNG lệnh. Snapshot ~11 lệnh, mỗi người chơi tự làm mới
+// định kỳ → số lệnh tăng theo số người đang mở game. Giữ kết quả 20 giây trong bộ nhớ máy chủ: bao
+// nhiêu người hỏi trong 20 giây cũng chỉ đọc Redis một lần (mỗi máy chủ Vercel). Luồng GHI (báo,
+// admin) không dùng bộ đệm — người vừa báo vẫn nhận snapshot mới từ reportSighting.
+const SHARED_READ_TTL_MS = 20 * 1000;
+const sharedReads = new Map();
+
+function sharedRead(cacheKey, load) {
+  const now = Date.now();
+  const hit = sharedReads.get(cacheKey);
+  if (hit && now - hit.at < SHARED_READ_TTL_MS) return hit.promise;
+  const promise = load();
+  sharedReads.set(cacheKey, { at: now, promise });
+  // Lỗi thì bỏ khỏi bộ đệm ngay — lượt sau đọc lại, không giữ lỗi 20 giây.
+  promise.catch(() => {
+    if (sharedReads.get(cacheKey)?.promise === promise) sharedReads.delete(cacheKey);
+  });
+  return promise;
+}
+
+/** Như loadGameEvent nhưng dùng chung 20 giây — cho trang/ action chỉ ĐỌC. Admin đổi giờ mở game
+ *  thì trang khách nhận giờ mới chậm tối đa 20 giây. */
+export function loadGameEventShared(slug) {
+  const event = getGameEvent(slug);
+  if (!event) return Promise.resolve(null);
+  return sharedRead(`event:${GAME_KEYS.config(event.id)}`, () => loadGameEvent(slug));
+}
+
+/** Snapshot công khai dùng chung 20 giây (B1). */
+export function getSharedGameSnapshot(event) {
+  return sharedRead(`snapshot:${GAME_KEYS.objects(event.id)}:${eventGameLiveAt(event)}`, () => getGameSnapshot(event));
+}
+
 /** Event + cấu hình chạy từ Redis. Mọi chỗ cần pha game (pre-game/live) đi qua đây. */
 export async function loadGameEvent(slug) {
   const event = getGameEvent(slug);

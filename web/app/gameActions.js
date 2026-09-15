@@ -8,7 +8,9 @@ import {
   flagSighting,
   getGameSnapshot,
   getPlayerState,
+  getSharedGameSnapshot,
   loadGameEvent,
+  loadGameEventShared,
   recordSighting,
 } from "@/lib/game/store";
 import { EVENT_PHASE, eventPhase } from "@/lib/game/registry";
@@ -17,6 +19,14 @@ import { processMediaFile } from "@/lib/mediaProcessing";
 
 async function requireEvent(slug) {
   const event = await loadGameEvent(String(slug ?? ""));
+  if (!event) throw new GameInputError("Không tìm thấy mùa săn này.");
+  return event;
+}
+
+// Chỉ cho lượt ĐỌC (tải snapshot/người chơi): cấu hình dùng chung 20 giây — PLAN-dem-18-9 §5 B1.
+// Luồng báo vẫn gọi requireEvent (đọc mới) — không đổi luồng ghi trước 18/9.
+async function requireEventShared(slug) {
+  const event = await loadGameEventShared(String(slug ?? ""));
   if (!event) throw new GameInputError("Không tìm thấy mùa săn này.");
   return event;
 }
@@ -61,7 +71,7 @@ async function uploadSightingPhoto(event, file, anonId) {
 
 export async function loadGameSnapshot(slug) {
   try {
-    return { ok: true, snapshot: await getGameSnapshot(await requireEvent(slug)) };
+    return { ok: true, snapshot: await getSharedGameSnapshot(await requireEventShared(slug)) };
   } catch (error) {
     return errorResult(error);
   }
@@ -69,7 +79,7 @@ export async function loadGameSnapshot(slug) {
 
 export async function loadPlayerState({ slug, anonId }) {
   try {
-    const event = await requireEvent(slug);
+    const event = await requireEventShared(slug);
     return { ok: true, player: await getPlayerState(event, isAnonId(anonId) ? anonId : null) };
   } catch (error) {
     return errorResult(error);

@@ -3,6 +3,26 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — Ngân sách Redis đêm hội: Pay-as-you-go $10 + giảm lệnh B1–B3
+
+Chủ dự án xác nhận Upstash tính TỪNG lệnh. Ước tính code cũ ~950 lệnh/người chơi/giờ → 300 người × 3 giờ
+vượt gói miễn phí cả tháng (chi tiết `docs/PLAN-dem-18-9-redis.md`). Chủ dự án chốt: Pay-as-you-go,
+hạn mức **$10**; làm B1–B3; giữ kill switch analytics; **không sửa luồng ghi lượt báo trước 18/9**; theo
+dõi đêm 18/9 phải tự động.
+
+- **B1** `loadGameEventShared` + `getSharedGameSnapshot` (`lib/game/store.js`): bộ nhớ đệm 20 giây trong
+  bộ nhớ máy chủ cho lượt ĐỌC công khai (trang game, `loadGameSnapshot`, `loadPlayerState`). Chống cả
+  nhiều lượt đọc đồng thời (giữ chung promise). Lỗi thì bỏ khỏi bộ đệm ngay. `reportSighting`,
+  `addPhotoToSighting`, admin vẫn đọc mới. Đánh đổi: khách khác thấy marker mới trễ ≤ 20 giây; admin
+  đổi giờ mở game thì trang khách nhận chậm ≤ 20 giây. Không dùng cache của Next.js (`use cache`) để
+  khỏi đổi mô hình render của trang `force-dynamic` sát ngày hội.
+- **Phát sinh khi test B1:** bản đệm có thể CŨ hơn snapshot người chơi đang có (vừa báo xong, tới lượt
+  làm mới nhận bản tạo trước lượt báo → marker của mình biến mất tới 2 phút). Sửa phía client:
+  `applySnapshot` bỏ qua snapshot có `generatedAt` cũ hơn bản hiện tại.
+- **B2** ghi nhận hoạt động gửi ≤ 2 phút/lần (trước 30 giây), vẫn gửi nốt khi ẩn/rời trang.
+- **B3** quay lại tab chỉ làm mới snapshot nếu lần gần nhất đã quá 30 giây.
+- Chưa làm (có chủ ý): bộ đệm cho teaser bài lễ hội (~4 lệnh/lượt xem); viết lại luồng ghi lượt báo.
+
 ## 2026-09-15 — NOTE-08: banner game, tên ẩn danh, theo dõi người dùng — chia 4 phần
 
 Chủ dự án duyệt kế hoạch chia `docs/17-NOTE-08-Game-Banner-Anonymous-Name-Admin-Tracking.md` thành
