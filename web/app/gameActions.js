@@ -11,6 +11,7 @@ import {
   loadGameEvent,
   recordSighting,
 } from "@/lib/game/store";
+import { EVENT_PHASE, eventPhase } from "@/lib/game/registry";
 import { deleteMedia, uploadMedia } from "@/lib/mediaStorage";
 import { processMediaFile } from "@/lib/mediaProcessing";
 
@@ -25,7 +26,7 @@ function isAnonId(value) {
 }
 
 function errorResult(error) {
-  if (error instanceof GameInputError) return { ok: false, error: error.message };
+  if (error instanceof GameInputError) return { ok: false, error: error.message, code: error.code };
   console.error("[game]", error);
   return { ok: false, error: "Chưa gửi được. Kiểm tra mạng rồi thử lại." };
 }
@@ -81,6 +82,10 @@ export async function reportSighting(formData) {
   let uploadedKey = null;
   try {
     const event = await requireEvent(formData.get("slug"));
+    // Kiểm tra pha TRƯỚC mọi bước ghi: trước giờ rước không tạo cả hồ sơ ẩn danh (NOTE-05 §3).
+    if (eventPhase(event) === EVENT_PHASE.PRE_GAME) {
+      throw new GameInputError("Chưa tới giờ rước đèn, lượt báo chưa được ghi nhận.", "pre_game");
+    }
     let anonId = formData.get("anonId")?.toString();
     let newProfile = null;
     let contributor = isAnonId(anonId) ? await getContributor(anonId) : null;

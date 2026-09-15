@@ -32,6 +32,8 @@
   - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh, vuốt sheet, câu troll) tại localhost:3100
   - [x] 15/9: mục "Nghe thử âm thanh" trong `/admin/game` (▶ từng mô hình + âm sự kiện); server test
         `cdp-test-game-owner` đã chuyển sang live để nghe tiếng mở khoá trên điện thoại
+  - [x] 15/9: sửa lệch pha giữa các máy (máy tính câu đùa / iPhone "Đã Chạm"): hỏi lại server khi mở
+        luồng báo + server trả mã pre_game trước khi tạo hồ sơ; server test trả về pre-game, xoá dữ liệu thử
   - [ ] Nghe thử 20 tiếng mô hình trên điện thoại thật, chọn lại khoá nào nghe chưa hợp
   - [ ] Thay 10 tên mô hình tạm bằng danh sách thật ở `/admin/game`
   - [ ] Quyết định deploy trước 19/9

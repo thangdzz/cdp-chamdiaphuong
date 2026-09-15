@@ -128,6 +128,16 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
     setNow(Date.now());
   }, []);
 
+  // Hỏi lại server trạng thái mới nhất (pha game, marker…). Gọi định kỳ, khi quay lại tab, và mỗi
+  // lần người chơi mở luồng báo — để máy này không giữ pha cũ khi admin vừa đổi giờ mở game.
+  const syncSnapshot = useCallback(
+    () =>
+      loadGameSnapshot(event.slug).then((result) => {
+        if (result.ok) applySnapshot(result.snapshot);
+      }),
+    [event.slug, applySnapshot]
+  );
+
   // Bộ sưu tập riêng cần anonId trong localStorage nên chỉ tải được ở trình duyệt.
   useEffect(() => {
     const anonId = loadLocalContributor()?.anonId;
@@ -141,9 +151,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
     let timer = null;
     const refresh = () => {
       if (document.visibilityState !== "visible") return;
-      loadGameSnapshot(event.slug).then((result) => {
-        if (result.ok) applySnapshot(result.snapshot);
-      });
+      syncSnapshot();
     };
     const clock = window.setInterval(() => {
       const t = Date.now();
@@ -165,7 +173,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, [event.slug, applySnapshot]);
+  }, [syncSnapshot]);
 
   const mapMarkers = useMemo(
     () =>
@@ -192,6 +200,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   );
 
   function showTroll() {
+    syncSnapshot();
     setReport(null);
     setDetail(null);
     reportSession.current += 1;
@@ -205,6 +214,8 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       return;
     }
     playGameSound("tap-soft");
+    // Trong lúc người chơi còn đang tìm mô hình trong danh sách, pha game đã kịp cập nhật.
+    syncSnapshot();
     reportSession.current += 1;
     setDetail(null);
     setReport({ session: reportSession.current, preset });

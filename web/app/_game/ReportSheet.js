@@ -153,6 +153,12 @@ export function ReportSheet({
     try {
       const result = await reportSighting(form);
       if (!result.ok) {
+        // Máy này tưởng game đã live (tab mở trước khi admin đổi giờ) nhưng server vẫn pre-game:
+        // xử lý như lượt báo thử — câu đùa, không báo lỗi. Server không ghi gì.
+        if (result.code === "pre_game" && onPreGameAttempt) {
+          onPreGameAttempt(objectId);
+          return;
+        }
         setError(result.error);
         return;
       }

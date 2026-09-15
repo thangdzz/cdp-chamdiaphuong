@@ -3,6 +3,20 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — Đồng bộ pha game giữa các máy (pre-game/live)
+
+**Vấn đề (chủ dự án báo):** máy tính ra câu đùa, iPhone lại "Đã Chạm". Nguyên nhân trực tiếp: server
+test vừa được chuyển sang live để nghe âm thanh; tab máy tính mở từ trước nên còn giữ pha cũ. Lỗi
+thật lộ ra: pha chỉ cập nhật ở client mỗi 2 phút, nên sau khi admin đổi giờ mở game, các máy có thể
+xử lý khác nhau; và nếu tab cũ vẫn gửi lượt báo lúc server đang pre-game thì server tạo **hồ sơ ẩn
+danh trước** rồi mới từ chối, client báo lỗi đỏ thay vì câu đùa.
+
+**Sửa:** (1) mỗi lần bấm "Bạn vừa thấy mô hình nào?" (và khi hiện câu đùa) client hỏi lại server
+snapshot — người chơi mất ~1 giây tìm mô hình nên pha đã kịp đúng; (2) `reportSighting` kiểm tra pha
+trước mọi bước ghi, trả `code: "pre_game"`; client nhận mã này thì hiện câu đùa, không báo lỗi. Test
+Chromium + WebKit: tab mở lúc live → admin về pre-game → ra câu đùa; gửi đúng lúc vừa đổi → câu đùa,
+0 key/0 hồ sơ; tab mở lúc pre-game → admin mở game → vào luồng báo thật.
+
 ## 2026-09-15 — NOTE-05: pre-game, 34 mô hình, bộ sưu tập nhiều lớp, icon & âm thanh theo nhóm
 
 Chủ dự án yêu cầu "đọc `docs/14-NOTE-05-MVP1-PreGame-Collection-Icon-Sound.md` và làm phù hợp

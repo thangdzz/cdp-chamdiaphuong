@@ -78,7 +78,13 @@ function parseHash(hash) {
   return out;
 }
 
-export class GameInputError extends Error {}
+export class GameInputError extends Error {
+  // `code` cho client phân biệt ca cần xử lý riêng (VD "pre_game" → hiện câu đùa, không báo lỗi).
+  constructor(message, code = null) {
+    super(message);
+    this.code = code;
+  }
+}
 
 const VN_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" });
 
@@ -189,7 +195,7 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   // Chặn ở server dù UI pre-game không gọi tới đây: trước giờ rước không được có sighting thật
   // (NOTE-05 §1, §3) — không collection, marker, số đếm hay first discovery.
   if (phase === EVENT_PHASE.PRE_GAME) {
-    throw new GameInputError("Chưa tới giờ rước đèn, lượt báo chưa được ghi nhận.");
+    throw new GameInputError("Chưa tới giờ rước đèn, lượt báo chưa được ghi nhận.", "pre_game");
   }
   if (phase !== EVENT_PHASE.LIVE) {
     throw new GameInputError("Mùa săn này chưa mở hoặc đã khép lại.");
