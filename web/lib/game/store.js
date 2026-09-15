@@ -14,12 +14,13 @@ import {
   resolveObjectId,
 } from "./catalog.js";
 import { areaCell, isWithinBounds } from "./geo.js";
-import { buildMarkers, buildTonightStats } from "./mapLayer.js";
+import { HIDE_AFTER_FLAGS, buildMarkers, buildTonightStats } from "./mapLayer.js";
 import { generateQuests } from "./quests.js";
 import { resolveObjectStats } from "./progress.js";
-import { EVENT_PHASE, eventPhase } from "./registry.js";
+import { computeRarity } from "./collections.js";
+import { EVENT_PHASE, eventGameLiveAt, eventPhase, getGameEvent, withRuntimeConfig } from "./registry.js";
 
-const RECENT_FETCH_LIMIT = 400;
+const RECENT_FETCH_LIMIT = 600;
 const HISTORY_LIMIT = 200;
 const SAME_OBJECT_COOLDOWN_SECONDS = 3 * 60;
 const RATE_WINDOW_SECONDS = 10 * 60;
@@ -34,6 +35,8 @@ function key(eventId, suffix) {
 
 export const GAME_KEYS = {
   objects: (e) => key(e, "objects"),
+  // Cấu hình chạy admin đổi được không cần deploy (hiện có: gameLiveAt) — NOTE-05 §21.
+  config: (e) => key(e, "config"),
   sightings: (e) => key(e, "sightings"),
   sightingsByTime: (e) => key(e, "sightings:by-time"),
   objectStats: (e) => key(e, "object-stats"),
@@ -47,6 +50,8 @@ export const GAME_KEYS = {
   counters: (e) => key(e, "counters"),
   areaActivity: (e) => key(e, "area-activity"),
   collection: (e, anonId) => key(e, `collection:${anonId}`),
+  // Số lần MỘT người gặp từng object (collection chỉ tính 1, số lần gặp giữ riêng — NOTE-05 §9).
+  collectionCounts: (e, anonId) => key(e, `collection-counts:${anonId}`),
   userSightings: (e, anonId) => key(e, `user-sightings:${anonId}`),
   cooldown: (e, anonId, objectId) => key(e, `cooldown:${anonId}:${objectId}`),
   rate: (e, anonId, bucket) => key(e, `rate:${anonId}:${bucket}`),
@@ -80,6 +85,36 @@ const VN_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }
 // "2026-09-20" theo giờ Việt Nam — một đêm hội qua 0h UTC vẫn tính cùng một ngày.
 export function vnDayKey(iso) {
   return VN_DAY.format(new Date(iso));
+}
+
+// ───────────────────────────── Event runtime config ─────────────────────────────
+
+export async function readEventRuntimeConfig(event) {
+  const config = (await redis.hgetall(GAME_KEYS.config(event.id))) ?? {};
+  const gameLiveAt = typeof config.gameLiveAt === "string" && Number.isFinite(Date.parse(config.gameLiveAt))
+    ? config.gameLiveAt
+    : null;
+  return gameLiveAt ? { gameLiveAt } : {};
+}
+
+/** Event + cấu hình chạy từ Redis. Mọi chỗ cần pha game (pre-game/live) đi qua đây. */
+export async function loadGameEvent(slug) {
+  const event = getGameEvent(slug);
+  if (!event) return null;
+  try {
+    return withRuntimeConfig(event, await readEventRuntimeConfig(event));
+  } catch {
+    return event; // Redis lỗi: dùng giờ mở game trong file mùa
+  }
+}
+
+export async function adminSetGameLiveAt(event, iso) {
+  if (iso === null) {
+    await redis.hdel(GAME_KEYS.config(event.id), "gameLiveAt");
+    return;
+  }
+  if (!Number.isFinite(Date.parse(iso))) throw new GameInputError("Giờ mở game không hợp lệ.");
+  await redis.hset(GAME_KEYS.config(event.id), { gameLiveAt: iso });
 }
 
 // ───────────────────────────── Catalog (Object) ─────────────────────────────
@@ -150,7 +185,13 @@ async function enforceRateLimit(event, anonId) {
  * truyền `photo` vào, để lỗi ảnh không bao giờ làm mất lượt báo.
  */
 export async function recordSighting(event, { anonId, nickname, objectId, location, photo }) {
-  if (eventPhase(event) !== EVENT_PHASE.LIVE) {
+  const phase = eventPhase(event);
+  // Chặn ở server dù UI pre-game không gọi tới đây: trước giờ rước không được có sighting thật
+  // (NOTE-05 §1, §3) — không collection, marker, số đếm hay first discovery.
+  if (phase === EVENT_PHASE.PRE_GAME) {
+    throw new GameInputError("Chưa tới giờ rước đèn, lượt báo chưa được ghi nhận.");
+  }
+  if (phase !== EVENT_PHASE.LIVE) {
     throw new GameInputError("Mùa săn này chưa mở hoặc đã khép lại.");
   }
   if (!anonId) throw new GameInputError("Thiếu hồ sơ người chơi.");
@@ -206,6 +247,7 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   tx.hset(GAME_KEYS.sightings(event.id), { [sighting.id]: JSON.stringify(sighting) });
   tx.zadd(GAME_KEYS.sightingsByTime(event.id), { score: Date.parse(now), member: sighting.id });
   tx.lpush(GAME_KEYS.userSightings(event.id, anonId), sighting.id);
+  tx.hincrby(GAME_KEYS.collectionCounts(event.id, anonId), target.id, 1);
   tx.ltrim(GAME_KEYS.userSightings(event.id, anonId), 0, HISTORY_LIMIT - 1);
   tx.hincrby(GAME_KEYS.objectStats(event.id), target.id, 1);
   tx.hincrby(GAME_KEYS.objectStatsDay(event.id, vnDayKey(now)), target.id, 1);
@@ -286,11 +328,20 @@ export function hashId(anonId) {
 }
 
 /** Dữ liệu công khai của một mùa — không chứa anonId hay lịch sử vị trí của ai. */
+// Nửa đêm giờ VN của ngày chứa `time` — "tối nay" cho thống kê/độ hiếm là cả ngày giờ VN.
+function vnDayStart(time) {
+  return Date.parse(`${vnDayKey(new Date(time).toISOString())}T00:00:00+07:00`);
+}
+
+/** Dữ liệu công khai của một mùa — không chứa anonId hay lịch sử vị trí của ai. */
 export async function getGameSnapshot(event) {
   const now = Date.now();
-  const since = now - (event.recentWindowMinutes ?? 180) * 60 * 1000;
+  const windowStart = now - (event.recentWindowMinutes ?? 180) * 60 * 1000;
+  // Lấy từ đầu ngày (hoặc đầu cửa sổ nếu cửa sổ lùi qua nửa đêm): marker chỉ dùng phần trong
+  // cửa sổ, còn thống kê cuối đêm (số khu vực) dùng cả ngày. Cùng số lệnh Redis như trước.
+  const since = Math.min(windowStart, vnDayStart(now));
 
-  const [storedObjects, recentIds, objectStats, photoCounts, firsts, flags, counters] =
+  const [storedObjects, recentIds, objectStats, dayStats, photoCounts, firsts, flags, counters] =
     await Promise.all([
       redis.hgetall(GAME_KEYS.objects(event.id)),
       // REV để lấy MỚI NHẤT khi tối đông quá giới hạn — khi đó đảo thứ tự tham số max/min.
@@ -301,6 +352,7 @@ export async function getGameSnapshot(event) {
         count: RECENT_FETCH_LIMIT,
       }),
       redis.hgetall(GAME_KEYS.objectStats(event.id)),
+      redis.hgetall(GAME_KEYS.objectStatsDay(event.id, vnDayKey(new Date(now).toISOString()))),
       redis.hgetall(GAME_KEYS.objectPhotos(event.id)),
       redis.hgetall(GAME_KEYS.firsts(event.id)),
       redis.hgetall(GAME_KEYS.flags(event.id)),
@@ -309,22 +361,28 @@ export async function getGameSnapshot(event) {
 
   const catalog = mergeCatalog(event.objects, parseHash(storedObjects), event.id);
   const index = catalogIndex(catalog);
-  const recent = await readSightingsByIds(event, recentIds ?? []);
+  const todays = await readSightingsByIds(event, recentIds ?? []);
+  const recent = todays.filter((s) => Date.parse(s.createdAt) >= windowStart);
   const markers = buildMarkers(recent, index, flags ?? {});
   const tonight = buildTonightStats(recent, index, flags ?? {});
   const stats = resolveObjectStats(objectStats ?? {}, catalog);
   const photos = resolveObjectStats(photoCounts ?? {}, catalog);
+  const night = buildNightStats(todays, dayStats ?? {}, catalog, index, flags ?? {});
+  const visibleCatalog = catalog.filter((object) => !object.hidden);
 
   return {
     generatedAt: new Date(now).toISOString(),
     phase: eventPhase(event, now),
-    catalog: catalog.filter((object) => !object.hidden),
+    gameLiveAt: eventGameLiveAt(event),
+    catalog: visibleCatalog,
     objectStats: stats,
     markers,
     tonight,
+    night,
+    rarity: computeRarity(visibleCatalog, Object.fromEntries(Object.entries(night).map(([id, n]) => [id, n.reports]))),
     firsts: publicFirsts(parseHash(firsts), catalog),
     quests: generateQuests({
-      catalog: catalog.filter((object) => !object.hidden),
+      catalog: visibleCatalog,
       objectStats: stats,
       photoCounts: photos,
       markers,
@@ -332,6 +390,27 @@ export async function getGameSnapshot(event) {
     }),
     totalSightings: Number(counters?.sightings) || 0,
   };
+}
+
+// Theo đêm (ngày giờ VN): số lượt lấy từ hash đếm theo ngày (chính xác kể cả khi đông), số khu vực
+// ~110m khác nhau đếm từ các sighting đọc được trong ngày (bỏ lượt bị báo sai quá ngưỡng).
+function buildNightStats(todays, dayStats, catalog, index, flags) {
+  const reports = resolveObjectStats(dayStats, catalog);
+  const areas = new Map();
+  for (const sighting of todays) {
+    if ((Number(flags[sighting.id]) || 0) >= HIDE_AFTER_FLAGS) continue;
+    const objectId = resolveObjectId(sighting.objectId, index);
+    const cells = areas.get(objectId) ?? new Set();
+    cells.add(areaCell(sighting));
+    areas.set(objectId, cells);
+  }
+  const night = {};
+  for (const [objectId, count] of Object.entries(reports)) {
+    if (count > 0 && index.has(objectId) && !index.get(objectId).hidden) {
+      night[objectId] = { reports: count, areas: areas.get(objectId)?.size ?? 0 };
+    }
+  }
+  return night;
 }
 
 /**
@@ -361,14 +440,16 @@ export async function getGameTeaser(event) {
 
 /** Dữ liệu RIÊNG của một người: bộ sưu tập + lịch sử báo. Chỉ trả cho đúng anonId đó. */
 export async function getPlayerState(event, anonId) {
-  if (!anonId) return { collection: {}, history: [], anonIdHash: null };
-  const [collection, ids] = await Promise.all([
+  if (!anonId) return { collection: {}, counts: {}, history: [], anonIdHash: null };
+  const [collection, counts, ids] = await Promise.all([
     redis.hgetall(GAME_KEYS.collection(event.id, anonId)),
+    redis.hgetall(GAME_KEYS.collectionCounts(event.id, anonId)),
     redis.lrange(GAME_KEYS.userSightings(event.id, anonId), 0, 49),
   ]);
   const sightings = await readSightingsByIds(event, ids ?? []);
   return {
     collection: collection ?? {},
+    counts: counts ?? {},
     history: sightings.map((s) => ({
       id: s.id,
       objectId: s.objectId,
@@ -431,6 +512,7 @@ export async function adminDeleteSighting(event, sightingId) {
   tx.hincrby(GAME_KEYS.objectStatsDay(event.id, vnDayKey(sighting.createdAt)), sighting.objectId, -1);
   // HyperLogLog không gỡ được một người — số người khác nhau có thể dư 1 sau khi xoá, chấp nhận.
   tx.hincrby(GAME_KEYS.counters(event.id), "sightings", -1);
+  tx.hincrby(GAME_KEYS.collectionCounts(event.id, sighting.anonId), sighting.objectId, -1);
   tx.hdel(GAME_KEYS.flags(event.id), sightingId);
   if (sighting.photo) tx.hincrby(GAME_KEYS.objectPhotos(event.id), sighting.objectId, -1);
   await tx.exec();

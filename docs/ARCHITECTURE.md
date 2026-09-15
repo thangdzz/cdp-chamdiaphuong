@@ -99,6 +99,8 @@ nên dùng hash/zset/list + lệnh nguyên tử, **không** phải mảng JSON. 
 | `object-stats` / `object-photos` | Hash, HINCRBY | Số lượt báo / số ảnh theo objectId thô (cả mùa) |
 | `object-stats:day:{YYYY-MM-DD}` | Hash, HINCRBY | Số lượt báo theo ngày giờ VN — nguồn cho "được nhìn thấy nhiều nhất" (chưa có UI) |
 | `object-seers:{objectId}` | HyperLogLog (PFADD) | Ước lượng số người khác nhau đã thấy, không lưu danh tính |
+| `config` | Hash | Cấu hình chạy admin đổi không cần deploy: `gameLiveAt` (giờ hết pre-game) |
+| `collection-counts:{anonId}` | Hash, HINCRBY | Số lần một người gặp từng object (bộ sưu tập vẫn tính 1) |
 | `firsts` | Hash, HSETNX | Người ghi nhận đầu tiên `{anonId, nickname, at, sightingId}` |
 | `collection:{anonId}` | Hash, HSETNX | objectId → lần đầu gặp. HSETNX = không bao giờ đếm trùng |
 | `user-sightings:{anonId}` | List (200 gần nhất) | Lịch sử riêng của một người |
@@ -337,6 +339,7 @@ web/
 │   ├── gameActions.js              Server Action game: báo sighting (tạo hồ sơ ẩn danh im
 │   │                              lặng), thêm ảnh, báo sai vị trí, tải snapshot/người chơi
 │   ├── _game/                      Component game (thư mục `_` = không thành route):
+│   │                              PreGameSheet (câu đùa trước giờ rước, đếm lần thử ở localStorage) ·
 │   │                              GameExperience (4 tab + CTA đáy) · GameMap (MapLibre, marker
 │   │                              + chế độ ghim) · ReportSheet (3 bước) · SuccessSheet · ObjectSheet
 │   │                              · GameViews · GameProgress · ObjectIcon · BottomSheet · gameSound
@@ -511,6 +514,8 @@ web/
 │   │   ├── venues.js              Venue → GeoJSON, điểm đặt nhãn, khung bao để căn bản đồ
 │   │   ├── catalog.js             Object: chuẩn hoá + fallback tên/icon, gộp seed + Redis, ghép
 │   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
+│   │   ├── collections.js         Bộ sưu tập theo luật tag, bộ ẩn, combo, milestone, độ hiếm theo
+│   │   │                          đêm, thống kê cuối đêm (NOTE-05) — thuần
 │   │   ├── quests.js              Nhiệm vụ tự sinh từ data gap (thiếu ảnh/vị trí lệch/chưa tên)
 │   │   ├── mapLayer.js            Gom sighting → marker công khai + mức tin cậy
 │   │   ├── mapStyle.js            Tile OpenFreeMap "liberty" + chỉnh màu/nhãn tiếng Việt lúc tải,

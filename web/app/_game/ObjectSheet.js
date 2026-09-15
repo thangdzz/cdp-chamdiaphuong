@@ -8,6 +8,7 @@ import { loadLocalContributor } from "@/app/ContributionPanel";
 import { OBJECT_KIND, VERIFICATION_LABEL, objectDisplayName } from "@/lib/game/catalog";
 import { formatAgo } from "@/lib/game/format";
 import { confidenceLabel } from "@/lib/game/mapLayer";
+import { RarityChip } from "./GameViews";
 
 export function ObjectSheet({
   open,
@@ -20,6 +21,8 @@ export function ObjectSheet({
   myHash,
   sightingCount,
   tonight,
+  myCount = 0,
+  rarity = null,
   now,
   canReport,
   onReport,
@@ -43,7 +46,7 @@ export function ObjectSheet({
   return (
     <BottomSheet open={open} onClose={onClose} labelledBy="game-object-title">
       <div className="flex items-start gap-4 pt-2">
-        <ObjectIcon object={object} categories={event.categories} size="lg" muted={!met && !marker} />
+        <ObjectIcon object={object} event={event} size="lg" state={met ? "met" : marker ? "plain" : "locked"} />
         <div className="min-w-0 flex-1 pt-1">
           <h2 id="game-object-title" className="text-xl font-medium leading-snug tracking-tight text-zinc-900">
             {objectDisplayName(object, noun)}
@@ -57,7 +60,9 @@ export function ObjectSheet({
             >
               {met ? "✓ Đã Chạm" : "Chưa gặp"}
             </span>
-            {object.kind === OBJECT_KIND.MODEL && (
+            <RarityChip rarity={rarity} className="px-2.5 py-1 text-xs" />
+            {/* Chỉ hiện nhãn khi ĐÃ xác minh — 34 mô hình cùng hiện "Chưa xác minh" là nhiễu. */}
+            {object.kind === OBJECT_KIND.MODEL && object.verificationStatus !== "unverified" && (
               <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-500">
                 {VERIFICATION_LABEL[object.verificationStatus]}
               </span>
@@ -97,7 +102,13 @@ export function ObjectSheet({
       {object.story && <p className="mt-3 text-sm leading-6 text-zinc-600">{object.story}</p>}
 
       <div className="mt-4 flex flex-col gap-1 text-[13px] text-zinc-500">
-        {sightingCount > 0 && <p>Cả mùa: cộng đồng đã báo {sightingCount} lượt</p>}
+        {/* Một mô hình chỉ tính 1 trong bộ sưu tập, số lần gặp giữ riêng (NOTE-05 §9). */}
+        {(myCount > 0 || sightingCount > 0) && (
+          <p>
+            {myCount > 0 ? `Bạn gặp: ${myCount} lần` : "Bạn chưa gặp"}
+            {sightingCount > 0 ? ` · Cộng đồng: ${sightingCount} lượt cả mùa` : ""}
+          </p>
+        )}
         {first && (
           <p>
             {first.anonIdHash && first.anonIdHash === myHash

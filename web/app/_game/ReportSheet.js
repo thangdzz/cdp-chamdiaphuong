@@ -24,7 +24,18 @@ const secondaryButton =
  * preset — không cần effect reset.
  * preset: { objectId?, lat?, lng? } — từ nút "Tôi cũng vừa thấy" trên marker.
  */
-export function ReportSheet({ open, onClose, event, snapshot, resolvedCollection, preset, now, onSubmitted }) {
+export function ReportSheet({
+  open,
+  onClose,
+  event,
+  snapshot,
+  resolvedCollection,
+  preset,
+  now,
+  onSubmitted,
+  preGame = false,
+  onPreGameAttempt,
+}) {
   const noun = event.copy.objectNoun;
   const [step, setStep] = useState(preset?.objectId ? STEP.LOCATE : STEP.PICK);
   const [query, setQuery] = useState("");
@@ -97,6 +108,12 @@ export function ReportSheet({ open, onClose, event, snapshot, resolvedCollection
   }
 
   function choose(id) {
+    // Trước giờ rước (NOTE-05 §2): chọn mô hình như thường rồi dừng ở câu đùa — không hỏi GPS,
+    // không gọi server, không có gì được ghi.
+    if (preGame) {
+      onPreGameAttempt?.(id);
+      return;
+    }
     playGameSound("tap-soft");
     setObjectId(id);
     setStep(STEP.LOCATE);
@@ -180,7 +197,7 @@ export function ReportSheet({ open, onClose, event, snapshot, resolvedCollection
             {recentMysteries.map(({ object, marker }) => (
               <li key={object.id}>
                 <PickRow
-                  icon={<ObjectIcon object={object} categories={event.categories} size="sm" />}
+                  icon={<ObjectIcon object={object} event={event} size="sm" />}
                   title={objectDisplayName(object, noun)}
                   meta={`Được báo ${formatAgo(marker.lastSeenAt, now)}`}
                   onClick={() => choose(object.id)}
@@ -190,7 +207,14 @@ export function ReportSheet({ open, onClose, event, snapshot, resolvedCollection
             {models.map((object) => (
               <li key={object.id}>
                 <PickRow
-                  icon={<ObjectIcon object={object} categories={event.categories} size="sm" />}
+                  icon={
+                    <ObjectIcon
+                      object={object}
+                      event={event}
+                      size="sm"
+                      state={resolvedCollection[object.id] ? "met" : "plain"}
+                    />
+                  }
                   title={objectDisplayName(object, noun)}
                   meta={object.ward ?? null}
                   done={Boolean(resolvedCollection[object.id])}
@@ -375,7 +399,7 @@ function SelectedHeader({ object, unknown, event, onChange }) {
       {unknown ? (
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[22px]">{UNKNOWN_ICON}</span>
       ) : (
-        <ObjectIcon object={object} categories={event.categories} size="sm" />
+        <ObjectIcon object={object} event={event} size="sm" />
       )}
       <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-zinc-900">
         {unknown ? `${noun.charAt(0).toUpperCase()}${noun.slice(1)} chưa biết tên` : objectDisplayName(object, noun)}

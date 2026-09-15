@@ -8,6 +8,13 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (tối) — NOTE-05 Săn đèn ĐÃ CODE, CHƯA DEPLOY.** Pha pre-game tới `gameLiveAt`
+(file mùa, admin ghi đè ở hash `game:{eventId}:config`); 34 mô hình + `iconSet`/`collections`/
+`milestones` trong `lib/game/seasons/thanh-tuyen-2026.js`; logic bộ sưu tập/độ hiếm ở
+`lib/game/collections.js`; âm thanh `app/_game/gameSound.js`. **Khi deploy:** production sẽ ở
+pre-game tới 18/9 19:00 — muốn thử live trên production thì dùng "Mở game ngay" ở `/admin/game`
+rồi nhớ "Về giờ mặc định". Lượt báo thử trên production (nếu mở game sớm) là dữ liệu thật.
+
 **2026-09-15 (sau) — Điểm tổ chức trên bản đồ Săn đèn ĐÃ CODE, CHƯA DEPLOY.** `venues` trong file
 season (quảng trường + phố đi bộ Nguyễn Văn Linh, toạ độ OSM), vẽ ở `GameMap` qua `lib/game/venues.js`.
 Đổi/thêm điểm tổ chức: sửa mảng `venues`, giữ `source` ghi way/node OSM.

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { ObjectIcon } from "./ObjectIcon";
-import { OBJECT_KIND, knownModels, objectDisplayName, openMysteries } from "@/lib/game/catalog";
+import { OBJECT_KIND, objectDisplayName, openMysteries } from "@/lib/game/catalog";
+import { RARITY, RARITY_LABEL, nightHighlights } from "@/lib/game/collections";
 import { formatAgo, formatClock, formatDayMonth } from "@/lib/game/format";
 import { confidenceLabel } from "@/lib/game/mapLayer";
 
@@ -16,11 +18,30 @@ export function EmptyState({ title, body }) {
   );
 }
 
+const RARITY_TONE = {
+  [RARITY.COMMON]: "bg-zinc-100 text-zinc-600",
+  [RARITY.UNCOMMON]: "bg-[#e8f2e0] text-[#3f6b2a]",
+  [RARITY.RARE]: "bg-[#efe9fb] text-[#5b3fa6]",
+  [RARITY.SEEN]: "bg-zinc-100 text-zinc-600",
+  [RARITY.UNSEEN]: "bg-[#fbf0d9] text-[#8a5a10]",
+};
+
+export function RarityChip({ rarity, className = "" }) {
+  if (!rarity) return null;
+  return (
+    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${RARITY_TONE[rarity] ?? ""} ${className}`}>
+      {RARITY_LABEL[rarity]}
+    </span>
+  );
+}
+
 /** "Vừa được nhìn thấy" — danh sách marker tối nay, bấm để bay tới trên bản đồ. */
-export function RecentFeed({ event, markers, catalogById, now, onOpen }) {
+export function RecentFeed({ event, markers, catalogById, now, onOpen, preGame = false }) {
   const noun = event.copy.objectNoun;
   if (markers.length === 0) {
-    return (
+    return preGame ? (
+      <EmptyState title={event.copy.preGameMap} body={event.copy.preGameHint} />
+    ) : (
       <EmptyState
         title={`Tối nay chưa ai báo vị trí ${noun}.`}
         body={`Nếu bạn gặp một ${noun} ngoài đường, hãy là người đầu tiên ghi nhận.`}
@@ -40,7 +61,7 @@ export function RecentFeed({ event, markers, catalogById, now, onOpen }) {
                 onClick={() => onOpen(marker)}
                 className="cdp-pressable flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-2xl bg-white px-3 py-2.5 text-left shadow-sm"
               >
-                <ObjectIcon object={object} categories={event.categories} size="sm" />
+                <ObjectIcon object={object} event={event} size="sm" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-medium text-zinc-900">
                     {objectDisplayName(object, noun)}
@@ -59,7 +80,58 @@ export function RecentFeed({ event, markers, catalogById, now, onOpen }) {
   );
 }
 
-function CollectionCard({ event, object, met, count, highlight, onOpen }) {
+/**
+ * "Tối nay có gì" — nội dung tự sinh từ lượt báo trong đêm (NOTE-05 §10). Không bảng xếp hạng người.
+ * myTonight: { objectId, count } — mô hình người này gặp nhiều nhất tối nay (tính từ lịch sử riêng).
+ */
+export function NightHighlights({ event, night, catalogById, myTonight, onOpen }) {
+  const { mostSeen, hardest, mostTraveled } = nightHighlights(night);
+  const rows = [
+    mostSeen && { key: "most", icon: "🥇", label: "Được nhìn thấy nhiều nhất", ...mostSeen, suffix: `${mostSeen.value} lượt` },
+    hardest && { key: "hard", icon: "👀", label: "Khó gặp nhất tối nay", ...hardest, suffix: `${hardest.value} lượt` },
+    mostTraveled && { key: "travel", icon: "🗺️", label: "Đi nhiều nơi nhất", ...mostTraveled, suffix: `báo tại ${mostTraveled.value} khu vực` },
+    myTonight && myTonight.count > 1 && {
+      key: "mine",
+      icon: "🙋",
+      label: "Bạn gặp nhiều nhất",
+      objectId: myTonight.objectId,
+      suffix: `${myTonight.count} lần tối nay`,
+    },
+  ].filter(Boolean);
+  if (rows.length === 0) return null;
+
+  return (
+    <section className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+      <h2 className="text-[13px] font-medium text-zinc-500">Tối nay có gì</h2>
+      <ul className="mt-2 flex flex-col">
+        {rows.map((row) => {
+          const object = catalogById.get(row.objectId);
+          return (
+            <li key={row.key}>
+              <button
+                type="button"
+                onClick={() => onOpen(row.objectId)}
+                className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-lg py-1.5 text-left"
+              >
+                <span className="w-6 text-center text-lg" aria-hidden="true">{row.icon}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs text-zinc-400">{row.label}</span>
+                  <span className="block truncate text-sm text-zinc-900">
+                    <b className="font-medium">{objectDisplayName(object, event.copy.objectNoun)}</b>
+                    <span className="text-zinc-500"> — {row.suffix}</span>
+                  </span>
+                </span>
+                <ObjectIcon object={object} event={event} size="sm" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function CollectionCard({ event, object, met, highlight, myCount, communityCount, rarity, onOpen }) {
   const noun = event.copy.objectNoun;
   const mystery = object.kind === OBJECT_KIND.UNKNOWN;
   return (
@@ -70,26 +142,50 @@ function CollectionCard({ event, object, met, count, highlight, onOpen }) {
         met ? "bg-white" : "bg-white/60"
       } ${highlight ? "cdp-game-card-glow" : ""}`}
     >
-      <span className={highlight ? "cdp-game-unlock" : ""}>
-        <ObjectIcon object={object} categories={event.categories} size="md" muted={!met} />
-      </span>
+      <ObjectIcon object={object} event={event} size="md" state={highlight ? "unlocked" : met ? "met" : "locked"} />
       <span
         className={`mt-2 line-clamp-2 text-sm font-medium leading-snug ${met ? "text-zinc-900" : "text-zinc-500"}`}
       >
         {mystery ? `${noun.charAt(0).toUpperCase()}${noun.slice(1)} chưa biết` : objectDisplayName(object, noun)}
       </span>
       {mystery && object.hint && <span className="mt-0.5 line-clamp-2 text-xs text-zinc-400">Gợi ý: {object.hint}</span>}
-      {!mystery && object.ward && <span className="mt-0.5 truncate text-xs text-zinc-400">{object.ward}</span>}
-      <span className={`mt-2 text-xs font-medium ${met ? "text-[#a8741a]" : "text-zinc-400"}`}>
-        {met ? "✓ Đã Chạm" : count > 0 ? `${count} lượt báo` : "Chưa gặp"}
+      <span className={`mt-1.5 text-xs font-medium ${met ? "text-[#a8741a]" : "text-zinc-400"}`}>
+        {met ? (myCount > 1 ? `✓ Đã Chạm · ${myCount} lần` : "✓ Đã Chạm") : "Chưa gặp"}
       </span>
+      {(rarity || communityCount > 0) && (
+        <span className="mt-1.5 flex flex-wrap items-center justify-center gap-1">
+          <RarityChip rarity={rarity} />
+          {communityCount > 0 && <span className="text-[11px] text-zinc-400">{communityCount} lượt</span>}
+        </span>
+      )}
     </button>
   );
 }
 
-export function CollectionView({ event, catalog, resolvedCollection, objectStats, justUnlockedId, onOpen }) {
+function collectionProgressText(state) {
+  // Bộ ẩn giữ bí mật mẫu số tới khi hoàn thành (NOTE-05 §7: "3 / ?").
+  if (state.hidden && !state.complete) return `${state.met} / ?`;
+  return `${state.met} / ${state.total}`;
+}
+
+export function CollectionView({
+  event,
+  catalog,
+  collections,
+  resolvedCollection,
+  objectStats,
+  myCounts,
+  rarity,
+  justUnlockedId,
+  onOpen,
+}) {
   const noun = event.copy.objectNoun;
-  const models = knownModels(catalog);
+  const visible = collections.filter((state) => state.visible);
+  const lockedHidden = collections.filter((state) => state.hidden && !state.unlocked).length;
+  const [selectedId, setSelectedId] = useState(visible[0]?.id ?? null);
+  const selected = visible.find((state) => state.id === selectedId) ?? visible[0] ?? null;
+  const byId = new Map(catalog.map((object) => [object.id, object]));
+  const models = (selected?.memberIds ?? []).map((id) => byId.get(id)).filter(Boolean);
   // Bí ẩn mình đã gặp đứng trước, sau đó tới bí ẩn cộng đồng vừa báo (NOTE-04 §12 "Mystery").
   const mysteries = openMysteries(catalog)
     .filter((o) => resolvedCollection[o.id] || objectStats[o.id] > 0)
@@ -100,9 +196,46 @@ export function CollectionView({ event, catalog, resolvedCollection, objectStats
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-lg font-medium tracking-tight text-zinc-900">{event.copy.collectionTitle}</h2>
-      {!metAny && (
-        <EmptyState title="Bộ sưu tập của bạn đang trống." body={`Ra ngoài và Chạm ${noun} đầu tiên.`} />
+      {!metAny && <EmptyState title="Bộ sưu tập của bạn đang trống." body={`Ra ngoài và Chạm ${noun} đầu tiên.`} />}
+
+      {visible.length > 1 && (
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+          <div className="flex w-max gap-2">
+            {visible.map((state) => (
+              <button
+                key={state.id}
+                type="button"
+                onClick={() => setSelectedId(state.id)}
+                aria-pressed={selected?.id === state.id}
+                className={`flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13px] transition-colors ${
+                  selected?.id === state.id ? "bg-zinc-900 text-white" : "bg-white text-zinc-700 shadow-sm"
+                }`}
+              >
+                <span aria-hidden="true">{state.icon}</span>
+                {state.title}
+                <span className={selected?.id === state.id ? "text-white/70" : "text-zinc-400"}>
+                  {collectionProgressText(state)}
+                </span>
+                {state.complete && <span aria-label="Đã hoàn thành">✓</span>}
+                {state.hidden && <span aria-hidden="true">✨</span>}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
+
+      {lockedHidden > 0 && (
+        <p className="-mt-1 text-[13px] text-zinc-500">
+          🔒 Còn {lockedHidden} bộ sưu tập ẩn chưa lộ diện — cứ Chạm tiếp, biết đâu mở ra.
+        </p>
+      )}
+
+      {selected?.combo && (
+        <p className="-mt-1 text-[13px] text-[#8a5a10]">
+          Combo {selected.title}: gặp đủ {selected.hidden && !selected.complete ? "cả bộ" : selected.total} {noun} để hoàn thành.
+        </p>
+      )}
+
       {models.length > 0 && (
         <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {models.map((object) => (
@@ -111,8 +244,10 @@ export function CollectionView({ event, catalog, resolvedCollection, objectStats
                 event={event}
                 object={object}
                 met={Boolean(resolvedCollection[object.id])}
-                count={objectStats[object.id] ?? 0}
                 highlight={object.id === justUnlockedId}
+                myCount={myCounts[object.id] ?? 0}
+                communityCount={objectStats[object.id] ?? 0}
+                rarity={rarity?.[object.id] ?? null}
                 onOpen={onOpen}
               />
             </li>
@@ -129,8 +264,10 @@ export function CollectionView({ event, catalog, resolvedCollection, objectStats
                   event={event}
                   object={object}
                   met={Boolean(resolvedCollection[object.id])}
-                  count={objectStats[object.id] ?? 0}
                   highlight={object.id === justUnlockedId}
+                  myCount={myCounts[object.id] ?? 0}
+                  communityCount={objectStats[object.id] ?? 0}
+                  rarity={null}
                   onOpen={onOpen}
                 />
               </li>
@@ -171,7 +308,7 @@ export function QuestList({ event, quests, catalogById, onOpen }) {
                 <span className="block text-[15px] font-medium text-zinc-900">{quest.title}</span>
                 <span className="mt-0.5 block text-[13px] leading-5 text-zinc-500">{quest.detail}</span>
               </span>
-              <ObjectIcon object={catalogById.get(quest.objectId)} categories={event.categories} size="sm" />
+              <ObjectIcon object={catalogById.get(quest.objectId)} event={event} size="sm" />
             </button>
           </li>
         ))}
@@ -202,7 +339,7 @@ export function HistoryList({ event, history, catalogById, now, onOpen }) {
                 onClick={() => onOpen(item.objectId)}
                 className="cdp-pressable flex w-full cursor-pointer items-center gap-3 rounded-2xl bg-white px-3 py-2.5 text-left shadow-sm"
               >
-                <ObjectIcon object={object} categories={event.categories} size="sm" />
+                <ObjectIcon object={object} event={event} size="sm" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-medium text-zinc-900">
                     {objectDisplayName(object, noun)}

@@ -4,16 +4,32 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GameMap } from "./GameMap";
 import { GameSummary, SoundToggle } from "./GameProgress";
-import { CollectionView, HistoryList, QuestList, RecentFeed } from "./GameViews";
+import { CollectionView, HistoryList, NightHighlights, QuestList, RecentFeed } from "./GameViews";
 import { ObjectSheet } from "./ObjectSheet";
+import { PreGameSheet, bumpPreGameAttempts } from "./PreGameSheet";
 import { ReportSheet } from "./ReportSheet";
 import { SuccessSheet } from "./SuccessSheet";
-import { playGameSound, setSoundEnabled, useSoundEnabled } from "./gameSound";
+import {
+  playCelebrationAfter,
+  playGameSound,
+  playUnlockSound,
+  setSoundEnabled,
+  useSoundEnabled,
+} from "./gameSound";
 import { loadGameSnapshot, loadPlayerState } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
-import { OBJECT_KIND, objectDisplayName, objectIcon } from "@/lib/game/catalog";
-import { computeProgress, resolveCollection } from "@/lib/game/progress";
+import {
+  OBJECT_KIND,
+  catalogIndex,
+  objectDisplayName,
+  objectIconSpec,
+  resolveObjectId,
+} from "@/lib/game/catalog";
+import { computeCollections, diffCollections } from "@/lib/game/collections";
+import { formatCountdownTo, formatDayMonth } from "@/lib/game/format";
+import { computeProgress, resolveCollection, resolveObjectStats } from "@/lib/game/progress";
 import { CONFIDENCE } from "@/lib/game/mapLayer";
+import { EVENT_PHASE, livePhaseAt } from "@/lib/game/registry";
 
 // Không có websocket (NOTE-04 §27): làm mới nhẹ khi tab đang mở + khi quay lại tab. 2 phút là
 // đủ cho mô hình diễu chậm, và giữ số lệnh Redis trong gói miễn phí.
@@ -27,7 +43,18 @@ const TABS = [
   { id: "history", label: "Lịch sử" },
 ];
 
-const EMPTY_PLAYER = { collection: {}, history: [], anonIdHash: null };
+const EMPTY_PLAYER = { collection: {}, counts: {}, history: [], anonIdHash: null };
+
+// Chọn MỘT lớp ăn mừng phía sau tiếng mở khoá — mốc > combo > hoàn thành bộ > mở bộ ẩn > người
+// đầu tiên. Không chồng nhiều tiếng lên nhau (NOTE-05 §17, §19).
+function celebrationSound({ diff, firstDiscovery }) {
+  if (diff.milestone) return "milestone";
+  if (diff.completed.some((c) => c.combo)) return "combo";
+  if (diff.completed.length > 0) return "collection-complete";
+  if (diff.unlocked.length > 0) return "secret-reveal";
+  if (firstDiscovery) return "collection-complete";
+  return null;
+}
 
 export function GameExperience({ event, initialSnapshot, openReportOnLoad = false }) {
   const noun = event.copy.objectNoun;
@@ -40,12 +67,19 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   const [success, setSuccess] = useState(null);
   const [mapFocus, setMapFocus] = useState(null);
   const [justUnlockedId, setJustUnlockedId] = useState(null);
+  const [troll, setTroll] = useState(null); // { session, attempt }
+  const [liveBanner, setLiveBanner] = useState(false);
+  const snapshotRef = useRef(initialSnapshot);
+  const lastTickRef = useRef(Date.parse(initialSnapshot.generatedAt));
   const soundOn = useSoundEnabled();
   const knownMarkerIds = useRef(new Set(initialSnapshot.markers.map((m) => m.id)));
   const [newMarkerIds, setNewMarkerIds] = useState(() => new Set());
   const reportSession = useRef(openReportOnLoad ? 1 : 0);
 
-  const live = snapshot.phase === "live";
+  const phase = livePhaseAt(snapshot, now);
+  const live = phase === EVENT_PHASE.LIVE;
+  const preGame = phase === EVENT_PHASE.PRE_GAME;
+  const canReport = live || preGame;
   const catalogById = useMemo(() => new Map(snapshot.catalog.map((o) => [o.id, o])), [snapshot.catalog]);
   const resolvedCollection = useMemo(
     () => resolveCollection(player.collection, snapshot.catalog),
@@ -60,6 +94,31 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       }),
     [snapshot.catalog, snapshot.objectStats, player.collection]
   );
+
+  const collections = useMemo(
+    () => computeCollections({ collections: event.collections, catalog: snapshot.catalog, resolvedCollection }),
+    [event.collections, snapshot.catalog, resolvedCollection]
+  );
+  const myCounts = useMemo(() => resolveObjectStats(player.counts, snapshot.catalog), [player.counts, snapshot.catalog]);
+  // Độ hiếm chỉ bật khi game live (NOTE-05 §21).
+  const rarity = live ? snapshot.rarity ?? null : null;
+  // "Bạn gặp X nhiều nhất tối nay" — từ lịch sử riêng trong ngày (NOTE-05 §10).
+  const myTonight = useMemo(() => {
+    const today = formatDayMonth(new Date(now).toISOString());
+    const index = catalogIndex(snapshot.catalog);
+    const counts = new Map();
+    for (const item of player.history) {
+      if (formatDayMonth(item.createdAt) !== today) continue;
+      const id = resolveObjectId(item.objectId, index);
+      counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    const [objectId, count] = [...counts].sort((a, b) => b[1] - a[1])[0] ?? [];
+    return objectId ? { objectId, count } : null;
+  }, [player.history, snapshot.catalog, now]);
+
+  useEffect(() => {
+    snapshotRef.current = snapshot;
+  }, [snapshot]);
 
   const applySnapshot = useCallback((next) => {
     const fresh = next.markers.filter((m) => !knownMarkerIds.current.has(m.id)).map((m) => m.id);
@@ -86,7 +145,19 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
         if (result.ok) applySnapshot(result.snapshot);
       });
     };
-    const clock = window.setInterval(() => setNow(Date.now()), 30000);
+    const clock = window.setInterval(() => {
+      const t = Date.now();
+      // Trang đang mở đúng lúc tới giờ rước: chuyển sang live tại chỗ, báo + làm mới dữ liệu.
+      const before = livePhaseAt(snapshotRef.current, lastTickRef.current);
+      const after = livePhaseAt(snapshotRef.current, t);
+      lastTickRef.current = t;
+      if (before === EVENT_PHASE.PRE_GAME && after === EVENT_PHASE.LIVE) {
+        setLiveBanner(true);
+        playGameSound("game-live");
+        refresh();
+      }
+      setNow(t);
+    }, 30000);
     timer = window.setInterval(refresh, REFRESH_MS);
     document.addEventListener("visibilitychange", refresh);
     return () => {
@@ -104,7 +175,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           id: marker.id,
           lat: marker.lat,
           lng: marker.lng,
-          icon: objectIcon(object, event.categories),
+          icon: objectIconSpec(object, event),
           tone:
             object?.kind === OBJECT_KIND.UNKNOWN
               ? "mystery"
@@ -117,10 +188,22 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           isNew: newMarkerIds.has(marker.id),
         };
       }),
-    [snapshot.markers, catalogById, event.categories, now, noun, newMarkerIds]
+    [snapshot.markers, catalogById, event, now, noun, newMarkerIds]
   );
 
+  function showTroll() {
+    setReport(null);
+    setDetail(null);
+    reportSession.current += 1;
+    setTroll({ session: reportSession.current, attempt: bumpPreGameAttempts(event.id) });
+  }
+
   function openReport(preset = null) {
+    // Pre-game từ thẻ mô hình ("Tôi vừa thấy mô hình này"): đã chọn mô hình rồi → câu đùa luôn.
+    if (preGame && preset?.objectId) {
+      showTroll();
+      return;
+    }
     playGameSound("tap-soft");
     reportSession.current += 1;
     setDetail(null);
@@ -146,20 +229,36 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       collection: result.player.collection,
       objectStats: result.snapshot.objectStats,
     });
+    const afterCollections = computeCollections({
+      collections: event.collections,
+      catalog: result.snapshot.catalog,
+      resolvedCollection: resolveCollection(result.player.collection, result.snapshot.catalog),
+    });
+    const diff = diffCollections({ before: collections, after: afterCollections, milestones: event.milestones });
+    const object = result.snapshot.catalog.find((o) => o.id === result.objectId);
+
     applySnapshot(result.snapshot);
     setPlayer(result.player);
     setReport(null);
-    const milestone = (result.isFirstDiscovery && catalogById.get(result.objectId)?.kind === OBJECT_KIND.MODEL) ||
-      (after.completed && !before.completed);
-    playGameSound(milestone ? "collection-complete" : result.isNewForUser ? "discovery-chime" : "tap-soft");
+
+    // Icon + tiếng mở khoá xuất hiện cùng nhau; lớp ăn mừng (nếu có) phát sau (NOTE-05 §16).
+    if (result.isNewForUser) playUnlockSound(object);
+    else playGameSound("tap-soft");
+    playCelebrationAfter(
+      celebrationSound({ diff, firstDiscovery: result.isFirstDiscovery && object?.kind === OBJECT_KIND.MODEL }),
+      result.isNewForUser ? 800 : 200
+    );
+
     if (result.isNewForUser) setJustUnlockedId(result.objectId);
     const marker = result.snapshot.markers.find((m) => m.objectId === result.objectId);
     if (marker) setMapFocus({ lat: marker.lat, lng: marker.lng, zoom: 16, key: result.sightingId });
     setSuccess({
       result,
-      object: result.snapshot.catalog.find((o) => o.id === result.objectId),
+      object,
       before,
       after,
+      diff,
+      myCount: resolveObjectStats(result.player.counts, result.snapshot.catalog)[result.objectId] ?? 0,
     });
   }
 
@@ -199,14 +298,34 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       <div className="mt-3 flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-6 lg:gap-y-4">
         <div className="order-1 flex flex-col gap-3 lg:col-start-2 lg:row-start-1">
           <GameSummary event={event} progress={progress} totalSightings={snapshot.totalSightings} />
-          {!live && (
+          {preGame && (
+            <div className="rounded-2xl bg-[#fff4de] px-4 py-3 shadow-sm ring-1 ring-[#f1d9a8]">
+              <p className="text-[15px] font-medium text-[#7a4a0c]">
+                🏮 {event.copy.preGameBanner}
+                {formatCountdownTo(snapshot.gameLiveAt, now) ? (
+                  <span className="font-normal text-[#a06a1c]"> · {formatCountdownTo(snapshot.gameLiveAt, now)}</span>
+                ) : null}
+              </p>
+              <p className="mt-0.5 text-[13px] leading-5 text-[#8a5a10]">{event.copy.preGameHint}</p>
+            </div>
+          )}
+          {liveBanner && live && (
+            <button
+              type="button"
+              onClick={() => setLiveBanner(false)}
+              className="cdp-game-icon-unlock w-full cursor-pointer rounded-2xl bg-[#c8553d] px-4 py-3 text-left text-[15px] font-medium text-white shadow-sm"
+            >
+              🎉 {event.copy.liveBanner}
+            </button>
+          )}
+          {(phase === EVENT_PHASE.ENDED || phase === EVENT_PHASE.UPCOMING) && (
             <p className="rounded-xl bg-white px-4 py-3 text-sm text-zinc-600 shadow-sm">
-              {snapshot.phase === "ended"
+              {phase === EVENT_PHASE.ENDED
                 ? "Mùa săn này đã khép lại. Bộ sưu tập và bản đồ được giữ làm kỷ niệm."
                 : "Mùa săn chưa mở. Quay lại khi mô hình bắt đầu diễu diễu nhé."}
             </p>
           )}
-          {live && <div className="hidden lg:block">{reportButton}</div>}
+          {canReport && <div className="hidden lg:block">{reportButton}</div>}
           <nav aria-label="Các phần của trò chơi">
             <div className="flex w-full gap-0.5 rounded-full bg-[#efe6d8] p-1">
               {TABS.map((item) => (
@@ -242,10 +361,15 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
         {/* Một bản đồ duy nhất: mobile chỉ hiện ở tab bản đồ, desktop luôn hiện bên trái
             (NOTE-04 §24). Ẩn bằng CSS để không dựng lại MapLibre mỗi lần đổi tab. */}
         <section
-          className={`order-2 lg:sticky lg:top-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:block ${
+          className={`relative order-2 lg:sticky lg:top-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:block ${
             tab === "map" ? "block" : "hidden"
           }`}
         >
+          {preGame && (
+            <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[70%] rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-medium text-[#8a5a10] shadow-sm">
+              🌙 {event.copy.preGameMap}
+            </p>
+          )}
           <GameMap
             center={event.map.center}
             zoom={event.map.zoom}
@@ -261,12 +385,22 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
         </section>
 
         <div className="order-3 lg:col-start-2 lg:row-start-2">
+          {tab === "map" && live && (
+            <NightHighlights
+              event={event}
+              night={snapshot.night ?? {}}
+              catalogById={catalogById}
+              myTonight={myTonight}
+              onOpen={openObject}
+            />
+          )}
           {tab === "map" && (
             <RecentFeed
               event={event}
               markers={snapshot.markers}
               catalogById={catalogById}
               now={now}
+              preGame={preGame}
               onOpen={(marker) => {
                 setMapFocus({ lat: marker.lat, lng: marker.lng, zoom: 16, key: marker.id });
                 setDetail({ objectId: marker.objectId, markerId: marker.id });
@@ -277,8 +411,11 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             <CollectionView
               event={event}
               catalog={snapshot.catalog}
+              collections={collections}
               resolvedCollection={resolvedCollection}
               objectStats={snapshot.objectStats}
+              myCounts={myCounts}
+              rarity={rarity}
               justUnlockedId={justUnlockedId}
               onOpen={openObject}
             />
@@ -299,7 +436,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       </div>
 
       {/* CTA quan trọng nhất luôn trong tầm ngón cái (NOTE-04 §7). */}
-      {live && (
+      {canReport && (
         <div
           // Gradient sRGB viết tay: bản Tailwind (oklab + color-mix) bị WebKit pha màu trong suốt
           // thành dải xám phía trên nút.
@@ -321,6 +458,19 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           preset={report.preset}
           now={now}
           onSubmitted={handleSubmitted}
+          preGame={preGame}
+          onPreGameAttempt={showTroll}
+        />
+      )}
+
+      {troll && (
+        <PreGameSheet
+          key={troll.session}
+          open
+          onClose={() => setTroll(null)}
+          event={{ ...event, gameLiveAt: snapshot.gameLiveAt ?? event.gameLiveAt }}
+          attempt={troll.attempt}
+          now={now}
         />
       )}
 
@@ -337,8 +487,10 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           myHash={player.anonIdHash}
           sightingCount={snapshot.objectStats[detailObject.id] ?? 0}
           tonight={snapshot.tonight?.[detailObject.id] ?? null}
+          myCount={myCounts[detailObject.id] ?? 0}
+          rarity={rarity?.[detailObject.id] ?? null}
           now={now}
-          canReport={live}
+          canReport={canReport}
           onReport={(objectId, marker) =>
             openReport({ objectId, lat: marker?.lat, lng: marker?.lng })
           }
@@ -355,6 +507,8 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           object={success.object}
           before={success.before}
           after={success.after}
+          diff={success.diff}
+          myCount={success.myCount}
           onPlayerUpdate={setPlayer}
           onViewMap={() => {
             setSuccess(null);

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { eventPhase, getGameEvent, publicEventConfig } from "@/lib/game/registry";
+import { eventGameLiveAt, eventPhase, getGameEvent, publicEventConfig } from "@/lib/game/registry";
 import { mergeCatalog } from "@/lib/game/catalog";
-import { getGameSnapshot } from "@/lib/game/store";
+import { getGameSnapshot, loadGameEvent } from "@/lib/game/store";
 import { GameExperience } from "@/app/_game/GameExperience";
 
 // Marker "tối nay" và tiến độ cộng đồng đổi liên tục — đọc Redis mỗi lượt mở.
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
 // Route chung cho mọi mùa game (NOTE-04 §28: không code riêng một trò Trung thu).
 export default async function GameEventPage({ params, searchParams }) {
   const [{ eventSlug }, query] = await Promise.all([params, searchParams]);
-  const event = getGameEvent(eventSlug);
+  const event = await loadGameEvent(eventSlug);
   if (!event) notFound();
 
   let snapshot;
@@ -32,6 +32,9 @@ export default async function GameEventPage({ params, searchParams }) {
     snapshot = {
       generatedAt: new Date().toISOString(),
       phase: eventPhase(event),
+      gameLiveAt: eventGameLiveAt(event),
+      night: {},
+      rarity: {},
       catalog: mergeCatalog(event.objects, {}, event.id),
       objectStats: {},
       markers: [],

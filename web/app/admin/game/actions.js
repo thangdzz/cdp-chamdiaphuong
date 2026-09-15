@@ -3,15 +3,16 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { getGameEvent } from "@/lib/game/registry";
 import { OBJECT_KIND, VERIFICATION_STATUSES } from "@/lib/game/catalog";
 import {
   GameInputError,
   adminDeleteSighting,
   adminMatchObject,
+  adminSetGameLiveAt,
   adminSetSightingPhotoStatus,
   adminUpsertObject,
   getSighting,
+  loadGameEvent,
 } from "@/lib/game/store";
 
 async function requireAdmin() {
@@ -23,8 +24,8 @@ function backTo(slug, params) {
   redirect(`/admin/game?event=${encodeURIComponent(slug)}&${new URLSearchParams(params)}`);
 }
 
-function eventFrom(formData) {
-  const event = getGameEvent(formData.get("slug")?.toString() ?? "");
+async function eventFrom(formData) {
+  const event = await loadGameEvent(formData.get("slug")?.toString() ?? "");
   if (!event) redirect("/admin/game?error=event");
   return event;
 }
@@ -37,7 +38,7 @@ function text(formData, name) {
 // Mọi action đều bọc cùng một khuôn: lỗi dữ liệu -> quay lại kèm thông báo, không ném trang lỗi.
 async function run(formData, work) {
   await requireAdmin();
-  const event = eventFrom(formData);
+  const event = await eventFrom(formData);
   let outcome;
   try {
     await work(event);
@@ -61,6 +62,9 @@ export async function saveGameObject(formData) {
       kind: name ? OBJECT_KIND.MODEL : text(formData, "kind") ?? OBJECT_KIND.MODEL,
       name,
       icon: text(formData, "icon"),
+      tags: text(formData, "tags") ?? [],
+      soundFamily: text(formData, "soundFamily"),
+      soundKey: text(formData, "soundKey"),
       category: text(formData, "category"),
       ward: text(formData, "ward"),
       neighborhood: text(formData, "neighborhood"),
@@ -107,5 +111,17 @@ export async function deleteGameSighting(formData) {
     const sightingId = text(formData, "sightingId");
     if (!(await getSighting(event, sightingId))) throw new GameInputError("Lượt báo không còn.");
     await adminDeleteSighting(event, sightingId);
+  });
+}
+
+// Giờ mở game thật (NOTE-05 §21) — đổi ngay trên production, không cần deploy.
+export async function saveGameLiveAt(formData) {
+  await run(formData, async (event) => {
+    const mode = text(formData, "mode");
+    if (mode === "reset") return adminSetGameLiveAt(event, null);
+    if (mode === "now") return adminSetGameLiveAt(event, new Date().toISOString());
+    const local = text(formData, "gameLiveAt");
+    if (!local || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(local)) throw new GameInputError("Chọn ngày giờ mở game.");
+    return adminSetGameLiveAt(event, `${local}:00+07:00`);
   });
 }

@@ -32,7 +32,7 @@ export function AnimatedNumber({ value, duration = 700 }) {
 
 // Thanh tiến độ chỉ đổi transform (NOTE-04 §10 "Performance"). `from` cho phép màn thành công
 // bắt đầu ở giá trị cũ rồi mới chạy tới giá trị mới.
-export function ProgressBar({ ratio, from, className = "" }) {
+export function ProgressBar({ ratio, from, delayMs = 0, className = "" }) {
   const [current, setCurrent] = useState(from ?? ratio);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export function ProgressBar({ ratio, from, className = "" }) {
     <div className={`h-2.5 overflow-hidden rounded-full bg-[#efe4d3] ${className}`}>
       <div
         className="h-full origin-left rounded-full bg-gradient-to-r from-[#e0a526] to-[#c8553d] transition-transform duration-[900ms] ease-out"
-        style={{ transform: `scaleX(${Math.max(0, Math.min(1, current))})` }}
+        style={{ transform: `scaleX(${Math.max(0, Math.min(1, current))})`, transitionDelay: `${delayMs}ms` }}
       />
     </div>
   );

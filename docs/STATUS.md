@@ -6,6 +6,19 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (tối) — NOTE-05 Săn đèn: pre-game, bộ sưu tập, icon & âm thanh, chỉ
+local:** trước 18/9 19:00 game ở pre-game — banner đếm ngược, bản đồ ghi "chưa có đèn rước", báo thử
+ra 3 câu đùa theo lần thử, server từ chối mọi lượt báo; admin đổi giờ mở ở `/admin/game`. Thay 10 mô
+hình tạm bằng 34 mô hình từ `data/MoHinhTrungThuTuyenQuang.md`, mỗi mô hình có tag, icon ghép và âm
+thanh theo nhóm (Web Audio). Bộ sưu tập nhiều lớp (bộ chính 34, 6 bộ theo tag, combo Sử Việt/Chuyện
+xưa, 2 bộ ẩn Long hội/Thủy phủ), milestone 5/10/20/30/trọn bộ, độ hiếm theo đêm, khối "Tối nay có
+gì", số lần gặp riêng. Kiểm thử: test dữ liệu (pre-game không tạo key nào; bộ ẩn mở đúng mô hình rồng
+thứ 3; combo 4/4; milestone; độ hiếm; không lộ anonId) + test cũ; Playwright iPhone 13: 4 lần báo thử
+ra đúng câu 1/2/3/3, 0 âm thanh khi mở trang; live: 5 lượt báo → mở "Long hội 3 / ?" → "5 mô hình
+rồi!"; tự chuyển pre-game → live khi đang mở; hồi quy chống nháy + vuốt sheet (Chromium/WebKit/desktop)
+đạt. Sửa kèm vòng sáng milestone đứng lại đè chữ. Dữ liệu + 1 hồ sơ test đã dọn. Build đạt, lint
+đúng 1 lỗi nền. **Chưa deploy.**
+
 **Cập nhật mới nhất 2026-09-15 (sau) — Điểm tổ chức trên bản đồ Săn đèn, chỉ local:** thêm Quảng
 trường Nguyễn Tất Thành (vùng) và Tuyến phố đi bộ đường Nguyễn Văn Linh từ nút giao Hà Huy Tập tới
 nút giao Đinh Tiên Hoàng, khu hồ Tân Quang (tuyến ~320m). Toạ độ truy từ OpenStreetMap (way/node ghi

@@ -35,10 +35,33 @@ export function objectDisplayName(object, noun = "mô hình") {
   return `${capitalize(noun)} chưa xác định`;
 }
 
-export function objectIcon(object, categories = []) {
-  if (object?.icon) return object.icon;
-  if (object?.kind === OBJECT_KIND.UNKNOWN) return UNKNOWN_ICON;
-  return categories.find((c) => c.id === object?.category)?.icon ?? DEFAULT_ICON;
+const DEFAULT_TINT = "#fbf3e6";
+
+// Icon của object là một KHOÁ tra trong `event.iconSet` (NOTE-05 §12, §22): { glyph, badge?, tint? }
+// — glyph là hình chính, badge là hình phụ nhỏ ở góc để phân biệt các mô hình cùng con vật (rồng
+// LED vs rồng cuốn nước). Không có khoá hợp lệ thì: icon tự do (emoji admin gõ) → icon nhóm →
+// đèn lồng. Không bao giờ trả rỗng.
+export function objectIconSpec(object, event) {
+  const category = event?.categories?.find((c) => c.id === object?.category);
+  const tint = category?.tint ?? DEFAULT_TINT;
+  if (object?.kind === OBJECT_KIND.UNKNOWN && !object?.icon) {
+    return { glyph: UNKNOWN_ICON, badge: null, tint: DEFAULT_TINT };
+  }
+  const fromSet = object?.icon ? event?.iconSet?.[object.icon] : null;
+  if (fromSet) return { glyph: fromSet.glyph, badge: fromSet.badge ?? null, tint: fromSet.tint ?? tint };
+  if (object?.icon && !/^[a-z0-9-]+$/.test(object.icon)) return { glyph: object.icon, badge: null, tint };
+  return { glyph: category?.icon ?? DEFAULT_ICON, badge: null, tint };
+}
+
+// Chuỗi ngắn cho chỗ chỉ hiện được chữ (admin, nhãn marker).
+export function objectIcon(object, event) {
+  const spec = objectIconSpec(object, event);
+  return spec.badge ? `${spec.glyph}${spec.badge}` : spec.glyph;
+}
+
+function cleanSlugList(value, max = 12) {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+  return [...new Set(list.map((item) => String(item).trim().toLowerCase()).filter((item) => /^[a-z0-9_-]{1,32}$/.test(item)))].slice(0, max);
 }
 
 function capitalize(text) {
@@ -63,7 +86,11 @@ export function normalizeObject(raw, eventId) {
     code: cleanText(raw.code, 12),
     name: cleanText(raw.name, 80),
     slug: cleanText(raw.slug, 80),
-    icon: cleanText(raw.icon, 8),
+    icon: cleanText(raw.icon, 40),
+    // Tag sinh bộ sưu tập theo nhóm; soundFamily/soundKey chọn âm thanh mở khoá (NOTE-05 §22).
+    tags: cleanSlugList(raw.tags),
+    soundFamily: cleanText(raw.soundFamily, 32),
+    soundKey: cleanText(raw.soundKey, 40),
     photoUrl: cleanText(raw.photoUrl, 500),
     category: cleanText(raw.category, 40),
     ward: cleanText(raw.ward, 60),

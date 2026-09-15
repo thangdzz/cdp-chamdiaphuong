@@ -6,10 +6,18 @@ import { ProgressBar } from "./GameProgress";
 import { loadPlayerState } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { computeProgress } from "@/lib/game/progress";
+import { EVENT_PHASE } from "@/lib/game/registry";
+import { formatCountdownTo } from "@/lib/game/format";
 
 // Khối game đặt trong bài viết của sự kiện (NOTE-04 §3): một câu hỏi, một con số, hai nút —
 // không bắt đọc hướng dẫn.
-export function GameEntryCard({ event, href, teaser, live }) {
+export function GameEntryCard({ event, href, teaser, phase, now }) {
+  const preGame = phase === EVENT_PHASE.PRE_GAME;
+  // Pre-game vẫn cho bấm "vừa thấy" để gặp câu đùa (NOTE-05 §20); hết mùa thì thôi.
+  const canReport = preGame || phase === EVENT_PHASE.LIVE;
+  // `now` lấy từ server lúc render — client hydrate ra đúng cùng chữ, không lệch phút. Khối giới
+  // thiệu không cần tự đếm; trang game mới tự cập nhật.
+  const countdown = preGame ? formatCountdownTo(event.gameLiveAt, now) : null;
   const noun = event.copy.objectNoun;
   const [collection, setCollection] = useState({});
 
@@ -33,6 +41,12 @@ export function GameEntryCard({ event, href, teaser, live }) {
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-medium tracking-tight text-zinc-900">{event.shortName}</h2>
           <p className="text-sm text-zinc-600">{event.copy.tagline}</p>
+          {preGame && (
+            <p className="mt-1 text-[13px] font-medium text-[#8a5a10]">
+              {event.copy.preGameBanner}
+              {countdown ? ` · ${countdown}` : ""}
+            </p>
+          )}
         </div>
       </div>
 
@@ -66,7 +80,7 @@ export function GameEntryCard({ event, href, teaser, live }) {
         >
           Xem bản đồ tối nay
         </Link>
-        {live && (
+        {canReport && (
           <Link
             href={`${href}?bao=1`}
             className="cdp-pressable flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-[#c8553d] text-[15px] font-medium text-white shadow-sm"

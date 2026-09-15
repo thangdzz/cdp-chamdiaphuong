@@ -26,7 +26,11 @@
         cuộn (Chromium + WebKit + desktop: 0 lần resize canvas/remount/vẽ lại marker khi cuộn)
   - [x] 15/9: bản đồ có Quảng trường Nguyễn Tất Thành + Tuyến phố đi bộ Nguyễn Văn Linh (Hà Huy
         Tập → Đinh Tiên Hoàng), toạ độ từ OSM, bản đồ tự căn khung vừa cả hai
-  - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh, vuốt sheet) tại localhost:3100
+  - [x] 15/9 NOTE-05: pre-game tới 18/9 19:00 (3 câu troll, không ghi dữ liệu, admin đổi giờ mở không
+        cần deploy, trang tự chuyển live); 34 mô hình thật có tag/icon ghép/âm thanh theo nhóm; bộ sưu
+        tập theo tag + 2 bộ ẩn + combo + milestone; độ hiếm theo đêm; "Tối nay có gì"; "Bạn gặp N lần"
+  - [ ] Chủ dự án thử trên điện thoại thật (GPS, âm thanh, chụp ảnh, vuốt sheet, câu troll) tại localhost:3100
+  - [ ] Nghe thử 20 tiếng mô hình trên điện thoại thật, chọn lại khoá nào nghe chưa hợp
   - [ ] Thay 10 tên mô hình tạm bằng danh sách thật ở `/admin/game`
   - [ ] Quyết định deploy trước 19/9
 

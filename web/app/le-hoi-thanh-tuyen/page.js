@@ -15,14 +15,8 @@ import { getPostEvents } from "@/lib/postEvents";
 import { InteractivePlan } from "@/app/InteractivePlan";
 import { EventCard } from "./EventCard";
 import { GameEntryCard } from "@/app/_game/GameEntryCard";
-import {
-  EVENT_PHASE,
-  eventPhase,
-  gameEventHref,
-  getGameEvent,
-  publicEventConfig,
-} from "@/lib/game/registry";
-import { getGameTeaser } from "@/lib/game/store";
+import { eventPhase, gameEventHref, publicEventConfig } from "@/lib/game/registry";
+import { getGameTeaser, loadGameEvent } from "@/lib/game/store";
 
 // Mùa game gắn với bài viết này. Bài lễ hội năm sau chỉ đổi slug, không đổi code game.
 const FESTIVAL_GAME_SLUG = "thanh-tuyen-2026";
@@ -72,7 +66,7 @@ function TimelineGroups({ events, now }) {
 }
 
 export default async function LeHoiThanhTuyenPage() {
-  const gameEvent = getGameEvent(FESTIVAL_GAME_SLUG);
+  const gameEvent = await loadGameEvent(FESTIVAL_GAME_SLUG);
   const [now, events, gameTeaser] = await Promise.all([
     readNow(),
     getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
@@ -115,7 +109,8 @@ export default async function LeHoiThanhTuyenPage() {
             event={publicEventConfig(gameEvent)}
             href={gameEventHref(gameEvent)}
             teaser={gameTeaser}
-            live={eventPhase(gameEvent) === EVENT_PHASE.LIVE}
+            phase={eventPhase(gameEvent, now)}
+            now={now}
           />
         )}
 

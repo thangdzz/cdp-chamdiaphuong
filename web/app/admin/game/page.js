@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { getGameEvent, listGameEvents, gameEventHref } from "@/lib/game/registry";
+import { EVENT_PHASE, eventGameLiveAt, eventPhase, listGameEvents, gameEventHref } from "@/lib/game/registry";
 import {
   OBJECT_KIND,
   VERIFICATION_LABEL,
@@ -14,7 +14,7 @@ import {
 } from "@/lib/game/catalog";
 import { resolveObjectStats } from "@/lib/game/progress";
 import { HIDE_AFTER_FLAGS } from "@/lib/game/mapLayer";
-import { adminReadEverything } from "@/lib/game/store";
+import { adminReadEverything, loadGameEvent } from "@/lib/game/store";
 import { formatClock, formatDayMonth } from "@/lib/game/format";
 import { MediaImage } from "@/app/MediaImage";
 import {
@@ -22,6 +22,7 @@ import {
   matchGameObject,
   reviewSightingPhoto,
   saveGameObject,
+  saveGameLiveAt,
   unmatchGameObject,
 } from "./actions";
 
@@ -36,7 +37,25 @@ function when(iso) {
   return `${formatClock(iso)} ${formatDayMonth(iso)}`;
 }
 
+const SOUND_FAMILIES = ["animal", "history", "folklore", "technology", "traditional"];
+
+// "2026-09-18T19:00" theo giờ VN cho ô datetime-local.
+function toVnInputValue(iso) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(iso));
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
+}
+
 function ObjectFields({ event, object }) {
+  const listId = `icon-keys-${object?.id ?? "new"}`;
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <label className="text-sm text-zinc-600">
@@ -44,8 +63,35 @@ function ObjectFields({ event, object }) {
         <input name="name" defaultValue={object?.name ?? ""} className={inputClass} />
       </label>
       <label className="text-sm text-zinc-600">
-        Icon (emoji)
-        <input name="icon" defaultValue={object?.icon ?? ""} className={inputClass} />
+        Icon (khoá trong bộ icon, hoặc gõ emoji)
+        <input name="icon" list={listId} defaultValue={object?.icon ?? ""} className={inputClass} />
+        <datalist id={listId}>
+          {Object.entries(event.iconSet ?? {}).map(([key, spec]) => (
+            <option key={key} value={key}>
+              {spec.glyph}
+              {spec.badge ?? ""}
+            </option>
+          ))}
+        </datalist>
+      </label>
+      <label className="text-sm text-zinc-600 sm:col-span-2">
+        Tag (cách nhau dấu phẩy — sinh bộ sưu tập: animal, dragon, water, history, folklore, legend, culture, technology, sponsor…)
+        <input name="tags" defaultValue={(object?.tags ?? []).join(", ")} className={inputClass} />
+      </label>
+      <label className="text-sm text-zinc-600">
+        Nhóm âm thanh
+        <select name="soundFamily" defaultValue={object?.soundFamily ?? ""} className={inputClass}>
+          <option value="">— (chuông mặc định)</option>
+          {SOUND_FAMILIES.map((family) => (
+            <option key={family} value={family}>
+              {family}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="text-sm text-zinc-600">
+        Khoá âm thanh (tuỳ chọn: rabbit, elephant, tiger, bird, fish, turtle, dragon, drum, magic, bell…)
+        <input name="soundKey" defaultValue={object?.soundKey ?? ""} className={inputClass} />
       </label>
       <label className="text-sm text-zinc-600">
         Nhóm
@@ -96,7 +142,9 @@ export default async function GameAdminPage({ searchParams }) {
   if (!verifySessionToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value)) redirect("/admin");
 
   const params = await searchParams;
-  const event = getGameEvent(params?.event ?? "") ?? listGameEvents()[0];
+  const event = (await loadGameEvent(params?.event ?? "")) ?? (await loadGameEvent(listGameEvents()[0].slug));
+  const liveAt = eventGameLiveAt(event);
+  const phase = eventPhase(event);
   const { catalog, sightings, objectStats, flags } = await adminReadEverything(event);
   const index = catalogIndex(catalog);
   const counts = resolveObjectStats(objectStats, catalog);
@@ -131,6 +179,29 @@ export default async function GameAdminPage({ searchParams }) {
         </Link>
       </div>
 
+      <section className="mt-6 rounded-xl bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-medium text-zinc-900">Giờ mở game thật (NOTE-05)</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Trước giờ này là pre-game: khách chơi thử, bấm báo chỉ ra câu đùa, không ghi dữ liệu. Hiện tại:{" "}
+          <b className="font-medium text-zinc-800">
+            {phase === EVENT_PHASE.PRE_GAME ? "pre-game" : phase === EVENT_PHASE.LIVE ? "đang live" : phase}
+          </b>{" "}
+          · mở lúc {when(liveAt)} {event.runtime?.gameLiveAt ? "(admin đã đổi)" : "(mặc định trong code)"}
+        </p>
+        <form action={saveGameLiveAt} className="mt-3 flex flex-wrap items-end gap-2">
+          <input type="hidden" name="slug" value={event.slug} />
+          <label className="text-sm text-zinc-600">
+            Giờ Việt Nam
+            <input type="datetime-local" name="gameLiveAt" defaultValue={toVnInputValue(liveAt)} className={inputClass} />
+          </label>
+          <button name="mode" value="set" className={buttonClass}>Lưu giờ mở</button>
+          <button name="mode" value="now" className={ghostClass}>Mở game ngay</button>
+          {event.runtime?.gameLiveAt && (
+            <button name="mode" value="reset" className={ghostClass}>Về giờ mặc định</button>
+          )}
+        </form>
+      </section>
+
       {params?.saved === "1" && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã lưu.</p>}
       {params?.error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{params.error}</p>}
 
@@ -144,7 +215,7 @@ export default async function GameAdminPage({ searchParams }) {
               <li key={s.id} className="rounded-xl bg-white p-3 shadow-sm">
                 <MediaImage src={s.photo.url} alt="" sizes="360px" className="aspect-[4/3] w-full rounded-lg bg-zinc-100" />
                 <p className="mt-2 text-sm text-zinc-900">
-                  {objectIcon(object, event.categories)} {objectDisplayName(object, noun)}
+                  {objectIcon(object, event)} {objectDisplayName(object, noun)}
                 </p>
                 <p className="text-xs text-zinc-500">{when(s.createdAt)}</p>
                 <form action={reviewSightingPhoto} className="mt-2 flex flex-wrap gap-2">
@@ -219,7 +290,7 @@ export default async function GameAdminPage({ searchParams }) {
             <li key={object.id} className="rounded-xl bg-white p-3 shadow-sm">
               <details>
                 <summary className="cursor-pointer text-sm text-zinc-900">
-                  {objectIcon(object, event.categories)} {objectDisplayName(object, noun)} · {counts[object.id] ?? 0} lượt ·{" "}
+                  {objectIcon(object, event)} {objectDisplayName(object, noun)} · {counts[object.id] ?? 0} lượt ·{" "}
                   {VERIFICATION_LABEL[object.verificationStatus]}
                   {object.hidden ? " · đang ẩn" : ""}
                   {object.source === "cdp_seed_placeholder" ? " · tên tạm" : ""}
@@ -299,7 +370,7 @@ function SightingTable({ event, sightings, index, flags, noun }) {
               <tr key={s.id}>
                 <td className="px-3 py-2 text-zinc-500">{when(s.createdAt)}</td>
                 <td className="px-3 py-2">
-                  {objectIcon(object, event.categories)} {objectDisplayName(object, noun)}
+                  {objectIcon(object, event)} {objectDisplayName(object, noun)}
                   {Number(flags[s.id]) > 0 ? ` · ⚑ ${flags[s.id]}` : ""}
                   {s.photo ? " · 📷" : ""}
                 </td>

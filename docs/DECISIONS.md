@@ -3,6 +3,55 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — NOTE-05: pre-game, 34 mô hình, bộ sưu tập nhiều lớp, icon & âm thanh theo nhóm
+
+Chủ dự án yêu cầu "đọc `docs/14-NOTE-05-MVP1-PreGame-Collection-Icon-Sound.md` và làm phù hợp
+với dự án". Các lựa chọn:
+
+**1. Pre-game = một pha của Event, không phải code riêng.** `registry.eventPhase()` thêm pha
+`pre_game` trước `gameLiveAt` (mặc định 18/9/2026 19:00 giờ VN trong file mùa). Admin đổi giờ ở
+`/admin/game` (lưu hash `game:{eventId}:config`, có nút "Mở game ngay"/"Về giờ mặc định") — không
+cần deploy (NOTE-05 §21). Trang đang mở tự chuyển sang live khi tới giờ (kiểm tra mỗi 30 giây).
+Server `recordSighting()` từ chối lượt báo trong pre-game dù UI không gọi tới → không có sighting,
+marker, collection, số đếm, first discovery.
+
+**2. Luồng troll bỏ bước vị trí/ảnh.** Spec nói "chọn mô hình… khi bấm submit" hiện popup. Trong
+CDP, chọn mô hình là một chạm; nếu đi tiếp bước vị trí thì trình duyệt hỏi quyền GPS chỉ để nghe một
+câu đùa — tệ về trải nghiệm và riêng tư. Nên: chọn mô hình (hoặc bấm "Tôi vừa thấy" trên thẻ) → câu
+đùa luôn. Đếm lần thử trong **localStorage** (spec cho phép), không ghi vào hồ sơ ẩn danh: CDP chỉ tạo
+hồ sơ khi có đóng góp thật; tạo hồ sơ cho câu đùa là rác dữ liệu. Lần 4+ lặp câu 3.
+
+**3. Danh sách 34 mô hình** từ `data/MoHinhTrungThuTuyenQuang.md` (chủ dự án cung cấp) thay 10 tên
+tạm; để `unverified` vì chưa đối chiếu nguồn chính thức. Nhãn "Chưa xác minh" không hiện trên UI nữa
+(34 thẻ cùng một nhãn là nhiễu) — chỉ hiện khi đã xác minh. Mẫu số bộ chính = 34 mô hình CDP đang biết.
+
+**4. Mọi thứ sinh từ cấu hình, không `if model == …`** (NOTE-05 §22). Mô hình có `tags`, `icon`
+(khoá), `soundFamily`, `soundKey`. File mùa khai `iconSet`, `collections` (luật `all` / `anyTags` /
+`objectIds`, cờ `hidden: {unlockAt}` và `combo`), `milestones` (5/10/20/30/trọn bộ). Logic ở
+`lib/game/collections.js` (thuần). Bộ ẩn "Long hội" (tag dragon, mở ở mô hình thứ 3) và "Thủy phủ"
+(tag water) — trạng thái mở suy ra từ bộ sưu tập, không lưu riêng; mẫu số giấu ("3 / ?") tới khi xong.
+
+**5. Icon = emoji ghép (hình chính + hình phụ + màu nền theo nhóm)**, giữ phong cách chủ dự án khen,
+chỉ dùng emoji Unicode ≤ 13 để máy cũ không hiện ô trống (không dùng 🪷, 🐦‍🔥…). Chưa vẽ SVG riêng —
+34 icon vẽ tay tốn thời gian mà spec chỉ cần "gần nghĩa, phân biệt nhanh". 3 trạng thái: chưa gặp
+(xám mờ), đã gặp (màu + viền sáng + ✓), vừa mở (0.7 → 1.08 → 1 + phát sáng).
+
+**6. Âm thanh theo nhóm, vẫn tổng hợp bằng Web Audio** (0 file tải): 20 khoá (thỏ, voi, hổ, chim,
+cá, rùa, rồng, ngựa, dế, trống, anh hùng, phép màu, chuông gỗ, blip số, synth, chuông, trống nhỏ,
+tre, gỗ) + tiếng sự kiện (mở bộ ẩn, combo, milestone, troll, game live). Mở khoá = tiếng mô hình +
+chuông nhỏ; lớp ăn mừng phát sau ~0,8 giây, chỉ MỘT lớp (mốc > combo > hoàn thành > bộ ẩn > người
+đầu tiên). Không autoplay; đã kiểm tra 0 nguồn âm khi vừa mở trang.
+
+**7. Độ hiếm & thống kê theo đêm (ngày giờ VN), không gán cố định.** Số lượt lấy từ hash đếm theo
+ngày; số khu vực (~110m) đếm từ sighting trong ngày. Dưới 8 lượt cả đêm chỉ nói "Đã có người thấy" /
+"Chưa ai tìm thấy" — không bịa "hiếm". Từ 8 lượt: so với mô hình được thấy nhiều nhất (≥50% thường
+gặp, ≥20% ít gặp, còn lại hiếm tối nay). "Tối nay có gì": nhiều nhất, khó gặp nhất, đi nhiều nơi
+nhất, bạn gặp nhiều nhất (từ lịch sử riêng). Số lần một người gặp mỗi mô hình lưu hash
+`collection-counts:{anonId}`; bộ sưu tập vẫn tính 1.
+
+**Chưa làm (ngoài phạm vi / để sau):** bảng xếp hạng người, phần thưởng, icon SVG vẽ riêng, âm thanh
+từng mô hình riêng hoàn toàn, sửa bộ sưu tập/milestone qua admin (đang ở file cấu hình).
+
 ## 2026-09-15 — Điểm tổ chức chính trên bản đồ Săn đèn (venue layer)
 
 **Quyết định:** thêm primitive "venue" (điểm tổ chức của Event) vào cấu hình mùa

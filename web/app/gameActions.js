@@ -2,20 +2,20 @@
 
 import crypto from "crypto";
 import { createContributor, getContributor } from "@/lib/contributors";
-import { getGameEvent } from "@/lib/game/registry";
 import {
   GameInputError,
   attachPhotoToSighting,
   flagSighting,
   getGameSnapshot,
   getPlayerState,
+  loadGameEvent,
   recordSighting,
 } from "@/lib/game/store";
 import { deleteMedia, uploadMedia } from "@/lib/mediaStorage";
 import { processMediaFile } from "@/lib/mediaProcessing";
 
-function requireEvent(slug) {
-  const event = getGameEvent(String(slug ?? ""));
+async function requireEvent(slug) {
+  const event = await loadGameEvent(String(slug ?? ""));
   if (!event) throw new GameInputError("Không tìm thấy mùa săn này.");
   return event;
 }
@@ -60,7 +60,7 @@ async function uploadSightingPhoto(event, file, anonId) {
 
 export async function loadGameSnapshot(slug) {
   try {
-    return { ok: true, snapshot: await getGameSnapshot(requireEvent(slug)) };
+    return { ok: true, snapshot: await getGameSnapshot(await requireEvent(slug)) };
   } catch (error) {
     return errorResult(error);
   }
@@ -68,7 +68,7 @@ export async function loadGameSnapshot(slug) {
 
 export async function loadPlayerState({ slug, anonId }) {
   try {
-    const event = requireEvent(slug);
+    const event = await requireEvent(slug);
     return { ok: true, player: await getPlayerState(event, isAnonId(anonId) ? anonId : null) };
   } catch (error) {
     return errorResult(error);
@@ -80,7 +80,7 @@ export async function loadPlayerState({ slug, anonId }) {
 export async function reportSighting(formData) {
   let uploadedKey = null;
   try {
-    const event = requireEvent(formData.get("slug"));
+    const event = await requireEvent(formData.get("slug"));
     let anonId = formData.get("anonId")?.toString();
     let newProfile = null;
     let contributor = isAnonId(anonId) ? await getContributor(anonId) : null;
@@ -137,7 +137,7 @@ export async function reportSighting(formData) {
 export async function addPhotoToSighting(formData) {
   let uploadedKey = null;
   try {
-    const event = requireEvent(formData.get("slug"));
+    const event = await requireEvent(formData.get("slug"));
     const anonId = formData.get("anonId")?.toString();
     if (!isAnonId(anonId)) throw new GameInputError("Thiếu hồ sơ người chơi.");
     const { photo, photoError } = await uploadSightingPhoto(event, formData.get("photo"), anonId);
@@ -158,7 +158,7 @@ export async function addPhotoToSighting(formData) {
 
 export async function reportWrongLocation({ slug, anonId, sightingId }) {
   try {
-    const event = requireEvent(slug);
+    const event = await requireEvent(slug);
     if (!isAnonId(anonId)) return { ok: true, counted: false };
     return { ok: true, counted: await flagSighting(event, { anonId, sightingId }) };
   } catch (error) {

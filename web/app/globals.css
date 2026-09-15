@@ -270,7 +270,82 @@ body {
   animation: cdp-game-card-glow 1200ms ease-out 1;
 }
 
+/* Icon vừa mở (NOTE-05 §13): scale 0.7 → 1.08 → 1, hiện dần, rồi phát sáng 2 nhịp. */
+@keyframes cdp-game-icon-unlock {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cdp-game-icon-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(242, 193, 78, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(242, 193, 78, 0.85));
+  }
+}
+
+.cdp-game-icon-unlock {
+  animation:
+    cdp-game-icon-unlock 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    cdp-game-icon-glow 900ms ease-in-out 620ms 2;
+}
+
+/* Combo/mốc lớn: vòng sáng vàng xoay nhẹ quanh icon — mạnh hơn mở khoá thường (NOTE-05 §11). */
+@keyframes cdp-game-ring {
+  from {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.5) rotate(120deg);
+    opacity: 0;
+  }
+}
+
+/* opacity 0 ở trạng thái nền + fill "both": chạy xong vòng tắt hẳn, không đứng lại đè lên chữ. */
+.cdp-game-ring {
+  opacity: 0;
+  animation: cdp-game-ring 1200ms ease-out 2 both;
+}
+
+/* Troll pre-game: lắc đầu nhẹ. */
+@keyframes cdp-game-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  20% {
+    transform: rotate(-14deg) scale(1.1);
+  }
+  45% {
+    transform: rotate(10deg) scale(1.05);
+  }
+  70% {
+    transform: rotate(-6deg);
+  }
+}
+
+.cdp-game-wobble {
+  animation: cdp-game-wobble 800ms ease-in-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .cdp-game-ring,
   .cdp-game-particle,
   .cdp-game-glow,
   .cdp-game-pulse {

@@ -42,3 +42,16 @@ export function formatClock(iso) {
 export function formatDayMonth(iso) {
   return VN_DAY.format(new Date(iso));
 }
+
+// "còn 2 ngày 5 giờ" / "còn 3 giờ 20 phút" / "còn 12 phút" — đếm ngược tới giờ mở game.
+export function formatCountdownTo(iso, now) {
+  const ms = new Date(iso).getTime() - now;
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+  const minutes = Math.ceil(ms / 60000);
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  const mins = minutes % 60;
+  if (days > 0) return `còn ${days} ngày${hours > 0 ? ` ${hours} giờ` : ""}`;
+  if (hours > 0) return `còn ${hours} giờ${mins > 0 ? ` ${mins} phút` : ""}`;
+  return `còn ${mins} phút`;
+}
