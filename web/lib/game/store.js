@@ -477,21 +477,26 @@ export async function readObjectSightingStats(event, { day = null, peopleFor = [
 }
 
 /**
- * Tóm tắt nhẹ cho khối game + banner trên trang bài viết — 3 lệnh Redis. `tonightStats` là số lượt
- * báo theo object trong ngày giờ VN hiện tại (banner NOTE-08 §1: "Y lượt nhìn thấy tối nay").
+ * Tóm tắt nhẹ cho khối game trên trang bài viết — 2 lệnh Redis; `tonight: true` đọc thêm số lượt báo
+ * trong ngày giờ VN (thẻ game trang chủ NOTE-08 §1: "Y lượt nhìn thấy tối nay") — 3 lệnh.
  */
-export async function getGameTeaser(event) {
+export async function getGameTeaser(event, { tonight = false } = {}) {
   const [storedObjects, objectStats, dayStats] = await Promise.all([
     redis.hgetall(GAME_KEYS.objects(event.id)),
     redis.hgetall(GAME_KEYS.objectStats(event.id)),
-    redis.hgetall(GAME_KEYS.objectStatsDay(event.id, vnDayKey(new Date().toISOString()))),
+    tonight ? redis.hgetall(GAME_KEYS.objectStatsDay(event.id, vnDayKey(new Date().toISOString()))) : null,
   ]);
   const catalog = mergeCatalog(event.objects, parseHash(storedObjects), event.id);
   return {
     catalog: catalog.filter((o) => !o.hidden),
     objectStats: resolveObjectStats(objectStats ?? {}, catalog),
-    tonightStats: resolveObjectStats(dayStats ?? {}, catalog),
+    tonightStats: tonight ? resolveObjectStats(dayStats ?? {}, catalog) : {},
   };
+}
+
+/** Teaser kèm số tối nay, dùng chung 20 giây — trang chủ là trang đông nhất (PLAN-dem-18-9 §5 B1). */
+export function getSharedGameTeaser(event) {
+  return sharedRead(`teaser:${GAME_KEYS.objects(event.id)}`, () => getGameTeaser(event, { tonight: true }));
 }
 
 /** Dữ liệu RIÊNG của một người: bộ sưu tập + lịch sử báo. Chỉ trả cho đúng anonId đó. */

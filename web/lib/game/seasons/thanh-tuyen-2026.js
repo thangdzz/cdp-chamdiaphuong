@@ -35,13 +35,12 @@ export const THANH_TUYEN_2026 = {
       { emoji: "🤔", text: "Thật không bạn để tôi còn đi đồn? 🤔" },
       { emoji: "😆", text: "Tôi xin lỗi bạn, thứ 6 tôi mới làm việc cơ 😆" },
     ],
-    // Banner "cổng vào game" trên bài lễ hội (NOTE-08 §1).
-    bannerTagline: "Tối nay bạn tìm được bao nhiêu mô hình?",
+    // Nút của thẻ game nổi trang chủ (NOTE-08 §1).
     bannerCta: "Vào chơi ngay",
   },
 
-  // 5 huy hiệu bày trên banner (NOTE-08 §1), mỗi cái một khung khác nhau cho thấy bộ sưu tập đa dạng.
-  // Cái giữa (thứ 3) to nhất. Id không còn trong catalog (bị ẩn/ghép) thì banner tự bỏ qua.
+  // Huy hiệu đại diện game ở thẻ nổi trang chủ (NOTE-08 §1): lấy con GIỮA danh sách còn hiển thị
+  // (hiện là Rồng vàng). Id bị ẩn/ghép thì tự bỏ qua.
   bannerObjectIds: [
     "tt26-hai-ba-trung",
     "tt26-chu-cuoi",

@@ -59,7 +59,43 @@ function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
-export function BottomSheet({ open, onClose, title, children, labelledBy }) {
+// ─── Bám theo vùng nhìn thấy khi bàn phím mở ───
+// Safari iOS không co khung trang khi bật bàn phím: chỉ `visualViewport` co lại, còn phần tử
+// position:fixed neo đáy nằm SAU bàn phím. Cập nhật thẳng biến CSS trên khung ngoài theo
+// visualViewport (mỗi frame tối đa một lần, không qua React state => không render lại, không giật).
+const KEYBOARD_MIN_PX = 120; // co hơn chừng này mới coi là bàn phím (thanh địa chỉ co giãn ~50–80px)
+
+function followVisualViewport(container) {
+  const viewport = window.visualViewport;
+  if (!viewport || !container) return () => {};
+  let frame = 0;
+  const apply = () => {
+    frame = 0;
+    container.style.setProperty("--sheet-top", `${Math.round(viewport.offsetTop)}px`);
+    container.style.setProperty("--sheet-vh", `${Math.round(viewport.height)}px`);
+    const keyboardOpen = window.innerHeight - viewport.height > KEYBOARD_MIN_PX;
+    container.dataset.keyboard = keyboardOpen ? "open" : "closed";
+  };
+  const schedule = () => {
+    if (!frame) frame = window.requestAnimationFrame(apply);
+  };
+  apply();
+  viewport.addEventListener("resize", schedule);
+  viewport.addEventListener("scroll", schedule);
+  return () => {
+    if (frame) window.cancelAnimationFrame(frame);
+    viewport.removeEventListener("resize", schedule);
+    viewport.removeEventListener("scroll", schedule);
+  };
+}
+
+/**
+ * expanded: giữ chiều cao cố định (gần hết vùng nhìn thấy) thay vì co theo nội dung — dùng cho bước
+ * có ô tìm kiếm. Sheet neo đáy mà co theo nội dung thì gõ lọc còn ít kết quả là cả sheet tụt xuống,
+ * ô tìm kiếm rơi ra sau bàn phím.
+ */
+export function BottomSheet({ open, onClose, title, children, labelledBy, expanded = false }) {
+  const containerRef = useRef(null);
   const panelRef = useRef(null);
   const backdropRef = useRef(null);
   const scrollerRef = useRef(null);
@@ -100,8 +136,10 @@ export function BottomSheet({ open, onClose, title, children, labelledBy }) {
     };
     window.addEventListener("keydown", onKey);
     panelRef.current?.focus({ preventScroll: true });
+    const stopFollowing = followVisualViewport(containerRef.current);
     return () => {
       window.removeEventListener("keydown", onKey);
+      stopFollowing();
       unlockPageScroll();
     };
   }, [open, requestClose]);
@@ -234,7 +272,13 @@ export function BottomSheet({ open, onClose, title, children, labelledBy }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
+    <div
+      ref={containerRef}
+      data-keyboard="closed"
+      // Khung ngoài = đúng vùng nhìn thấy (phía trên bàn phím). Chưa đo được thì dùng 100svh.
+      style={{ top: "var(--sheet-top, 0px)", height: "var(--sheet-vh, 100svh)" }}
+      className="group/sheet fixed inset-x-0 z-[60] flex items-end justify-center sm:items-center sm:p-6"
+    >
       <div
         ref={backdropRef}
         aria-hidden="true"
@@ -255,7 +299,9 @@ export function BottomSheet({ open, onClose, title, children, labelledBy }) {
         onAnimationEnd={(event) => {
           if (event.target === panelRef.current) panelRef.current.classList.remove("cdp-game-sheet");
         }}
-        className="cdp-game-sheet relative flex max-h-[90svh] w-full max-w-lg flex-col rounded-t-2xl bg-[#fffdf9] shadow-2xl outline-none will-change-transform sm:rounded-2xl"
+        className={`cdp-game-sheet relative flex max-h-[90%] w-full max-w-lg flex-col rounded-t-2xl bg-[#fffdf9] shadow-2xl outline-none will-change-transform group-data-[keyboard=open]/sheet:max-h-[calc(100%-0.5rem)] sm:rounded-2xl ${
+          expanded ? "h-[90%] group-data-[keyboard=open]/sheet:h-[calc(100%-0.5rem)]" : ""
+        }`}
       >
         <div
           data-sheet-handle
@@ -273,7 +319,9 @@ export function BottomSheet({ open, onClose, title, children, labelledBy }) {
         </button>
         <div
           ref={scrollerRef}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-1.5"
+          data-sheet-scroller
+          // Bàn phím đã che vùng "home indicator" nên bỏ đệm safe-area, giữ đệm nhỏ cho dòng cuối.
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-1.5 group-data-[keyboard=open]/sheet:pb-3"
         >
           {children}
         </div>

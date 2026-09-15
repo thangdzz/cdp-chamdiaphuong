@@ -180,23 +180,34 @@ export function ReportSheet({
   }
 
   return (
-    <BottomSheet open={open} onClose={onClose} labelledBy="game-report-title">
+    <BottomSheet open={open} onClose={onClose} labelledBy="game-report-title" expanded={step === STEP.PICK}>
       <StepDots step={step} />
 
       {step === STEP.PICK && (
         <div className="cdp-fade-in">
-          <h2 id="game-report-title" className="text-xl font-medium tracking-tight text-zinc-900">
-            {event.copy.reportCta}
-          </h2>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Tìm tên ${noun}…`}
-            className="mt-3 h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none focus:border-[#c8553d] focus:ring-2 focus:ring-[#c8553d]/15"
-          />
+          {/* Tiêu đề + ô tìm kiếm ghim ở đầu vùng cuộn của sheet: danh sách dài cuộn bên dưới, ô tìm
+              kiếm không bao giờ trôi mất (kể cả khi bàn phím đang mở). */}
+          <div className="sticky top-0 z-10 -mx-5 bg-[#fffdf9] px-5 pb-2">
+            <h2 id="game-report-title" className="text-xl font-medium tracking-tight text-zinc-900">
+              {event.copy.reportCta}
+            </h2>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                // Kết quả mới luôn bắt đầu từ dòng đầu, không nằm lơ lửng ở vị trí cuộn cũ.
+                const scroller = e.target.closest("[data-sheet-scroller]");
+                if (scroller) scroller.scrollTop = 0;
+              }}
+              placeholder={`Tìm tên ${noun}…`}
+              enterKeyHint="search"
+              autoComplete="off"
+              className="mt-3 h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none focus:border-[#c8553d] focus:ring-2 focus:ring-[#c8553d]/15"
+            />
+          </div>
 
-          <ul className="mt-3 flex flex-col gap-1.5">
+          <ul className="mt-1 flex flex-col gap-1.5">
             {/* "Không biết tên" LUÔN có, không bị ô tìm kiếm lọc mất (NOTE-04 §8 step 1). */}
             <li>
               <PickRow

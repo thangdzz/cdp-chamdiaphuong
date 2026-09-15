@@ -11,6 +11,10 @@ import { getPostEvents } from "@/lib/postEvents";
 import PlaceExplorer from "./PlaceExplorer";
 import { PageTitle } from "./AppShell";
 import { FirstVisitIntroCard } from "./FirstVisitIntroCard";
+import { HomeGameEntry } from "./_game/HomeGameEntry";
+
+// Mùa game đang mời khách từ trang chủ (NOTE-08 §1). Mùa sau chỉ đổi slug.
+const HOME_GAME_SLUG = "thanh-tuyen-2026";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +98,9 @@ export default async function Home() {
 
         <PlaceExplorer places={places} />
       </main>
+
+      {/* NOTE-08 §1: cổng vào game là thẻ nổi bám mép phải, nằm NGOÀI khối "Khám phá Tuyên Quang". */}
+      <HomeGameEntry slug={HOME_GAME_SLUG} now={now} />
     </div>
   );
 }

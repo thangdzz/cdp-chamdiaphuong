@@ -6,6 +6,17 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 — Sửa 3 lỗi (chỉ local, chưa deploy):** (1) trang lễ hội còn đúng 1 khối game
+`GameEntryCard` dưới tiêu đề, xoá `GameBanner`; (2) thẻ game nổi mép phải trang chủ `HomeGameEntry`/
+`HomeGameDock`; (3) bàn phím che ô tìm kiếm trong bảng báo — nguyên nhân sheet neo đáy co theo nội dung,
+sửa bằng bám visualViewport + chiều cao cố định + ô tìm kiếm sticky. Kiểm thử: Safari iOS 26.5 Simulator
+qua safaridriver (lọc "rong vang": ô tìm kiếm đứng yên y=153, trước sửa tụt tới y=516; thẻ nổi nằm trên
+thanh địa chỉ nổi); Playwright WebKit iPhone 13 (1 khối game đúng thứ tự; thẻ mở lần đầu 336×159 → thu
+gọn → tải lại chỉ còn tab → vào game → ẩn hôm nay giữ qua tải lại; giả lập bàn phím co 336px: 8 trạng thái
+ô tìm kiếm + kết quả đầu đều nhìn thấy, trang nền không cuộn) + desktop 1440. Không lỗi JS. Không bật được
+bàn phím ảo bằng automation → chủ dự án cần thử trên iPhone thật. Dọn: xoá key analytics namespace test;
+cài đặt bàn phím Simulator đã trả lại. Build đạt, lint đúng 1 lỗi nền.
+
 **2026-09-15 (khuya, cuối) — ĐÃ DEPLOY B1–B3** (`web-969b2ewsj`): production kiểm bằng Playwright iPhone
 (chặn `/api/track`): banner, thẻ tên, bảng đổi tên, không lỗi JS; 2 lượt tải trang game liên tiếp cùng
 `generatedAt` (bộ đệm chạy). Kế hoạch theo dõi tự động đêm 18/9 ở PLAN-dem-18-9-redis §8, chờ duyệt.

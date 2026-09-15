@@ -278,10 +278,10 @@ glow, 8 hạt, 600–1200ms), thẻ bộ sưu tập xám → màu, số đếm c
 hành động của người chơi, chỉ transform/opacity, tắt theo `prefers-reduced-motion`. Không mang
 các hiệu ứng này ra trang thường. Class có tiền tố `cdp-game-` trong `globals.css`.
 
-**Ngoại lệ banner game trên bài lễ hội (thêm 2026-09-15, NOTE-08 §1):** `GameBanner` trên
-`/le-hoi-thanh-tuyen` được một vầng sáng sau huy hiệu thở chậm (5 giây, chỉ opacity,
-`cdp-game-banner-halo`), tắt hẳn theo `prefers-reduced-motion`. Chỉ vậy — không nảy, không hạt,
-không số chạy trên trang thường.
+**Ngoại lệ thẻ game nổi trang chủ (thêm 2026-09-15, chuyển từ bài lễ hội sang trang chủ 2026-09-16,
+NOTE-08 §1):** `HomeGameDock` trượt vào từ mép phải 250ms ease-out (`cdp-home-dock-in`, cùng nhịp "thẻ bung
+ra") và có một vầng sáng thở chậm (5 giây, chỉ opacity, `cdp-game-banner-halo`), tắt hẳn theo
+`prefers-reduced-motion`. Chỉ vậy — không nảy, không hạt, không số chạy trên trang thường.
 
 ---
 

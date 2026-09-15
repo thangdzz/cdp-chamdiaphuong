@@ -3,6 +3,39 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Sửa 3 lỗi sau NOTE-08: khối game trùng, thẻ game trang chủ, bàn phím che ô tìm kiếm
+
+Chủ dự án yêu cầu chỉ sửa đúng 3 việc, chưa deploy.
+
+**1. Trùng khối game ở `/le-hoi-thanh-tuyen`.** Giữ `GameEntryCard` (tiến độ riêng + nút báo nhanh — trải
+nghiệm game trong bài) và đưa về chỗ gốc NOTE-04 §3 ngay dưới tiêu đề; bỏ hẳn `GameBanner` khỏi bài (xoá
+file). Teaser của bài về lại 2 lệnh Redis (`getGameTeaser` chỉ đọc số "tối nay" khi truyền `tonight: true`).
+
+**2. Cổng vào game chuyển sang trang chủ, dạng thẻ nổi bám mép phải** (`HomeGameEntry` server + `HomeGameDock`
+client), đặt ngoài khối "Khám phá Tuyên Quang":
+- Lần đầu trong ngày (giờ VN) mở trang chủ: thẻ gọn tự trượt vào (1 huy hiệu Rồng vàng, tên game, trạng thái
+  đếm ngược/lượt thấy tối nay, nút "Vào chơi ngay", "Ẩn hôm nay"). Các lượt sau trong ngày: chỉ tab nhỏ
+  56×70px dính mép phải. Thu gọn/mở không lưu; "Ẩn hôm nay" lưu tới hết ngày. localStorage
+  `cdp_home_game_dock` = `{ eventId, day, state: "seen" | "dismissed" }`.
+- Đặt trên cặp nút lên/xuống đầu trang của danh sách (bottom 7.25rem + safe area) để không đè nhau; z-30
+  (dưới header/menu/lightbox). Hết mùa (`ENDED`) không hiện.
+- Bản đầu thẻ đầy đủ 320×284px che quá nửa màn điện thoại → thu thành dạng ngang ~336×159px.
+- Dữ liệu đọc qua bộ đệm 20 giây (`loadGameEventShared` + `getSharedGameTeaser`) vì trang chủ đông nhất;
+  HTML huy hiệu dựng sẵn ở server để trang chủ không tải bộ hình huy hiệu (~71KB) về trình duyệt.
+
+**3. Bàn phím che ô tìm kiếm trong "Bạn vừa thấy mô hình nào?".** Nguyên nhân gốc (đo trên Safari iOS 26.5
+Simulator): sheet neo đáy và CO THEO NỘI DUNG — gõ lọc còn 2 kết quả thì cả sheet tụt xuống, ô tìm kiếm từ
+y=153 rơi xuống y=516, nằm sau bàn phím. Sửa:
+- `BottomSheet` bám `visualViewport` (resize/scroll → rAF → biến CSS `--sheet-top`/`--sheet-vh` +
+  `data-keyboard`), không qua React state nên không render lại/giật. Khung ngoài = đúng vùng nhìn thấy;
+  bàn phím mở thì panel cao tối đa vùng đó trừ 8px và bỏ đệm safe-area đáy (bàn phím đã che).
+- Prop `expanded`: bước chọn mô hình giữ chiều cao cố định (90% vùng nhìn thấy) → gõ lọc không làm sheet tụt.
+- Tiêu đề + ô tìm kiếm `sticky` ở đầu vùng cuộn của sheet; danh sách cuộn độc lập bên dưới; gõ chữ mới thì
+  cuộn về đầu. Trang nền vẫn khoá bằng body `position:fixed` như cũ.
+- Không bật được bàn phím ảo bằng automation (iOS chỉ nhận chạm thật); đã kiểm bằng Safari iOS Simulator
+  (không tụt khi lọc) + WebKit giả lập visualViewport co 336px (ô tìm kiếm và kết quả đầu nằm trong vùng
+  nhìn thấy ở mọi trạng thái). **Cần chủ dự án thử lại trên iPhone thật.**
+
 ## 2026-09-15 — Ngân sách Redis đêm hội: Pay-as-you-go $10 + giảm lệnh B1–B3
 
 Chủ dự án xác nhận Upstash tính TỪNG lệnh. Ước tính code cũ ~950 lệnh/người chơi/giờ → 300 người × 3 giờ

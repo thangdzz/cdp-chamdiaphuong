@@ -111,6 +111,11 @@ Tổng bộ sưu tập = mọi slot model chưa ghép/ẩn, kể cả slot chưa
 slot). Âm thanh game là file tĩnh `public/game-sounds/*.m4a` (CC0, sinh bằng
 `scripts/game-sounds/build.mjs` từ `sources.json`), không nằm trong Redis/Blob.
 
+**Bàn phím trong bottom sheet (2026-09-16):** `_game/BottomSheet.js` bám `visualViewport` (biến CSS
+`--sheet-top`/`--sheet-vh`, `data-keyboard`); sheet có ô tìm kiếm truyền `expanded` để giữ chiều cao cố định —
+**sheet neo đáy mà co theo nội dung thì gõ lọc sẽ tụt ra sau bàn phím.** Ô tìm kiếm đặt `sticky` trong
+`[data-sheet-scroller]`.
+
 **Bộ nhớ đệm đọc 20 giây (2026-09-15, PLAN-dem-18-9 §5 B1):** trang game + `loadGameSnapshot` +
 `loadPlayerState` dùng `loadGameEventShared`/`getSharedGameSnapshot` (bộ nhớ máy chủ, mỗi instance
 Vercel). Luồng ghi (báo, ảnh, admin) dùng bản đọc mới. Client bỏ qua snapshot cũ hơn bản đang có
@@ -367,10 +372,10 @@ web/
 │   ├── occupancy.js         (29)  Nhãn "còn chỗ" 3 mức — suy theo LỊCH, không theo dữ liệu
 │   ├── BadgeIcon.js        (136)  SVG huy hiệu theo bậc
 │   ├── layout.js            (29)
-│   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh) + banner cổng vào game
-│   │                              `GameBanner` (NOTE-08, ngay dưới tiêu đề) + khối tiến độ riêng
-│   │                              `GameEntryCard` (dưới "Lễ hội là gì?"); cả hai ẩn nếu Redis lỗi.
-│   │                              Cùng một `getGameTeaser` (3 lệnh Redis) cho cả hai
+│   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh) + MỘT khối game
+│   │                              `GameEntryCard` ngay dưới tiêu đề (ẩn nếu Redis lỗi). Cổng vào game
+│   │                              kiểu banner nằm ở TRANG CHỦ: `_game/HomeGameEntry.js` (server, bộ đệm
+│   │                              20s) → `_game/HomeGameDock.js` (thẻ nổi mép phải, thu gọn/ẩn hôm nay)
 │   ├── cham/[eventSlug]/page.js    ⭐ Game layer: route CHUNG mọi mùa (`/cham/thanh-tuyen-2026`),
 │   │                              `?bao=1` mở sẵn bảng báo
 │   ├── gameActions.js              Server Action game: báo sighting (tạo hồ sơ ẩn danh im

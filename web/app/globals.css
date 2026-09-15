@@ -382,7 +382,7 @@ body {
   animation: cdp-game-wobble 800ms ease-in-out both;
 }
 
-/* Banner cổng vào game trên bài lễ hội (NOTE-08 §1) — ngoại lệ duy nhất chạy lặp ngoài /cham/*:
+/* Thẻ game nổi trang chủ (NOTE-08 §1) — ngoại lệ duy nhất chạy lặp ngoài /cham/*:
    chỉ vầng sáng sau huy hiệu thở chậm bằng opacity, không có gì nảy hay nhấp nháy. */
 @keyframes cdp-game-banner-halo {
   0%,
@@ -396,6 +396,18 @@ body {
 
 .cdp-game-banner-halo {
   animation: cdp-game-banner-halo 5s ease-in-out infinite;
+}
+
+/* Thẻ game nổi trang chủ trượt vào từ mép phải (NOTE-08 §1) — cùng nhịp "thẻ bung ra" 250ms ease-out. */
+@keyframes cdp-home-dock-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+.cdp-home-dock-in {
+  animation: cdp-home-dock-in 250ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

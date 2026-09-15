@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 — Sửa 3 lỗi sau NOTE-08 ĐÃ CODE, CHƯA DEPLOY (chờ chủ dự án bảo).** Chi tiết DECISIONS
+2026-09-16. Trang lễ hội 1 khối game; thẻ game nổi trang chủ (`app/_game/HomeGameEntry.js` +
+`HomeGameDock.js`); `BottomSheet` bám visualViewport + prop `expanded`. Việc tiếp: chủ dự án thử iPhone
+thật → deploy. Các việc treo trước đó (theo dõi tự động đêm 18/9, kênh thông báo ntfy) **để sau** theo lời
+chủ dự án.
+
 **2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis ĐÃ DEPLOY (`web-969b2ewsj`).** Kế hoạch theo dõi tự
 động đêm 18/9: `docs/PLAN-dem-18-9-redis.md` §8 (chờ duyệt, code xong trước 17/9 tối).
 Chốt ở DECISIONS "Ngân sách Redis đêm hội". Bộ đệm đọc 20 giây ở `lib/game/store.js`; client bỏ snapshot
