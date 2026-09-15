@@ -6,6 +6,15 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (khuya) — DEPLOY NOTE-08 Phần 1–3** (`web-l2j8wqis8`). Trước deploy:
+`vercel env ls production` không có `CDP_GAME_NAMESPACE`/`CDP_ANALYTICS_*`. Sau deploy trên
+chamdiaphuong.io.vn (Playwright iPhone 13, chặn `/api/track` để không tạo khách giả): banner "Mở màn
+19:00 · 18/9", thẻ tên "Đứa Hay Đi Lang Thang", bảng đổi tên, không tạo hồ sơ, không lỗi JS; gói rác → 204.
+Đường ghi thật: gửi 1 gói `v-00000000-0000-4000-8000-000000000000` → Redis có đủ → xoá đúng 4 key (khi đó
+không có key analytics nào khác). Chủ dự án xác nhận Upstash tính theo từng lệnh → viết
+`docs/PLAN-dem-18-9-redis.md` (ước tính ~950 lệnh/người chơi/giờ, 3 kịch bản, đề xuất Pay-as-you-go +
+B1–B3, lịch theo dõi đêm 18/9). Chờ chủ dự án trả lời §7.
+
 **Cập nhật mới nhất 2026-09-15 (đêm, cuối) — NOTE-08 Phần 3: ghi nhận hoạt động ẩn danh, chỉ local:**
 `app/analytics.js` (mã khách `v-…`, phiên 30 phút, gom đợt, sendBeacon khi ẩn trang) gắn ở layout gốc
 (page_view) + game (game_open, model_open, sighting_start, sighting_submit, collection_unlock, photo_upload,

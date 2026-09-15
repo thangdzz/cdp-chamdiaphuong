@@ -8,6 +8,13 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (khuya) — NOTE-08 Phần 1–3 ĐÃ DEPLOY PRODUCTION** (`web-l2j8wqis8`, chamdiaphuong.io.vn).
+Production không có biến namespace. Kiểm tra: banner đếm ngược, thẻ tên + bảng đổi tên, không lỗi JS,
+`/api/track` ghi được (1 gói thử `v-00000000-…` đã xoá đúng 4 key, lúc đó chưa có khách thật nào).
+**Việc gấp trước 18/9 19:00: chủ dự án chốt `docs/PLAN-dem-18-9-redis.md` §7** — chuyển Upstash
+Pay-as-you-go? cho làm B1–B3 giảm lệnh? Upstash tính TỪNG lệnh (kể cả trong pipeline), ước tính code
+hiện tại ~950 lệnh/người chơi/giờ → 300 người × 3 giờ vượt gói miễn phí cả tháng.
+
 **2026-09-15 (đêm, cuối) — NOTE-08 Phần 3/4 (ghi nhận hoạt động) ĐÃ CODE, CHƯA DEPLOY.** Trình
 duyệt `app/analytics.js` → `app/api/track/route.js` → `lib/analytics/store.js` (script Lua, key xem
 ARCHITECTURE §2 "Ghi nhận hoạt động"). Server test 3100 ghi analytics vào namespace `cdp-test-game-owner`.
@@ -313,8 +320,8 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 
 Xếp theo mức đáng làm trước lễ hội:
 
-0. **Deploy NOTE-08 Phần 1–3** trước 18/9 19:00 (chờ chủ dự án bảo); Phần 4 (menu admin +
-   Dashboard + Người dùng) sau. Chi tiết kế hoạch ở DECISIONS 2026-09-15 "NOTE-08".
+0. **Chốt `docs/PLAN-dem-18-9-redis.md` §7** (gói Upstash + giảm lệnh B1–B3) và làm trước 18/9 19:00;
+   theo dõi đêm 18/9 theo §6. NOTE-08 Phần 4 (menu admin + Dashboard + Người dùng) sau. Chi tiết kế hoạch ở DECISIONS 2026-09-15 "NOTE-08".
 
 1. **Chủ dự án bấm thử NOTE-11/12/13 trên production** (đã deploy 14/9): Admin tải → gỡ ảnh,
    khách gửi 6 ảnh thấy báo đỏ, gửi mẹo `Khác` → từ chối, lưu một route share → sửa bản copy.

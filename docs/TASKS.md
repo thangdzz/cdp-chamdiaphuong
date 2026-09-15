@@ -15,7 +15,9 @@
   - [x] Phần 1: banner cổng vào game trên `/le-hoi-thanh-tuyen` — 💻 chỉ local, chưa deploy
   - [x] Phần 2: tên ngẫu nhiên không trùng mô hình + đổi tên + tên tra lúc hiển thị — 💻 chỉ local
   - [x] Phần 3: ghi nhận hoạt động ẩn danh (gom sự kiện, ít lệnh Redis) — 💻 chỉ local, cần deploy trước 18/9
-  - [ ] Sau đêm 18/9: xem số lệnh Redis trong Upstash console (vượt dự tính → `CDP_ANALYTICS_DISABLED=1`)
+  - [x] Deploy Phần 1–3 — 🚀 2026-09-15 (`web-l2j8wqis8`)
+  - [ ] Chủ dự án chốt `docs/PLAN-dem-18-9-redis.md` §7: Upstash Pay-as-you-go? làm B1–B3 giảm lệnh?
+  - [ ] Đêm 18/9: theo dõi theo PLAN §6, sau đó thay số giả định bằng số thật
   - [ ] Phần 4: tách menu admin, Dashboard `/admin`, duyệt dữ liệu → `/admin/duyet`, `/admin/users`
 
 - [x] **Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04) — 💻 Chỉ local, chưa deploy**

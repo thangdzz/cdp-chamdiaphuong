@@ -48,8 +48,9 @@ chưa tên/bí ẩn. Nền tím đêm + vầng trăng vàng thở chậm là ngo
 - **Tự làm first-party trên Redis đang có, không thêm Google Analytics/Vercel Analytics**: cần nối
   được với hồ sơ ẩn danh + tên + dữ liệu game (NOTE-08 §5), không thêm dịch vụ/cookie bên thứ ba.
 - **Đơn vị "khách" là mã `v-…` riêng**, không tạo hồ sơ đóng góp cho người chỉ xem (giữ NOTE-04 §21).
-- **Ngân sách lệnh Redis:** chưa xác minh được Upstash tính script Lua là 1 hay nhiều lệnh (tài liệu
-  chính thức không nói). Nên thiết kế rẻ cả hai trường hợp: gom theo đợt (đợt đầu phiên sau 4 giây,
+- **Ngân sách lệnh Redis:** lúc code chưa xác minh được Upstash tính script Lua là 1 hay nhiều lệnh.
+  **Cập nhật cùng đêm:** chủ dự án xác nhận Upstash tính theo TỪNG lệnh thực thi (pipeline không gộp
+  lượt tính) → coi như mỗi lệnh trong script đều tính; kế hoạch xử lý ở `docs/PLAN-dem-18-9-redis.md`. Nên thiết kế rẻ cả hai trường hợp: gom theo đợt (đợt đầu phiên sau 4 giây,
   sau đó ≤ 30 giây/lần, gửi nốt bằng sendBeacon khi ẩn trang); trong script đọc-ghi gộp (HMGET/HSET)
   thay vì HINCRBY từng trường → khoảng 7–10 thao tác/đợt; `sound_play` chỉ đếm tiếng mô hình, không
   đếm tiếng bấm. Không TTL cho số liệu ngày (nhỏ). Có công tắc `CDP_ANALYTICS_DISABLED`. **Việc cần
