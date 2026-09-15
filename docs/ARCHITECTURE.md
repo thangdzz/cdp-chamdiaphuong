@@ -135,6 +135,14 @@ Object đã ghép **không** ghi lại sighting/bộ sưu tập: `resolveObjectI
 | `ingestion:place_snapshots` | Ảnh chụp dữ liệu từng lần quét (giữ 1000 bản gần nhất) |
 | `ingestion:confirmed_distinct` | Các cặp chỗ **admin đã xác nhận là khác nhau** — để không hỏi lại (DECISIONS 2026-07-18) |
 
+**Chặn địa điểm đã đóng (NOTE-13 + NOTE-14 A):** nguồn gửi `business_status` = `CLOSED_PERMANENTLY` (hoặc chữ
+"Bị đóng vĩnh viễn") → review type `source_closed`, **không bao giờ tự công khai** (action riêng trong
+`app/admin/reviewActions.js`: Không thêm / Đề xuất địa điểm mới tại đây / Gửi xác minh mở lại → rồi mới có nút
+công khai / Tạo báo đóng cửa cho chỗ đang công khai). Khớp hồ sơ đã đóng thì vẫn là `closed_place_match`.
+**Mọi đường công khai khác** (duyệt hàng chờ, duyệt "Chờ duyệt", duyệt đề xuất) cũng chạy
+`matchPlaceAgainstClosedPlaces` — khớp thì `lib/ingestion/closedHold.js` tạo `closed_place_match` trong hàng
+chờ thay vì công khai. Thêm đường công khai mới thì phải gọi guard này.
+
 ### Ghi nhận hoạt động ẩn danh (`lib/analytics/store.js` — hằng số `ANALYTICS_KEYS`, NOTE-08)
 
 Đơn vị là **khách** = mã `v-…` trình duyệt tự sinh (`localStorage cdp_visitor_id`), khác `anonId` hồ sơ
@@ -246,7 +254,11 @@ server (so `anonId` gửi lên với `ownerAnonId` lưu trong sổ) — không t
 
 ### Hình dạng một chỗ trong `places:live`
 
-Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.js`:
+Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.js`.
+Toạ độ (NOTE-14, không bắt buộc): `coordinates: { lat, lng, source }` — MỘT chỗ quy định ở `lib/coordinates.js`
+(khung Việt Nam, đọc link Google Maps, `coordinatesOf()` đọc cả dạng cũ). Import mới có toạ độ khi nguồn có;
+chỗ đang công khai chưa có thì lần quét khớp sau điền vào (không đè toạ độ đã có). `providerMeta.google`
+(placeId, mapsUrl, businessStatus) nếu nguồn là Google:
 
 ```js
 {
@@ -586,7 +598,10 @@ web/
 │       ├── schema.js        (72)  ⭐ Hằng số + JSDoc định nghĩa shape dữ liệu
 │       ├── normalize.js     (87)  Chuẩn hoá bản ghi thô về NormalizedPlace. category_primary
 │       │                          ném lỗi qua assertValidPlaceType (Chặng 3)
-│       ├── match.js        (157)  So khớp với chỗ đã có, phát hiện nghi trùng
+│       ├── match.js        (157)  So khớp với chỗ đã có, phát hiện nghi trùng; guard hồ sơ đã
+│       │                          đóng cho đường công khai ngoài crawler (matchPlaceAgainstClosedPlaces)
+│       ├── sourceSignals.js       NOTE-14: trạng thái kinh doanh, toạ độ, providerMeta.google từ nguồn
+│       ├── closedHold.js          NOTE-14: tạo closed_place_match khi Admin công khai trùng chỗ đã đóng
 │       ├── ingestBatch.js  (231)  ⭐ Hàm trung tâm — MỌI nguồn dữ liệu đều đi qua đây. Bắt
 │       │                          riêng InvalidPlaceTypeError để bỏ 1 bản ghi hỏng, không
 │       │                          làm hỏng cả lô (Chặng 3)

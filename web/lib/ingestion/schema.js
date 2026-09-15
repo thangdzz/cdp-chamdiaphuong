@@ -11,6 +11,9 @@ export const REVIEW_ITEM_TYPE = {
   // NOTE-13: tín hiệu crawler khớp với một địa điểm đã đóng luôn phải qua người duyệt.
   // Tách type riêng để action Admin không thể vô tình đi qua nhánh auto-publish địa điểm mới.
   CLOSED_PLACE_MATCH: "closed_place_match",
+  // NOTE-14 §3: nguồn nhập (Google Maps…) báo ĐÓNG VĨNH VIỄN. Không bao giờ tự công khai; Admin
+  // chọn Không thêm / Đề xuất địa điểm mới tại đây / Gửi xác minh mở lại.
+  SOURCE_CLOSED: "source_closed",
 };
 
 export const REVIEW_STATUS = {
@@ -68,6 +71,9 @@ export const SOURCE_WEIGHT = {
 
 /**
  * @typedef {Object} NormalizedPlace
+ * @property {string|null} business_status - SOURCE_BUSINESS_STATUS (sourceSignals.js) hoặc null
+ * @property {{lat:number,lng:number,source?:string}|null} coordinates - toạ độ nguồn có (NOTE-14 §7)
+ * @property {object|null} provider_meta - { google: { placeId, mapsUrl, businessStatus } }
  * @property {string} name
  * @property {string} normalized_name
  * @property {"an"|"choi"|"ngu"|"dilai"} category_primary

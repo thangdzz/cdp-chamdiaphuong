@@ -3,10 +3,14 @@
 import crypto from "crypto";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { matchPlaceAgainstClosedPlaces } from "@/lib/ingestion/match";
+import { queueClosedHistoryHold } from "@/lib/ingestion/closedHold";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getProposalQueue, approveProposal, createProposal, rejectProposal } from "@/lib/proposals";
 import { getLivePlaces, setLivePlaces } from "@/lib/redis";
 import {
+  getAllClosedPlaces,
   getClosedPlace,
   replacementLocationOf,
   setClosedPlaceReplacement,
@@ -39,6 +43,26 @@ export async function approveProposalAction(formData) {
   const queue = await getProposalQueue();
   const proposal = queue.find((p) => p.id === id);
   if (!proposal) return;
+
+  // NOTE-13 + NOTE-14 §4: đề xuất thường trùng một chỗ đã đóng thì không công khai. Đề xuất THAY
+  // THẾ đã gắn đúng chỗ cũ (replacesPlaceId) là chủ đích — chỉ bỏ qua đúng hồ sơ đó.
+  const closedHit = matchPlaceAgainstClosedPlaces(proposal, await getAllClosedPlaces(), {
+    excludeClosedIds: [proposal.replacesPlaceId],
+  });
+  if (closedHit) {
+    // Đề xuất vẫn giữ nguyên chờ (lộ trình của khách đang trỏ tới nó) — quyết định mở lại/thay thế
+    // làm ở hàng chờ tự động, xong thì Admin từ chối đề xuất trùng này.
+    await queueClosedHistoryHold(proposal, closedHit, {
+      sourceId: `proposal:${proposal.id}`,
+      note: `Đề xuất của khách "${proposal.name}" trùng địa điểm đã đóng`,
+    });
+    revalidatePath("/admin");
+    redirect(
+      `/admin?notice=${encodeURIComponent(
+        `Chưa duyệt đề xuất "${proposal.name}": trùng địa điểm đã đóng. Đã tạo mục trong hàng chờ tự động để chọn "Mở lại địa điểm cũ" hoặc "Tạo địa điểm mới thay thế"; xử lý xong thì từ chối đề xuất này.`
+      )}#review-queue`
+    );
+  }
 
   const livePlaceId = `live-${crypto.randomUUID()}`;
   const places = await getLivePlaces();

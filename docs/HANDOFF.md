@@ -8,6 +8,20 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 — NOTE-14 P0 ĐANG LÀM: Chặng A/3 (closed import + toạ độ) ĐÃ CODE, CHƯA DEPLOY.** Spec
+`docs/23-NOTE-14-Pickup-Points-Geocoding-Closed-Import.md`; kế hoạch + lý do ở DECISIONS 2026-09-16 "NOTE-14 Chặng A".
+- **File:** `lib/coordinates.js` (mới), `lib/ingestion/sourceSignals.js` (mới), `lib/ingestion/closedHold.js`
+  (mới), `schema.js` (`SOURCE_CLOSED`), `normalize.js`, `match.js` (`matchPlaceAgainstClosedPlaces`, diff toạ
+  độ), `toLivePlace.js`, `ingestBatch.js`, `app/admin/reviewActions.js` (guard + 4 action source_closed),
+  `app/admin/actions.js` + `proposalActions.js` (guard), `app/admin/page.js` (thẻ + `?notice=`), `docs/ROUTINE.md`.
+- **Test nhanh:** chạy server với `CDP_INGESTION_NAMESPACE=… CDP_CLOSED_PLACES_NAMESPACE=… CDP_PROPOSALS_NAMESPACE=…`
+  (cùng một giá trị), dán JSON có `"business_status":"CLOSED_PERMANENTLY"` vào ô dán của `/admin` → thẻ đỏ
+  "Google Maps/Nguồn nhập đang đánh dấu…". ĐỪNG bấm "Tạo báo đóng cửa" khi test: nó ghi `user_suggestions` thật
+  (key không có namespace).
+- **Risk:** routine thật chưa gửi trạng thái/toạ độ tới khi chủ dự án dán lệnh mới; chỗ công khai bị báo đóng
+  mà bấm "Không thêm" sẽ hiện lại ở lần quét sau.
+- **Tiếp:** Chặng B (điểm đón) → Chặng C (lộ trình).
+
 **2026-09-16 — Sửa 3 lỗi sau NOTE-08 ĐÃ DEPLOY (`web-4tl2b0ue6`), chủ dự án đã thử iPhone thật OK.** Chi tiết DECISIONS
 2026-09-16. Trang lễ hội 1 khối game; thẻ game nổi trang chủ (`app/_game/HomeGameEntry.js` +
 `HomeGameDock.js`); `BottomSheet` bám visualViewport + prop `expanded`. Thêm (sau): chặn cuộn xuyên trong

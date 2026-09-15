@@ -3,6 +3,38 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — NOTE-14 Chặng A: chặn import địa điểm đã đóng, vá đường lách NOTE-13, lưu toạ độ
+
+Chủ dự án duyệt kế hoạch 3 chặng (A import/toạ độ · B điểm đón · C lộ trình). Audit (chỉ đọc): **không có
+kết nối Google Places API**; mọi nguồn (routine GitHub, ô dán JSON admin, inbox) đi qua `ingestBatch()`.
+Bản ghi routine chưa có trạng thái kinh doanh/toạ độ. Guard NOTE-13 chỉ nằm trong `ingestBatch`, nên 3 đường
+công khai khác lách được: duyệt new_place trong hàng chờ, duyệt "Chờ duyệt" nhập tay, duyệt đề xuất khách.
+
+- **Nguồn báo đóng vĩnh viễn → type riêng `source_closed`, luôn gated.** Nhận `business_status` kiểu enum
+  Google hoặc chữ ("Bị đóng vĩnh viễn", "permanently closed") trong vài field chữ; "Tạm đóng cửa" KHÔNG chặn.
+  Kể cả khớp y hệt chỗ đang công khai (trước đây "không có gì đổi → bỏ qua") cũng tạo mục chờ, vì đó chính là
+  tín hiệu cần người xem. Khớp hồ sơ đã đóng thì closed history thắng: giữ `closed_place_match` + thêm lý do.
+- **3 hành động NOTE-14 §3 là action riêng**, không qua `approveReviewItem` (để nút chung không công khai
+  nhầm): *Không thêm* = reject; *Đề xuất địa điểm mới tại đây* = proposal chờ duyệt, **bắt đổi tên** (khác
+  tên business đã đóng — không mutate record cũ thành business mới); *Gửi xác minh mở lại* = chỉ đánh dấu,
+  sau đó mới hiện nút công khai (công khai chỗ nguồn báo đóng luôn là 2 lần bấm có chủ đích, vẫn qua guard
+  NOTE-13). Khớp chỗ đang công khai có thêm *Tạo báo đóng cửa* → vào đúng hàng chờ góp ý đóng cửa đã có
+  (không tự gỡ — CLAUDE.md quy tắc 6).
+- **Vá lách NOTE-13 bằng một guard dùng chung** `matchPlaceAgainstClosedPlaces` ở cả 3 đường. Khớp thì KHÔNG
+  chỉ báo lỗi: `closedHold.js` tạo `closed_place_match` trong hàng chờ tự động, vì đó là nơi DUY NHẤT có sẵn
+  "Mở lại địa điểm cũ" (giữ ID) và "Tạo thay thế" — mục "Địa điểm đã đóng" chỉ có tạo thay thế. Mục nhập tay
+  rời "Chờ duyệt"; đề xuất của khách vẫn chờ (lộ trình khách đang trỏ tới nó). Đề xuất thay thế đã gắn đúng
+  hồ sơ cũ (`replacesPlaceId`) không tự chặn chính nó. Action server không trả lỗi về form được → thông báo
+  qua `/admin?notice=`.
+- **Toạ độ lưu `coordinates: {lat, lng, source}`, không tạo `location{}`** như NOTE-14 §6 gợi ý: đề xuất và
+  hồ sơ đóng cửa đã dùng `coordinates`; gói lại địa chỉ/phường vào object mới là hai nguồn cùng nói một thứ.
+  Khung Việt Nam (lat 8–24, lng 102–110) để loại link nhầm/đảo thứ tự. Đọc toạ độ từ link Google Maps (`!3d!4d`
+  ưu tiên hơn `@` là tâm khung nhìn) — không gọi API; link rút gọn chưa hỗ trợ. Chỗ đang công khai chưa có
+  toạ độ thì lần quét khớp sau điền; đã có thì không đè. Không migration.
+- **Routine:** bản sao lưu `docs/ROUTINE.md` đã thêm `business_status`/`google_maps_url`/`lat`/`lng` và dặn vẫn
+  gửi chỗ Google báo đóng. **Routine thật trên claude.ai chưa đổi — chủ dự án phải dán lại.** Rủi ro biết trước:
+  chỗ đang công khai bị Google báo đóng mà Admin bấm "Không thêm" thì lần quét sau lại hiện mục mới.
+
 ## 2026-09-16 — Sửa 3 lỗi sau NOTE-08: khối game trùng, thẻ game trang chủ, bàn phím che ô tìm kiếm
 
 Chủ dự án yêu cầu chỉ sửa đúng 3 việc, chưa deploy.

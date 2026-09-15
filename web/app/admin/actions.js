@@ -18,6 +18,9 @@ import {
   setPendingPlaces,
 } from "@/lib/redis";
 import { placeFromFormData } from "@/lib/placeForm";
+import { getAllClosedPlaces } from "@/lib/closedPlaces";
+import { matchPlaceAgainstClosedPlaces } from "@/lib/ingestion/match";
+import { queueClosedHistoryHold } from "@/lib/ingestion/closedHold";
 import { removeLatestCheckin } from "@/lib/checkins";
 import { removePlaceAnswers } from "@/lib/answers";
 import { removePhoneConfirmations } from "@/lib/phoneConfirmations";
@@ -80,6 +83,23 @@ export async function approvePending(formData) {
   const pending = await getPendingPlaces();
   const item = pending.find((p) => p.id === id);
   if (!item) return;
+
+  // NOTE-13 + NOTE-14 §4: thêm tay cũng không được lách lịch sử đóng cửa. Khớp thì chuyển sang hàng
+  // chờ tự động (có nút Mở lại / Tạo thay thế) và rời "Chờ duyệt" — không công khai.
+  const closedHit = matchPlaceAgainstClosedPlaces(item, await getAllClosedPlaces());
+  if (closedHit) {
+    await queueClosedHistoryHold(item, closedHit, {
+      sourceId: `pending:${item.id}`,
+      note: `Admin định công khai "${item.name}" từ mục Chờ duyệt`,
+    });
+    await setPendingPlaces(pending.filter((p) => p.id !== id));
+    revalidatePath("/admin");
+    redirect(
+      `/admin?notice=${encodeURIComponent(
+        `Chưa công khai "${item.name}": trùng địa điểm đã đóng. Đã chuyển vào hàng chờ tự động — chọn "Mở lại địa điểm cũ" nếu đúng chỗ cũ, hoặc "Tạo địa điểm mới thay thế".`
+      )}#review-queue`
+    );
+  }
 
   const remainingPending = pending.filter((p) => p.id !== id);
   const live = await getLivePlaces();

@@ -11,6 +11,13 @@
 
 ## 🚧 IN PROGRESS
 
+- [ ] **NOTE-14 P0 — Pickup points, toạ độ, chặn import địa điểm đã đóng (kế hoạch 3 chặng duyệt 16/9)**
+  - [x] Chặng A: nguồn báo đóng vĩnh viễn → `source_closed` (không tự công khai, 3 hành động); vá 3 đường lách
+        guard NOTE-13; lưu `coordinates` cho import mới + điền dần cho chỗ đang công khai — 💻 chỉ local
+  - [ ] Chủ dự án: dán khối "TRANG THAI VA TOA DO" (docs/ROUTINE.md §7) lên routine thật trên claude.ai
+  - [ ] Chặng B: `pickupMode` + `pickupPoints[]` cho dịch vụ đón khách, admin sửa điểm đón
+  - [ ] Chặng C: `pickupSelection` trong lộ trình, bắt chọn điểm đón, Google Maps dùng điểm đón, chặn mở Maps/chia sẻ khi chưa chọn
+
 - [x] **Sửa 3 lỗi sau NOTE-08 (2026-09-16) — 🚀 Đã deploy 2026-09-16 (`web-4tl2b0ue6`)**
   - [x] `/le-hoi-thanh-tuyen` chỉ còn 1 khối game (GameEntryCard dưới tiêu đề), bỏ GameBanner
   - [x] Thẻ game nổi mép phải ở trang chủ: tự mở lần đầu mỗi ngày, tab nhỏ các lần sau, "Ẩn hôm nay"

@@ -22,8 +22,12 @@ import {
 import {
   approveReviewItem,
   createReplacementFromClosedMatch,
+  proposeNewPlaceAtSourceClosed,
+  publishVerifiedSourceClosed,
   rejectReviewItem,
   reopenClosedPlaceFromReview,
+  reportLiveClosedFromSource,
+  requestSourceClosedReopenVerification,
 } from "./reviewActions";
 import { approveSuggestion, rejectSuggestion } from "./suggestionActions";
 import { approveNoteAction, rejectNoteAction } from "./noteActions";
@@ -58,6 +62,7 @@ const REVIEW_TYPE_LABEL = {
   stale_place: "Lâu chưa xác nhận",
   low_confidence_place: "Độ tin cậy thấp",
   closed_place_match: "Có tín hiệu hoạt động trở lại — cần xác minh",
+  source_closed: "Nguồn báo đã đóng vĩnh viễn",
 };
 
 const REVIEW_ACTION_LABELS = {
@@ -100,7 +105,12 @@ function LoginForm({ hasError }) {
   );
 }
 
-function ReviewItemCard({ item, closedPlace }) {
+// NOTE-14 §3: tên nhà cung cấp nguồn để câu cảnh báo nói đúng ("Google Maps đang đánh dấu…").
+function sourceProviderLabel(item) {
+  return item.candidate?.provider_meta?.google ? "Google Maps" : "Nguồn nhập";
+}
+
+function ReviewItemCard({ item, closedPlace, livePlaceName }) {
   const labels = REVIEW_ACTION_LABELS[item.type] ?? { approve: "Duyệt", reject: "Từ chối" };
   const c = item.candidate;
   const parsedPrice = c ? parsePriceRangeText(c.price_range_text) : null;
@@ -198,6 +208,36 @@ function ReviewItemCard({ item, closedPlace }) {
           </ul>
         )}
 
+        {item.type === "source_closed" && (
+          <div className="mt-3 rounded-xl border border-red-200 bg-white p-3">
+            <p className="text-sm font-semibold text-red-800">
+              {sourceProviderLabel(item)} đang đánh dấu địa điểm này đã đóng vĩnh viễn.
+            </p>
+            {item.matchedLivePlaceId && (
+              <p className="mt-1 text-sm text-zinc-700">
+                <span className="font-medium">Trùng chỗ đang công khai:</span> {livePlaceName ?? item.matchedLivePlaceId}{" "}
+                <Link href={`/dia-diem/${item.matchedLivePlaceId}`} className="text-xs underline">
+                  xem
+                </Link>
+              </p>
+            )}
+            {item.candidate?.provider_meta?.google?.mapsUrl && (
+              <p className="mt-1 text-xs">
+                <a href={item.candidate.provider_meta.google.mapsUrl} target="_blank" rel="noopener noreferrer" className="underline">
+                  Mở trên Google Maps để kiểm tra
+                </a>
+              </p>
+            )}
+            <p className="mt-2 text-xs text-zinc-600">
+              Không tự công khai. Nếu là business mới ở vị trí này, sửa ô Tên thành tên mới rồi bấm
+              “Đề xuất địa điểm mới tại đây” (vẫn qua một lượt duyệt đề xuất).
+              {item.reopenVerification
+                ? ` Đang xác minh mở lại từ ${new Date(item.reopenVerification.requestedAt).toLocaleString("vi-VN")}.`
+                : ""}
+            </p>
+          </div>
+        )}
+
         {item.type === "closed_place_match" && (
           <div className="mt-3 rounded-xl border border-red-200 bg-white p-3">
             <p className="text-sm font-semibold text-red-800">
@@ -232,7 +272,45 @@ function ReviewItemCard({ item, closedPlace }) {
         )}
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {item.type === "closed_place_match" ? (
+          {item.type === "source_closed" ? (
+            <>
+              <button
+                formAction={rejectReviewItem}
+                className="rounded-full bg-red-100 px-4 py-1.5 text-sm font-medium text-red-700"
+              >
+                Không thêm
+              </button>
+              <button
+                formAction={proposeNewPlaceAtSourceClosed}
+                className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white"
+              >
+                Đề xuất địa điểm mới tại đây
+              </button>
+              {item.reopenVerification ? (
+                <button
+                  formAction={publishVerifiedSourceClosed}
+                  className="rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white"
+                >
+                  {item.matchedLivePlaceId ? "Đã xác minh vẫn hoạt động" : "Đã xác minh còn hoạt động → công khai"}
+                </button>
+              ) : (
+                <button
+                  formAction={requestSourceClosedReopenVerification}
+                  className="rounded-full bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-900"
+                >
+                  Gửi xác minh mở lại
+                </button>
+              )}
+              {item.matchedLivePlaceId && (
+                <button
+                  formAction={reportLiveClosedFromSource}
+                  className="rounded-full bg-white px-4 py-1.5 text-sm font-medium text-red-700 ring-1 ring-red-200"
+                >
+                  Tạo báo đóng cửa cho chỗ đang công khai
+                </button>
+              )}
+            </>
+          ) : item.type === "closed_place_match" ? (
             <>
               <button
                 formAction={reopenClosedPlaceFromReview}
@@ -454,6 +532,7 @@ function AdminDashboard({
   festivalRevisions,
   festivalSaved,
   festivalError,
+  notice,
 }) {
   const placeNameById = (id) => live.find((p) => p.id === id)?.name ?? "(chỗ không rõ, có thể đã bị xoá)";
   const pendingNotes = noteQueue.filter((n) => !n.reported);
@@ -469,6 +548,13 @@ function AdminDashboard({
           <button className="text-sm text-zinc-500 underline">Đăng xuất</button>
         </form>
       </div>
+
+      {/* Thông báo sau một action bị guard chặn (NOTE-14 §4) — action server không trả lỗi về form được. */}
+      {notice && (
+        <p role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {notice}
+        </p>
+      )}
 
       <Link
         href="/admin/content-inbox"
@@ -518,7 +604,7 @@ function AdminDashboard({
         </div>
       </section>
 
-      <section className="mb-8">
+      <section id="closed-places" className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Địa điểm đã đóng cửa ({closedPlaces.length})
         </h2>
@@ -583,7 +669,7 @@ function AdminDashboard({
         <IngestPasteBox />
       </section>
 
-      <section className="mb-8">
+      <section id="review-queue" className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Hàng chờ duyệt tự động — AI quét ({reviewQueue.length})
         </h2>
@@ -596,6 +682,7 @@ function AdminDashboard({
               key={item.id}
               item={item}
               closedPlace={closedPlaces.find((place) => place.id === item.matchedClosedPlaceId)}
+              livePlaceName={item.matchedLivePlaceId ? live.find((place) => place.id === item.matchedLivePlaceId)?.name : null}
             />
           ))}
         </div>
@@ -733,6 +820,7 @@ export default async function AdminPage({ searchParams }) {
       festivalRevisions={festivalRevisions}
       festivalSaved={params?.festivalSaved === "1"}
       festivalError={params?.festivalError ?? null}
+      notice={typeof params?.notice === "string" ? params.notice.slice(0, 500) : null}
     />
   );
 }

@@ -11,6 +11,7 @@ import {
   getConfirmedDistinctPairs,
 } from "./store.js";
 import { REVIEW_ITEM_TYPE, REVIEW_STATUS } from "./schema.js";
+import { SOURCE_BUSINESS_STATUS } from "./sourceSignals.js";
 import { InvalidPlaceTypeError } from "../placeTypes.js";
 import { getAllClosedPlaces, recordClosedPlaceCrawlMatch } from "../closedPlaces.js";
 
@@ -24,7 +25,10 @@ const GATED_TYPES = new Set([
   REVIEW_ITEM_TYPE.DUPLICATE_CANDIDATE,
   REVIEW_ITEM_TYPE.CONFLICT_DETECTED,
   REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH,
+  REVIEW_ITEM_TYPE.SOURCE_CLOSED,
 ]);
+
+const SOURCE_CLOSED_REASON = "Nguồn nhập đánh dấu địa điểm đã đóng vĩnh viễn — không tự công khai";
 
 function newId(prefix) {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -93,6 +97,7 @@ export async function ingestBatch(batch) {
     changedPlacesApplied: 0,
     duplicateCandidatesForReview: 0,
     closedPlaceMatchesForReview: 0,
+    sourceClosedForReview: 0,
     lowConfidencePublished: 0,
     updatedExistingPending: 0,
     skippedNoChange: 0,
@@ -135,6 +140,9 @@ export async function ingestBatch(batch) {
     // NOTE-13: trạng thái closed thắng mọi confidence của crawler. Chạy guard trước cả
     // de-dupe hàng chờ để một item cũ loại "new_place" cũng được nâng thành closed match.
     const closedMatch = matchAgainstClosedPlaces(candidate, closedPlaces);
+    // NOTE-14 §3: nguồn báo đóng vĩnh viễn → chặn mọi nhánh add/public bình thường. Closed history
+    // (NOTE-13) vẫn thắng: đã khớp hồ sơ đóng cửa thì giữ type closed_place_match, chỉ thêm lý do.
+    const sourceClosed = candidate.business_status === SOURCE_BUSINESS_STATUS.CLOSED_PERMANENTLY;
 
     const existingPendingIndex = reviewQueue.findIndex((item) =>
       isSamePendingCandidate(item, candidate)
@@ -148,6 +156,14 @@ export async function ingestBatch(batch) {
         { sourceId: batch.sourceId, sourceType: batch.sourceType, observedAt },
       ];
       existingItem.updatedAt = observedAt;
+
+      if (sourceClosed && !closedMatch && existingItem.type !== REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH) {
+        existingItem.type = REVIEW_ITEM_TYPE.SOURCE_CLOSED;
+        existingItem.needs_review = true;
+        if (!(existingItem.reasons ?? []).includes(SOURCE_CLOSED_REASON)) {
+          existingItem.reasons = [...(existingItem.reasons ?? []), SOURCE_CLOSED_REASON];
+        }
+      }
 
       if (closedMatch) {
         existingItem.type = REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH;
@@ -192,17 +208,23 @@ export async function ingestBatch(batch) {
       confirmedDistinctPairs,
     );
 
-    if (match.type === null) {
+    // Khớp y hệt chỗ đang công khai (type null) nhưng nguồn báo đóng vĩnh viễn: đây chính là tín
+    // hiệu cần người xem, không được "bỏ qua vì không có gì đổi".
+    if (match.type === null && !sourceClosed) {
       summary.skippedNoChange++;
       continue;
     }
 
-    let type = match.type;
+    let type = match.type ?? REVIEW_ITEM_TYPE.SOURCE_CLOSED;
+    if (sourceClosed && type !== REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH) {
+      type = REVIEW_ITEM_TYPE.SOURCE_CLOSED;
+    }
     if (type === REVIEW_ITEM_TYPE.NEW_PLACE && candidate.confidence_score < LOW_CONFIDENCE_THRESHOLD) {
       type = REVIEW_ITEM_TYPE.LOW_CONFIDENCE_PLACE;
     }
 
     const reasons = [...(candidate._reasons ?? []), ...(match.reasons ?? [])];
+    if (sourceClosed && !reasons.includes(SOURCE_CLOSED_REASON)) reasons.push(SOURCE_CLOSED_REASON);
     delete candidate._reasons;
     delete candidate._sourceMeta;
 
@@ -268,6 +290,8 @@ export async function ingestBatch(batch) {
     });
     if (type === REVIEW_ITEM_TYPE.CLOSED_PLACE_MATCH) {
       summary.closedPlaceMatchesForReview++;
+    } else if (type === REVIEW_ITEM_TYPE.SOURCE_CLOSED) {
+      summary.sourceClosedForReview++;
     } else {
       summary.duplicateCandidatesForReview++;
     }

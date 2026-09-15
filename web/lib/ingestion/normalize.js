@@ -1,5 +1,11 @@
 import { AREA_PRESETS, ACTIVITY_STATUS, AVAILABILITY_SIGNAL, SOURCE_WEIGHT } from "./schema.js";
 import { assertValidPlaceType } from "../placeTypes.js";
+import {
+  SOURCE_BUSINESS_STATUS,
+  sourceBusinessStatusOf,
+  sourceCoordinatesOf,
+  sourceProviderMetaOf,
+} from "./sourceSignals.js";
 
 export function stripDiacritics(text) {
   return text
@@ -74,6 +80,10 @@ export function normalizeRecord(raw, sourceMeta) {
     confidence -= 0.4;
     reasons.push("Thiếu tên");
   }
+  const businessStatus = sourceBusinessStatusOf(raw);
+  if (businessStatus === SOURCE_BUSINESS_STATUS.CLOSED_PERMANENTLY) {
+    reasons.push("Nguồn báo địa điểm đã đóng vĩnh viễn");
+  }
 
   confidence = Math.max(0, Math.min(1, Number(confidence.toFixed(2))));
 
@@ -88,6 +98,9 @@ export function normalizeRecord(raw, sourceMeta) {
     opening_hours_text: raw.opening_hours_text?.trim() || null,
     price_range_text: raw.price_range_text?.trim() || null,
     map_note: raw.map_note?.trim() || null,
+    business_status: businessStatus,
+    coordinates: sourceCoordinatesOf(raw),
+    provider_meta: sourceProviderMetaOf(raw, businessStatus),
     signature_dishes: normalizeSignatureDishes(raw.signature_dishes, categoryPrimary),
     source_summary: `${sourceMeta.sourceId} (${sourceMeta.observedAt})`,
     activity_status: ACTIVITY_STATUS.UNKNOWN, // chưa có tín hiệu xác nhận hoạt động

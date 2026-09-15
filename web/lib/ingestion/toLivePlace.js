@@ -26,6 +26,11 @@ export function candidateToLivePlace(candidate, meta = {}) {
     signatureDishes: candidate.signature_dishes?.length
       ? candidate.signature_dishes
       : base.signatureDishes ?? null,
+    // NOTE-14 §7, §19: toạ độ + metadata nhà cung cấp khi nguồn có; không có thì giữ của bản cũ.
+    coordinates: candidate.coordinates ?? base.coordinates ?? null,
+    ...(candidate.provider_meta || base.providerMeta
+      ? { providerMeta: { ...(base.providerMeta ?? {}), ...(candidate.provider_meta ?? {}) } }
+      : {}),
     confidenceScore: candidate.confidence_score,
     sourceCount: (base.sourceCount ?? 0) + 1,
     lastUpdatedAt: meta.observedAt ?? new Date().toISOString(),

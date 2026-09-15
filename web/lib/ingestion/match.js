@@ -1,5 +1,6 @@
 import { slugifyName, normalizePhone } from "./normalize.js";
 import { REVIEW_ITEM_TYPE } from "./schema.js";
+import { coordinatesOf } from "../coordinates.js";
 
 // So khớp chuỗi rất đơn giản (không thêm thư viện ngoài) — đủ dùng cho vài chục địa
 // điểm. Nếu sau này nhiều dữ liệu hơn, thay bằng thư viện fuzzy-match chuyên dụng.
@@ -64,6 +65,25 @@ export function matchAgainstClosedPlaces(candidate, closedPlaces) {
     ],
     matchScore: bestScore,
   };
+}
+
+/**
+ * Guard NOTE-13 cho các đường công khai KHÔNG đi qua ingestBatch (NOTE-14 §4): duyệt hàng chờ,
+ * duyệt "Chờ duyệt" nhập tay, duyệt đề xuất. Nhận place dạng places:live.
+ * `excludeClosedIds`: đề xuất thay thế đã gắn đúng chỗ cũ thì không tự chặn chính nó.
+ */
+export function matchPlaceAgainstClosedPlaces(place, closedPlaces, { excludeClosedIds = [] } = {}) {
+  if (!place?.name) return null;
+  const excluded = new Set(excludeClosedIds.filter(Boolean));
+  return matchAgainstClosedPlaces(
+    {
+      normalized_name: slugifyName(place.name),
+      category_primary: place.type,
+      address_text: place.address || null,
+      phone: place.phone || null,
+    },
+    (closedPlaces ?? []).filter((closed) => !excluded.has(closed.id)),
+  );
 }
 
 /**
@@ -194,6 +214,12 @@ function computeDiff(candidate, existing) {
     if (newValue && newValue !== oldValue) {
       diff.push({ field: existingField, oldValue: oldValue ?? null, newValue });
     }
+  }
+
+  // Toạ độ (NOTE-14 §7): chỗ đang công khai CHƯA có thì nhận toạ độ nguồn — "cập nhật dần", không
+  // migration. Đã có thì KHÔNG đè: toạ độ cũ có thể do Admin chỉnh tay đúng hơn nguồn quét.
+  if (candidate.coordinates && !coordinatesOf(existing)) {
+    diff.push({ field: "coordinates", oldValue: null, newValue: candidate.coordinates });
   }
 
   // Món đặc trưng: mảng, không so sánh bằng !== được. Chỉ báo thay đổi khi ứng viên CÓ món

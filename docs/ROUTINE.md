@@ -154,6 +154,7 @@ rồi gõ lại — để không phải nhập lại token.
 | 2026-08-20 | Thêm khối **"MON DAC TRUNG"** vào Bước 4 mục 3 — trường `signature_dishes`, tối đa 3 món, chỉ với `category_primary = "an"`. Nội dung lệnh: 5.084 → 6.030 ký tự |
 | 2026-08-21 | **Viết lại toàn bộ Bước 4** — bỏ đoạn `curl` đã chết (403 Forbidden), thay bằng dùng thẳng công cụ GitHub trong phiên. Giữ nguyên khối "MON DAC TRUNG" và bổ sung khối **"QUAN TRONG - KHONG DUOC GHI DE"**. Nội dung lệnh: 6.030 → **5.786 ký tự**. Đã dán và xác nhận lưu thành công |
 | 2026-08-21 | Bỏ đoạn `curl`/`base64`/`$GITHUB_TOKEN` chết ở Bước 4 (403 Forbidden mọi lần chạy) — thay bằng chỉ dẫn dùng thẳng công cụ GitHub có sẵn trong phiên, **giữ nguyên hành vi gộp vào cuối mảng cũ, không ghi đè** |
+| 2026-09-16 | NOTE-14: thêm khối **"TRANG THAI VA TOA DO"** — `business_status`, `google_maps_url`, `lat`/`lng`; chỗ Google báo đóng vĩnh viễn vẫn gửi để web chặn + đưa vào hàng chờ. **Bản sao lưu đã sửa; chủ dự án CHƯA dán lên routine thật trên claude.ai** |
 
 ---
 
@@ -198,6 +199,15 @@ Sua ngay 2026-08-21: doan curl truoc day o buoc nay bi proxy moi truong chan (40
 
 3. Neu CO dia diem moi: xay 1 mang JSON, moi phan tu dung dung dinh dang sau (KHONG bia du lieu, thieu gi thi de null). Truong category_primary CHI duoc la 1 trong 4 gia tri: "an", "choi", "ngu", "dilai" (viet lien khong dau gach, dung chinh xac 4 chu nay - sai chinh ta se bi web tu choi ban ghi):
 {"name": "...", "category_primary": "an|choi|ngu|dilai", "address_text": "... hoac null", "near_landmark": "... hoac null", "phone": "... hoac null", "opening_hours_text": "... hoac null", "price_range_text": "... hoac null", "map_note": "... hoac null"}
+
+TRANG THAI VA TOA DO (NOTE-14, moi loai dia diem):
+
+Them cac truong sau neu doc duoc tren Google Maps (khong doc duoc thi de null, KHONG doan):
+- "business_status": "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY". Google ghi "Đã đóng cửa vĩnh viễn"/"Bị đóng vĩnh viễn" -> "CLOSED_PERMANENTLY"; "Tạm thời đóng cửa" -> "CLOSED_TEMPORARILY".
+- "google_maps_url": link Google Maps DAY DU cua dia diem (dang https://www.google.com/maps/place/..., KHONG dung link rut gon maps.app.goo.gl).
+- "lat", "lng": so thap phan, chi dien khi link/trang hien ro toa do. Web tu doc toa do trong google_maps_url nen co link day du la du.
+
+Dia diem Google bao DONG VINH VIEN: VAN GUI ban ghi kem business_status = "CLOSED_PERMANENTLY" (ke ca ten da co trong known-places-snapshot.json) - web se KHONG dang cong khai, chi dua vao hang cho de admin xac minh. KHONG tu y bo qua va KHONG sua business_status thanh OPERATIONAL.
 
 MON DAC TRUNG (chi voi category_primary = "an"):
 
