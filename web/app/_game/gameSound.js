@@ -10,6 +10,7 @@
 // - Mạng chậm/không giải mã được: phát phần tổng hợp của công thức, hoặc chuông mặc định. Game vẫn chạy đủ.
 
 import { useSyncExternalStore } from "react";
+import { track } from "@/app/analytics";
 import {
   SOUND_SAMPLES,
   SYNTH_PREFIX,
@@ -315,11 +316,13 @@ export function playGameSound(name) {
 
 // Mở khoá mô hình mới: tiếng riêng của mô hình/nhóm (NOTE-06 §7).
 export function playUnlockSound(object, event) {
+  if (readPref()) track("sound_play");
   playRecipe(soundRecipeFor(object, event));
 }
 
 // Gặp lại mô hình đã có: chỉ tiếng xác nhận ngắn, không phát lại tiếng mở khoá (NOTE-06 §7).
 export function playSeenAgainSound() {
+  if (readPref()) track("sound_play");
   playGameSound("seen-again");
 }
 

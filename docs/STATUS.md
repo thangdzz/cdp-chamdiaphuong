@@ -6,6 +6,17 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (đêm, cuối) — NOTE-08 Phần 3: ghi nhận hoạt động ẩn danh, chỉ local:**
+`app/analytics.js` (mã khách `v-…`, phiên 30 phút, gom đợt, sendBeacon khi ẩn trang) gắn ở layout gốc
+(page_view) + game (game_open, model_open, sighting_start, sighting_submit, collection_unlock, photo_upload,
+display_name_change, sound_play); `POST /api/track` kiểm tra gói, lọc bot//admin, loại máy thô; ghi bằng một
+script Lua (`lib/analytics/store.js`). Kiểm thử: script gọi thẳng trên Upstash namespace `cdp-test-analytics`
+(khách mới/quay lại, phiên 2, phễu 5 bước, trang, giờ, tên — đạt, đã xoá 12 key); Playwright iPhone 13 qua
+`localhost` và qua `http://MAdz.local` (không https): bài lễ hội → game → mở Hổ vàng → mở bảng báo → ẩn
+tab, Redis nhận đủ, 1 phiên, không tạo hồ sơ/key game; gói rác, `/admin`, sự kiện lạ, Googlebot đều bị bỏ.
+Đã xoá hết key analytics test, `contributors:all` vẫn 22. Build đạt, lint đúng 1 lỗi nền. **Chưa deploy.**
+Chưa xác minh Upstash tính script là 1 hay nhiều lệnh — xem DECISIONS.
+
 **Cập nhật mới nhất 2026-09-15 (đêm, sau) — NOTE-08 Phần 2: tên ẩn danh, chỉ local:** `lib/displayName.js`
 (47 tên sinh sẵn, kiểm tra 3–30 ký tự/bậy/giả Admin-CDP/số điện thoại-link/trùng mô hình); hồ sơ mới
 toàn CDP tự có tên vui; hash `contributors:names`; đổi tên `changeDisplayName`. Game: thẻ "Tên săn đèn

@@ -14,7 +14,8 @@
 - [ ] **NOTE-08 — Banner game, tên ẩn danh, theo dõi người dùng (4 phần, kế hoạch duyệt 15/9)**
   - [x] Phần 1: banner cổng vào game trên `/le-hoi-thanh-tuyen` — 💻 chỉ local, chưa deploy
   - [x] Phần 2: tên ngẫu nhiên không trùng mô hình + đổi tên + tên tra lúc hiển thị — 💻 chỉ local
-  - [ ] Phần 3: ghi nhận hoạt động ẩn danh (gom sự kiện, ít lệnh Redis) — cần lên trước 18/9
+  - [x] Phần 3: ghi nhận hoạt động ẩn danh (gom sự kiện, ít lệnh Redis) — 💻 chỉ local, cần deploy trước 18/9
+  - [ ] Sau đêm 18/9: xem số lệnh Redis trong Upstash console (vượt dự tính → `CDP_ANALYTICS_DISABLED=1`)
   - [ ] Phần 4: tách menu admin, Dashboard `/admin`, duyệt dữ liệu → `/admin/duyet`, `/admin/users`
 
 - [x] **Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04) — 💻 Chỉ local, chưa deploy**

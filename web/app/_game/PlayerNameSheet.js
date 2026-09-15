@@ -5,6 +5,7 @@ import { BottomSheet } from "./BottomSheet";
 import { saveDraftName, saveLocalNickname } from "./playerName";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { changeDisplayName } from "@/app/contributionActions";
+import { track } from "@/app/analytics";
 import { DISPLAY_NAME_MAX, GENERATED_NAMES, generateDisplayName, validateDisplayName } from "@/lib/displayName";
 
 /** Thẻ "tên săn đèn" đầu trang game (NOTE-08 §3–§4). Tên còn là tên máy sinh thì rủ đổi tên. */
@@ -49,6 +50,7 @@ export function PlayerNameSheet({ open, onClose, currentName, avoidNames }) {
       return;
     }
     const anonId = loadLocalContributor()?.anonId;
+    if (checked.name !== currentName) track("display_name_change");
     if (!anonId) {
       saveDraftName(checked.name);
       onClose();

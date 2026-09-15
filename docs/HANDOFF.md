@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (đêm, cuối) — NOTE-08 Phần 3/4 (ghi nhận hoạt động) ĐÃ CODE, CHƯA DEPLOY.** Trình
+duyệt `app/analytics.js` → `app/api/track/route.js` → `lib/analytics/store.js` (script Lua, key xem
+ARCHITECTURE §2 "Ghi nhận hoạt động"). Server test 3100 ghi analytics vào namespace `cdp-test-game-owner`.
+**Deploy Phần 1–3 trước 18/9 19:00** (production không đặt namespace). Sau đêm 18/9 xem số lệnh Upstash.
+Việc tiếp: Phần 4 (menu admin + Dashboard + Người dùng) đọc từ các key này.
+
 **2026-09-15 (đêm, sau) — NOTE-08 Phần 2/4 (tên ẩn danh) ĐÃ CODE, CHƯA DEPLOY.** Luật tên ở
 `lib/displayName.js`; hash `contributors:names`; game `app/_game/playerName.js` + `PlayerNameSheet.js`.
 Mọi hồ sơ mới của CDP giờ tự có tên vui. **Khi test tạo hồ sơ thật:** ghi anonId, xoá khỏi cả
@@ -307,8 +313,8 @@ Commit: `088581e` timeline động · `e16eb67` tỉnh cho điểm riêng · `38
 
 Xếp theo mức đáng làm trước lễ hội:
 
-0. **NOTE-08 Phần 2 → 3** (tên ẩn danh, ghi nhận hoạt động) rồi deploy trước 18/9 19:00; Phần 4
-   (menu admin + Dashboard) sau. Chi tiết kế hoạch ở DECISIONS 2026-09-15 "NOTE-08".
+0. **Deploy NOTE-08 Phần 1–3** trước 18/9 19:00 (chờ chủ dự án bảo); Phần 4 (menu admin +
+   Dashboard + Người dùng) sau. Chi tiết kế hoạch ở DECISIONS 2026-09-15 "NOTE-08".
 
 1. **Chủ dự án bấm thử NOTE-11/12/13 trên production** (đã deploy 14/9): Admin tải → gỡ ảnh,
    khách gửi 6 ảnh thấy báo đỏ, gửi mẹo `Khác` → từ chối, lưu một route share → sửa bản copy.

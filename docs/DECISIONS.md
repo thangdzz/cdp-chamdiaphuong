@@ -44,6 +44,23 @@ chưa tên/bí ẩn. Nền tím đêm + vầng trăng vàng thở chậm là ngo
 - Chưa làm (ngoài phạm vi): ô nhập biệt danh ở `ContributionPanel` chưa điền sẵn tên nháp; "Người X vừa
   báo thấy…" (chưa có feed).
 
+**Phần 3 — ghi nhận hoạt động ẩn danh.**
+- **Tự làm first-party trên Redis đang có, không thêm Google Analytics/Vercel Analytics**: cần nối
+  được với hồ sơ ẩn danh + tên + dữ liệu game (NOTE-08 §5), không thêm dịch vụ/cookie bên thứ ba.
+- **Đơn vị "khách" là mã `v-…` riêng**, không tạo hồ sơ đóng góp cho người chỉ xem (giữ NOTE-04 §21).
+- **Ngân sách lệnh Redis:** chưa xác minh được Upstash tính script Lua là 1 hay nhiều lệnh (tài liệu
+  chính thức không nói). Nên thiết kế rẻ cả hai trường hợp: gom theo đợt (đợt đầu phiên sau 4 giây,
+  sau đó ≤ 30 giây/lần, gửi nốt bằng sendBeacon khi ẩn trang); trong script đọc-ghi gộp (HMGET/HSET)
+  thay vì HINCRBY từng trường → khoảng 7–10 thao tác/đợt; `sound_play` chỉ đếm tiếng mô hình, không
+  đếm tiếng bấm. Không TTL cho số liệu ngày (nhỏ). Có công tắc `CDP_ANALYTICS_DISABLED`. **Việc cần
+  làm sau đêm 18/9: xem số lệnh trong Upstash console**, vượt dự tính thì bật công tắc.
+- Phễu dùng HyperLogLog theo ngày (ước lượng, sai số ~1%) — PFCOUNT nhiều key cho số khách khác nhau
+  trong 7/30 ngày mà không lưu danh sách. Các bước phễu đếm độc lập (không bắt buộc đúng thứ tự) —
+  NOTE-08 §9 "không cần BI dashboard phức tạp".
+- `sighting_start` = mở bảng báo, kể cả lượt báo thử trước giờ rước (câu đùa) — vẫn là ý định báo.
+- Bỏ qua: `/admin`, bot theo user-agent, gói sai định dạng; `npm run dev` không namespace (tránh lượt
+  bấm thử của chủ dự án lẫn vào số thật). Loại máy chỉ lưu thô "iOS · Zalo", không lưu IP/user-agent.
+
 ## 2026-09-15 — NOTE-07: làm lại tiếng họ rồng/hổ/cá + hệ huy hiệu sưu tập một biểu tượng
 
 Chủ dự án yêu cầu "đọc `docs/16-NOTE-07-Sound-Rework-and-Gaming-Icon-System.md` và làm phù hợp".

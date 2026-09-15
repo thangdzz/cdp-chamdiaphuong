@@ -124,6 +124,25 @@ Object đã ghép **không** ghi lại sighting/bộ sưu tập: `resolveObjectI
 | `ingestion:place_snapshots` | Ảnh chụp dữ liệu từng lần quét (giữ 1000 bản gần nhất) |
 | `ingestion:confirmed_distinct` | Các cặp chỗ **admin đã xác nhận là khác nhau** — để không hỏi lại (DECISIONS 2026-07-18) |
 
+### Ghi nhận hoạt động ẩn danh (`lib/analytics/store.js` — hằng số `ANALYTICS_KEYS`, NOTE-08)
+
+Đơn vị là **khách** = mã `v-…` trình duyệt tự sinh (`localStorage cdp_visitor_id`), khác `anonId` hồ sơ
+đóng góp; có hồ sơ thì gắn thêm `anonId` (để sau này gộp vào tài khoản). Không lưu IP, vị trí, nguyên
+user-agent. Trình duyệt gom sự kiện (`app/analytics.js` → `POST /api/track`), mỗi đợt = **một** lần gọi
+script Lua. Test: `CDP_ANALYTICS_NAMESPACE` (mặc định theo `CDP_GAME_NAMESPACE`); `npm run dev` không
+namespace thì route bỏ qua không ghi. Tắt khẩn cấp: `CDP_ANALYTICS_DISABLED=1`.
+
+| Key (`analytics:` …) | Kiểu | Chứa gì |
+|---|---|---|
+| `visitor:{v-id}` | Hash | firstSeenAt, lastSeenAt, sessions, số lần từng sự kiện, device (thô "iOS · Zalo"), lastPath, firstReferrer, anonId, displayName |
+| `visitors:by-last-seen` | ZSET | score = lastSeenAt — danh sách khách cho `/admin/users` |
+| `visitor-names` | Hash | v-id → tên gần nhất (tìm theo tên) |
+| `day:{YYYY-MM-DD}` | Hash | sessions, new_visitors, `event:<tên>`, `hour:<HH>:sessions`, `hour:<HH>:page_view`, `path:<đường dẫn>` |
+| `day:{d}:visitors` · `day:{d}:returning` | HyperLogLog | Khách khác nhau / khách đã từng vào trước hôm đó. PFCOUNT nhiều ngày = khách khác nhau cả khoảng |
+| `day:{d}:funnel:{stage}` | HyperLogLog | Phễu: post_view (bài có game) → game_open → sighting_start → sighting_submit → game_returning (người mở game từ phiên 2) |
+
+Tên sự kiện định nghĩa ở MỘT chỗ `lib/analytics/events.js`. Phiên mới khi im lặng > 30 phút.
+
 ### Người góp ý
 
 | Key | File | Chứa gì |
@@ -416,6 +435,7 @@ web/
 │   │   └── MergeDuplicatePanel.js(343) Giao diện so sánh 2 cột + chọn giữ trường nào — 1
 │   │                              component dùng chung 2 mode ("suggestion"/"reviewItem")
 │   └── api/
+│       ├── track/route.js            Nhận đợt sự kiện ẩn danh (NOTE-08), gói sai/bot → 204 im lặng
 │       ├── ingest/submit/route.js    Nhận dữ liệu quét từ ngoài (bảo vệ bằng CRON_SECRET)
 │       └── cron/daily-ingest/route.js Vercel Cron 1:30 UTC (hiện gần như không dùng)
 │
@@ -673,6 +693,9 @@ Không có cache, không có ISR — mỗi lần khách mở trang là một l�
 `KV_REST_API_URL` · `KV_REST_API_TOKEN` · `KV_REST_API_READ_ONLY_TOKEN` · `KV_URL` ·
 `REDIS_URL` · `ADMIN_PASSWORD` · `ADMIN_SESSION_SECRET` · `CRON_SECRET` ·
 `BLOB_READ_WRITE_TOKEN`
+
+Tuỳ chọn: `CDP_GAME_NAMESPACE` / `CDP_ANALYTICS_NAMESPACE` (chỉ server test, **không đặt trên
+production**) · `CDP_ANALYTICS_DISABLED=1` (tắt ghi nhận hoạt động).
 
 ---
 

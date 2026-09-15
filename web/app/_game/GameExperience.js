@@ -21,6 +21,7 @@ import {
 import { loadGameSnapshot, loadPlayerState } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { PlayerNameCard, PlayerNameSheet } from "./PlayerNameSheet";
+import { track } from "@/app/analytics";
 import { ensureDraftName, saveLocalNickname, usePlayerName } from "./playerName";
 import {
   OBJECT_KIND,
@@ -151,7 +152,14 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   const initialModelNames = useRef(modelNames);
   useEffect(() => {
     ensureDraftName(initialModelNames.current);
+    track("game_open");
   }, []);
+
+  // Mọi đường mở thẻ mô hình (bản đồ, bộ sưu tập, tin gần đây, nhiệm vụ) đều đi qua `detail`.
+  const detailKey = detail ? `${detail.objectId}:${detail.markerId ?? ""}` : null;
+  useEffect(() => {
+    if (detailKey) track("model_open");
+  }, [detailKey]);
 
   // Tên theo server thắng tên trên máy: đổi tên ở máy khác, hoặc hồ sơ cũ "Người ẩn danh" (NOTE-08 §4).
   useEffect(() => {
@@ -228,6 +236,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   }
 
   function openReport(preset = null) {
+    track("sighting_start");
     // Pre-game từ thẻ mô hình ("Tôi vừa thấy mô hình này"): đã chọn mô hình rồi → câu đùa luôn.
     if (preGame && preset?.objectId) {
       showTroll();
@@ -271,6 +280,9 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
     applySnapshot(result.snapshot);
     setPlayer(result.player);
     setReport(null);
+    track("sighting_submit");
+    if (result.isNewForUser) track("collection_unlock");
+    if (result.hasPhoto) track("photo_upload");
 
     // Icon + tiếng "nhân vật" xuất hiện cùng nhau; gặp lại chỉ có tiếng xác nhận ngắn. Lớp ăn mừng
     // (nếu có) chờ tiếng mở khoá gần hết mới phát, không chồng lên nhau (NOTE-05 §16, NOTE-06 §7).

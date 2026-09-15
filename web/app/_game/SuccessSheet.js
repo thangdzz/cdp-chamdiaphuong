@@ -5,6 +5,7 @@ import { BottomSheet } from "./BottomSheet";
 import { ObjectIcon } from "./ObjectIcon";
 import { AnimatedNumber, ProgressBar } from "./GameProgress";
 import { addPhotoToSighting } from "@/app/gameActions";
+import { track } from "@/app/analytics";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { compressImageForUpload } from "@/lib/clientImageCompression";
 import { OBJECT_KIND, objectDisplayName } from "@/lib/game/catalog";
@@ -83,6 +84,7 @@ export function SuccessSheet({
       if (!response.ok) throw new Error(response.error);
       onPlayerUpdate?.(response.player);
       setPhotoState("sent");
+      track("photo_upload");
     } catch (error) {
       setPhotoError(error?.message || "Chưa gửi được ảnh.");
       setPhotoState("idle");
