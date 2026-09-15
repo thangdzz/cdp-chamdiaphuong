@@ -47,7 +47,9 @@
   - [ ] Nghe "Nghe so sánh cùng họ" + xem "Xem trước bộ huy hiệu" ở `/admin/game`, báo lại hình/tiếng chưa hợp
   - [ ] Nghe "Nghe lần lượt" 45 mô hình ở `/admin/game` trên điện thoại thật, đổi tiếng nào chưa hợp
   - [ ] Điền tên thật cho 11 slot "Mô hình chưa xác định #35–45" khi có danh sách
-  - [ ] Quyết định deploy trước 19/9
+  - [x] 15/9 tối: deploy production (`web-lqtaavabq`) — kiểm trên chamdiaphuong.io.vn: pre-game + đếm
+        ngược, 0/45, 45 huy hiệu, câu đùa không ghi key nào, file âm thanh 200, nút định vị lấy được vị trí (https)
+  - [ ] Tối 18/9 19:00 kiểm tra game tự chuyển live trên production; theo dõi lượt báo đầu tiên ở `/admin/game`
 
 - [x] **Link "← Lộ trình của tôi"/"← Sổ của tôi" (chỉ chủ) + nút Chia sẻ ở thẻ danh sách +
       nút chủ sổ thành "Chia sẻ sổ" — 🚀 Đã deploy 2026-09-14** (`web-rbd3watu6`)

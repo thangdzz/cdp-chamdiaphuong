@@ -8,6 +8,13 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (tối muộn) — GAME SĂN ĐÈN ĐÃ DEPLOY PRODUCTION** (`web-lqtaavabq`, alias
+chamdiaphuong.io.vn; gồm MVP1 + polish + điểm tổ chức + NOTE-05/06/07 + sửa admin cookie + nút định vị).
+Production KHÔNG có `CDP_GAME_NAMESPACE`; Redis thật chưa có key `game:thanh-tuyen-2026:*` → game ở
+pre-game tới 18/9 19:00 (mặc định file mùa). Từ giờ lượt báo trên production là dữ liệu thật — muốn
+thử live thì dùng server local namespace test, đừng bấm "Mở game ngay" trên production nếu không định
+mở thật. Ghi chú: lệnh deploy chạy 2 lần liên tiếp (cùng code, `web-q5i2pumsf` rồi `web-lqtaavabq`).
+
 **2026-09-15 (khuya, cuối) — NOTE-07 (tiếng + huy hiệu) ĐÃ CODE, CHƯA DEPLOY.** Huy hiệu:
 `lib/game/badge.js` (khung/`badgeHtml`), hình ở `lib/game/iconArt.js` (**sinh bởi
 `scripts/game-icons/build.mjs` từ `icons.json`, đừng sửa tay**) + `iconArtCustom.js` (tự vẽ); khoá hình

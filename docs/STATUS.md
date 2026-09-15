@@ -6,6 +6,13 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (tối muộn) — ĐÃ DEPLOY game Săn đèn lên production** (`web-lqtaavabq`,
+chamdiaphuong.io.vn). Trước deploy: xác nhận Vercel không có `CDP_GAME_NAMESPACE`, Redis thật chưa có
+key game (→ pre-game tới 18/9 19:00). Sau deploy kiểm bằng WebKit iPhone trên production: banner
+"Game chính thức bắt đầu tối thứ Sáu 18/9", 0/45, 45 huy hiệu + dòng ghi công, câu đùa khi báo thử (không
+tạo hồ sơ, Redis vẫn 0 key game), không tự tải âm thanh, nút định vị hiện chấm vị trí (https), trang
+chủ/lễ hội 200, `/admin/game` chuyển về đăng nhập.
+
 **Cập nhật mới nhất 2026-09-15 (khuya, cuối) — NOTE-07 tiếng + huy hiệu sưu tập, chỉ local:**
 tiếng: thêm 8 mẫu CC0, làm lại công thức hổ (gầm dài + gầm ngực + nổ trầm + vang đuôi), 4 con rồng 4
 giọng gốc (Mãng long boss dài/trầm/nặng nhất), nghê gằn + chuông, cá chép vút + quẫy mạnh, cửu ngư nhiều
