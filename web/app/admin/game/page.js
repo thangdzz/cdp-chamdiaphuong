@@ -17,6 +17,7 @@ import { HIDE_AFTER_FLAGS } from "@/lib/game/mapLayer";
 import { adminReadEverything, loadGameEvent } from "@/lib/game/store";
 import { formatClock, formatDayMonth } from "@/lib/game/format";
 import { MediaImage } from "@/app/MediaImage";
+import { SoundPreviewList } from "./SoundPreviewList";
 import {
   deleteGameSighting,
   matchGameObject,
@@ -200,6 +201,25 @@ export default async function GameAdminPage({ searchParams }) {
             <button name="mode" value="reset" className={ghostClass}>Về giờ mặc định</button>
           )}
         </form>
+      </section>
+
+      <section className="mt-6 rounded-xl bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-medium text-zinc-900">Nghe thử âm thanh</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Người chơi chỉ nghe tiếng {noun} khi báo thành công một {noun} mới. iPhone đang gạt chế độ im lặng thì
+          trình duyệt không phát tiếng.
+        </p>
+        <SoundPreviewList
+          models={models
+            .filter((object) => !object.hidden)
+            .map((object) => ({
+              id: object.id,
+              name: objectDisplayName(object, noun),
+              glyph: objectIcon(object, event),
+              soundKey: object.soundKey,
+              soundFamily: object.soundFamily,
+            }))}
+        />
       </section>
 
       {params?.saved === "1" && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">Đã lưu.</p>}
