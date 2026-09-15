@@ -20,6 +20,102 @@ const MARKER_TONE = {
 
 const VENUE_SOURCE = "cdp-venues";
 
+// Safari nhớ lần từ chối tới khi TẢI LẠI TRANG (cho phép lại trong cài đặt cũng chưa ăn ngay) —
+// nên thông báo bị chặn có nút tải lại.
+const LOCATE_NOTICE = {
+  insecure: {
+    text: "Trang này đang mở bằng http nên trình duyệt không cho lấy vị trí. Trên chamdiaphuong.io.vn (https) nút này dùng được.",
+  },
+  denied: {
+    text: "Trình duyệt đang chặn vị trí cho trang này. Trên iPhone: bấm aA ở thanh địa chỉ → Cài đặt trang web → Vị trí → Cho phép, rồi tải lại trang.",
+    reload: true,
+  },
+  unavailable: { text: "Chưa bắt được vị trí. Ra chỗ thoáng hơn rồi bấm lại nút." },
+};
+
+// Nút "vị trí của tôi" tự viết thay GeolocateControl của MapLibre: control gốc KHOÁ VĨNH VIỄN nút
+// (icon gạch chéo) sau một lần trình duyệt từ chối quyền — kể cả khi người dùng cho phép lại, phải
+// tải lại trang mới bấm được. Nút này luôn bấm lại được, bấm lần nữa để tắt chấm vị trí, và nói rõ
+// vì sao chưa lấy được. Dùng lại class CSS của MapLibre để giữ đúng icon.
+function createLocateControl(maplibregl, onNotice) {
+  let map = null;
+  let container = null;
+  let button = null;
+  let dot = null;
+  let busy = false;
+
+  const setState = (state) => {
+    button.classList.toggle("maplibregl-ctrl-geolocate-waiting", state === "waiting");
+    button.classList.toggle("maplibregl-ctrl-geolocate-active", state === "on");
+    button.setAttribute("aria-pressed", state === "on" ? "true" : "false");
+  };
+
+  function locate() {
+    if (dot) {
+      dot.remove();
+      dot = null;
+      setState("off");
+      onNotice(null);
+      return;
+    }
+    if (busy) return;
+    if (!window.isSecureContext || !navigator.geolocation) {
+      onNotice(LOCATE_NOTICE.insecure);
+      return;
+    }
+    busy = true;
+    setState("waiting");
+    onNotice(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        busy = false;
+        if (!map) return;
+        const lngLat = [position.coords.longitude, position.coords.latitude];
+        const element = document.createElement("div");
+        element.className =
+          "h-4 w-4 rounded-full border-[3px] border-white bg-[#2f7de1] shadow-[0_0_0_6px_rgba(47,125,225,0.22)]";
+        element.setAttribute("aria-label", "Vị trí của bạn");
+        dot = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
+        setState("on");
+        map.easeTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16), duration: 600 });
+      },
+      (error) => {
+        busy = false;
+        if (!map) return;
+        setState("off");
+        onNotice(error.code === 1 ? LOCATE_NOTICE.denied : LOCATE_NOTICE.unavailable);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+    );
+  }
+
+  return {
+    onAdd(targetMap) {
+      map = targetMap;
+      container = document.createElement("div");
+      container.className = "maplibregl-ctrl maplibregl-ctrl-group";
+      button = document.createElement("button");
+      button.type = "button";
+      button.className = "maplibregl-ctrl-geolocate";
+      button.title = "Vị trí của tôi";
+      button.setAttribute("aria-label", "Vị trí của tôi");
+      const icon = document.createElement("span");
+      icon.className = "maplibregl-ctrl-icon";
+      icon.setAttribute("aria-hidden", "true");
+      button.append(icon);
+      button.addEventListener("click", locate);
+      container.append(button);
+      setState("off");
+      return container;
+    },
+    onRemove() {
+      dot?.remove();
+      container?.remove();
+      map = null;
+    },
+  };
+}
+
 // Lớp điểm tổ chức (quảng trường, phố đi bộ) nằm DƯỚI nhãn tên đường của nền bản đồ và dưới
 // marker mô hình — là bối cảnh để định hướng, không tranh chú ý với lượt báo.
 function addVenueLayers(map, maplibregl, venues, { labels = true } = {}) {
@@ -149,6 +245,14 @@ export function GameMap({
   const initialView = useRef({ center, zoom, venues, picker });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [locateNotice, setLocateNotice] = useState(null);
+
+  // Thông báo vì sao chưa lấy được vị trí tự ẩn sau vài giây (vẫn đóng tay được).
+  useEffect(() => {
+    if (!locateNotice) return;
+    const timer = window.setTimeout(() => setLocateNotice(null), 9000);
+    return () => window.clearTimeout(timer);
+  }, [locateNotice]);
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
@@ -183,16 +287,7 @@ export function GameMap({
         });
         map.touchZoomRotate.disableRotation();
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-        if (showLocate) {
-          map.addControl(
-            new maplibregl.GeolocateControl({
-              positionOptions: { enableHighAccuracy: true },
-              trackUserLocation: false,
-              showAccuracyCircle: false,
-            }),
-            "top-right"
-          );
-        }
+        if (showLocate) map.addControl(createLocateControl(maplibregl, setLocateNotice), "top-right");
 
         // Chỉ báo vị trí khi CHÍNH người dùng kéo/zoom — lần di chuyển do code (GPS vừa về) đã
         // được báo riêng, tránh ghi đè nguồn "gps" thành "map".
@@ -340,6 +435,30 @@ export function GameMap({
             </span>
             <span className="-mt-1 h-3 w-3 rotate-45 bg-[#c8553d]" />
           </div>
+        </div>
+      )}
+      {locateNotice && (
+        <div role="status" className="absolute left-2 right-14 top-2 z-20 flex items-start gap-2 rounded-xl bg-white/95 px-3 py-2 text-[13px] leading-5 text-zinc-700 shadow-md">
+          <span className="min-w-0 flex-1">
+            📍 {locateNotice.text}
+            {locateNotice.reload && (
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="ml-1 cursor-pointer font-medium text-[#c8553d] underline underline-offset-2"
+              >
+                Tải lại trang
+              </button>
+            )}
+          </span>
+          <button
+            type="button"
+            aria-label="Đóng thông báo"
+            onClick={() => setLocateNotice(null)}
+            className="-mr-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400"
+          >
+            ✕
+          </button>
         </div>
       )}
       {!ready && !failed && (

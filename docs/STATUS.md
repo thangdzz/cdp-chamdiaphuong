@@ -6,6 +6,13 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (khuya, sau) — Sửa nút định vị bản đồ game, chỉ local:** nút của
+MapLibre tự khoá vĩnh viễn sau một lần bị từ chối quyền vị trí (qua link http trong mạng nhà luôn bị
+từ chối) → thay bằng nút tự viết: bấm lại được, bấm để tắt, thông báo lý do (http / bị chặn / chưa bắt
+được GPS) kèm nút "Tải lại trang" khi bị chặn. Kiểm thử WebKit + Chromium iPhone: bị chặn → cho phép →
+tải lại → hiện chấm vị trí; tắt/bật lại được; qua IP mạng nhà hiện thông báo https, nút không bị khoá;
+hồi quy chống nháy bản đồ + vuốt sheet đạt. Dữ liệu test đã dọn. **Chưa deploy.**
+
 **Cập nhật mới nhất 2026-09-15 (khuya) — NOTE-06 Săn đèn: 45 slot + âm thanh thật, chỉ local:**
 bộ sưu tập tổng 45 = 34 mô hình có tên + 11 slot "Mô hình chưa xác định #35…#45" (không chọn được khi
 báo; admin ghép bí ẩn vào slot hoặc điền tên ngay trên slot, dữ liệu cũ giữ nguyên); thêm mốc 40, trọn

@@ -3,6 +3,17 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — Nút "vị trí của tôi" trên bản đồ game tự viết, bỏ GeolocateControl của MapLibre
+
+Chủ dự án bấm nút định vị trên iPhone, tắt rồi bật lại thì nút thành icon gạch chéo, không bấm được.
+Nguyên nhân: `GeolocateControl` của MapLibre đặt `disabled = true` vĩnh viễn sau một lỗi
+PERMISSION_DENIED (và cache "không hỗ trợ" cho cả trang). Qua `http://192.168.…` iPhone luôn trả lỗi
+đó (trang không phải https), trên https thì chỉ cần khách bấm "Không cho phép" một lần. Thay bằng
+control tự viết trong `app/_game/GameMap.js`: luôn bấm lại được, bấm lần nữa để tắt chấm vị trí, và
+hiện thông báo lý do (trang http / bị chặn quyền / chưa bắt được GPS). Safari nhớ lần từ chối tới khi
+tải lại trang (đã kiểm bằng WebKit: cho phép lại vẫn bị chặn trên trang đang mở) nên thông báo bị chặn
+có nút "Tải lại trang". Giữ class CSS của MapLibre cho icon.
+
 ## 2026-09-15 — NOTE-06: tổng 45 slot, âm thanh thật CC0 ghép lớp theo công thức
 
 Chủ dự án yêu cầu "đọc `docs/15-NOTE-06-Thanh-Tuyen-45-Models-Sound-System.md` và tiến hành phù

@@ -38,6 +38,8 @@
         dữ liệu, mốc 40 + 45/45); 45 âm thanh thật CC0 (Freesound) đã cắt/chuẩn hoá âm lượng; 34 công
         thức tiếng riêng theo NOTE-06 §2–§4; gặp lại có tiếng ngắn riêng; tiếng bí ẩn; trọn bộ có trống
         hội + đám đông; `/admin/game` nghe lần lượt cả 45 kèm thời lượng, đổi tiếng bằng ô chọn
+  - [x] 15/9: nút định vị trên bản đồ game không còn bị khoá (icon gạch chéo) sau khi bị từ chối —
+        bấm lại được, bấm để tắt, có thông báo lý do + nút tải lại trang
   - [ ] Nghe "Nghe lần lượt" 45 mô hình ở `/admin/game` trên điện thoại thật, đổi tiếng nào chưa hợp
   - [ ] Điền tên thật cho 11 slot "Mô hình chưa xác định #35–45" khi có danh sách
   - [ ] Quyết định deploy trước 19/9
