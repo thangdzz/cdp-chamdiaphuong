@@ -110,6 +110,11 @@
     "address": "Số nhà 34, Tổ 16, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Bún Cá Duy Hưng (Cơ sở 2)",
+    "type": "an",
+    "address": "Rạp Tháng Tám, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Bún chả A béo",
     "type": "an",
     "address": "23 Lê Duẩn"
@@ -123,6 +128,11 @@
     "name": "Cà Phê Cây Mít",
     "type": "an",
     "address": "Phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Cactus Camping",
+    "type": "choi",
+    "address": "Đỉnh Dốc Đỏ, phường Nông Tiến, TP Tuyên Quang (QL37, rẽ trái khoảng 100m tại đỉnh dốc)"
   },
   {
     "name": "Cafe HELIO",
@@ -323,6 +333,11 @@
     "name": "Feline Café",
     "type": "an",
     "address": "126 Bình Thuận"
+  },
+  {
+    "name": "Gà Rán FKT Tuyên Quang",
+    "type": "an",
+    "address": "Số 68, Tổ 13, đường Bình Thuận, TP Tuyên Quang"
   },
   {
     "name": "Gà Tươi Mạnh Hoạch (Tuyên Quang)",
@@ -558,6 +573,11 @@
     "name": "Mắm Trà Chanh",
     "type": "an",
     "address": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Memory Camping",
+    "type": "choi",
+    "address": "Ngách 7/148 đường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Min Garden Coffee",
@@ -845,6 +865,11 @@
     "address": "Đường Đinh Tiên Hoàng, TP Tuyên Quang"
   },
   {
+    "name": "Panorama Glamping",
+    "type": "choi",
+    "address": "Thôn Bình Ca, xã An Khang, TP Tuyên Quang"
+  },
+  {
     "name": "Phở 10",
     "type": "an",
     "address": "10 Tân Trào, Phường Tân Quang, TP Tuyên Quang"
@@ -958,11 +983,6 @@
     "name": "Royal Restaurant",
     "type": "an",
     "address": "Đường Lý Thái Tổ, Phường Tân Quang, TP Tuyên Quang"
-  },
-  {
-    "name": "Saturday - Trà Chanh Phố",
-    "type": "an",
-    "address": "Số 02 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Sáu Được - Cháo Dinh Dưỡng",
