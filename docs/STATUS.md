@@ -6,6 +6,18 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-15 (đêm, sau) — NOTE-08 Phần 2: tên ẩn danh, chỉ local:** `lib/displayName.js`
+(47 tên sinh sẵn, kiểm tra 3–30 ký tự/bậy/giả Admin-CDP/số điện thoại-link/trùng mô hình); hồ sơ mới
+toàn CDP tự có tên vui; hash `contributors:names`; đổi tên `changeDisplayName`. Game: thẻ "Tên săn đèn
+của bạn" + bảng đổi tên (🎲 Tên khác), tên nháp trên máy tới lần báo đầu, màn "Đã Chạm" ghi "{tên} là
+người đầu tiên…", sheet mô hình "Ghi nhận đầu tiên bởi {tên hiện tại}". Kiểm thử: script logic tên (mọi
+tên sinh hợp lệ, không trùng 34 tên mô hình, 12 ca bị chặn, 6 ca hợp lệ không bị chặn nhầm) + Playwright
+iPhone 13 hai máy trên namespace test: tên nháp giữ qua tải lại → đổi tên nháp → báo Hổ vàng → hồ sơ mang
+đúng tên → máy 2 thấy "Ghi nhận đầu tiên bởi Bé Na Săn Đèn" → đổi tên (server) → máy 2 thấy tên mới; không
+lỗi JS. Dọn sạch: xoá đúng các hồ sơ thử `c-95d5687f…`, `c-97adf390…`, `c-885ef7cc…` khỏi
+`contributors:all` (về 22) + hash tên, xoá hết key namespace test, bỏ giờ mở game thử. Build đạt, lint
+đúng 1 lỗi nền. **Chưa deploy.**
+
 **Cập nhật mới nhất 2026-09-15 (đêm) — NOTE-08 Phần 1: banner cổng vào game, chỉ local:** kế hoạch 4
 phần được duyệt (xem DECISIONS). Banner `GameBanner` ngay dưới tiêu đề `/le-hoi-thanh-tuyen`: 5 huy hiệu
 xếp vòng cung (khai báo `bannerObjectIds`), vầng trăng thở chậm, nút "🏮 Vào chơi ngay", cả khối bấm vào

@@ -25,6 +25,25 @@ VN, đọc thêm 1 hash `object-stats:day:*` (teaser 2 → 3 lệnh Redis). "Đ�
 chưa tên/bí ẩn. Nền tím đêm + vầng trăng vàng thở chậm là ngoại lệ chuyển động thứ hai ngoài `/cham/*`
 (ghi ở SPEC-giao-dien §7), tắt theo reduced motion.
 
+**Phần 2 — tên ẩn danh.**
+- **Tên sinh ở hàm dùng chung, áp cho MỌI hồ sơ mới của CDP** (nút Vẫn mở, câu hỏi, sổ… cũng tự tạo hồ
+  sơ), không chỉ game — một người một "nhân vật" trên cả CDP (NOTE-08 §12). 47 tên theo khuôn tiền tố +
+  vai, chỉ ghép cặp đọc xuôi; loại tên trùng/chứa tên mô hình.
+- **Chưa báo lần nào thì tên chỉ là tên nháp trên máy**, không tạo hồ sơ/ghi Redis — giữ quy tắc NOTE-04
+  §21 "hồ sơ tạo ở lần đóng góp đầu" và không phình `contributors:all` vì người chỉ xem. Lần báo đầu gửi
+  tên nháp lên; server kiểm lại, sai luật thì tự sinh tên khác.
+- **Tên hiện ra luôn là tên HIỆN TẠI**: first discovery tra tên theo anonId lúc đọc (hash
+  `contributors:names`, +1 lệnh Redis mỗi snapshot có first discovery) thay vì tên lưu lúc báo. Đổi tên
+  không làm mất lịch sử vì mọi thứ gắn anonId.
+- **Hồ sơ cũ "Người ẩn danh" không migration**: suy ra tên cố định từ anonId khi hiển thị.
+- Lọc bậy mức cơ bản: từ có dấu so trên chữ gốc (bỏ dấu thì "lồn"≈"lớn", "cặc"≈"các" bắt nhầm), viết
+  tắt không nhập nhằng so trên chữ bỏ dấu. Chặn chứa admin/cdp/chamdiaphuong/quản trị viên (bỏ dấu, bỏ
+  khoảng trắng), số điện thoại/link, emoji. Không cần tên duy nhất.
+- Thẻ tên đặt trên thẻ bộ sưu tập, gọn 2–3 dòng để không đẩy bản đồ; câu "Tên này chưa đủ ngầu? Đổi tên
+  cho oách xà lách 😎" làm tiêu đề bảng đổi tên khi tên còn là tên máy sinh.
+- Chưa làm (ngoài phạm vi): ô nhập biệt danh ở `ContributionPanel` chưa điền sẵn tên nháp; "Người X vừa
+  báo thấy…" (chưa có feed).
+
 ## 2026-09-15 — NOTE-07: làm lại tiếng họ rồng/hổ/cá + hệ huy hiệu sưu tập một biểu tượng
 
 Chủ dự án yêu cầu "đọc `docs/16-NOTE-07-Sound-Rework-and-Gaming-Icon-System.md` và làm phù hợp".

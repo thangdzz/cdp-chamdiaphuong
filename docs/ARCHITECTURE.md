@@ -128,10 +128,17 @@ Object đã ghép **không** ghi lại sighting/bộ sưu tập: `resolveObjectI
 
 | Key | File | Chứa gì |
 |---|---|---|
-| `contributors:all` | `lib/contributors.js` | Hồ sơ ẩn danh: `anonId`, `nickname`, `recoveryCode` (6 số), `categoryId`, `points`, `legendaryBonus` |
+| `contributors:all` | `lib/contributors.js` | Hồ sơ ẩn danh: `anonId`, `nickname`, `recoveryCode` (6 số), `categoryId`, `points`, `legendaryBonus`, `nameChangedCount`/`nameChangedAt` (NOTE-08) |
+| `contributors:names` | `lib/contributors.js` | **Hash** anonId → tên hiện tại (NOTE-08). Để hiện tên người khác (first discovery) bằng HMGET vài anonId, không đọc cả mảng. Hồ sơ cũ chưa có thì đọc mảng một lần rồi ghi bù |
 | `user_suggestions` | `lib/suggestions.js` | Góp ý của khách (`type: "correction"` hoặc `"photo"`) chờ duyệt |
 
-> ⚠️ Key này **không có tiền tố** (`user_suggestions`, không phải `suggestions:all`) — khác
+> **Tên hiển thị (NOTE-08):** luật sinh/kiểm tra tên ở MỘT chỗ `lib/displayName.js` (thuần, dùng cả
+> server lẫn trình duyệt). Hồ sơ mới không truyền tên → tự sinh tên vui, không còn "Người ẩn danh".
+> Hồ sơ cũ mang "Người ẩn danh" → `resolveDisplayName` suy ra tên cố định từ anonId lúc đọc, không sửa
+> dữ liệu. Game: tên nháp trong localStorage `cdp_display_name_draft` (`app/_game/playerName.js`) tới lần
+> báo đầu tiên thì thành tên hồ sơ.
+
+> ⚠️ Key `user_suggestions` **không có tiền tố** (`user_suggestions`, không phải `suggestions:all`) — khác
 > quy ước với các key còn lại. Giữ nguyên, chỉ ghi ra đây để khỏi nhầm.
 
 ### Xác nhận "hôm nay vẫn mở" (Chặng 1, `lib/checkins.js`)

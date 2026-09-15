@@ -121,9 +121,7 @@ export function ObjectSheet({
           <p>
             {first.anonIdHash && first.anonIdHash === myHash
               ? "✨ Bạn là người ghi nhận đầu tiên"
-              : `Ghi nhận đầu tiên bởi ${
-                  first.nickname && first.nickname !== "Người ẩn danh" ? `@${first.nickname}` : "một người chơi ẩn danh"
-                }`}
+              : `Ghi nhận đầu tiên bởi ${first.nickname || "một người chơi ẩn danh"}`}
           </p>
         )}
       </div>

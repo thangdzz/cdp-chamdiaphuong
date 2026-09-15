@@ -7,6 +7,7 @@ import { ObjectIcon } from "./ObjectIcon";
 import { playGameSound, prefetchObjectSound } from "./gameSound";
 import { reportSighting } from "@/app/gameActions";
 import { loadLocalContributor, saveLocalContributor } from "@/app/ContributionPanel";
+import { clearDraftName, readDraftName } from "./playerName";
 import { compressImageForUpload } from "@/lib/clientImageCompression";
 import { OBJECT_KIND, UNKNOWN_ICON, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
 import { foldText, formatAgo } from "@/lib/game/format";
@@ -146,6 +147,7 @@ export function ReportSheet({
     const form = new FormData();
     form.set("slug", event.slug);
     if (local?.anonId) form.set("anonId", local.anonId);
+    else form.set("nickname", readDraftName() ?? "");
     form.set("objectId", objectId);
     form.set("lat", String(point.lat));
     form.set("lng", String(point.lng));
@@ -167,6 +169,7 @@ export function ReportSheet({
       }
       if (result.newProfile) {
         saveLocalContributor({ ...result.newProfile, categoryId: local?.categoryId ?? null });
+        clearDraftName();
       }
       onSubmitted(result);
     } catch {

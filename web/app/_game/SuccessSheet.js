@@ -56,6 +56,7 @@ export function SuccessSheet({
   after,
   diff,
   myCount,
+  playerName,
   onViewMap,
   onPlayerUpdate,
 }) {
@@ -123,7 +124,7 @@ export function SuccessSheet({
 
         {showFirst && (
           <p className="cdp-fade-in mt-3 rounded-full bg-[#fbf0d9] px-4 py-2 text-sm font-medium text-[#8a5a10]" style={{ animationDelay: MESSAGE_DELAY }}>
-            ✨ Bạn là người đầu tiên ghi nhận {noun} này trên CDP.
+            ✨ {playerName ? <b className="font-medium">{playerName}</b> : "Bạn"} là người đầu tiên ghi nhận {noun} này trên CDP.
           </p>
         )}
 

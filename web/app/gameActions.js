@@ -90,7 +90,8 @@ export async function reportSighting(formData) {
     let newProfile = null;
     let contributor = isAnonId(anonId) ? await getContributor(anonId) : null;
     if (!contributor) {
-      contributor = await createContributor();
+      // Mang theo tên nháp khách đã có từ lúc vào game (NOTE-08 §2); tên sai luật thì server tự sinh tên khác.
+      contributor = await createContributor(formData.get("nickname")?.toString() || null);
       anonId = contributor.anonId;
       newProfile = {
         anonId: contributor.anonId,

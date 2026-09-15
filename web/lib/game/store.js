@@ -19,6 +19,8 @@ import { generateQuests } from "./quests.js";
 import { resolveObjectStats } from "./progress.js";
 import { computeRarity } from "./collections.js";
 import { EVENT_PHASE, eventGameLiveAt, eventPhase, getGameEvent, withRuntimeConfig } from "./registry.js";
+import { getDisplayNames } from "../contributors.js";
+import { resolveDisplayName } from "../displayName.js";
 
 const RECENT_FETCH_LIMIT = 600;
 const HISTORY_LIMIT = 200;
@@ -314,15 +316,17 @@ async function readSightingsByIds(event, ids) {
 
 // ─────────────────────────────── Snapshot ───────────────────────────────
 
-function publicFirsts(firsts, catalog) {
-  // Gom first discovery về object đích, lấy lượt SỚM NHẤT trong các alias. Chỉ trả biệt danh —
-  // không trả anonId ra public.
+function publicFirsts(firsts, catalog, names = {}) {
+  // Gom first discovery về object đích, lấy lượt SỚM NHẤT trong các alias. Chỉ trả tên hiển thị —
+  // không trả anonId ra public. Tên là tên HIỆN TẠI (NOTE-08 §3: đổi tên thì chỗ này đổi theo);
+  // `value.nickname` lưu lúc báo chỉ còn là dự phòng khi tra tên lỗi.
   const index = catalogIndex(catalog);
   const out = {};
   for (const [rawId, value] of Object.entries(firsts)) {
     const id = resolveObjectId(rawId, index);
     if (!out[id] || value.at < out[id].at) {
-      out[id] = { nickname: value.nickname ?? null, at: value.at, anonIdHash: hashId(value.anonId) };
+      const nickname = names[value.anonId] ?? resolveDisplayName({ anonId: value.anonId, nickname: value.nickname });
+      out[id] = { nickname, at: value.at, anonIdHash: hashId(value.anonId) };
     }
   }
   return out;
@@ -367,7 +371,11 @@ export async function getGameSnapshot(event) {
 
   const catalog = mergeCatalog(event.objects, parseHash(storedObjects), event.id);
   const index = catalogIndex(catalog);
-  const todays = await readSightingsByIds(event, recentIds ?? []);
+  const firstsHash = parseHash(firsts);
+  const [todays, firstNames] = await Promise.all([
+    readSightingsByIds(event, recentIds ?? []),
+    getDisplayNames(Object.values(firstsHash).map((value) => value.anonId)).catch(() => ({})),
+  ]);
   const recent = todays.filter((s) => Date.parse(s.createdAt) >= windowStart);
   const markers = buildMarkers(recent, index, flags ?? {});
   const tonight = buildTonightStats(recent, index, flags ?? {});
@@ -386,7 +394,7 @@ export async function getGameSnapshot(event) {
     tonight,
     night,
     rarity: computeRarity(visibleCatalog, Object.fromEntries(Object.entries(night).map(([id, n]) => [id, n.reports]))),
-    firsts: publicFirsts(parseHash(firsts), catalog),
+    firsts: publicFirsts(firstsHash, catalog, firstNames),
     quests: generateQuests({
       catalog: visibleCatalog,
       objectStats: stats,
@@ -454,11 +462,14 @@ export async function getGameTeaser(event) {
 
 /** Dữ liệu RIÊNG của một người: bộ sưu tập + lịch sử báo. Chỉ trả cho đúng anonId đó. */
 export async function getPlayerState(event, anonId) {
-  if (!anonId) return { collection: {}, counts: {}, history: [], anonIdHash: null };
-  const [collection, counts, ids] = await Promise.all([
+  if (!anonId) return { collection: {}, counts: {}, history: [], anonIdHash: null, displayName: null };
+  const [collection, counts, ids, names] = await Promise.all([
     redis.hgetall(GAME_KEYS.collection(event.id, anonId)),
     redis.hgetall(GAME_KEYS.collectionCounts(event.id, anonId)),
     redis.lrange(GAME_KEYS.userSightings(event.id, anonId), 0, 49),
+    // Tên hiện tại theo server (NOTE-08 §4) — máy khác đổi tên hoặc hồ sơ cũ "Người ẩn danh" thì
+    // trình duyệt cập nhật theo.
+    getDisplayNames([anonId]).catch(() => ({})),
   ]);
   const sightings = await readSightingsByIds(event, ids ?? []);
   return {
@@ -471,6 +482,7 @@ export async function getPlayerState(event, anonId) {
       photoStatus: s.photo ? s.photo.status ?? "pending" : null,
     })),
     anonIdHash: hashId(anonId),
+    displayName: names[anonId] ?? null,
   };
 }
 

@@ -13,7 +13,7 @@
 
 - [ ] **NOTE-08 — Banner game, tên ẩn danh, theo dõi người dùng (4 phần, kế hoạch duyệt 15/9)**
   - [x] Phần 1: banner cổng vào game trên `/le-hoi-thanh-tuyen` — 💻 chỉ local, chưa deploy
-  - [ ] Phần 2: tên ngẫu nhiên không trùng mô hình + đổi tên + tên tra lúc hiển thị
+  - [x] Phần 2: tên ngẫu nhiên không trùng mô hình + đổi tên + tên tra lúc hiển thị — 💻 chỉ local
   - [ ] Phần 3: ghi nhận hoạt động ẩn danh (gom sự kiện, ít lệnh Redis) — cần lên trước 18/9
   - [ ] Phần 4: tách menu admin, Dashboard `/admin`, duyệt dữ liệu → `/admin/duyet`, `/admin/users`
 

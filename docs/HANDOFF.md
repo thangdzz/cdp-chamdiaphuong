@@ -8,6 +8,11 @@
 
 ## 1. Task hiện tại
 
+**2026-09-15 (đêm, sau) — NOTE-08 Phần 2/4 (tên ẩn danh) ĐÃ CODE, CHƯA DEPLOY.** Luật tên ở
+`lib/displayName.js`; hash `contributors:names`; game `app/_game/playerName.js` + `PlayerNameSheet.js`.
+Mọi hồ sơ mới của CDP giờ tự có tên vui. **Khi test tạo hồ sơ thật:** ghi anonId, xoá khỏi cả
+`contributors:all` lẫn `contributors:names`. Việc tiếp: Phần 3 (ghi nhận hoạt động) — cần trước 18/9.
+
 **2026-09-15 (đêm) — NOTE-08 ĐANG LÀM, Phần 1/4 (banner) ĐÃ CODE, CHƯA DEPLOY.** Spec:
 `docs/17-NOTE-08-Game-Banner-Anonymous-Name-Admin-Tracking.md` (trùng số với NOTE-08 Giới thiệu cũ).
 Kế hoạch 4 phần đã duyệt ở DECISIONS 2026-09-15; tiến độ ở TASKS mục IN PROGRESS. Banner

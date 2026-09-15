@@ -20,6 +20,8 @@ import {
 } from "./gameSound";
 import { loadGameSnapshot, loadPlayerState } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
+import { PlayerNameCard, PlayerNameSheet } from "./PlayerNameSheet";
+import { ensureDraftName, saveLocalNickname, usePlayerName } from "./playerName";
 import {
   OBJECT_KIND,
   catalogIndex,
@@ -45,7 +47,7 @@ const TABS = [
   { id: "history", label: "Lịch sử" },
 ];
 
-const EMPTY_PLAYER = { collection: {}, counts: {}, history: [], anonIdHash: null };
+const EMPTY_PLAYER = { collection: {}, counts: {}, history: [], anonIdHash: null, displayName: null };
 
 // Chọn MỘT lớp ăn mừng phía sau tiếng mở khoá — mốc > combo > hoàn thành bộ > mở bộ ẩn > người
 // đầu tiên. Không chồng nhiều tiếng lên nhau (NOTE-05 §17, §19).
@@ -73,6 +75,8 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   const [justUnlockedId, setJustUnlockedId] = useState(null);
   const [troll, setTroll] = useState(null); // { session, attempt }
   const [liveBanner, setLiveBanner] = useState(false);
+  const [nameSheet, setNameSheet] = useState(0); // 0 = đóng; số tăng = mở phiên mới (reset ô nhập)
+  const playerName = usePlayerName();
   const snapshotRef = useRef(initialSnapshot);
   const lastTickRef = useRef(Date.parse(initialSnapshot.generatedAt));
   const soundOn = useSoundEnabled();
@@ -85,6 +89,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   const preGame = phase === EVENT_PHASE.PRE_GAME;
   const canReport = live || preGame;
   const catalogById = useMemo(() => new Map(snapshot.catalog.map((o) => [o.id, o])), [snapshot.catalog]);
+  const modelNames = useMemo(() => snapshot.catalog.map((o) => o.name).filter(Boolean), [snapshot.catalog]);
   const resolvedCollection = useMemo(
     () => resolveCollection(player.collection, snapshot.catalog),
     [player.collection, snapshot.catalog]
@@ -141,6 +146,17 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
       }),
     [event.slug, applySnapshot]
   );
+
+  // Vào game là có tên ngay (NOTE-08 §10) — tên nháp trên máy, chưa ghi server.
+  const initialModelNames = useRef(modelNames);
+  useEffect(() => {
+    ensureDraftName(initialModelNames.current);
+  }, []);
+
+  // Tên theo server thắng tên trên máy: đổi tên ở máy khác, hoặc hồ sơ cũ "Người ẩn danh" (NOTE-08 §4).
+  useEffect(() => {
+    if (player.displayName) saveLocalNickname(player.displayName);
+  }, [player.displayName]);
 
   // Bộ sưu tập riêng cần anonId trong localStorage nên chỉ tải được ở trình duyệt.
   useEffect(() => {
@@ -313,6 +329,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
 
       <div className="mt-3 flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-6 lg:gap-y-4">
         <div className="order-1 flex flex-col gap-3 lg:col-start-2 lg:row-start-1">
+          <PlayerNameCard name={playerName} onEdit={() => setNameSheet((n) => n + 1)} />
           <GameSummary event={event} progress={progress} totalSightings={snapshot.totalSightings} />
           {preGame && (
             <div className="rounded-2xl bg-[#fff4de] px-4 py-3 shadow-sm ring-1 ring-[#f1d9a8]">
@@ -479,6 +496,16 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
         />
       )}
 
+      {nameSheet > 0 && (
+        <PlayerNameSheet
+          key={nameSheet}
+          open
+          onClose={() => setNameSheet(0)}
+          currentName={playerName}
+          avoidNames={modelNames}
+        />
+      )}
+
       {troll && (
         <PreGameSheet
           key={troll.session}
@@ -525,6 +552,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           after={success.after}
           diff={success.diff}
           myCount={success.myCount}
+          playerName={playerName}
           onPlayerUpdate={setPlayer}
           onViewMap={() => {
             setSuccess(null);

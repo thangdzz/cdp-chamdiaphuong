@@ -7,6 +7,7 @@ import {
   recoverContributorByCode,
   setContributorCategory,
   getNearbyStanding,
+  renameContributor,
 } from "@/lib/contributors";
 import {
   appendSuggestion,
@@ -30,6 +31,13 @@ import { revalidatePath } from "next/cache";
 export async function startContributorProfile(nickname) {
   const profile = await createContributor(nickname);
   return { anonId: profile.anonId, nickname: profile.nickname, recoveryCode: profile.recoveryCode };
+}
+
+// Đổi tên hiển thị (NOTE-08 §3) — dùng chung cho mọi nơi trên CDP, không riêng game.
+export async function changeDisplayName({ anonId, nickname }) {
+  if (typeof anonId !== "string" || !anonId) return { ok: false, error: "Thiếu hồ sơ của bạn." };
+  const result = await renameContributor(anonId, String(nickname ?? ""));
+  return result.ok ? { ok: true, nickname: result.profile.nickname } : result;
 }
 
 export async function recoverContributorProfile(code) {
