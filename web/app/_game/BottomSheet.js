@@ -150,6 +150,8 @@ export function BottomSheet({ open, onClose, title, children, labelledBy, expand
     if (!open || !panel) return undefined;
 
     let drag = null; // { startY, startX, lastY, lastT, velocity, active, fromHandle }
+    // Vị trí ngón tay ở lượt touch trước — để biết hướng vuốt khi KHÔNG phải đang kéo sheet.
+    let touchLast = null; // { x, y, free }
 
     const setOffset = (offset) => {
       panel.style.transform = `translate3d(0, ${offset}px, 0)`;
@@ -226,17 +228,47 @@ export function BottomSheet({ open, onClose, title, children, labelledBy, expand
       setOffset(0);
     };
 
+    // ─── Chặn cuộn xuyên ra trang phía sau ───
+    // Body đã ghim position:fixed (lockPageScroll) nhưng Safari iOS vẫn chuyển cú vuốt ra ngoài khi
+    // vùng cuộn của sheet KHÔNG cuộn được theo hướng đó (VD gõ tìm còn 3 kết quả → danh sách ngắn hơn
+    // khung), và khi bàn phím mở thì visualViewport còn trượt được trên trang → nền chạy theo, sheet
+    // (đang bám visualViewport) khựng theo. Quyết định ở touchmove ĐẦU TIÊN (Safari chỉ nghe lần đó).
+    const scrollerCanScroll = (dy) => {
+      const scroller = scrollerRef.current;
+      if (!scroller) return false;
+      const max = scroller.scrollHeight - scroller.clientHeight;
+      if (max <= 1) return false;
+      if (dy > 0) return scroller.scrollTop > 0; // ngón đi xuống = cuộn nội dung lên trên
+      if (dy < 0) return scroller.scrollTop < max - 1;
+      return true;
+    };
+
     const onTouchStart = (event) => {
       if (event.touches.length !== 1) {
         drag = null;
+        touchLast = null;
         return;
       }
       const touch = event.touches[0];
+      // Bản đồ chọn vị trí tự xử lý cử chỉ của nó — không can thiệp.
+      touchLast = { x: touch.clientX, y: touch.clientY, free: Boolean(event.target.closest?.(".maplibregl-map")) };
       begin(touch.clientX, touch.clientY, event.target);
     };
     const onTouchMove = (event) => {
       const touch = event.touches[0];
-      if (touch && move(touch.clientX, touch.clientY) && event.cancelable) event.preventDefault();
+      if (!touch) return;
+      const last = touchLast;
+      if (last) touchLast = { ...last, x: touch.clientX, y: touch.clientY };
+      if (move(touch.clientX, touch.clientY)) {
+        if (event.cancelable) event.preventDefault();
+        return;
+      }
+      if (!last || last.free || !event.cancelable) return;
+      const dy = touch.clientY - last.y;
+      const dx = touch.clientX - last.x;
+      // Vuốt ngang (hàng chip/ảnh cuộn ngang) để trình duyệt tự lo.
+      if (Math.abs(dx) > Math.abs(dy)) return;
+      if (!scrollerCanScroll(dy)) event.preventDefault();
     };
 
     // Chuột (desktop): chỉ kéo bằng thanh nắm.
@@ -257,12 +289,19 @@ export function BottomSheet({ open, onClose, title, children, labelledBy, expand
     panel.addEventListener("touchmove", onTouchMove, { passive: false });
     panel.addEventListener("touchend", end);
     panel.addEventListener("touchcancel", end);
+    // Vuốt trên khoảng trống phía trên panel (khung ngoài bám visualViewport) cũng không được kéo trang.
+    const container = containerRef.current;
+    const blockOutside = (event) => {
+      if (event.cancelable && !panel.contains(event.target)) event.preventDefault();
+    };
+    container?.addEventListener("touchmove", blockOutside, { passive: false });
     panel.addEventListener("mousedown", onMouseDown);
     return () => {
       panel.removeEventListener("touchstart", onTouchStart);
       panel.removeEventListener("touchmove", onTouchMove);
       panel.removeEventListener("touchend", end);
       panel.removeEventListener("touchcancel", end);
+      container?.removeEventListener("touchmove", blockOutside);
       panel.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);

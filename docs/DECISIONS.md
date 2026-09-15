@@ -36,6 +36,16 @@ y=153 rơi xuống y=516, nằm sau bàn phím. Sửa:
   (không tụt khi lọc) + WebKit giả lập visualViewport co 336px (ô tìm kiếm và kết quả đầu nằm trong vùng
   nhìn thấy ở mọi trạng thái). **Cần chủ dự án thử lại trên iPhone thật.**
 
+**3b. (cùng ngày, sau khi chủ dự án thử iPhone thật)** Bàn phím đã hết che, nhưng gõ ≥ 1 ký tự rồi vuốt danh
+sách thì nền trang chạy theo, khựng, lúc bị lúc không. Cùng họ với lỗi nền cuộn sau sheet (DECISIONS
+2026-09-15, đã ghim body `position:fixed`) nhưng lọt vì: (a) gõ lọc còn vài kết quả → vùng cuộn của sheet
+KHÔNG cuộn được → Safari iOS chuyển cú vuốt ra ngoài; (b) bàn phím mở thì visualViewport còn trượt được trên
+trang dù body đã ghim → nền chạy, sheet (bám visualViewport) đuổi theo trễ một frame → khựng. "Lúc bị lúc
+không" = tuỳ danh sách dài hơn khung hay không. Sửa trong `BottomSheet`: ở touchmove (passive:false), cú vuốt
+dọc không phải kéo sheet mà vùng cuộn không cuộn được theo hướng đó (không tràn / đã ở đầu / đã ở cuối) →
+`preventDefault`; vuốt ngang và bản đồ MapLibre để nguyên; khoảng trống ngoài panel cũng chặn. Kiểm 7 tình
+huống bằng TouchEvent (Chromium iPhone — WebKit desktop không có hàm tạo Touch) + chạy lại test bàn phím.
+
 ## 2026-09-15 — Ngân sách Redis đêm hội: Pay-as-you-go $10 + giảm lệnh B1–B3
 
 Chủ dự án xác nhận Upstash tính TỪNG lệnh. Ước tính code cũ ~950 lệnh/người chơi/giờ → 300 người × 3 giờ

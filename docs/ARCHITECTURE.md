@@ -114,7 +114,8 @@ slot). Âm thanh game là file tĩnh `public/game-sounds/*.m4a` (CC0, sinh bằn
 **Bàn phím trong bottom sheet (2026-09-16):** `_game/BottomSheet.js` bám `visualViewport` (biến CSS
 `--sheet-top`/`--sheet-vh`, `data-keyboard`); sheet có ô tìm kiếm truyền `expanded` để giữ chiều cao cố định —
 **sheet neo đáy mà co theo nội dung thì gõ lọc sẽ tụt ra sau bàn phím.** Ô tìm kiếm đặt `sticky` trong
-`[data-sheet-scroller]`.
+`[data-sheet-scroller]`. Chặn cuộn xuyên: touchmove dọc mà vùng cuộn không cuộn được theo hướng đó thì
+`preventDefault` (body ghim fixed KHÔNG đủ khi bàn phím mở hoặc danh sách ngắn hơn khung).
 
 **Bộ nhớ đệm đọc 20 giây (2026-09-15, PLAN-dem-18-9 §5 B1):** trang game + `loadGameSnapshot` +
 `loadPlayerState` dùng `loadGameEventShared`/`getSharedGameSnapshot` (bộ nhớ máy chủ, mỗi instance

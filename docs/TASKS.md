@@ -15,7 +15,9 @@
   - [x] `/le-hoi-thanh-tuyen` chỉ còn 1 khối game (GameEntryCard dưới tiêu đề), bỏ GameBanner
   - [x] Thẻ game nổi mép phải ở trang chủ: tự mở lần đầu mỗi ngày, tab nhỏ các lần sau, "Ẩn hôm nay"
   - [x] Bảng "Bạn vừa thấy mô hình nào?" không tụt ra sau bàn phím (visualViewport + chiều cao cố định + ô tìm kiếm sticky)
-  - [ ] Chủ dự án thử trên iPhone thật: gõ tìm mô hình khi bàn phím mở; thẻ game trang chủ
+  - [x] iPhone thật (chủ dự án): bàn phím hết che ô tìm kiếm
+  - [x] Vuốt danh sách sau khi gõ làm nền chạy theo/khựng → chặn cuộn xuyên trong BottomSheet
+  - [ ] Chủ dự án thử lại iPhone thật: gõ 1–2 ký tự rồi vuốt danh sách; thẻ game trang chủ
   - [ ] Deploy khi chủ dự án yêu cầu
 
 - [ ] **NOTE-08 — Banner game, tên ẩn danh, theo dõi người dùng (4 phần, kế hoạch duyệt 15/9)**

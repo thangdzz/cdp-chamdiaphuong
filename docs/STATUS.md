@@ -6,6 +6,12 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (sau) — chặn cuộn xuyên sau bảng báo (chỉ local, chưa deploy):** chủ dự án
+thử iPhone thật: bàn phím hết che, nhưng gõ rồi vuốt danh sách thì nền chạy theo + khựng. Nguyên nhân: danh
+sách ngắn hơn khung nên không cuộn được → Safari chuyển cú vuốt ra trang; bàn phím mở thì visualViewport còn
+trượt. Sửa ở `BottomSheet` touchmove. Kiểm 7 tình huống chặn/không chặn đạt, test bàn phím chạy lại đạt,
+build đạt, lint đúng 1 lỗi nền. Cần chủ dự án thử lại trên iPhone.
+
 **Cập nhật mới nhất 2026-09-16 — Sửa 3 lỗi (chỉ local, chưa deploy):** (1) trang lễ hội còn đúng 1 khối game
 `GameEntryCard` dưới tiêu đề, xoá `GameBanner`; (2) thẻ game nổi mép phải trang chủ `HomeGameEntry`/
 `HomeGameDock`; (3) bàn phím che ô tìm kiếm trong bảng báo — nguyên nhân sheet neo đáy co theo nội dung,

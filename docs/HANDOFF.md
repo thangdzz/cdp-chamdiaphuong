@@ -10,8 +10,8 @@
 
 **2026-09-16 — Sửa 3 lỗi sau NOTE-08 ĐÃ CODE, CHƯA DEPLOY (chờ chủ dự án bảo).** Chi tiết DECISIONS
 2026-09-16. Trang lễ hội 1 khối game; thẻ game nổi trang chủ (`app/_game/HomeGameEntry.js` +
-`HomeGameDock.js`); `BottomSheet` bám visualViewport + prop `expanded`. Việc tiếp: chủ dự án thử iPhone
-thật → deploy. Các việc treo trước đó (theo dõi tự động đêm 18/9, kênh thông báo ntfy) **để sau** theo lời
+`HomeGameDock.js`); `BottomSheet` bám visualViewport + prop `expanded`. Thêm (sau): chặn cuộn xuyên trong
+`BottomSheet` (vuốt danh sách ngắn làm nền chạy). Việc tiếp: chủ dự án thử lại iPhone thật → deploy. Các việc treo trước đó (theo dõi tự động đêm 18/9, kênh thông báo ntfy) **để sau** theo lời
 chủ dự án.
 
 **2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis ĐÃ DEPLOY (`web-969b2ewsj`).** Kế hoạch theo dõi tự
