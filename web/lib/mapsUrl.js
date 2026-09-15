@@ -1,5 +1,7 @@
 import { normalizeForSearch } from "./placeTextSearch.js";
 import { DEFAULT_PROVINCE, isValidProvince } from "./provinces.js";
+import { coordinatesOf, coordinatesQuery } from "./coordinates.js";
+import { isPickupService, pickupSelectionMapsQuery } from "./pickupPoints.js";
 
 // Chuỗi đem tra Google Maps. Các việc nhỏ dưới đây đều là lỗi thật đã gặp:
 //
@@ -67,7 +69,14 @@ export function mapsUrl(place) {
  */
 export function stopMapsQuery(stop) {
   if (!stop) return null;
-  if (stop.place) return cdpPlaceQuery(stop.place);
+  if (stop.place) {
+    // NOTE-14 §12, §16: dịch vụ đón khách KHÔNG phải điểm địa lý — dẫn tới điểm đón khách đã chọn, không
+    // bao giờ tới tên/địa chỉ của service ("Xe ghép Anh Huy, Tuyên Quang" dẫn sai hẳn tỉnh). Chưa
+    // chọn → null, trang lộ trình chặn mở Maps và bắt chọn (§17).
+    if (isPickupService(stop.place)) return pickupSelectionMapsQuery(stop.pickupSelection);
+    // Có toạ độ thì dẫn đúng ghim; chưa có (hầu hết dữ liệu hiện tại) thì giữ cách tra theo tên.
+    return coordinatesQuery(coordinatesOf(stop.place)) ?? cdpPlaceQuery(stop.place);
+  }
   if (stop.proposal) {
     // Đề xuất là chỗ xin đưa vào danh bạ CDP, mà danh bạ chỉ nhận Tuyên Quang.
     return buildQuery([
@@ -85,8 +94,8 @@ export function stopMapsQuery(stop) {
 }
 
 // Mở CẢ lộ trình trên Google Maps (CDP_P1-P8 §P7 giai đoạn 1) — "CDP lo kế hoạch, Google lo
-// đường". Ghép waypoint từ tên + địa chỉ, KHÔNG cần toạ độ: hiện 0/210 địa điểm có toạ độ,
-// mà Google tự tra được từ tên + địa chỉ.
+// đường". Ghép waypoint từ tên + địa chỉ; chỗ nào có toạ độ (NOTE-14) thì dùng "lat,lng" —
+// Google nhận lẫn cả hai kiểu trong cùng một link.
 //
 // Google Maps chỉ nhận tối đa 9 điểm giữa (cộng điểm đầu và điểm cuối là 11). Lộ trình dài
 // hơn thì CẮT BỚT các điểm giữa và báo lại cho nơi gọi để nói thật với khách, thay vì im lặng

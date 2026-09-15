@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getRoute, resolveRouteStops, stopTitle, transportModeLabel, TRANSPORT_MODES } from "@/lib/routes";
 import { routeMapsUrl, stopMapsQuery } from "@/lib/mapsUrl";
+import { isPickupService, pickupSelectionLabel, stopNeedsPickupSelection } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
 import { RouteOwnerActions } from "@/app/RouteOwnerActions";
 import { OwnerBackLink } from "@/app/OwnerBackLink";
@@ -29,10 +30,13 @@ export default async function RouteViewPage({ params }) {
   const mapsMode = TRANSPORT_MODES.find((m) => m.id === route.transportMode)?.mapsMode ?? "driving";
   // Điểm đề xuất cũng phải vào được link Google Maps — bỏ qua thì lộ trình mở ra thiếu chặng.
   const mapsQueries = stops.map((s) => ({ mapsQuery: stopMapsQuery(s) }));
-  const maps = routeMapsUrl(mapsQueries, mapsMode);
+  // NOTE-14 §17: còn dịch vụ đón khách chưa chọn điểm đón thì KHÔNG đưa link Maps — mở ra sẽ thiếu đúng
+  // chặng lên xe. Chặn lại và dẫn thẳng tới chỗ chọn.
+  const missingPickupIndex = stops.findIndex(stopNeedsPickupSelection);
+  const maps = missingPickupIndex === -1 ? routeMapsUrl(mapsQueries, mapsMode) : null;
   // Điểm riêng chưa khai địa chỉ thì Google không tra nổi, nên nó rơi khỏi link — nói thẳng
   // ra thay vì để khách mở link rồi mới phát hiện thiếu chặng.
-  const missingAddress = stops.filter((s, i) => !mapsQueries[i].mapsQuery).length;
+  const missingAddress = stops.filter((s, i) => !mapsQueries[i].mapsQuery && !stopNeedsPickupSelection(s)).length;
 
   return (
     <div className="flex flex-1 justify-center">
@@ -58,6 +62,20 @@ export default async function RouteViewPage({ params }) {
               <RouteStopRow key={index} stop={stop} index={index} />
             ))}
           </ol>
+        )}
+
+        {missingPickupIndex !== -1 && (
+          <div role="alert" className="mt-5 rounded-xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200">
+            <p className="text-sm font-medium text-amber-900">
+              Chọn điểm đón cho {stopTitle(stops[missingPickupIndex])} trước khi mở Google Maps.
+            </p>
+            <Link
+              href={`/lo-trinh/${slug}/sua#stop-${missingPickupIndex + 1}`}
+              className="cdp-pressable mt-2 inline-flex min-h-11 items-center rounded-lg bg-[#c8553d] px-4 text-sm font-medium text-white"
+            >
+              Chọn điểm đón
+            </Link>
+          </div>
         )}
 
         {/* §P7 giai đoạn 1 + §P8 "CDP lo kế hoạch, Google lo đường" — CDP giữ danh sách và thứ
@@ -120,6 +138,12 @@ function RouteStopRow({ stop, index }) {
           </span>
         </div>
         {subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{subtitle}</p>}
+        {/* NOTE-14 §12: dịch vụ đón khách hiện điểm đón thật, không để khách tưởng xe đón ở địa chỉ service. */}
+        {stop.place && isPickupService(stop.place) && (
+          <p className={`mt-0.5 text-[13px] ${stop.pickupSelection ? "text-zinc-700" : "font-medium text-amber-700"}`}>
+            {stop.pickupSelection ? `📍 Đón tại: ${pickupSelectionLabel(stop.pickupSelection)}` : "Chưa chọn điểm đón"}
+          </p>
+        )}
         <StopBadge type={stop.type} />
         {stop.durationMinutes && (
           <p className="mt-0.5 text-[13px] text-zinc-500">{formatStayDuration(stop.durationMinutes)}</p>

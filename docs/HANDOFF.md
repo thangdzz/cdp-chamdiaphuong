@@ -8,24 +8,27 @@
 
 ## 1. Task hiện tại
 
-**2026-09-16 — NOTE-14 Chặng B/3 (điểm đón) ĐÃ CODE, CHƯA DEPLOY.** `lib/pickupPoints.js` (luật điểm đón),
-`app/admin/PickupPointsEditor.js` (khối "Điểm đón khách" trong form Đi lại), `lib/placeForm.js` (đọc ô ẩn
-`pickupPointsJson` — chỉ khi form có khối + subtype pickup-service). Test nhanh: `/admin` → Đang công khai → Sửa một
-xe ghép/taxi → thêm điểm, dán link Maps → Lưu. Tiếp: Chặng C (lộ trình dùng điểm đón).
-
-**2026-09-16 — NOTE-14 P0 ĐANG LÀM: Chặng A/3 (closed import + toạ độ) ĐÃ CODE, CHƯA DEPLOY.** Spec
-`docs/23-NOTE-14-Pickup-Points-Geocoding-Closed-Import.md`; kế hoạch + lý do ở DECISIONS 2026-09-16 "NOTE-14 Chặng A".
-- **File:** `lib/coordinates.js` (mới), `lib/ingestion/sourceSignals.js` (mới), `lib/ingestion/closedHold.js`
-  (mới), `schema.js` (`SOURCE_CLOSED`), `normalize.js`, `match.js` (`matchPlaceAgainstClosedPlaces`, diff toạ
-  độ), `toLivePlace.js`, `ingestBatch.js`, `app/admin/reviewActions.js` (guard + 4 action source_closed),
-  `app/admin/actions.js` + `proposalActions.js` (guard), `app/admin/page.js` (thẻ + `?notice=`), `docs/ROUTINE.md`.
-- **Test nhanh:** chạy server với `CDP_INGESTION_NAMESPACE=… CDP_CLOSED_PLACES_NAMESPACE=… CDP_PROPOSALS_NAMESPACE=…`
-  (cùng một giá trị), dán JSON có `"business_status":"CLOSED_PERMANENTLY"` vào ô dán của `/admin` → thẻ đỏ
-  "Google Maps/Nguồn nhập đang đánh dấu…". ĐỪNG bấm "Tạo báo đóng cửa" khi test: nó ghi `user_suggestions` thật
-  (key không có namespace).
-- **Risk:** routine thật chưa gửi trạng thái/toạ độ tới khi chủ dự án dán lệnh mới; chỗ công khai bị báo đóng
-  mà bấm "Không thêm" sẽ hiện lại ở lần quét sau.
-- **Tiếp:** Chặng B (điểm đón) → Chặng C (lộ trình).
+**2026-09-16 — NOTE-14 P0 ĐÃ CODE XONG CẢ 3 CHẶNG, CHƯA DEPLOY.** Spec `docs/23-NOTE-14-…`; lý do từng quyết định ở
+DECISIONS 2026-09-16 "NOTE-14 Chặng A/B/C".
+- **Đã làm:** (A) nguồn báo đóng vĩnh viễn → `source_closed` không tự công khai + 3 hành động; guard NOTE-13 phủ cả
+  duyệt hàng chờ / Chờ duyệt / đề xuất; lưu `coordinates` khi nguồn có. (B) `pickupMode` + `pickupPoints[]` cho dịch
+  vụ đón khách, admin sửa trong form Đi lại. (C) lộ trình có `pickupSelection`, trang sửa hỏi "Bạn sẽ đón xe ở đâu?",
+  Maps dùng điểm đón/toạ độ, chặn Maps + chia sẻ khi chưa chọn.
+- **File chính:** `lib/coordinates.js`, `lib/pickupPoints.js`, `lib/ingestion/{sourceSignals,closedHold}.js` (mới);
+  `lib/ingestion/{schema,normalize,match,toLivePlace,ingestBatch}.js`, `lib/placeForm.js`, `lib/mapsUrl.js`,
+  `lib/routes.js`, `lib/routeShare.js`; `app/admin/{reviewActions,actions,proposalActions,page,PlaceFormFields}.js`,
+  `app/admin/PickupPointsEditor.js` (mới); `app/routeActions.js`, `app/lo-trinh/[slug]/page.js`,
+  `app/lo-trinh/[slug]/sua/page.js`, `app/lo-trinh/xem/[token]/page.js`; `docs/ROUTINE.md`.
+- **Test nhanh (không đụng dữ liệu thật):** chạy server với `CDP_INGESTION_NAMESPACE`, `CDP_CLOSED_PLACES_NAMESPACE`,
+  `CDP_PROPOSALS_NAMESPACE`, `CDP_ROUTE_NAMESPACE` cùng một giá trị test. (A) dán JSON có
+  `"business_status":"CLOSED_PERMANENTLY"` vào ô dán `/admin` → thẻ đỏ. (B) Sửa một xe ghép → khối "Điểm đón khách".
+  (C) lộ trình có xe ghép → trang xem báo "Chọn điểm đón…", chọn xong mới có nút Maps. Đã test đủ bằng script rời +
+  Playwright iPhone, dọn sạch key test.
+- **Bug/risk:** routine thật chưa gửi `business_status`/toạ độ tới khi chủ dự án dán khối mới (docs/ROUTINE.md §7);
+  "Tạo báo đóng cửa" ghi `user_suggestions` thật (không namespace) — đừng bấm khi test; chỗ công khai bị nguồn báo
+  đóng mà bấm "Không thêm" sẽ hiện lại lần quét sau; sau deploy route thật có xe ghép/taxi sẽ bị yêu cầu chọn điểm đón
+  (1 route lúc làm); "Xe ghép Anh Huy" chưa có điểm đón → khách phải nhập điểm riêng tới khi admin nhập.
+- **Tiếp:** chủ dự án thử local → deploy → nhập điểm đón thật cho "Xe ghép Anh Huy" → dán khối routine mới. P1 ở TASKS.
 
 **2026-09-16 — Sửa 3 lỗi sau NOTE-08 ĐÃ DEPLOY (`web-4tl2b0ue6`), chủ dự án đã thử iPhone thật OK.** Chi tiết DECISIONS
 2026-09-16. Trang lễ hội 1 khối game; thẻ game nổi trang chủ (`app/_game/HomeGameEntry.js` +

@@ -96,3 +96,86 @@ export function pickupPointFullAddress(point) {
     .filter(Boolean)
     .join(", ");
 }
+
+// ─────────────── Điểm đón trong lộ trình (NOTE-14 §12–§17) ───────────────
+//
+// `stop.pickupSelection` là BẢN CHỤP lúc chọn (§14): nhà xe sửa/xoá điểm đón về sau thì lộ trình đã lập
+// không gãy. Hai dạng:
+//   { type: "pickup_point", pickupPointId, name, addressLine, wardOrDistrict, province, lat, lng }
+//   { type: "custom", name, addressLine, wardOrDistrict, province }  ← "Đón tận nơi / Điểm khác" (§15):
+//     chỉ thuộc lộ trình đó, KHÔNG bao giờ thành place công khai.
+
+export const PICKUP_SELECTION_TYPES = { POINT: "pickup_point", CUSTOM: "custom" };
+
+/**
+ * Làm sạch lựa chọn khách gửi lên. Điểm cố định lấy dữ liệu từ PLACE (server đọc), không tin chữ
+ * trình duyệt gửi — chỉ nhận id. @returns {object|null}
+ */
+export function cleanPickupSelection(selection, place) {
+  if (selection?.type === PICKUP_SELECTION_TYPES.POINT) {
+    const point = pickupPointsOf(place).find((candidate) => candidate.id === selection.pickupPointId);
+    if (!point) return null;
+    return {
+      type: PICKUP_SELECTION_TYPES.POINT,
+      pickupPointId: point.id,
+      name: point.name,
+      addressLine: point.addressLine,
+      wardOrDistrict: point.wardOrDistrict ?? null,
+      province: point.province,
+      lat: point.lat ?? null,
+      lng: point.lng ?? null,
+    };
+  }
+  if (selection?.type === PICKUP_SELECTION_TYPES.CUSTOM) {
+    const addressLine = cleanText(selection.addressLine);
+    const province = cleanText(selection.province);
+    if (!addressLine || !isValidProvince(province)) return null;
+    return {
+      type: PICKUP_SELECTION_TYPES.CUSTOM,
+      name: cleanText(selection.name, 60) || "Điểm đón của tôi",
+      addressLine,
+      wardOrDistrict: cleanText(selection.wardOrDistrict) || null,
+      province,
+    };
+  }
+  return null;
+}
+
+/** Bản chụp đọc lại từ link chia sẻ (không còn place để đối chiếu): chỉ giữ đúng các field đã biết. */
+export function sanitizeStoredPickupSelection(selection) {
+  if (!selection || typeof selection !== "object") return null;
+  const addressLine = cleanText(selection.addressLine);
+  const province = cleanText(selection.province);
+  if (!addressLine || !isValidProvince(province)) return null;
+  const isPoint = selection.type === PICKUP_SELECTION_TYPES.POINT;
+  const coords = isPoint ? cleanCoordinates({ lat: selection.lat, lng: selection.lng }) : null;
+  return {
+    type: isPoint ? PICKUP_SELECTION_TYPES.POINT : PICKUP_SELECTION_TYPES.CUSTOM,
+    ...(isPoint ? { pickupPointId: cleanText(selection.pickupPointId, 60) || null } : {}),
+    name: cleanText(selection.name, 60) || addressLine,
+    addressLine,
+    wardOrDistrict: cleanText(selection.wardOrDistrict) || null,
+    province,
+    ...(isPoint ? { lat: coords?.lat ?? null, lng: coords?.lng ?? null } : {}),
+  };
+}
+
+/** Chuỗi Google Maps của điểm đón đã chọn (§16): toạ độ nếu có, không thì địa chỉ đầy đủ kèm tỉnh. */
+export function pickupSelectionMapsQuery(selection) {
+  if (!selection) return null;
+  const coords = cleanCoordinates({ lat: selection.lat, lng: selection.lng });
+  if (coords) return `${coords.lat},${coords.lng}`;
+  return pickupPointFullAddress(selection) || null;
+}
+
+/** "Đón tại: Điểm đón Hàng Bún — 31 Hàng Bún, Ba Đình, Hà Nội". */
+export function pickupSelectionLabel(selection) {
+  if (!selection) return null;
+  const address = pickupPointFullAddress(selection);
+  return selection.name && selection.name !== selection.addressLine ? `${selection.name} — ${address}` : address;
+}
+
+/** Điểm dừng (đã resolve) là dịch vụ đón khách mà CHƯA chọn điểm đón → chưa mở/chia sẻ Maps được (§17). */
+export function stopNeedsPickupSelection(stop) {
+  return Boolean(stop?.place && !stop.deleted && isPickupService(stop.place) && !stop.pickupSelection);
+}

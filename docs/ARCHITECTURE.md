@@ -262,6 +262,9 @@ chỗ đang công khai chưa có thì lần quét khớp sau điền vào (khôn
 Dịch vụ đón khách (NOTE-14 B): `pickupMode` + `pickupPoints[{id,name,addressLine,wardOrDistrict,province,lat,lng,note,
 order,active}]` — luật ở `lib/pickupPoints.js`, admin sửa ở `app/admin/PickupPointsEditor.js` (ô ẩn JSON
 `pickupPointsJson`, `lib/placeForm.js` làm sạch lại). **Địa chỉ của service không phải điểm đón.**
+Trong lộ trình (NOTE-14 C): stop `cdp_place` có thể có `pickupSelection` (bản chụp `pickup_point` hoặc `custom`),
+lưu qua `setStopPickupSelection` (lib/routes.js). `stopMapsQuery` KHÔNG BAO GIỜ dùng tên/địa chỉ của dịch vụ đón
+khách; `stopNeedsPickupSelection` chặn nút Maps ở trang xem và chặn tạo link chia sẻ.
 
 ```js
 {

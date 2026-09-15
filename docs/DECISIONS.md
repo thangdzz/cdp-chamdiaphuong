@@ -3,6 +3,24 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — NOTE-14 Chặng C: lộ trình dẫn tới điểm đón, không tới địa chỉ dịch vụ
+
+- **`stop.pickupSelection` là field tuỳ chọn trên stop `cdp_place`, bản chụp lúc chọn** (§14, §18) — không
+  đổi schema route, route cũ đọc bình thường. Hai dạng: `pickup_point` (server tự lấy tên/địa chỉ/toạ độ từ
+  place theo id, chỉ nhận điểm ĐANG DÙNG — client gửi mỗi id) và `custom` ("Đón tận nơi / Điểm khác": tên +
+  địa chỉ + tỉnh, lọc link/SĐT, chỉ nằm trong lộ trình đó, không tạo place/proposal).
+- **Resolver Google Maps (`stopMapsQuery`)**: dịch vụ đón khách → toạ độ điểm đón đã chọn, không có thì địa chỉ
+  đầy đủ kèm tỉnh; **chưa chọn → null, không bao giờ rơi về tên/địa chỉ service**. Place có toạ độ → "lat,lng";
+  chưa có → giữ cách tra theo tên như cũ. Điểm riêng giữ nguyên.
+- **Chặn trước Maps + chia sẻ** (§17): trang xem thay nút Maps bằng cảnh báo "Chọn điểm đón cho X…" + nút dẫn
+  thẳng `…/sua#stop-N`; `createShareSnapshot` từ chối với cùng câu vì người nhận link không tự chọn được. Bản chụp
+  và bản copy mang theo `pickupSelection`.
+- **"Bắt chọn khi thêm" làm ở trang sửa** chứ không chèn bước hỏi vào từng nơi thêm địa điểm (PlacePicker, tạo từ
+  địa điểm, sổ, khung kế hoạch…): mọi đường đó đều dẫn về trang sửa/xem; trang sửa tự cuộn tới điểm đầu tiên
+  thiếu điểm đón sau khi tải/thêm/đổi chỗ, khối chọn tô vàng "Bắt buộc…", trang xem chặn Maps. Ít chỗ sửa hơn,
+  không phá luồng thêm đang chạy. "Đổi chỗ" tạo stop mới nên lựa chọn cũ tự mất.
+- Dữ liệu thật lúc làm: 1/5 route có dịch vụ đón khách (1 stop) — route đó sẽ thấy yêu cầu chọn điểm đón.
+
 ## 2026-09-16 — NOTE-14 Chặng B: điểm đón cho dịch vụ đón khách
 
 - **Field trên place (chỉ family `pickup-service`):** `pickupMode` (`fixed_points` | `door_to_door` | `both` |

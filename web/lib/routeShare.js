@@ -16,6 +16,7 @@
 import { getLivePlaces, redis } from "./redis.js";
 import { stopTitle, STOP_TYPES } from "./routes.js";
 import { stopMapsQuery } from "./mapsUrl.js";
+import { stopNeedsPickupSelection } from "./pickupPoints.js";
 import { placeNavigationMedia } from "./media.js";
 import { routeStorageKey } from "./routeStorageKeys.js";
 
@@ -44,6 +45,11 @@ export async function createShareSnapshot({ route, resolvedStops }) {
   if ((resolvedStops ?? []).length === 0) {
     return { ok: false, error: "Lộ trình chưa có điểm nào để chia sẻ." };
   }
+  // NOTE-14 §17: người nhận link không tự chọn điểm đón được — chủ lộ trình phải chọn trước.
+  const missingPickup = resolvedStops.find(stopNeedsPickupSelection);
+  if (missingPickup) {
+    return { ok: false, error: `Chọn điểm đón cho ${stopTitle(missingPickup)} trước khi chia sẻ.` };
+  }
 
   const snapshot = {
     title: route.title,
@@ -69,6 +75,8 @@ export async function createShareSnapshot({ route, resolvedStops }) {
       customAddress: stop.customAddress ?? stop.proposal?.address ?? null,
       customProvince: stop.customProvince ?? null,
       nameSnapshot: stop.nameSnapshot ?? stopTitle(stop),
+      // Điểm đón đã chọn đóng băng theo link (NOTE-14 §14) — nhà xe đổi điểm đón thì link cũ không đổi.
+      pickupSelection: stop.pickupSelection ?? null,
       plannedAt: stop.plannedAt ?? null,
       durationMinutes: stop.durationMinutes ?? null,
       note: stop.note ?? null,

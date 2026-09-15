@@ -19,6 +19,7 @@ import { containsLinkOrPhone } from "./textFilter.js";
 import { getProposalIndex, PROPOSAL_STATUS } from "./proposals.js";
 import { DEFAULT_PROVINCE, PROVINCES, isValidProvince, normalizeProvince } from "./provinces.js";
 import { routeStorageKey } from "./routeStorageKeys.js";
+import { cleanPickupSelection, isPickupService, PICKUP_SELECTION_TYPES, sanitizeStoredPickupSelection } from "./pickupPoints.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
 const SLUG_LENGTH = 8;
@@ -160,11 +161,14 @@ export function routeStopsFromShareSnapshot(stops) {
     };
 
     if ((!stop.type || stop.type === STOP_TYPES.CDP_PLACE) && stop.placeId) {
+      const pickupSelection = sanitizeStoredPickupSelection(stop.pickupSelection);
       return {
         type: STOP_TYPES.CDP_PLACE,
         placeId: stop.placeId,
         customTitle: null,
         nameSnapshot: cleanText(stop.nameSnapshot ?? stop.title, MAX_CUSTOM_TITLE_LENGTH),
+        // NOTE-14 §14: điểm đón đã chọn đi theo bản copy — người nhận không phải chọn lại.
+        ...(pickupSelection ? { pickupSelection } : {}),
         ...common,
       };
     }
@@ -431,6 +435,43 @@ export async function replaceStop({ anonId, slug, index, place, custom }) {
   route.updatedAt = new Date().toISOString();
   await redis.set(routeKey(slug), route);
   return { ok: true };
+}
+
+/**
+ * Chọn điểm đón cho một điểm dừng là dịch vụ đón khách (NOTE-14 §13–§15). Server đọc place thật để
+ * lấy điểm đón — client chỉ gửi id (điểm cố định) hoặc địa chỉ tự nhập (đón tận nơi/điểm khác).
+ * Điểm tự nhập chỉ nằm trong lộ trình này, không tạo place/proposal.
+ */
+export async function setStopPickupSelection({ anonId, slug, index, selection }) {
+  const route = await getRoute(slug);
+  if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
+  const stop = route.stops[index];
+  if (!stop || normalizeStop(stop).type !== STOP_TYPES.CDP_PLACE) {
+    return { ok: false, error: "Điểm này không phải dịch vụ đón khách." };
+  }
+  const place = (await getLivePlaces()).find((candidate) => candidate.id === stop.placeId);
+  if (!place || !isPickupService(place)) return { ok: false, error: "Điểm này không phải dịch vụ đón khách." };
+
+  if (selection?.type === PICKUP_SELECTION_TYPES.CUSTOM) {
+    for (const text of [selection.name, selection.addressLine, selection.wardOrDistrict]) {
+      if (typeof text === "string" && containsLinkOrPhone(text)) {
+        return { ok: false, error: "Điểm đón không được chứa link hoặc số điện thoại." };
+      }
+    }
+  }
+  const clean = cleanPickupSelection(selection, place);
+  if (!clean) {
+    return {
+      ok: false,
+      error: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM
+        ? "Nhập địa chỉ và chọn tỉnh/thành của điểm đón."
+        : "Điểm đón này không còn — chọn điểm khác.",
+    };
+  }
+  stop.pickupSelection = { ...clean, selectedAt: new Date().toISOString() };
+  route.updatedAt = new Date().toISOString();
+  await redis.set(routeKey(slug), route);
+  return { ok: true, pickupSelection: stop.pickupSelection };
 }
 
 export async function updateStop({

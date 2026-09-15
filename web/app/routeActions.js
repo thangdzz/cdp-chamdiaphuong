@@ -19,7 +19,9 @@ import {
   deleteRoute,
   resolveRouteStops,
   copyRouteFromShare,
+  setStopPickupSelection,
 } from "@/lib/routes";
+import { isPickupService, pickupPointsOf } from "@/lib/pickupPoints";
 import { createShareSnapshot, getShareSnapshot } from "@/lib/routeShare";
 import { getNotebook } from "@/lib/notebooks";
 import { getLivePlaces } from "@/lib/redis";
@@ -180,6 +182,12 @@ export async function createRouteFromPlan({ anonId, title, stops }) {
 
 // "Đổi chỗ" — thay điểm dừng tại ĐÚNG vị trí đang đứng, không đẩy xuống cuối như cách xoá rồi
 // thêm lại. Thứ tự là thứ khách sắp bằng tay, đổi một chỗ không có lý do gì làm xáo nó.
+// NOTE-14 §13: "Bạn sẽ đón xe ở đâu?"
+export async function choosePickupForStop({ anonId, slug, index, selection }) {
+  if (!anonId || !slug) return { ok: false };
+  return setStopPickupSelection({ anonId, slug, index, selection });
+}
+
 export async function replaceRouteStop({ anonId, slug, index, place, custom }) {
   if (!anonId || !slug) return { ok: false };
   return replaceStop({ anonId, slug, index, place, custom });
@@ -260,6 +268,15 @@ export async function getRouteForEdit({ anonId, slug }) {
         name: s.place?.name ?? s.proposal?.name ?? null,
         typeLabel: s.place?.type ?? s.proposal?.type ?? null,
         ward: s.place?.ward ?? s.proposal?.ward ?? null,
+        // NOTE-14 §13: dịch vụ đón khách cần chọn điểm đón. Chỉ gửi điểm ĐANG DÙNG, đúng field hiển thị.
+        isPickupService: Boolean(s.place && isPickupService(s.place)),
+        pickupMode: s.place && isPickupService(s.place) ? s.place.pickupMode ?? null : null,
+        pickupPoints: s.place && isPickupService(s.place)
+          ? pickupPointsOf(s.place).map(({ id, name, addressLine, wardOrDistrict, province, note }) => ({
+              id, name, addressLine, wardOrDistrict, province, note,
+            }))
+          : [],
+        pickupSelection: s.pickupSelection ?? null,
       })),
     },
   };

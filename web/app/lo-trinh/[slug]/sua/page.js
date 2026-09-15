@@ -15,6 +15,7 @@ import {
   addPlacesToMyRoute,
   proposePlaceForRoute,
   replaceRouteStop,
+  choosePickupForStop,
 } from "@/app/routeActions";
 import { PlacePicker } from "@/app/PlacePicker";
 import { ProposePlaceForm } from "@/app/ProposePlaceForm";
@@ -24,6 +25,7 @@ import { TRANSPORT_MODES, STOP_TYPES } from "@/lib/routes";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { formatDurationText } from "@/lib/durationFormat";
 import { PROVINCES } from "@/lib/provinces";
+import { PICKUP_SELECTION_TYPES, pickupModeLabel, pickupPointFullAddress, pickupSelectionLabel } from "@/lib/pickupPoints";
 
 // Chỉ chủ lộ trình vào được — getRouteForEdit tự kiểm tra ở server, trang này chỉ điều hướng
 // về trang xem khi không phải chủ, không tự chặn (cùng cách trang sửa Sổ làm).
@@ -44,6 +46,20 @@ export default function EditRoutePage({ params }) {
   const [justReplaced, setJustReplaced] = useState(null);
   const busyRef = useRef(false);
   const [busy, setBusy] = useState(false);
+  // NOTE-14 §13: thêm dịch vụ đón khách xong (hoặc mở từ nút "Chọn điểm đón") thì cuộn tới đúng điểm cần
+  // chọn. Ghi nhận ý định cuộn ở đây, cuộn thật sau khi danh sách đã vẽ lại.
+  const scrollTargetRef = useRef(null);
+
+  useEffect(() => {
+    if (status !== "ok" || !route) return;
+    const fromHash = typeof window !== "undefined" ? window.location.hash.match(/^#stop-(\d+)$/) : null;
+    const target = scrollTargetRef.current ?? (fromHash ? Number(fromHash[1]) : null);
+    scrollTargetRef.current = null;
+    if (!target) return;
+    const element = document.getElementById(`stop-${target}`);
+    element?.scrollIntoView({ block: "start", behavior: "smooth" });
+    if (fromHash) window.history.replaceState(null, "", window.location.pathname);
+  }, [status, route]);
 
   useEffect(() => {
     const local = loadLocalContributor();
@@ -53,6 +69,8 @@ export default function EditRoutePage({ params }) {
         if (result.forbidden) router.replace(`/lo-trinh/${slug}`);
         return;
       }
+      const missing = result.route.stops.findIndex((stop) => stop.isPickupService && !stop.pickupSelection);
+      if (missing !== -1) scrollTargetRef.current = missing + 1;
       setRoute(result.route);
       setTitleInput(result.route.title);
       setStatus("ok");
@@ -61,10 +79,15 @@ export default function EditRoutePage({ params }) {
 
   // Tải lại từ máy chủ sau các thao tác đổi cấu trúc (thêm/bớt/đảo chỗ) — rẻ hơn nhiều so với
   // tự dựng lại state phía khách rồi lệch với dữ liệu thật.
-  async function reload() {
+  async function reload({ focusMissingPickup = false } = {}) {
     const local = loadLocalContributor();
     const result = await getRouteForEdit({ anonId: local?.anonId, slug });
-    if (result.ok) setRoute(result.route);
+    if (!result.ok) return;
+    if (focusMissingPickup) {
+      const missing = result.route.stops.findIndex((stop) => stop.isPickupService && !stop.pickupSelection);
+      if (missing !== -1) scrollTargetRef.current = missing + 1;
+    }
+    setRoute(result.route);
   }
 
   async function run(fn) {
@@ -143,7 +166,7 @@ export default function EditRoutePage({ params }) {
     if (result?.ok) {
       setReplacingIndex(null);
       setJustReplaced(index);
-      await reload();
+      await reload({ focusMissingPickup: true });
     }
     return result;
   }
@@ -152,7 +175,7 @@ export default function EditRoutePage({ params }) {
     const result = await run((anonId) => addPlacesToMyRoute({ anonId, slug, places }));
     if (result?.ok) {
       setPickerOpen(false);
-      await reload();
+      await reload({ focusMissingPickup: true });
     }
   }
 
@@ -243,6 +266,7 @@ export default function EditRoutePage({ params }) {
                 onRemove={handleRemove}
                 onReplace={() => setReplacingIndex(index)}
                 justReplaced={justReplaced === index}
+                onPickupChosen={reload}
               />
             ))}
           </ol>
@@ -291,7 +315,118 @@ export default function EditRoutePage({ params }) {
   );
 }
 
-function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplace, justReplaced }) {
+// NOTE-14 §13–§15: "Bạn sẽ đón xe ở đâu?" — điểm đón cố định của nhà xe, hoặc đón tận nơi/điểm khác (tự
+// nhập, chỉ thuộc lộ trình này). Chọn điểm cố định là lưu ngay; điểm tự nhập lưu bằng nút.
+function PickupChooser({ stop, index, slug, onChosen }) {
+  const selection = stop.pickupSelection;
+  const hasPoints = stop.pickupPoints.length > 0;
+  const [customOpen, setCustomOpen] = useState(!hasPoints || selection?.type === PICKUP_SELECTION_TYPES.CUSTOM);
+  const [custom, setCustom] = useState({
+    name: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM ? selection.name : "",
+    addressLine: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM ? selection.addressLine : "",
+    province: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM ? selection.province : "",
+  });
+  const [state, setState] = useState(null); // null | "saving" | lỗi
+
+  async function choose(nextSelection) {
+    setState("saving");
+    const result = await choosePickupForStop({ anonId: loadLocalContributor()?.anonId, slug, index, selection: nextSelection });
+    if (result?.ok) {
+      setState(null);
+      await onChosen();
+    } else {
+      setState(result?.error ?? "Chưa lưu được điểm đón.");
+    }
+  }
+
+  return (
+    <div className={`mt-3 rounded-xl px-3 py-3 ${selection ? "bg-zinc-50" : "bg-amber-50 ring-1 ring-amber-200"}`}>
+      <p className="text-sm font-medium text-zinc-900">Bạn sẽ đón xe ở đâu?</p>
+      <p className="mt-0.5 text-xs text-zinc-500">
+        Google Maps dẫn tới điểm đón này, không dẫn tới địa chỉ của dịch vụ.
+        {stop.pickupMode ? ` Nhà xe: ${pickupModeLabel(stop.pickupMode)}.` : ""}
+      </p>
+      {!selection && <p className="mt-1 text-xs font-medium text-amber-800">Bắt buộc chọn trước khi mở Google Maps hoặc chia sẻ.</p>}
+
+      {hasPoints ? (
+        <div className="mt-2 flex flex-col gap-1.5" role="radiogroup" aria-label="Điểm đón">
+          {stop.pickupPoints.map((point) => {
+            const checked = selection?.type === PICKUP_SELECTION_TYPES.POINT && selection.pickupPointId === point.id;
+            return (
+              <button
+                key={point.id}
+                type="button"
+                role="radio"
+                aria-checked={checked}
+                disabled={state === "saving"}
+                onClick={() => choose({ type: PICKUP_SELECTION_TYPES.POINT, pickupPointId: point.id })}
+                className={`cdp-pressable flex min-h-11 w-full cursor-pointer flex-col items-start rounded-lg border px-3 py-2 text-left disabled:opacity-60 ${
+                  checked ? "border-[#c8553d] bg-white" : "border-zinc-200 bg-white"
+                }`}
+              >
+                <span className="text-sm font-medium text-zinc-900">{checked ? "● " : "○ "}{point.name}</span>
+                <span className="text-xs text-zinc-500">{pickupPointFullAddress(point)}{point.note ? ` · ${point.note}` : ""}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="mt-2 text-xs text-zinc-600">Chưa có điểm đón — nhập điểm bạn sẽ đón xe (liên hệ nhà xe để thống nhất).</p>
+      )}
+
+      {hasPoints && !customOpen && (
+        <button type="button" onClick={() => setCustomOpen(true)} className="mt-2 text-sm font-medium text-[#c8553d] underline">
+          Đón tận nơi / Điểm khác
+        </button>
+      )}
+
+      {customOpen && (
+        <div className="mt-2 flex flex-col gap-2 rounded-lg bg-white p-2 ring-1 ring-zinc-200">
+          <p className="text-xs text-zinc-500">Đón tận nơi / Điểm khác — chỉ lưu trong lộ trình của bạn, không công khai.</p>
+          <input
+            className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
+            value={custom.name}
+            maxLength={60}
+            placeholder="Tên điểm (VD: Nhà tôi)"
+            onChange={(e) => setCustom((c) => ({ ...c, name: e.target.value }))}
+          />
+          <input
+            className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
+            value={custom.addressLine}
+            maxLength={120}
+            placeholder="Địa chỉ (VD: 15 phố Hàng Bông)"
+            onChange={(e) => setCustom((c) => ({ ...c, addressLine: e.target.value }))}
+          />
+          <select
+            className="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900"
+            value={custom.province}
+            onChange={(e) => setCustom((c) => ({ ...c, province: e.target.value }))}
+          >
+            <option value="" disabled>Chọn tỉnh/thành (bắt buộc)</option>
+            {PROVINCES.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={state === "saving" || !custom.addressLine.trim() || !custom.province}
+            onClick={() => choose({ type: PICKUP_SELECTION_TYPES.CUSTOM, ...custom })}
+            className="cdp-pressable min-h-11 cursor-pointer rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white disabled:opacity-50"
+          >
+            Lưu điểm đón
+          </button>
+        </div>
+      )}
+
+      {selection && <p className="mt-2 text-xs text-emerald-700">✓ Đón tại: {pickupSelectionLabel(selection)}</p>}
+      {state && state !== "saving" && <p className="mt-1 text-xs text-red-600">{state}</p>}
+    </div>
+  );
+}
+
+function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplace, justReplaced, onPickupChosen }) {
   const [plannedAt, setPlannedAt] = useState(stop.plannedAt ?? "");
   const [duration, setDuration] = useState(stop.durationMinutes ?? "");
   const [note, setNote] = useState(stop.note ?? "");
@@ -347,7 +482,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
     : (stop.name ?? stop.nameSnapshot ?? "Điểm đã bị xoá");
 
   return (
-    <li className="rounded-xl bg-white px-[18px] py-4 shadow-sm">
+    <li id={`stop-${index + 1}`} className="scroll-mt-20 rounded-xl bg-white px-[18px] py-4 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-2">
           <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-medium text-white">
@@ -473,6 +608,10 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             ))}
           </select>
         </label>
+      )}
+
+      {stop.isPickupService && !stop.deleted && (
+        <PickupChooser stop={stop} index={index} slug={slug} onChosen={onPickupChosen} />
       )}
 
       <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">

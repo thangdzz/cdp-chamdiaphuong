@@ -18,7 +18,11 @@
   - [x] Chặng B: `pickupMode` + `pickupPoints[]` cho dịch vụ đón khách, admin sửa điểm đón (thêm/sửa/xoá/đổi thứ tự/
         bật-tắt, dán link Maps lấy toạ độ) — 💻 chỉ local
   - [ ] Chủ dự án: nhập điểm đón thật cho "Xe ghép Anh Huy" (và taxi nếu có điểm đón cố định) sau khi deploy
-  - [ ] Chặng C: `pickupSelection` trong lộ trình, bắt chọn điểm đón, Google Maps dùng điểm đón, chặn mở Maps/chia sẻ khi chưa chọn
+  - [x] Chặng C: `pickupSelection` trong lộ trình, bắt chọn điểm đón (trang sửa tự cuộn tới), Google Maps dùng điểm
+        đón/toạ độ, chặn mở Maps + chia sẻ khi chưa chọn, bản chụp/bản copy giữ lựa chọn — 💻 chỉ local
+  - [ ] Deploy NOTE-14 P0 khi chủ dự án bảo
+  - [ ] P1 (NOTE-14 §21): dropoffPoints, backfill toạ độ chỗ cũ, chọn ghim trên bản đồ, geocode địa chỉ, dùng toạ độ cho
+        nghi trùng/thay thế, link Maps rút gọn, hiện điểm đón trên thẻ địa điểm
 
 - [x] **Sửa 3 lỗi sau NOTE-08 (2026-09-16) — 🚀 Đã deploy 2026-09-16 (`web-4tl2b0ue6`)**
   - [x] `/le-hoi-thanh-tuyen` chỉ còn 1 khối game (GameEntryCard dưới tiêu đề), bỏ GameBanner
