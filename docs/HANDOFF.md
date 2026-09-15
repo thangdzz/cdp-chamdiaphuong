@@ -8,7 +8,8 @@
 
 ## 1. Task hiện tại
 
-**2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis ĐÃ CODE (deploy ngay sau commit này, xem STATUS).**
+**2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis ĐÃ DEPLOY (`web-969b2ewsj`).** Kế hoạch theo dõi tự
+động đêm 18/9: `docs/PLAN-dem-18-9-redis.md` §8 (chờ duyệt, code xong trước 17/9 tối).
 Chốt ở DECISIONS "Ngân sách Redis đêm hội". Bộ đệm đọc 20 giây ở `lib/game/store.js`; client bỏ snapshot
 cũ hơn. **Không sửa luồng ghi lượt báo trước 18/9** (chủ dự án chốt). Việc tiếp: kế hoạch theo dõi tự động
 đêm 18/9 (chờ duyệt); chủ dự án tự chuyển Upstash Pay-as-you-go + hạn mức $10.

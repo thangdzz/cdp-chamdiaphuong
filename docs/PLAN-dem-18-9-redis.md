@@ -9,10 +9,11 @@
 ## 0. Đã chốt (2026-09-15 khuya)
 
 - ✅ Chuyển Upstash **Pay-as-you-go**, hạn mức ngân sách **$10/tháng** — chủ dự án tự làm trên dashboard.
-- ✅ **B1 + B2 + B3 đã code, test và deploy** (xem §5B). Thêm một sửa phát sinh: điện thoại bỏ qua
+- ✅ **B1 + B2 + B3 đã code, test và deploy** (`web-969b2ewsj`, xem §5B). Thêm một sửa phát sinh: điện thoại bỏ qua
   snapshot cũ hơn bản đang có, để marker người vừa báo không biến mất.
 - ✅ Giữ công tắc `CDP_ANALYTICS_DISABLED`. ✅ **Không sửa luồng ghi lượt báo** trước 18/9.
-- ⏳ Theo dõi đêm 18/9 phải **tự động** (chủ dự án cũng đi săn đèn), kế hoạch chờ duyệt.
+- ⏳ Theo dõi đêm 18/9 phải **tự động** (chủ dự án cũng đi săn đèn): kế hoạch ở **§8**, chờ duyệt.
+  §6 (lịch làm tay) giữ lại làm phương án dự phòng.
 - ⚠️ $10 ≈ 5 triệu lệnh/tháng. Sau B: kịch bản thấp/vừa dư sức. Kịch bản cao (1.000 người chơi mỗi đêm
   × 7 đêm ≈ 5,8 triệu) có thể chạm hạn mức cuối tuần lễ hội → bị rate limit. Báo cáo tự động phải canh
   tổng tháng so với $10.
@@ -137,3 +138,62 @@ cố định nhân theo số máy (vẫn nhỏ: ~2K lệnh/giờ/máy).
 Nguồn tính phí: [Upstash Redis Pricing](https://upstash.com/pricing/redis) ·
 [Pricing & Limits](https://upstash.com/docs/redis/overall/pricing) ·
 [Upgrade Your Database](https://upstash.com/docs/redis/howto/upgrade-database).
+
+---
+
+## 8. [Đề xuất — chờ duyệt] Theo dõi tự động đêm 18/9 (dùng lại cho 19–25/9)
+
+Nguyên tắc: **anh đi săn đèn, không phải trực.** Web tự bảo vệ; có "máy trực" ghi báo cáo định kỳ; chỉ
+khi có sự cố mới gửi thông báo cho anh.
+
+### 8.1 Web tự bảo vệ (không cần ai bấm)
+
+| Cơ chế | Cách chạy | Chi phí |
+|---|---|---|
+| Game tự chuyển live 19:00 | Đã có | 0 |
+| **Trần ghi nhận hoạt động theo giờ** | Quá ~4.000 đợt/giờ (≈ 36K lệnh) thì tự ngừng ghi số liệu truy cập tới hết giờ đó, giờ sau tự chạy lại. Game, bản đồ, lượt báo không ảnh hưởng. | +1 lệnh/đợt |
+| Công tắc `CDP_ANALYTICS_DISABLED` | Giữ nguyên, dùng khi cần tắt hẳn (phải deploy lại) | 0 |
+
+### 8.2 "Máy trực" = GitHub Actions (miễn phí, repo đang dùng sẵn)
+
+- **Lịch:** 18/9 lúc 18:30, rồi mỗi 30 phút từ 19:00 tới 23:30 (11 lần). Tối 19–25/9 dùng lại cùng lịch.
+- **Mỗi lần chạy:** gọi `/api/cron/night-watch` trên web (khoá bằng `CRON_SECRET` đã có, chỉ ĐỌC Redis,
+  khoảng 25 lệnh). Nhận về:
+  - Web còn sống không: trang chủ, bài lễ hội, trang game trả 200.
+  - Game đang pre-game hay live.
+  - Hôm nay: số khách, phiên, người mở game, người báo, số lượt báo, top 3 mô hình, ảnh chờ duyệt.
+  - Ghi nhận hoạt động có đang bị trần tự ngừng không.
+  - **Ước tính** lệnh Redis hôm nay và cả tháng so với hạn mức $10 (≈ 5 triệu lệnh).
+- **Ghi báo cáo:** thêm một dòng vào `docs/reports/2026-09-18.md` rồi commit. Anh xem trên app GitHub;
+  phiên Cowork/Claude Code sáng hôm sau đọc lại được.
+
+### 8.3 Khi nào báo cho anh
+
+Workflow cố ý báo **"failed"** → GitHub tự gửi **email + thông báo app GitHub** cho anh; dòng đầu ghi lý do.
+Chỉ báo khi:
+
+1. Trang chủ / bài lễ hội / game không mở được (2 lần liên tiếp, tránh báo nhầm do mạng chập chờn).
+2. Sau 19:10 game vẫn chưa live.
+3. Ước tính tổng lệnh tháng vượt **70%** hạn mức $10.
+4. Ghi nhận hoạt động đang bị trần tự ngừng (lượng người cao bất thường).
+5. Sau 20:00 có trên 50 người mở game mà **0 lượt báo** (dấu hiệu luồng báo lỗi).
+
+Còn lại im lặng.
+
+### 8.4 Giới hạn cần biết
+
+- **[Fact]** Không đọc được số lệnh THẬT của Upstash: cần Management API key, mà database tạo qua Vercel
+  Marketplace có thể không cấp được. Số lệnh ở báo cáo là **ước tính** từ bộ đếm của CDP (số lần dựng
+  snapshot, số đợt ghi nhận, số lượt báo × số lệnh mỗi loại). Upstash vẫn tự gửi email khi gần hạn mức.
+- **[Fact]** Lịch GitHub Actions có thể trễ 5–15 phút lúc GitHub đông.
+- Máy trực **không tự bật công tắc tắt hẳn** (việc đó cần deploy lại). Trần theo giờ ở 8.1 đã tự lo phần
+  analytics.
+- Sáng 19/9: phiên Claude Code đầu tiên đọc báo cáo → tổng kết vào STATUS, thay số giả định §3–§4 bằng số thật.
+
+### 8.5 Việc code (~2–3 giờ, xong trước 17/9 tối)
+
+1. Trần theo giờ trong script ghi nhận (`lib/analytics/store.js`) + bộ đếm số lần dựng snapshot.
+2. `app/api/cron/night-watch/route.js`: đọc số liệu, kiểm tra sức khoẻ, tính ước tính, trả JSON.
+3. `.github/workflows/night-watch.yml`: lịch chạy, ghi báo cáo, commit, báo failed khi có sự cố.
+4. Chạy thử: gọi tay workflow một lần trên production trước 18/9 (chỉ đọc, không tạo dữ liệu), cố ý tạo
+   một sự cố giả để xác nhận email tới được anh.

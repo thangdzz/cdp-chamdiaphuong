@@ -6,7 +6,11 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis:** chủ dự án chốt Pay-as-you-go $10,
+**2026-09-15 (khuya, cuối) — ĐÃ DEPLOY B1–B3** (`web-969b2ewsj`): production kiểm bằng Playwright iPhone
+(chặn `/api/track`): banner, thẻ tên, bảng đổi tên, không lỗi JS; 2 lượt tải trang game liên tiếp cùng
+`generatedAt` (bộ đệm chạy). Kế hoạch theo dõi tự động đêm 18/9 ở PLAN-dem-18-9-redis §8, chờ duyệt.
+
+**Cập nhật 2026-09-15 (khuya, sau) — B1–B3 giảm lệnh Redis:** chủ dự án chốt Pay-as-you-go $10,
 B1–B3, giữ kill switch, không sửa luồng báo, theo dõi đêm 18/9 tự động. Code: bộ đệm đọc 20 giây (trang
 game, tải snapshot/người chơi), analytics gửi ≤ 2 phút/lần, quay lại tab chỉ làm mới sau ≥ 30 giây. Test
 Playwright namespace test: 2 lượt tải trong 20s cùng `generatedAt`; quay lại tab ngay = 0 server action;
