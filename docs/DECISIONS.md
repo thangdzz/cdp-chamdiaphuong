@@ -3,6 +3,22 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — NOTE-14 Chặng B: điểm đón cho dịch vụ đón khách
+
+- **Field trên place (chỉ family `pickup-service`):** `pickupMode` (`fixed_points` | `door_to_door` | `both` |
+  `contact_first`, null = chưa khai) và `pickupPoints[]` đúng NOTE-14 §10. Luật hợp lệ ở MỘT chỗ
+  `lib/pickupPoints.js`: bắt buộc địa chỉ + tỉnh/thành trong danh sách 34 tỉnh (chỉ "31 Hàng Bún" thì Google đoán
+  tỉnh theo service); tên trống → lấy địa chỉ; toạ độ qua `lib/coordinates.js`; tối đa 20 điểm; id `pp-…`
+  (không dùng `crypto.randomUUID` vì admin mở qua http trong mạng nhà không có hàm này).
+- **Không có `dropoffPoints` ở P0** (NOTE-14 §21 P1).
+- **Form admin là server-action form nên danh sách gửi dạng một ô ẩn JSON**, server làm sạch lại toàn bộ.
+  Chỉ đọc điểm đón khi form CÓ khối này (thẻ hàng chờ tự động không có — trả `[]` sẽ xoá sạch điểm đón đang có)
+  và chỉ khi subtype thuộc pickup-service; JSON hỏng → không trả field nào (giữ dữ liệu cũ).
+- **Toạ độ điểm đón: dán link Google Maps để tự đọc** (không gọi API, link rút gọn chưa hỗ trợ). Không bắt gõ
+  toạ độ tay. Điểm không có toạ độ thì Maps dùng địa chỉ đầy đủ kèm tỉnh.
+- Khối hiện cho mọi chỗ Đi lại (form không chạy lại khi đổi ô loại hình), server tự bỏ qua nếu không phải
+  dịch vụ đón khách. Chưa hiện điểm đón trên thẻ địa điểm công khai (ngoài P0).
+
 ## 2026-09-16 — NOTE-14 Chặng A: chặn import địa điểm đã đóng, vá đường lách NOTE-13, lưu toạ độ
 
 Chủ dự án duyệt kế hoạch 3 chặng (A import/toạ độ · B điểm đón · C lộ trình). Audit (chỉ đọc): **không có

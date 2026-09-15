@@ -8,6 +8,11 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 — NOTE-14 Chặng B/3 (điểm đón) ĐÃ CODE, CHƯA DEPLOY.** `lib/pickupPoints.js` (luật điểm đón),
+`app/admin/PickupPointsEditor.js` (khối "Điểm đón khách" trong form Đi lại), `lib/placeForm.js` (đọc ô ẩn
+`pickupPointsJson` — chỉ khi form có khối + subtype pickup-service). Test nhanh: `/admin` → Đang công khai → Sửa một
+xe ghép/taxi → thêm điểm, dán link Maps → Lưu. Tiếp: Chặng C (lộ trình dùng điểm đón).
+
 **2026-09-16 — NOTE-14 P0 ĐANG LÀM: Chặng A/3 (closed import + toạ độ) ĐÃ CODE, CHƯA DEPLOY.** Spec
 `docs/23-NOTE-14-Pickup-Points-Geocoding-Closed-Import.md`; kế hoạch + lý do ở DECISIONS 2026-09-16 "NOTE-14 Chặng A".
 - **File:** `lib/coordinates.js` (mới), `lib/ingestion/sourceSignals.js` (mới), `lib/ingestion/closedHold.js`

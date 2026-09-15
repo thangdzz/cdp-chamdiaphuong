@@ -1,6 +1,26 @@
 import { formatPriceText } from "./priceFormat.js";
 import { assertValidPlaceType } from "./placeTypes.js";
-import { isValidTransportSubtype, VEHICLE_TYPES } from "./transport.js";
+import { familyOfSubtype, isValidTransportSubtype, VEHICLE_TYPES } from "./transport.js";
+import { cleanPickupPoints, isValidPickupMode } from "./pickupPoints.js";
+
+// Điểm đón (NOTE-14 §8–§11) chỉ đọc khi form THẬT SỰ có khối điểm đón — thẻ hàng chờ tự động không có
+// khối này, nếu cứ trả [] thì lưu từ đó sẽ xoá sạch điểm đón đang có.
+function pickupFieldsFromFormData(formData, transportSubtype) {
+  if (!formData.has("pickupPointsJson")) return {};
+  if (familyOfSubtype(transportSubtype) !== "pickup-service") return {};
+  let raw = [];
+  try {
+    raw = JSON.parse(formData.get("pickupPointsJson")?.toString() || "[]");
+  } catch {
+    // Ô ẩn hỏng: không đoán — giữ nguyên dữ liệu cũ bằng cách không trả field nào.
+    return {};
+  }
+  const mode = formData.get("pickupMode")?.toString();
+  return {
+    pickupMode: isValidPickupMode(mode) ? mode : null,
+    pickupPoints: cleanPickupPoints(raw),
+  };
+}
 
 // Đọc dữ liệu địa điểm từ 1 <form> (dùng chung cho "Đang công khai", "Chờ duyệt" thủ công,
 // và "Hàng chờ duyệt tự động" — cả 3 nơi đều sửa/nhập theo đúng field này).
@@ -57,6 +77,7 @@ export function placeFromFormData(formData) {
           // dữ liệu, và không để 2 nguồn cùng nói về một thứ. vehicleTypesOf() vẫn đọc được
           // giá trị cũ của những chỗ chưa ai mở ra lưu lại.
           vehicleSeats: null,
+          ...pickupFieldsFromFormData(formData, transportSubtype),
         }
       : {}),
   };

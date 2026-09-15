@@ -1,6 +1,7 @@
 import { formatPriceText } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { transportSubtypeGroups, VEHICLE_TYPES, vehicleTypesOf } from "@/lib/transport";
+import { PickupPointsEditor } from "./PickupPointsEditor";
 
 // Tách riêng khỏi page.js (Server Component, có import next/headers) để LivePlacesManager.js
 // (Client Component) dùng chung được — Client Component không được import trực tiếp từ 1
@@ -109,6 +110,10 @@ export function PlaceForm({ place, children }) {
               ))}
             </div>
           </fieldset>
+
+          {/* NOTE-14 §11: hiện cho mọi chỗ Đi lại vì form không chạy lại khi đổi ô "Loại hình Đi lại";
+              server chỉ giữ điểm đón cho family pickup-service (lib/placeForm.js). */}
+          <PickupPointsEditor place={place} />
         </div>
       )}
 

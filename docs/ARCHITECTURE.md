@@ -258,7 +258,10 @@ Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.j
 Toạ độ (NOTE-14, không bắt buộc): `coordinates: { lat, lng, source }` — MỘT chỗ quy định ở `lib/coordinates.js`
 (khung Việt Nam, đọc link Google Maps, `coordinatesOf()` đọc cả dạng cũ). Import mới có toạ độ khi nguồn có;
 chỗ đang công khai chưa có thì lần quét khớp sau điền vào (không đè toạ độ đã có). `providerMeta.google`
-(placeId, mapsUrl, businessStatus) nếu nguồn là Google:
+(placeId, mapsUrl, businessStatus) nếu nguồn là Google.
+Dịch vụ đón khách (NOTE-14 B): `pickupMode` + `pickupPoints[{id,name,addressLine,wardOrDistrict,province,lat,lng,note,
+order,active}]` — luật ở `lib/pickupPoints.js`, admin sửa ở `app/admin/PickupPointsEditor.js` (ô ẩn JSON
+`pickupPointsJson`, `lib/placeForm.js` làm sạch lại). **Địa chỉ của service không phải điểm đón.**
 
 ```js
 {
