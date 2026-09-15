@@ -99,10 +99,10 @@ npm run lint     # eslint
   `npx next start -p 3100`. Không mở thêm cổng khác cho CDP. Các cổng 3001/3998/3999 là dự án
   khác của anh (sinh-qr, ClassFlow) — không đụng.
 - **Thử trên điện thoại qua wifi:** địa chỉ LAN của máy Mac đổi theo router (đã đổi .20 → .178
-  ngày 15/9) — luôn lấy lại bằng `ipconfig getifaddr en0` trước khi gửi link. Qua `http://192.168…`:
-  **không đăng nhập được `/admin`** (`next start` = production nên cookie phiên có `secure`) và
-  **không lấy được GPS** (trình duyệt chỉ cho trên https) — admin mở bằng **Chrome** trên Mac tại
-  `http://localhost:3100/admin` (Safari không nhận cookie secure trên localhost).
+  ngày 15/9) — luôn lấy lại bằng `ipconfig getifaddr en0` trước khi gửi link. Qua `http://192.168…`
+  **không lấy được GPS** (trình duyệt chỉ cho trên https) — kéo ghim trên bản đồ. Đăng nhập `/admin`
+  qua LAN dùng được từ 15/9 (cookie phiên chỉ bật `secure` khi request thật sự là https, xem
+  `isHttpsRequest` trong `lib/adminAuth.js`). Trang admin game là `/admin/game`, không phải `/cham/admin`.
 - ⚠️ Localhost **ghi vào Redis/Blob thật** (namespace test chỉ phủ một phần key). Hành động
   không hoàn tác được (duyệt đóng cửa, crawler) chỉ test bằng namespace riêng, không bấm tay.
 

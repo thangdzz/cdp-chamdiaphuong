@@ -41,3 +41,13 @@ export function checkPassword(input) {
   if (inputBuf.length !== realBuf.length) return false;
   return crypto.timingSafeEqual(inputBuf, realBuf);
 }
+
+// Cờ `secure` của cookie phiên theo giao thức THẬT của request, không theo NODE_ENV. Trước đây
+// `next start` (production) mở qua http://192.168… trong mạng nhà thì trình duyệt từ chối lưu
+// cookie secure → đăng nhập xong bấm sang trang admin khác lại bị hỏi mật khẩu. Trên Vercel
+// request luôn là https (header do Vercel đặt, http tự chuyển sang https) nên vẫn là secure.
+// Next.js tự điền `x-forwarded-proto` theo kết nối khi không có proxy phía trước.
+export function isHttpsRequest(forwardedProto) {
+  if (!forwardedProto) return process.env.NODE_ENV === "production";
+  return forwardedProto.split(",")[0].trim().toLowerCase() === "https";
+}

@@ -1,13 +1,14 @@
 "use server";
 
 import crypto from "crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   ADMIN_COOKIE_NAME,
   checkPassword,
   createSessionToken,
+  isHttpsRequest,
   verifySessionToken,
 } from "@/lib/adminAuth";
 import {
@@ -38,9 +39,10 @@ export async function login(formData) {
   }
 
   const cookieStore = await cookies();
+  const headerStore = await headers();
   cookieStore.set(ADMIN_COOKIE_NAME, createSessionToken(), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isHttpsRequest(headerStore.get("x-forwarded-proto")),
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,

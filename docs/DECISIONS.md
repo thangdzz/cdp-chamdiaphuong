@@ -3,6 +3,16 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-15 — Cookie phiên admin: `secure` theo giao thức thật, không theo NODE_ENV
+
+**Vấn đề:** server test `next start` (NODE_ENV=production) mở qua `http://192.168.1.178` → cookie
+`secure` bị trình duyệt từ chối; ngay sau đăng nhập trang `/admin` vẫn hiện (server dựng trong cùng
+lượt) nhưng bấm "Game layer" lại bị hỏi mật khẩu liên tục.
+
+**Sửa:** `login` đặt `secure: isHttpsRequest(x-forwarded-proto)`. Trên Vercel header luôn là https
+(Vercel đặt, http tự chuyển https) nên production vẫn secure; http trong mạng nhà thì không. Thiếu
+header thì giữ hành vi cũ (theo NODE_ENV). Không đổi gì khác của cơ chế đăng nhập.
+
 ## 2026-09-15 — Đồng bộ pha game giữa các máy (pre-game/live)
 
 **Vấn đề (chủ dự án báo):** máy tính ra câu đùa, iPhone lại "Đã Chạm". Nguyên nhân trực tiếp: server
