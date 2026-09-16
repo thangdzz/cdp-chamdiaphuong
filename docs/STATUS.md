@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-16 (phiên tối) — ĐỔI ĐƯỜNG DẪN GAME, CHƯA DEPLOY.**
+**Cập nhật mới nhất 2026-09-16 (phiên tối) — ĐỔI ĐƯỜNG DẪN GAME, ĐÃ DEPLOY (`web-5oqws6bid`).**
 
 Chủ dự án thấy `chamdiaphuong.io.vn/cham/thanh-tuyen-2026` lặp chữ "cham" và không nói rõ là trò gì.
 Đổi thành **`chamdiaphuong.io.vn/san-den-thanh-tuyen-2026`** (lý do đầy đủ ở DECISIONS 2026-09-16).
@@ -22,7 +22,12 @@ Kiểm trên `localhost:3100`: link mới 200, link cũ 308 về đúng link m�
 `/admin/game` vẫn 307 về đăng nhập, khối game trên bài lễ hội + thẻ nổi trang chủ trỏ link mới
 (đếm ngược "còn 2 ngày 2 giờ" đúng). Lint giữ nguyên 1 lỗi cũ đã biết; build đạt.
 
-**Chưa deploy** — chờ chủ dự án bảo. Việc còn: dọn gọn khu quản trị `/admin/*` (TASKS).
+Kiểm lại trên `chamdiaphuong.io.vn` sau deploy: link mới 200 và vẫn đúng pha `pre_game`; link cũ
+`/cham/thanh-tuyen-2026` chuyển 1 nhịp về link mới; `/so`, `/ghi-chu`, `/lo-trinh`, `/gioi-thieu`,
+`/le-hoi-thanh-tuyen`, trang chủ đều 200; `/admin/game` vẫn 307 về đăng nhập; không còn chuỗi
+`/cham/` nào trong HTML ba trang chính. Không ghi dữ liệu thử nào lên Redis thật.
+
+Việc còn: dọn gọn khu quản trị `/admin/*` (TASKS).
 
 ---
 

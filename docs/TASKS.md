@@ -252,7 +252,7 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       nào gộp được, chỗ nào thừa, có cần một trang chủ admin dẫn đường không
 - [x] **Sửa đường dẫn game** — xong 2026-09-16 (làm trước, không đợi đợt dọn admin):
       `/cham/thanh-tuyen-2026` → `/san-den-thanh-tuyen-2026`, link cũ chuyển hướng 308.
-      Chưa deploy
+      Đã deploy (`web-5oqws6bid`)
 - [ ] Nhân tiện soát luôn đường dẫn các trang admin cho thống nhất một kiểu đặt tên
 
 ### Nợ kỹ thuật & việc nhỏ

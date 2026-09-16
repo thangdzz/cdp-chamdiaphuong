@@ -8,7 +8,7 @@
 
 ## 1. Task hiện tại
 
-**2026-09-16 (tối) — ĐƯỜNG DẪN GAME ĐỔI, CHƯA DEPLOY.** Trang game giờ là
+**2026-09-16 (tối) — ĐƯỜNG DẪN GAME ĐỔI, ĐÃ DEPLOY** (`web-5oqws6bid`, alias `chamdiaphuong.io.vn`). Trang game giờ là
 `/san-den-thanh-tuyen-2026` (tầng gốc), không còn `/cham/[eventSlug]`. `slug` khác `id`; khoá Redis
 dựng từ `id` nên dữ liệu nguyên vẹn. Link cũ chuyển hướng 308 trong `next.config.mjs`. Ai đổi slug lần
 sau nhớ sửa kèm `HOME_GAME_SLUG` (`app/page.js`) và `FESTIVAL_GAME_SLUG`

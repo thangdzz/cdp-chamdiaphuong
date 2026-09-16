@@ -3,7 +3,7 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
-## 2026-09-16 — Đường dẫn game bỏ tầng `/cham/` (đã code, chưa deploy)
+## 2026-09-16 — Đường dẫn game bỏ tầng `/cham/` (ĐÃ DEPLOY)
 
 `https://chamdiaphuong.io.vn/cham/thanh-tuyen-2026` lặp chữ "cham" hai lần và không nói cho người
 nhìn biết đó là trò gì. Chốt đổi thành **`https://chamdiaphuong.io.vn/san-den-thanh-tuyen-2026`** —
