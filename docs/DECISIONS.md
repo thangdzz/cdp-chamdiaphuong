@@ -17,7 +17,7 @@ lại liên tục cả tối.
   `line-dasharray` của MapLibre không nhận biểu thức theo dữ liệu nên phải tách hai lớp — đó là lý
   do có `cdp-venue-route` và `cdp-venue-route-dashed`.
 - **Toạ độ lấy từ OpenStreetMap, không vẽ tay** (đúng lệ đã đặt cho 2 điểm tổ chức cũ): tìm đường
-  theo tên, bám tim đường, vòng khép kín ~3,3 km, 63 điểm, sai số dưới 0,4 m.
+  theo tên, bám tim đường, vòng khép kín ~3,3 km, 71 điểm, sai số dưới 0,4 m.
 - **Phải đi ĐÚNG CHIỀU XE CHẠY.** Bản vẽ đầu tiên chạy ngược chiều một làn của Tân Trào (đường đôi
   một chiều) vì tìm đường trên đồ thị vô hướng. Sửa: đồ thị CÓ HƯỚNG, đọc `oneway` và
   `junction=roundabout` của OSM, và bắt tuyến đi qua 4 con đường đúng thứ tự chủ dự án kể. Kết quả
@@ -25,6 +25,13 @@ lại liên tục cả tối.
 - **Không rút gọn số điểm quá tay.** Bùng binh Ngã 8 bán kính chỉ ~13 m; rút gọn ở mức 1,5 m là cung
   tròn bị bóp thành đường thẳng cắt ngang bùng binh — nhìn bản đồ tưởng vẽ sai đường. Giữ sai số
   dưới 0,4 m thì mọi bùng binh còn nguyên hình.
+- **Bùng binh: theo LUẬT, không theo dữ liệu.** Xe Việt Nam đi bên phải nên mọi bùng binh chạy ngược
+  chiều kim đồng hồ. Trong OSM quanh khu này có 6 vòng tròn: 5 vòng vẽ đúng chiều, riêng **xuyến Ngã 8
+  (way 1431622682) bị vẽ ngược** và chỉ gắn `oneway=yes`, không gắn `junction=roundabout` — máy tin
+  theo thì đi cắt qua nửa trên bùng binh. Cách dựng hiện tại **bỏ qua chiều vẽ của mọi vòng tròn khép
+  kín và ép ngược chiều kim đồng hồ theo hình học**. Dữ liệu OSM sửa hay không cũng không ảnh hưởng.
+- **Vòng bắt đầu ngay tại lối ra Bình Thuận trên xuyến Ngã 8**, không phải một điểm giữa xuyến — để
+  tuyến chạy qua xuyến đúng một lần, không vẽ chồng lên chính nó.
 - **Hết Đại lộ Tân Trào đường đổi tên thành 17/8 khoảng 130 m** rồi mới tới ngã rẽ Phan Thiết —
   chủ dự án xác nhận đoàn đi thẳng qua đoạn đó, nên tuyến vẽ liền mạch.
 - Bản đồ tự thu vừa đủ để thấy trọn vòng (khung bao tính cả tuyến mới).
