@@ -3,6 +3,48 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Xác nhận vị trí trên bản đồ cho mọi địa chỉ nhập tay (kéo P1 §14–§15 lên làm sớm)
+
+Chủ dự án báo: điểm riêng "Khu đỉnh dốc Bà The — 63 Lê Duẩn, Minh Xuân, Tuyên Quang" vẫn bị Google Maps
+dẫn sang "Cong ty TNHH MTV Duy Hoa Dien, 321 Lê Duẩn". Nguyên nhân KHÔNG phải ghép chuỗi sai: số nhà 63
+không có trong dữ liệu Google nên nó nhảy sang chỗ gần nhất nó biết trên cùng con đường. Địa chỉ chữ
+không bao giờ đủ để dẫn đường ở Việt Nam ⇒ phải có bước ghim.
+
+- **Luồng chốt:** gõ địa chỉ → tra vị trí gần đúng → **mở bản đồ ngay dưới ô nhập** → kéo ghim tới đúng chỗ
+  → **Xác nhận vị trí**. Lưu địa chỉ + toạ độ + nguồn + dấu đã xác nhận. Tên điểm chỉ để hiển thị, toạ độ mới
+  là dữ liệu dẫn đường.
+- **Dùng lại `GameMap` chế độ `picker`** (NOTE-04 §8) thay vì kéo marker: ghim đứng giữa khung, kéo bản đồ bên
+  dưới — trên điện thoại ngón tay không che mất ghim, và không phải dựng hệ bản đồ mới (NOTE-14 §22).
+- **Nhà cung cấp tra địa chỉ: Photon (komoot)** — miễn phí, không khoá, dữ liệu OSM như nền bản đồ đang dùng.
+  **Không dùng Nominatim** dù cũng là OSM: test 16/9 thấy `nominatim.openstreetmap.org` không kết nối được từ
+  mạng gia đình ở VN (giống `tile.openstreetmap.org`, DECISIONS 14/9). **Không dùng Google Geocoding API**:
+  tính tiền theo lượt tra, dự án không có khoá.
+- **Tra hỏng không bao giờ chặn người dùng:** tra không ra / mạng lỗi / dịch vụ chặn → vẫn mở bản đồ ở giữa
+  tỉnh đã chọn (bảng 34 tâm tỉnh trong `lib/geocode.js`) kèm câu "kéo ghim tới đúng vị trí".
+- **Không ghi Redis cho việc tra** — chỉ nhớ tạm trong bộ nhớ tiến trình. Thứ đáng lưu là ghim đã xác nhận.
+  Tính năng này không thêm lệnh Redis nào (đang siết ngân sách Upstash cho đêm 18/9).
+- **`locationSource` ghi là `geocoded` | `user_adjusted` | `cdp_verified`, KHÔNG ghi `google`** như NOTE gợi ý:
+  không phải Google tra, ghi vậy sau này đọc lại sẽ hiểu sai. Kéo ghim → `user_adjusted` đè lên kết quả tra.
+- **Hai dạng lưu, mỗi bên theo spec của mình:** place/điểm dừng lộ trình dùng `coordinates: {lat, lng, source,
+  confirmed}` (DECISIONS 16/9 chặng A); điểm đón dùng dạng phẳng `lat`/`lng`/`locationSource`/`locationConfirmed`
+  đúng NOTE-14 §10. `lib/coordinates.js` vẫn là chỗ DUY NHẤT quyết định toạ độ có hợp lệ không.
+- **Đổi địa chỉ thì bỏ dấu đã xác nhận nhưng GIỮ toạ độ:** ghim cũ vẫn gần hơn nhiều so với để Google đoán lại,
+  chỉ là cần người xem lại. Giao diện chuyển về "Chưa xác nhận…".
+- **Không khoá nút "Kiểm tra vị trí trên bản đồ" trong lúc đang tự lưu:** rời ô tỉnh là lúc tự lưu, mà cũng chính
+  là lúc chạm vào nút — khoá đúng khoảnh khắc đó thì cú chạm rơi mất (lỗi thật, bắt được khi test).
+- Áp dụng cho: điểm riêng trong lộ trình, điểm đón tận nơi khách tự nhập, điểm đón của nhà xe ở trang admin.
+  Ô "dán link Google Maps" ở form admin vẫn giữ (toạ độ từ link tính là `google_maps_link`, chưa xác nhận).
+
+## 2026-09-16 — Ba sửa nhỏ trang lộ trình (theo phản hồi dùng thật trên iPhone)
+
+- **Điểm đón tự nhập tự lưu khi rời khối**, giống mọi ô khác trong trang sửa; nút "Lưu điểm đón" giữ lại cho
+  yên tâm. Rời khối mà không đổi gì thì không ghi lại (đỡ một lệnh Redis).
+- **Điểm riêng hiện địa chỉ đầy đủ** ở trang xem và trang chia sẻ, cùng kiểu dòng "📍 Đón tại" của dịch vụ đón
+  khách — đó là thứ Google nhận, nhìn thấy mới biết nó sai. Chỉ có tỉnh mà không có số nhà/tên đường thì KHÔNG
+  coi là địa chỉ (hiện "📍 Hà Nội" trần không chỉ đường cho ai được) → hiện lời nhắc thay vào đó.
+- **Nút "Xem lộ trình" ghim ở đáy trang sửa**: trang dài quá một màn hình ngay khi có vài điểm. Là điều hướng
+  thuần, không phải nút "lưu" — mọi thay đổi đã tự lưu lúc rời ô.
+
 ## 2026-09-16 — NOTE-14 Chặng C: lộ trình dẫn tới điểm đón, không tới địa chỉ dịch vụ
 
 - **`stop.pickupSelection` là field tuỳ chọn trên stop `cdp_place`, bản chụp lúc chọn** (§14, §18) — không

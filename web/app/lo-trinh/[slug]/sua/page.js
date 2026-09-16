@@ -16,7 +16,9 @@ import {
   proposePlaceForRoute,
   replaceRouteStop,
   choosePickupForStop,
+  confirmStopLocation,
 } from "@/app/routeActions";
+import { LocationConfirm } from "@/app/LocationConfirm";
 import { PlacePicker } from "@/app/PlacePicker";
 import { ProposePlaceForm } from "@/app/ProposePlaceForm";
 import { StopBadge } from "@/app/StopBadge";
@@ -452,6 +454,31 @@ function PickupChooser({ stop, index, slug, onChosen }) {
             Lưu điểm đón
           </button>
           <p className="text-xs text-zinc-400">Bấm ra ngoài khung này cũng tự lưu.</p>
+          {/* Địa chỉ nhà khách còn khó tra hơn địa chỉ quán — ghim trên bản đồ để xe đón đúng chỗ. */}
+          <LocationConfirm
+            addressLine={custom.addressLine}
+            province={custom.province}
+            label="điểm đón"
+            /* KHÔNG khoá nút này lúc đang lưu: rời ô tỉnh là tự lưu, mà chạm vào nút cũng chính là
+               lúc rời ô — khoá đúng khoảnh khắc đó thì cú chạm rơi mất, người dùng tưởng nút hỏng. */
+            value={
+              isCustomSelection && Number.isFinite(selection.lat)
+                ? { lat: selection.lat, lng: selection.lng, source: selection.locationSource, confirmed: selection.locationConfirmed }
+                : null
+            }
+            onConfirm={async (next) => {
+              const result = await choose({
+                type: PICKUP_SELECTION_TYPES.CUSTOM,
+                ...custom,
+                lat: next.lat,
+                lng: next.lng,
+                locationSource: next.source,
+                locationConfirmed: true,
+              });
+              if (result?.ok) savedCustomRef.current = { ...custom };
+              return result;
+            }}
+          />
         </div>
       )}
 
@@ -470,6 +497,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
   // Điểm riêng cũ thiếu tỉnh không được âm thầm coi là Tuyên Quang: người tạo phải chọn lại
   // trước khi Google Maps dùng nó, vì tên như Winmart Hàng Bún có thể ở Hà Nội.
   const [province, setProvince] = useState(stop.customProvince ?? "");
+  const [coordinates, setCoordinates] = useState(stop.coordinates ?? null);
   const [saved, setSaved] = useState(null); // null | "ok" | lỗi
   const savedRef = useRef({
     plannedAt: stop.plannedAt ?? "",
@@ -503,6 +531,13 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
         : {}),
     });
     if (result.ok) {
+      // Máy chủ bỏ dấu "đã xác nhận" khi địa chỉ đổi (ghim cũ là của địa chỉ cũ) — giao diện phải
+      // theo ngay, không đợi tải lại trang, nếu không nó vẫn khoe "đã xác nhận" cho địa chỉ mới.
+      const addressChanged =
+        current.address !== savedRef.current.address || current.province !== savedRef.current.province;
+      if (addressChanged) {
+        setCoordinates((current) => (current?.confirmed ? { ...current, confirmed: false } : current));
+      }
       savedRef.current = current;
       setSaved("ok");
       setTimeout(() => setSaved(null), 1800);
@@ -643,6 +678,26 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             ))}
           </select>
         </label>
+      )}
+      {/* Địa chỉ chữ không đủ để dẫn đường: xác nhận ghim trên bản đồ thì Google Maps mới tới đúng
+          chỗ thay vì đoán sang số nhà khác cùng đường. */}
+      {isCustom && (
+        <LocationConfirm
+          addressLine={address}
+          province={province}
+          value={coordinates}
+          disabled={busy}
+          onConfirm={async (next) => {
+            const result = await confirmStopLocation({
+              anonId: loadLocalContributor()?.anonId,
+              slug,
+              index,
+              coordinates: next,
+            });
+            if (result?.ok) setCoordinates(next);
+            return result;
+          }}
+        />
       )}
 
       {stop.isPickupService && !stop.deleted && (

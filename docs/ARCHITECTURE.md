@@ -255,7 +255,7 @@ server (so `anonId` gửi lên với `ownerAnonId` lưu trong sổ) — không t
 ### Hình dạng một chỗ trong `places:live`
 
 Xem `lib/ingestion/toLivePlace.js` (`candidateToLivePlace`) và `lib/placeForm.js`.
-Toạ độ (NOTE-14, không bắt buộc): `coordinates: { lat, lng, source }` — MỘT chỗ quy định ở `lib/coordinates.js`
+Toạ độ (NOTE-14, không bắt buộc): `coordinates: { lat, lng, source, confirmed }` — MỘT chỗ quy định ở `lib/coordinates.js`
 (khung Việt Nam, đọc link Google Maps, `coordinatesOf()` đọc cả dạng cũ). Import mới có toạ độ khi nguồn có;
 chỗ đang công khai chưa có thì lần quét khớp sau điền vào (không đè toạ độ đã có). `providerMeta.google`
 (placeId, mapsUrl, businessStatus) nếu nguồn là Google.
@@ -265,6 +265,18 @@ order,active}]` — luật ở `lib/pickupPoints.js`, admin sửa ở `app/admin
 Trong lộ trình (NOTE-14 C): stop `cdp_place` có thể có `pickupSelection` (bản chụp `pickup_point` hoặc `custom`),
 lưu qua `setStopPickupSelection` (lib/routes.js). `stopMapsQuery` KHÔNG BAO GIỜ dùng tên/địa chỉ của dịch vụ đón
 khách; `stopNeedsPickupSelection` chặn nút Maps ở trang xem và chặn tạo link chia sẻ.
+
+### Xác nhận vị trí trên bản đồ (2026-09-16)
+
+Mọi chỗ người dùng gõ địa chỉ bằng tay đều có khối `app/LocationConfirm.js`: tra vị trí gần đúng
+(`app/geocodeActions.js` → Photon/OSM, phần thuần ở `lib/geocode.js`) → mở `GameMap` chế độ `picker` → kéo ghim →
+**Xác nhận vị trí**. Tra hỏng thì mở ở tâm tỉnh (bảng 34 tỉnh trong `lib/geocode.js`), không chặn ai. Không ghi
+Redis cho việc tra.
+Nguồn toạ độ: `geocoded` (máy tra) < `user_adjusted` (người kéo ghim) / `cdp_verified`; `confirmed` = đã có người
+nhìn bản đồ và xác nhận. Đổi địa chỉ → bỏ `confirmed`, GIỮ toạ độ.
+Dùng ở: điểm riêng lộ trình (`coordinates` trên stop, lưu qua `confirmStopLocation`), điểm đón tận nơi và điểm đón
+của nhà xe (dạng phẳng `lat`/`lng`/`locationSource`/`locationConfirmed`, `cleanPickupLocation` ở `lib/pickupPoints.js`).
+`stopMapsQuery` ưu tiên toạ độ đã ghim cho MỌI loại điểm, chỉ rơi về địa chỉ chữ khi chưa có.
 
 ```js
 {

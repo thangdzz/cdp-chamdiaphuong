@@ -74,6 +74,9 @@ export async function createShareSnapshot({ route, resolvedStops }) {
       customTitle: stop.customTitle ?? null,
       customAddress: stop.customAddress ?? stop.proposal?.address ?? null,
       customProvince: stop.customProvince ?? null,
+      // Ghim đã xác nhận của điểm riêng (2026-09-16): người nhận lưu bản copy thì giữ đúng vị trí,
+      // không phải kéo lại. `mapsQuery` ở trên đã tính từ toạ độ này rồi.
+      coordinates: stop.coordinates ?? null,
       nameSnapshot: stop.nameSnapshot ?? stopTitle(stop),
       // Điểm đón đã chọn đóng băng theo link (NOTE-14 §14) — nhà xe đổi điểm đón thì link cũ không đổi.
       pickupSelection: stop.pickupSelection ?? null,

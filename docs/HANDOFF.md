@@ -8,6 +8,29 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 (sau) — XÁC NHẬN VỊ TRÍ TRÊN BẢN ĐỒ + 3 SỬA NHỎ TRANG LỘ TRÌNH, ĐÃ CODE, CHƯA DEPLOY.** Lý do ở
+DECISIONS 2026-09-16 hai mục đầu.
+- **Vì sao:** chủ dự án báo điểm riêng "63 Lê Duẩn, Minh Xuân, Tuyên Quang" vẫn bị Google dẫn sang "321 Lê Duẩn".
+  Số nhà đó không có trong dữ liệu Google ⇒ địa chỉ chữ không bao giờ đủ, phải cho người dùng tự ghim.
+- **Đã làm:** (1) khối "Kiểm tra vị trí trên bản đồ" dùng chung — tra địa chỉ (Photon/OSM) → mở bản đồ
+  (`GameMap` chế độ `picker`) → kéo ghim → "Xác nhận vị trí"; lưu toạ độ + `source` + `confirmed`; Maps ưu tiên
+  toạ độ đã xác nhận. Dùng ở điểm riêng lộ trình, điểm đón tận nơi, điểm đón nhà xe (admin). (2) điểm đón tự nhập
+  tự lưu khi bấm ra ngoài khối. (3) điểm riêng hiện địa chỉ đầy đủ ở trang xem + trang chia sẻ. (4) nút
+  "Xem lộ trình" ghim đáy trang sửa.
+- **File:** `lib/geocode.js`, `app/geocodeActions.js`, `app/LocationConfirm.js` (mới); `lib/coordinates.js`
+  (thêm nguồn `geocoded`/`user_adjusted`/`cdp_verified` + cờ `confirmed`), `lib/pickupPoints.js`
+  (`cleanPickupLocation`), `lib/routes.js` (`stopFullAddress`, `updateStop` nhận `coordinates`),
+  `lib/mapsUrl.js`, `lib/routeShare.js`; `app/routeActions.js` (`confirmStopLocation`),
+  `app/lo-trinh/[slug]/{page,sua/page}.js`, `app/lo-trinh/xem/[token]/page.js`, `app/admin/PickupPointsEditor.js`.
+- **Test nhanh:** mở một lộ trình có điểm riêng → trang sửa → "Kiểm tra vị trí trên bản đồ" → kéo → "Xác nhận" →
+  trang xem, link Maps phải là `lat,lng` chứ không phải chữ. Đã chạy 3 script Playwright iPhone (bước 1/2/3) +
+  chạy lại bộ test NOTE-14 chặng C, tất cả đạt; dọn sạch key test.
+- **Đã thử trên lộ trình THẬT `/lo-trinh/ep3jjcay`** (ghim → Maps ra `21.826661,105.201752`) rồi **trả lại
+  nguyên trạng**: chỉ chủ dự án biết "Khu đỉnh dốc Bà The" nằm đâu, nên ghim thật để chủ tự đặt sau khi deploy.
+- **Bug/risk:** Photon là dịch vụ miễn phí bên thứ ba — hỏng thì bản đồ vẫn mở ở giữa tỉnh, không chặn ai;
+  OSM ở VN thường chỉ có tên đường, không có số nhà ⇒ bước kéo ghim là bắt buộc chứ không phải tuỳ chọn;
+  link chia sẻ CŨ là bản đóng băng, phải chia sẻ lại mới mang ghim mới.
+
 **2026-09-16 — NOTE-14 P0 ĐÃ CODE XONG CẢ 3 CHẶNG, CHƯA DEPLOY.** Spec `docs/23-NOTE-14-…`; lý do từng quyết định ở
 DECISIONS 2026-09-16 "NOTE-14 Chặng A/B/C".
 - **Đã làm:** (A) nguồn báo đóng vĩnh viễn → `source_closed` không tự công khai + 3 hành động; guard NOTE-13 phủ cả

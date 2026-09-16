@@ -12,9 +12,25 @@
 // (lng,lat) hoặc link của nơi khác — thà bỏ còn hơn dẫn khách sang nước khác.
 const VN_BOUNDS = { minLat: 8, maxLat: 24, minLng: 102, maxLng: 110 };
 
-export const COORDINATE_SOURCES = ["import", "google_maps_link", "proposal", "admin"];
+// `geocoded`   — máy tra từ địa chỉ chữ, CHƯA ai nhìn bản đồ xác nhận.
+// `user_adjusted` — người dùng đã kéo ghim tới đúng chỗ (đè lên kết quả tra, 2026-09-16).
+// `cdp_verified`  — CDP tự đối chiếu và xác nhận.
+export const COORDINATE_SOURCES = [
+  "import",
+  "google_maps_link",
+  "proposal",
+  "admin",
+  "geocoded",
+  "user_adjusted",
+  "cdp_verified",
+];
 
-/** { lat, lng, source? } hợp lệ trong Việt Nam, làm tròn 6 chữ số (~10cm) — không thì null. */
+/**
+ * { lat, lng, source?, confirmed? } hợp lệ trong Việt Nam, làm tròn 6 chữ số (~10cm) — không thì null.
+ *
+ * `confirmed: true` = đã có người nhìn ghim trên bản đồ và bấm xác nhận. Toạ độ chưa xác nhận vẫn
+ * dùng được để dẫn đường, chỉ là chưa ai kiểm tra bằng mắt.
+ */
 export function cleanCoordinates(value, source = null) {
   const lat = Number(value?.lat);
   const lng = Number(value?.lng);
@@ -28,6 +44,7 @@ export function cleanCoordinates(value, source = null) {
     lat: round(lat),
     lng: round(lng),
     ...(COORDINATE_SOURCES.includes(cleanSource) ? { source: cleanSource } : {}),
+    ...(value?.confirmed === true ? { confirmed: true } : {}),
   };
 }
 

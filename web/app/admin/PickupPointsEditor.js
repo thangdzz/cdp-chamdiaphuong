@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PICKUP_MODES, MAX_PICKUP_POINTS, pickupPointsOf } from "@/lib/pickupPoints";
 import { PROVINCES } from "@/lib/provinces";
 import { parseMapsCoordinates } from "@/lib/coordinates";
+import { LocationConfirm } from "@/app/LocationConfirm";
 
 // Khối "Điểm đón khách" trong form sửa dịch vụ đón khách (NOTE-14 §11). Form admin là form thường
 // (server action) nên danh sách điểm gửi đi dưới dạng MỘT ô ẩn JSON; server làm sạch lại toàn bộ
@@ -16,7 +17,7 @@ const inputClass = "rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zin
 let draftCounter = 0;
 function emptyPoint() {
   draftCounter += 1;
-  return { draftKey: `new-${Date.now()}-${draftCounter}`, name: "", addressLine: "", wardOrDistrict: "", province: "", lat: null, lng: null, note: "", active: true };
+  return { draftKey: `new-${Date.now()}-${draftCounter}`, name: "", addressLine: "", wardOrDistrict: "", province: "", lat: null, lng: null, locationSource: null, locationConfirmed: false, note: "", active: true };
 }
 
 export function PickupPointsEditor({ place }) {
@@ -44,7 +45,8 @@ export function PickupPointsEditor({ place }) {
   function readMaps(index, key, text) {
     setMapsInput((current) => ({ ...current, [key]: text }));
     const coords = parseMapsCoordinates(text);
-    if (coords) update(index, { lat: coords.lat, lng: coords.lng });
+    // Toạ độ đọc từ link là của ghim Google, chưa ai soi lại trên bản đồ → chưa tính là đã xác nhận.
+    if (coords) update(index, { lat: coords.lat, lng: coords.lng, locationSource: coords.source ?? null, locationConfirmed: false });
   }
 
   const payload = JSON.stringify(
@@ -117,6 +119,30 @@ export function PickupPointsEditor({ place }) {
                         : "Chưa có toạ độ — Maps sẽ dùng địa chỉ đầy đủ"}
                   </span>
                 </label>
+                <div className="col-span-2">
+                  {/* Cách chắc ăn hơn dán link: xem ghim trên bản đồ rồi kéo cho đúng (2026-09-16). */}
+                  <LocationConfirm
+                    addressLine={point.addressLine}
+                    wardOrDistrict={point.wardOrDistrict}
+                    province={point.province}
+                    label="điểm đón"
+                    value={
+                      hasCoords
+                        ? { lat: point.lat, lng: point.lng, source: point.locationSource, confirmed: point.locationConfirmed }
+                        : null
+                    }
+                    onConfirm={(next) => {
+                      // Form admin là form thường: lưu vào ô ẩn JSON, ghi thật khi bấm Lưu cả form.
+                      update(index, {
+                        lat: next.lat,
+                        lng: next.lng,
+                        locationSource: next.source,
+                        locationConfirmed: true,
+                      });
+                      return { ok: true };
+                    }}
+                  />
+                </div>
                 <label className="col-span-2 flex flex-col gap-1 text-xs text-zinc-500">
                   Ghi chú
                   <input value={point.note ?? ""} onChange={(e) => update(index, { note: e.target.value })} placeholder="VD: đón trước cửa, gọi trước 30 phút" className={inputClass} />
@@ -130,7 +156,7 @@ export function PickupPointsEditor({ place }) {
                 <button type="button" onClick={() => move(index, -1)} disabled={index === 0} className="rounded border border-zinc-300 px-2 py-0.5 disabled:opacity-40">↑</button>
                 <button type="button" onClick={() => move(index, 1)} disabled={index === points.length - 1} className="rounded border border-zinc-300 px-2 py-0.5 disabled:opacity-40">↓</button>
                 {hasCoords && (
-                  <button type="button" onClick={() => update(index, { lat: null, lng: null })} className="rounded border border-zinc-300 px-2 py-0.5">
+                  <button type="button" onClick={() => update(index, { lat: null, lng: null, locationSource: null, locationConfirmed: false })} className="rounded border border-zinc-300 px-2 py-0.5">
                     Xoá toạ độ
                   </button>
                 )}

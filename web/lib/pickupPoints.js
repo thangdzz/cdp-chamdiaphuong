@@ -42,6 +42,30 @@ function newPointId() {
 }
 
 /**
+ * Toạ độ của một điểm đón, dạng PHẲNG `lat`/`lng`/`locationSource`/`locationConfirmed` đúng như
+ * NOTE-14 §10 mô tả. (Place và điểm dừng lộ trình dùng `coordinates: {…}` — hai nơi hai quy ước,
+ * vì mỗi bên đã theo spec của mình từ trước; lib/coordinates.js vẫn là chỗ duy nhất kiểm tra
+ * toạ độ có hợp lệ hay không.)
+ *
+ * `locationConfirmed` = đã có người nhìn ghim trên bản đồ và bấm xác nhận (2026-09-16).
+ */
+export function cleanPickupLocation(raw) {
+  const coords = cleanCoordinates({
+    lat: raw?.lat,
+    lng: raw?.lng,
+    source: raw?.locationSource,
+    confirmed: raw?.locationConfirmed === true,
+  });
+  if (!coords) return { lat: null, lng: null, locationSource: null, locationConfirmed: false };
+  return {
+    lat: coords.lat,
+    lng: coords.lng,
+    locationSource: coords.source ?? null,
+    locationConfirmed: coords.confirmed === true,
+  };
+}
+
+/**
  * Một điểm đón hợp lệ hoặc null. Bắt buộc có ĐỊA CHỈ + TỈNH/THÀNH hợp lệ (NOTE-14 §10: chỉ lưu
  * "31 Hàng Bún" thì Google đoán tỉnh theo ngữ cảnh service và dẫn sai).
  */
@@ -49,7 +73,6 @@ export function cleanPickupPoint(raw, order = 0) {
   const addressLine = cleanText(raw?.addressLine);
   const province = cleanText(raw?.province);
   if (!addressLine || !isValidProvince(province)) return null;
-  const coords = cleanCoordinates({ lat: raw?.lat, lng: raw?.lng });
   const id = typeof raw?.id === "string" && /^pp-[a-z0-9]{4,40}$/.test(raw.id) ? raw.id : newPointId();
   return {
     id,
@@ -57,8 +80,7 @@ export function cleanPickupPoint(raw, order = 0) {
     addressLine,
     wardOrDistrict: cleanText(raw?.wardOrDistrict) || null,
     province,
-    lat: coords?.lat ?? null,
-    lng: coords?.lng ?? null,
+    ...cleanPickupLocation(raw),
     note: cleanText(raw?.note, MAX_NOTE) || null,
     order,
     active: raw?.active !== false,
@@ -122,8 +144,7 @@ export function cleanPickupSelection(selection, place) {
       addressLine: point.addressLine,
       wardOrDistrict: point.wardOrDistrict ?? null,
       province: point.province,
-      lat: point.lat ?? null,
-      lng: point.lng ?? null,
+      ...cleanPickupLocation(point),
     };
   }
   if (selection?.type === PICKUP_SELECTION_TYPES.CUSTOM) {
@@ -136,6 +157,9 @@ export function cleanPickupSelection(selection, place) {
       addressLine,
       wardOrDistrict: cleanText(selection.wardOrDistrict) || null,
       province,
+      // Điểm tự nhập cũng ghim được trên bản đồ (2026-09-16): địa chỉ nhà khách càng khó tra hơn
+      // địa chỉ quán, để Google đoán là dẫn xe tới nhầm ngõ.
+      ...cleanPickupLocation(selection),
     };
   }
   return null;
@@ -148,7 +172,6 @@ export function sanitizeStoredPickupSelection(selection) {
   const province = cleanText(selection.province);
   if (!addressLine || !isValidProvince(province)) return null;
   const isPoint = selection.type === PICKUP_SELECTION_TYPES.POINT;
-  const coords = isPoint ? cleanCoordinates({ lat: selection.lat, lng: selection.lng }) : null;
   return {
     type: isPoint ? PICKUP_SELECTION_TYPES.POINT : PICKUP_SELECTION_TYPES.CUSTOM,
     ...(isPoint ? { pickupPointId: cleanText(selection.pickupPointId, 60) || null } : {}),
@@ -156,7 +179,7 @@ export function sanitizeStoredPickupSelection(selection) {
     addressLine,
     wardOrDistrict: cleanText(selection.wardOrDistrict) || null,
     province,
-    ...(isPoint ? { lat: coords?.lat ?? null, lng: coords?.lng ?? null } : {}),
+    ...cleanPickupLocation(selection),
   };
 }
 

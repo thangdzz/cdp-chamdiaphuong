@@ -20,6 +20,7 @@ import { getProposalIndex, PROPOSAL_STATUS } from "./proposals.js";
 import { DEFAULT_PROVINCE, PROVINCES, isValidProvince, normalizeProvince } from "./provinces.js";
 import { routeStorageKey } from "./routeStorageKeys.js";
 import { normalizeForSearch } from "./placeTextSearch.js";
+import { cleanCoordinates } from "./coordinates.js";
 import { cleanPickupSelection, isPickupService, PICKUP_SELECTION_TYPES, sanitizeStoredPickupSelection } from "./pickupPoints.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
@@ -187,6 +188,8 @@ export function routeStopsFromShareSnapshot(stops) {
       };
     }
 
+    // Ghim đã xác nhận đi theo bản copy: người nhận khỏi phải kéo lại đúng chỗ đó lần nữa.
+    const coordinates = cleanCoordinates(stop.coordinates);
     return {
       type: STOP_TYPES.CUSTOM,
       placeId: null,
@@ -196,6 +199,7 @@ export function routeStopsFromShareSnapshot(stops) {
         MAX_CUSTOM_ADDRESS_LENGTH,
       ),
       customProvince: provinceFromSharedStop(stop),
+      ...(coordinates ? { coordinates } : {}),
       nameSnapshot: null,
       ...common,
     };
@@ -485,6 +489,7 @@ export async function updateStop({
   customTitle,
   customAddress,
   customProvince,
+  coordinates,
 }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
@@ -519,8 +524,19 @@ export async function updateStop({
   if (normalizeStop(stop).type === STOP_TYPES.CUSTOM) {
     // Tên rỗng thì giữ tên cũ: điểm riêng mà mất tên là thành một dòng trống trong lộ trình.
     if (customTitle !== undefined && cleanTitle) stop.customTitle = cleanTitle;
+    // Đổi địa chỉ thì ghim đã xác nhận trước đó là của địa chỉ CŨ. Giữ lại toạ độ (vẫn gần hơn
+    // nhiều so với để Google đoán) nhưng bỏ dấu "đã xác nhận" để giao diện nhắc kiểm tra lại.
+    const addressChanged =
+      (customAddress !== undefined && cleanAddress !== (stop.customAddress ?? null)) ||
+      (customProvince !== undefined && normalizeProvince(customProvince) !== stop.customProvince);
     if (customAddress !== undefined) stop.customAddress = cleanAddress;
     if (customProvince !== undefined) stop.customProvince = normalizeProvince(customProvince);
+    if (coordinates !== undefined) {
+      stop.coordinates = cleanCoordinates(coordinates);
+    } else if (addressChanged && stop.coordinates?.confirmed) {
+      const { confirmed, ...rest } = stop.coordinates;
+      stop.coordinates = rest;
+    }
   }
 
   route.updatedAt = new Date().toISOString();

@@ -20,9 +20,15 @@
   - [ ] Chủ dự án: nhập điểm đón thật cho "Xe ghép Anh Huy" (và taxi nếu có điểm đón cố định) sau khi deploy
   - [x] Chặng C: `pickupSelection` trong lộ trình, bắt chọn điểm đón (trang sửa tự cuộn tới), Google Maps dùng điểm
         đón/toạ độ, chặn mở Maps + chia sẻ khi chưa chọn, bản chụp/bản copy giữ lựa chọn — 💻 chỉ local
+  - [x] Xác nhận vị trí trên bản đồ (kéo P1 §14–§15 lên): tra địa chỉ → mở bản đồ → kéo ghim → "Xác nhận vị trí";
+        áp dụng cho điểm riêng, điểm đón tận nơi, điểm đón nhà xe ở admin; Maps ưu tiên toạ độ đã xác nhận — 💻 chỉ local
+  - [x] Ba sửa nhỏ trang lộ trình: điểm đón tự nhập tự lưu khi bấm ra ngoài, điểm riêng hiện địa chỉ đầy đủ,
+        nút "Xem lộ trình" ghim đáy trang sửa — 💻 chỉ local
   - [ ] Deploy NOTE-14 P0 khi chủ dự án bảo
-  - [ ] P1 (NOTE-14 §21): dropoffPoints, backfill toạ độ chỗ cũ, chọn ghim trên bản đồ, geocode địa chỉ, dùng toạ độ cho
-        nghi trùng/thay thế, link Maps rút gọn, hiện điểm đón trên thẻ địa điểm
+  - [ ] Chủ dự án: sau deploy, mở `/lo-trinh/ep3jjcay/sua` ghim đúng vị trí "Khu đỉnh dốc Bà The" và điểm đón
+        "Quán Cháo Lòng" (test đã chạy trên lộ trình này rồi TRẢ LẠI NGUYÊN TRẠNG — chưa có ghim thật)
+  - [ ] P1 còn lại (NOTE-14 §21): dropoffPoints, backfill toạ độ chỗ cũ, dùng toạ độ cho nghi trùng/thay thế,
+        link Maps rút gọn, hiện điểm đón trên thẻ địa điểm
 
 - [x] **Sửa 3 lỗi sau NOTE-08 (2026-09-16) — 🚀 Đã deploy 2026-09-16 (`web-4tl2b0ue6`)**
   - [x] `/le-hoi-thanh-tuyen` chỉ còn 1 khối game (GameEntryCard dưới tiêu đề), bỏ GameBanner

@@ -183,6 +183,15 @@ export async function createRouteFromPlan({ anonId, title, stops }) {
 // "Đổi chỗ" — thay điểm dừng tại ĐÚNG vị trí đang đứng, không đẩy xuống cuối như cách xoá rồi
 // thêm lại. Thứ tự là thứ khách sắp bằng tay, đổi một chỗ không có lý do gì làm xáo nó.
 // NOTE-14 §13: "Bạn sẽ đón xe ở đâu?"
+/**
+ * Lưu ghim người dùng vừa xác nhận trên bản đồ cho một ĐIỂM RIÊNG. Tách riêng khỏi saveStopDetails
+ * để không phải gửi lại toàn bộ chữ đang gõ chỉ vì xác nhận vị trí.
+ */
+export async function confirmStopLocation({ anonId, slug, index, coordinates }) {
+  if (!anonId || !slug) return { ok: false };
+  return updateStop({ anonId, slug, index, coordinates });
+}
+
 export async function choosePickupForStop({ anonId, slug, index, selection }) {
   if (!anonId || !slug) return { ok: false };
   return setStopPickupSelection({ anonId, slug, index, selection });
@@ -260,6 +269,8 @@ export async function getRouteForEdit({ anonId, slug }) {
         customTitle: s.customTitle,
         customAddress: s.customAddress ?? null,
         customProvince: s.customProvince ?? null,
+        // Ghim đã xác nhận của điểm riêng — trang sửa cần biết để hiện "đã xác nhận" hay nhắc kiểm tra.
+        coordinates: s.coordinates ?? null,
         deleted: s.deleted,
         nameSnapshot: s.nameSnapshot,
         plannedAt: s.plannedAt,

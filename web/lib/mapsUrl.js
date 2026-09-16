@@ -84,6 +84,10 @@ export function stopMapsQuery(stop) {
       compactMapsAddress(stop.proposal.address || stop.proposal.ward),
     ]);
   }
+  // Ghim người dùng đã xác nhận trên bản đồ thắng mọi cách ghép chữ (2026-09-16): địa chỉ chữ ở
+  // Việt Nam hay bị Google gán sang số nhà khác trên cùng con đường.
+  const pinned = coordinatesQuery(coordinatesOf(stop));
+  if (pinned) return pinned;
   // Điểm ngoài danh bạ không được tự rơi về Tuyên Quang. Dữ liệu cũ thiếu tỉnh tạm không
   // đưa vào link của chủ cho tới khi họ mở màn sửa và chọn đúng tỉnh/thành.
   if (!isValidProvince(stop.customProvince)) return null;
