@@ -104,11 +104,14 @@ export function ReportSheet({
     setGpsState("locating");
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        // KHÔNG gửi giờ theo đồng hồ máy: nhiều máy Android/iPhone chỉnh tay giờ sai cả tiếng,
+        // gửi đi là server tưởng bản đo đã cũ và từ chối sạch. Gửi TUỔI của bản đo — hiệu của hai
+        // mốc trên CÙNG một đồng hồ, nên đồng hồ sai bao nhiêu cũng không ảnh hưởng.
         const next = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           accuracy: position.coords.accuracy,
-          measuredAt: new Date(position.timestamp || Date.now()).toISOString(),
+          measuredAt: position.timestamp || Date.now(), // mốc nội bộ, chỉ dùng để tính tuổi
           source: "gps",
         };
         setFix(next);
@@ -179,7 +182,8 @@ export function ReportSheet({
     form.set("lng", String(fix.lng));
     if (fix.accuracy) form.set("accuracy", String(Math.round(fix.accuracy)));
     form.set("locationSource", fix.source);
-    form.set("measuredAt", fix.measuredAt);
+    // Tuổi của bản đo tính ngay lúc gửi, theo đồng hồ của chính máy này. Server tự quy ra giờ thật.
+    form.set("measuredAgeMs", String(Math.max(0, Date.now() - fix.measuredAt)));
     if (withPhoto && photo?.file) form.set("photo", photo.file);
 
     try {
@@ -311,7 +315,7 @@ export function ReportSheet({
             onPick={
               manualAllowed
                 ? ({ lat, lng }) =>
-                    setFix({ lat, lng, accuracy: null, measuredAt: new Date().toISOString(), source: "manual" })
+                    setFix({ lat, lng, accuracy: null, measuredAt: Date.now(), source: "manual" })
                 : undefined
             }
             className="mt-3 h-60 rounded-xl"

@@ -13,7 +13,12 @@ người khác, bản đo cũ 30 giây). Server bắt buộc có giờ đo mới
 chối, không ghi**. Thêm dấu vết rủi ro phía server (IP băm, trình duyệt băm, dấu máy) để **gắn cờ,
 không chặn ai**. Lý do và hạn chế: DECISIONS 2026-09-16.
 
-Test tự viết (namespace `cdp-test-anticheat`, đã xoá sạch 77 khoá sau khi chạy): **18/18 đạt** — gồm
+Chủ dự án hỏi "đã tính máy Samsung và máy khác chưa" → lòi ra 2 lỗi thật, đã sửa: (1) server đang
+**tin đồng hồ của điện thoại**, máy để sai giờ là bị từ chối sạch — giờ máy chỉ gửi TUỔI bản đo;
+(2) Samsung Internet / Cốc Cốc / Edge bị gọi nhầm là Chrome. Test cũng bắt được một lỗi đếm chạy
+song song làm cờ lúc có lúc không.
+
+Test tự viết (namespace `cdp-test-anticheat`, xoá sạch sau mỗi lần chạy, chạy 3 lần đều xanh): **đạt hết** — gồm
 kịch bản Chrome thường → ẩn danh → trình duyệt khác, thiếu/cũ giờ đo, nhảy 700 m trong 5 giây, sai số
 180 m, ghim tay, và hai hạn chế đã biết (4G thoát được · chung wifi dễ oan).
 Kiểm giao diện thật bằng trình duyệt: chưa đo xong thì nút gửi **khoá**, hiện "Chờ đo vị trí…"; sai số

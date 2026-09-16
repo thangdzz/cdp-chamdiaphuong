@@ -124,8 +124,8 @@ export async function reportSighting(formData) {
         lng: formData.get("lng"),
         accuracy: formData.get("accuracy"),
         locationSource: formData.get("locationSource")?.toString(),
-        // Giờ ĐO trên máy người chơi, khác giờ server ghi — server kiểm để bắt buộc đo mới.
-        measuredAt: formData.get("measuredAt")?.toString(),
+        // Bản đo đã bao nhiêu mili giây (không phải giờ theo đồng hồ máy — máy hay sai giờ).
+        measuredAgeMs: formData.get("measuredAgeMs"),
       },
       photo,
       // Dấu vết phía server; trình duyệt không gửi và không sửa được (lib/game/risk.js).

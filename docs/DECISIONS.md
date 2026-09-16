@@ -37,7 +37,23 @@ trình duyệt khác hay ẩn danh là thành người mới; **không bao giờ
 - **Không chặn theo IP** — cả nhà chung wifi ra một IP, chặn là oan người thật.
 - Admin xem được: danh tính, dấu máy, nhãn máy, sai số, **giờ đo**, và lý do bị gắn cờ.
 
+**Máy nào cũng phải chạy được, không riêng iPhone (chủ dự án hỏi 16/9 — và câu hỏi đó lòi ra 2 lỗi):**
+
+- **Không được tin đồng hồ của điện thoại.** Bản đầu gửi giờ đo theo đồng hồ máy rồi server so với
+  đồng hồ của mình. Máy để sai giờ (chỉnh tay, pin cạn, máy Android cũ) là **mọi lượt báo bị từ chối
+  sạch** vì server tưởng bản đo đã cũ. Sửa: máy chỉ gửi **TUỔI của bản đo** (hiệu hai mốc trên CÙNG
+  một đồng hồ, nên đồng hồ sai bao nhiêu cũng triệt tiêu), server tự quy ra giờ thật.
+- **Samsung Internet, Cốc Cốc, Edge, Opera đều mang chữ "Chrome"** trong chuỗi nhận dạng — phải xét
+  trước Chrome, không thì máy Samsung bị gọi nhầm là Chrome và nhãn máy trong admin sai hết.
+- Sai số GPS trên Android thường kém hơn iPhone (20–30 m là bình thường); ngưỡng cảnh báo 50 m đã
+  chừa đủ chỗ cho việc đó.
+
+**Một lỗi nữa test bắt được:** đếm số danh tính bằng `Promise.all` thì lệnh ĐẾM có thể về trước lệnh
+THÊM, đếm thiếu đúng cái vừa thêm → cờ lúc có lúc không. Đã gộp vào một pipeline có thứ tự.
+
 **Hạn chế đã biết, ghi lại để khỏi ảo tưởng:** đổi sang 4G là đổi dấu máy → không nhận ra cùng người;
+**một người có iPhone + Samsung thì hai máy là hai dấu khác nhau, không gộp được** (chỉ chung dấu
+mạng nếu cùng wifi);
 ngược lại hai người thật chung wifi + cùng đời trình duyệt thì **trùng dấu máy** → dễ oan. Vì vậy mọi
 tín hiệu ở đây chỉ để NHÌN. Giai đoạn 2 (OTP số điện thoại, tách người chơi đã xác minh, gộp điểm,
 một mô hình một lần cho mỗi người thật) **để sau lễ hội** — cần dịch vụ SMS trả tiền, làm rơi rụng

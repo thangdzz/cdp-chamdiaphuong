@@ -235,14 +235,16 @@ function sanitizeLocation(event, input) {
     throw new GameInputError("Chưa đo được vị trí. Bấm “Định vị lại” rồi thử lại nhé.", "need_fix");
   }
 
-  const measuredAt = Date.parse(input.measuredAt ?? "");
-  if (!Number.isFinite(measuredAt)) {
+  // Máy chỉ gửi TUỔI của bản đo (mili giây), không gửi giờ theo đồng hồ của nó — máy để sai giờ
+  // là chuyện thường, mà sai giờ thì không được phép làm hỏng lượt báo. Giờ đo do SERVER quy ra.
+  const age = Number(input.measuredAgeMs);
+  if (!Number.isFinite(age) || age < 0) {
     throw new GameInputError("Chưa đo được vị trí. Bấm “Định vị lại” rồi thử lại nhé.", "need_fix");
   }
-  const age = Date.now() - measuredAt;
-  if (age > MAX_FIX_AGE_MS || age < -60 * 1000) {
+  if (age > MAX_FIX_AGE_MS) {
     throw new GameInputError("Vị trí đo đã lâu rồi. Bấm “Định vị lại” để đo lại nhé.", "stale_fix");
   }
+  const measuredAt = Date.now() - age;
 
   return {
     lat,
@@ -298,20 +300,23 @@ async function collectRiskFlags(event, { anonId, riskKey, ipHash, fix, objectId,
   const idsKey = GAME_KEYS.riskIds(event.id, riskKey, day);
   const ipKey = ipHash ? GAME_KEYS.riskIdsIp(event.id, ipHash, day) : null;
   const rateKey = GAME_KEYS.riskRate(event.id, riskKey, Math.floor(Date.now() / (RATE_WINDOW_SECONDS * 1000)));
-  const [, ids, bursts, seenSameModel, , ipIds] = await Promise.all([
-    redis.sadd(idsKey, anonId),
-    redis.scard(idsKey),
-    redis.incr(rateKey),
-    redis.hget(GAME_KEYS.collectionCounts(event.id, anonId), objectId),
-    ipKey ? redis.sadd(ipKey, anonId) : null,
-    ipKey ? redis.scard(ipKey) : 0,
-  ]);
-  // Hết ngày/hết cửa sổ thì tự dọn, không để rác trong Redis.
-  await Promise.all([
-    redis.expire(idsKey, 36 * 3600),
-    redis.expire(rateKey, RATE_WINDOW_SECONDS * 2),
-    ipKey ? redis.expire(ipKey, 36 * 3600) : null,
-  ]);
+
+  // PHẢI đi theo thứ tự trong một lượt gửi: chạy song song thì lệnh đếm có thể về TRƯỚC lệnh thêm,
+  // đếm thiếu mất chính danh tính vừa thêm (test bắt được 2026-09-16). Gộp một lượt cũng đỡ lệnh Redis.
+  const tx = redis.multi();
+  tx.sadd(idsKey, anonId);
+  tx.scard(idsKey);
+  tx.expire(idsKey, 36 * 3600); // hết ngày thì tự dọn, không để rác
+  tx.incr(rateKey);
+  tx.expire(rateKey, RATE_WINDOW_SECONDS * 2);
+  tx.hget(GAME_KEYS.collectionCounts(event.id, anonId), objectId);
+  if (ipKey) {
+    tx.sadd(ipKey, anonId);
+    tx.scard(ipKey);
+    tx.expire(ipKey, 36 * 3600);
+  }
+  const res = await tx.exec();
+  const [, ids, , bursts, , seenSameModel, , ipIds] = res;
 
   if (Number(ids) > MANY_IDS_PER_RISK_KEY) flags.push("many_ids");
   if (Number(ipIds) > MANY_IDS_PER_IP) flags.push("many_ids_ip");

@@ -38,17 +38,27 @@ export function coarseDevice(ua = "") {
         : /windows/i.test(ua)
           ? "Windows"
           : "Khác";
+  // Thứ tự quan trọng: Samsung Internet, Cốc Cốc và Edge đều mang chữ "Chrome" trong chuỗi nhận
+  // dạng, phải xét trước Chrome nếu không máy Samsung sẽ bị gọi nhầm là Chrome.
   const browser = /zalo/i.test(ua)
     ? "Zalo"
     : /fban|fbav|fb_iab|instagram|messenger/i.test(ua)
       ? "Facebook"
-      : /crios|chrome/i.test(ua)
-        ? "Chrome"
-        : /fxios|firefox/i.test(ua)
-          ? "Firefox"
-          : /safari/i.test(ua)
-            ? "Safari"
-            : "Khác";
+      : /samsungbrowser/i.test(ua)
+        ? "Samsung Internet"
+        : /coc_coc_browser|coccoc/i.test(ua)
+          ? "Cốc Cốc"
+          : /edga?|edgios/i.test(ua)
+            ? "Edge"
+            : /opr\/|opera/i.test(ua)
+              ? "Opera"
+              : /crios|chrome/i.test(ua)
+                ? "Chrome"
+                : /fxios|firefox/i.test(ua)
+                  ? "Firefox"
+                  : /safari/i.test(ua)
+                    ? "Safari"
+                    : "Khác";
   return `${os} · ${browser}`;
 }
 
