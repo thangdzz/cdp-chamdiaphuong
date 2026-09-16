@@ -264,6 +264,10 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
 ### Nợ kỹ thuật & việc nhỏ
 - [ ] Sửa lỗi lint cũ ở `web/app/PlaceExplorer.js` (`react-hooks/set-state-in-effect`)
 - [ ] Đưa test Playwright vào repo (hiện là script rời, chạy tay, không commit)
+- [ ] **Gộp bộ đệm đọc**: `lib/game/store.js` giữ bản sao riêng của `createSharedRead`
+      (`lib/sharedRead.js`). Cố ý chưa gộp để không đụng luồng game sát 18/9 — làm sau lễ hội
+- [ ] Soát các lượt đọc Redis mỗi-lượt-mở-trang còn lại (`lib/aboutPage.js` trên `/gioi-thieu`)
+      xem có đáng đệm như menu không
 - [x] Header thêm link "Lộ trình của tôi" — xong 2026-09-14 (key `routes` trong menu)
 - [ ] Xác minh lại phân loại "Danh Khoa - Cho thuê xe tự lái" (đang đoán là `thue-o-to`)
 - [ ] Nhãn "còn chỗ" theo lịch — ngày lễ hội 2026 viết cứng trong `app/occupancy.js`, sang năm

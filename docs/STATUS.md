@@ -6,6 +6,26 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (phiên khuya) — TEST TẢI 10.000 NGƯỜI + SỬA ĐỆM MENU, CHƯA DEPLOY.**
+
+Ép 10.000 yêu cầu **cùng lúc** vào bản build production ở cổng 3100. Web **không sập**: 10.000/10.000
+trả về 200, không lỗi. Nhưng nó **xếp hàng** — 168 trang/giây, người cuối chờ 59 giây. Trên production
+Vercel tự nhân máy chủ nên khác; muốn phục vụ 10.000 người trong 3 giây cần khoảng 20 máy chủ.
+
+Giá trị lớn nhất của test là phát hiện: **8.791/8.817 lệnh Redis là đọc cấu hình menu**, mỗi lượt mở
+trang một lệnh. Đã sửa (đệm 60 giây, `lib/sharedRead.js`) → đo lại còn **10 lệnh** cho 10.000 lượt,
+lại nhanh hơn 27%. Chi tiết và cách dựng lại máy đo: DECISIONS 2026-09-16.
+
+Sau test đã dọn sạch: tắt máy đo, dựng lại server test của chủ dự án ở 3100, **0 lệnh ghi** vào Redis
+thật trong suốt quá trình (chạy bằng token chỉ-đọc + cầu chặn ghi).
+
+**Đã mở game ở namespace test** (`cdp-test-game-owner`, `gameLiveAt` lùi về quá khứ) để chủ dự án bấm
+thử trọn luồng trên máy thật. Production **không** đụng tới, vẫn đếm ngược tới 19:00 18/9.
+⚠️ Khi chủ dự án báo thử, hồ sơ ẩn danh vẫn ghi vào `contributors:all` (khoá này không có namespace) —
+thử xong phải xoá đúng hồ sơ đó.
+
+---
+
 **Cập nhật mới nhất 2026-09-16 (phiên tối, sau) — TUYẾN RƯỚC ĐÈN TRÊN BẢN ĐỒ GAME, ĐÃ DEPLOY (`web-421078m6k`).**
 
 Chủ dự án tả tuyến đoàn mô hình đi: Ngã 8 → Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung

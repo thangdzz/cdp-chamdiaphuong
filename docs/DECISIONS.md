@@ -3,6 +3,26 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Đệm cấu hình menu: bớt 880 lần số lệnh Redis (đo bằng test tải)
+
+Chủ dự án yêu cầu thử 10.000 người cùng lúc. Test cho một kết quả quan trọng hơn cả con số chịu tải:
+**8.791 trong 8.817 lệnh Redis là cùng MỘT lệnh — đọc cấu hình menu**. `getNavigationConfig()` nằm
+trong Root Layout nên **mọi lượt mở bất kỳ trang nào của cả web đều tốn 1 lệnh Redis**, trong khi
+menu cả tháng mới đổi một lần.
+
+- **Sửa:** đệm 60 giây trong bộ nhớ máy chủ (`lib/sharedRead.js`). Admin lưu xong thì máy chủ vừa
+  lưu thấy ngay (`forget()`); máy chủ Vercel khác chậm nhất 60 giây — chấp nhận được với cấu hình.
+- **Đo lại cùng quy mô 10.000 lượt:** 8.817 → **10 lệnh**. Thông lượng 168 → 213 trang/giây, tổng
+  thời gian 59,6 → 47,0 giây. Cả hai lần đều 100% thành công, không lỗi.
+- **Vì sao tách `lib/sharedRead.js` mà không gộp luôn với bản trong `lib/game/store.js`:** không
+  đụng vào luồng game sát đêm hội 18/9. Gộp sau (TASKS "Nợ kỹ thuật").
+- **Cách đo, để lần sau làm lại được:** chạy bản build production ở cổng 3100, trỏ `KV_REST_API_URL`
+  sang một cầu trung chuyển tự viết ở 3101 — cầu đếm từng lệnh và **chặn mọi lệnh ghi**; dùng
+  **token chỉ-đọc** của Upstash; đặt `CDP_ANALYTICS_DISABLED=1`. Không sửa một dòng code nào của dự
+  án, và không thể ghi nhầm vào dữ liệu thật.
+- **Test này KHÔNG đo đường ghi** (ghi nhận truy cập, lượt báo đèn). Ước tính ~250–300 lệnh/người/giờ
+  trong PLAN-dem-18-9 vẫn còn giá trị; khuyến nghị hạn mức Upstash **$25** không đổi.
+
 ## 2026-09-16 — Tuyến rước đèn vẽ nét đứt trên bản đồ game (ĐÃ DEPLOY)
 
 Người đi xem hỏi câu đầu tiên là "đứng đâu thì gặp đèn?". Bản đồ mới chỉ có quảng trường và phố đi

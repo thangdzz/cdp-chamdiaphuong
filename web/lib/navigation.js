@@ -1,6 +1,7 @@
 import "server-only";
 
 import { redis } from "./redis.js";
+import { createSharedRead } from "./sharedRead.js";
 
 const NAVIGATION_KEY = "site_config:navigation";
 
@@ -130,9 +131,16 @@ export function navigationFromFormData(formData) {
   return normalizeNavigation(candidate);
 }
 
+// Menu nằm trong Root Layout nên MỌI lượt mở trang của cả web đều đọc nó. Đo ngày 16/9 (bắn 10.000
+// lượt): 8.791/8.817 lệnh Redis là đúng lệnh này. Menu cả tháng mới đổi một lần nên đệm 60 giây —
+// admin lưu xong thấy ngay trên máy chủ vừa lưu, máy chủ khác chậm nhất 60 giây.
+const NAVIGATION_TTL_MS = 60 * 1000;
+const readShared = createSharedRead(NAVIGATION_TTL_MS);
+
 export async function getNavigationConfig() {
   try {
-    return normalizeNavigation(await redis.get(navigationKey())) ?? defaultNavigation();
+    const key = navigationKey();
+    return normalizeNavigation(await readShared(key, () => redis.get(key))) ?? defaultNavigation();
   } catch {
     // Navigation là đường đi chính: Redis tạm lỗi vẫn phải mở được site bằng bản trong code.
     return defaultNavigation();
@@ -143,5 +151,6 @@ export async function setNavigationConfig(value) {
   const normalized = normalizeNavigation(value);
   if (!normalized) throw new Error("Cấu hình menu không hợp lệ.");
   await redis.set(navigationKey(), normalized);
+  readShared.forget(navigationKey());
   return normalized;
 }
