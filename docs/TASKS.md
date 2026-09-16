@@ -251,6 +251,15 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       đi đúng chiều một chiều và ngược kim đồng hồ qua 2 bùng binh
 - [ ] Chủ dự án xem lại tuyến trên máy thật, có chỗ nào đoàn đi khác thì sửa toạ độ trong file mùa
 
+### Chống gian lận game — giai đoạn 2 (sau lễ hội, chỉ làm khi có giải thưởng thật)
+> Giai đoạn 1 (quan sát + gắn cờ) đã xong 2026-09-16. Xem DECISIONS cùng ngày để biết hạn chế.
+- [ ] OTP số điện thoại (cần dịch vụ SMS trả tiền — chưa có)
+- [ ] Tách người chơi ẩn danh / đã xác minh; một số điện thoại chỉ ứng với một người chính
+- [ ] Gộp lượt hợp lệ của người ẩn danh vào người đã xác minh, **không được cộng đôi điểm**
+- [ ] Một mô hình chỉ tính điểm một lần cho cùng một người đã xác minh, kể cả trước đó dùng nhiều
+      trình duyệt
+- [ ] Trước khi làm: xem dữ liệu cờ đêm 18/9 xem có ai gian lận thật không. Không có thì khỏi làm
+
 ### Dọn gọn khu quản trị (admin) — gộp cả việc sửa đường dẫn
 > Ý anh nêu 2026-09-16. Chưa chốt phạm vi, cần bàn trước khi code.
 - [ ] **Rà lại toàn bộ trang `/admin/*`** — hiện là `game`, `vi-tri`, `gioi-thieu`,

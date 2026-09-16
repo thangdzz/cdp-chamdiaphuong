@@ -3,6 +3,46 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Định vị: mỗi lượt báo là một phép đo mới + chống gian lận giai đoạn 1
+
+Chủ dự án thấy nhiều lượt báo của cùng một người bị gắn vào các điểm lệch nhau, hoặc dùng lại toạ độ
+cũ. Tìm ra 4 nguồn lỗi, đều là "lấy sẵn một toạ độ nào đó cho tiện":
+
+1. Nút "Tôi cũng vừa thấy" lấy luôn **toạ độ marker của người khác** làm vị trí báo.
+2. **Tâm bản đồ lễ hội** là vị trí mặc định — GPS chậm mà bấm gửi là gửi đi tâm thành phố.
+3. `maximumAge: 30000` — trình duyệt được phép trả lại bản đo **cũ tới 30 giây**.
+4. `if (gps === "idle") requestGps()` — vào bước vị trí bằng đường khác thì **không đo lại lần nào**.
+
+**Nguyên tắc mới: một lượt báo = một phép đo GPS mới, không có ngoại lệ.**
+
+- `getCurrentPosition` với `maximumAge: 0`, `enableHighAccuracy: true`, timeout 15 giây, đo lại ở
+  **mọi** đường vào bước vị trí (kể cả "Tôi cũng vừa thấy" — toạ độ marker chỉ còn dùng để căn khung nhìn).
+- **Bỏ hẳn vị trí mặc định.** Chưa đo được thì nút gửi bị khoá; không còn đường nào gửi một điểm mà
+  người chơi không chủ ý chọn.
+- Server **bắt buộc** đủ toạ độ · sai số (nếu là GPS) · **giờ đo** · nguồn. Giờ đo cũ quá 5 phút là
+  từ chối. `locationSource` rút còn đúng hai giá trị: `gps` và `manual`.
+- Sai số trên 50 m: cảnh báo đúng chữ chủ dự án yêu cầu + nút "Định vị lại"; muốn gửi phải bấm thêm
+  "Vẫn dùng vị trí này" — **không bao giờ gửi lặng lẽ**.
+- **Ghim tay chỉ mở khi máy thật sự không đo được** (bị từ chối / không định vị được / quá lâu).
+- **Nhảy vị trí vô lý thì TỪ CHỐI, không ghi rồi giấu** (chủ dự án chốt: "đã ghi là phải tin được").
+  Ngưỡng: đi bộ 2 m/giây + sai số của cả hai lần đo + 50 m nới tay, xét trong 60 giây.
+
+**Chống gian lận — CHỈ giai đoạn 1 (quan sát, không chặn).** anonId nằm trong localStorage nên mở
+trình duyệt khác hay ẩn danh là thành người mới; **không bao giờ coi anonId là danh tính thật**.
+
+- Mỗi lượt báo lưu thêm: **IP đã băm**, **chuỗi trình duyệt đã băm**, nhãn máy thô ("iOS · Safari"),
+  và `riskKey` = HMAC(IP + trình duyệt) tính **phía server**. Không lưu IP thô, không lưu User-Agent thô.
+- Gắn cờ (không chặn): nhiều danh tính cùng một trình duyệt (từ danh tính thứ 3) · nhiều danh tính
+  cùng một mạng (từ thứ 5) · báo dồn dập · báo lại cùng một mô hình quá 4 lần · sai số lớn · ghim tay.
+- **Không chặn theo IP** — cả nhà chung wifi ra một IP, chặn là oan người thật.
+- Admin xem được: danh tính, dấu máy, nhãn máy, sai số, **giờ đo**, và lý do bị gắn cờ.
+
+**Hạn chế đã biết, ghi lại để khỏi ảo tưởng:** đổi sang 4G là đổi dấu máy → không nhận ra cùng người;
+ngược lại hai người thật chung wifi + cùng đời trình duyệt thì **trùng dấu máy** → dễ oan. Vì vậy mọi
+tín hiệu ở đây chỉ để NHÌN. Giai đoạn 2 (OTP số điện thoại, tách người chơi đã xác minh, gộp điểm,
+một mô hình một lần cho mỗi người thật) **để sau lễ hội** — cần dịch vụ SMS trả tiền, làm rơi rụng
+người chơi, và chỉ đáng làm khi đã có giải thưởng thật.
+
 ## 2026-09-16 — Đệm cấu hình menu: bớt 880 lần số lệnh Redis (đo bằng test tải)
 
 Chủ dự án yêu cầu thử 10.000 người cùng lúc. Test cho một kết quả quan trọng hơn cả con số chịu tải:

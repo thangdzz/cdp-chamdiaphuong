@@ -11,6 +11,7 @@ import { clearDraftName, readDraftName } from "./playerName";
 import { compressImageForUpload } from "@/lib/clientImageCompression";
 import { OBJECT_KIND, UNKNOWN_ICON, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
 import { foldText, formatAgo } from "@/lib/game/format";
+import { ACCURACY_WARN_M } from "@/lib/game/riskLimits";
 
 const STEP = { PICK: "pick", LOCATE: "locate", PHOTO: "photo" };
 const MAX_MYSTERIES_IN_PICKER = 4;
@@ -41,15 +42,16 @@ export function ReportSheet({
   const [step, setStep] = useState(preset?.objectId ? STEP.LOCATE : STEP.PICK);
   const [query, setQuery] = useState("");
   const [objectId, setObjectId] = useState(preset?.objectId ?? null);
-  const [point, setPoint] = useState(() =>
-    Number.isFinite(preset?.lat)
-      ? { lat: preset.lat, lng: preset.lng, accuracy: null, source: "marker" }
-      : { ...event.map.center, accuracy: null, source: "map" }
-  );
+  // Vị trí sẽ gửi đi. null = CHƯA ĐO ĐƯỢC → không có cách nào bấm gửi (chốt 2026-09-16).
+  // Không còn điểm mặc định: tâm bản đồ lễ hội và toạ độ marker của người khác từng lọt vào đây.
+  const [fix, setFix] = useState(null); // { lat, lng, accuracy, measuredAt, source: "gps"|"manual" }
+  const [acceptedWeak, setAcceptedWeak] = useState(false); // đã bấm "vẫn dùng" khi sai số lớn
+  // preset.lat/lng của marker CHỈ dùng để căn khung nhìn bản đồ, không bao giờ là vị trí gửi đi.
   const [focus, setFocus] = useState(() =>
     Number.isFinite(preset?.lat) ? { lat: preset.lat, lng: preset.lng, zoom: 16 } : null
   );
-  const [gps, setGps] = useState("idle"); // idle | locating | ok | denied
+  const [gps, setGps] = useState("idle"); // idle | locating | ok | denied | unavailable | timeout
+  const gpsRef = useRef("idle"); // bản sao cho effect đọc, khỏi phải phụ thuộc vào state
   const [photo, setPhoto] = useState(null); // { file, previewUrl }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -85,26 +87,39 @@ export function ReportSheet({
     return list.slice(0, MAX_MYSTERIES_IN_PICKER);
   }, [snapshot.markers, byId]);
 
+  // MỘT PHÉP ĐO MỚI cho mỗi lượt báo. `maximumAge: 0` để trình duyệt không trả lại bản đo cũ —
+  // trước đây nhận lại bản cũ tới 30 giây nên nhiều lượt báo dính chung một toạ độ.
+  function setGpsState(next) {
+    gpsRef.current = next;
+    setGps(next);
+  }
+
   function requestGps() {
     if (!("geolocation" in navigator)) {
-      setGps("denied");
+      setGpsState("unavailable");
       return;
     }
-    setGps("locating");
+    setAcceptedWeak(false);
+    setFix(null);
+    setGpsState("locating");
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const next = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           accuracy: position.coords.accuracy,
+          measuredAt: new Date(position.timestamp || Date.now()).toISOString(),
           source: "gps",
         };
-        setPoint(next);
+        setFix(next);
         setFocus({ lat: next.lat, lng: next.lng, zoom: 17 });
-        setGps("ok");
+        setGpsState("ok");
       },
-      () => setGps("denied"),
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+      (error) => {
+        // 1 = người dùng từ chối · 2 = máy không định vị được · 3 = quá lâu
+        setGpsState(error?.code === 1 ? "denied" : error?.code === 3 ? "timeout" : "unavailable");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }
 
@@ -121,12 +136,23 @@ export function ReportSheet({
     setObjectId(id);
     setStep(STEP.LOCATE);
     setError(null);
-    if (gps === "idle") requestGps();
+    requestGps();
   }
 
-  // Mở từ "Tôi cũng vừa thấy" thì đã qua bước chọn — vẫn phải hỏi GPS, nhưng chỉ khi người chơi
-  // bấm (trình duyệt hỏi quyền ngay khi mở trang là trải nghiệm tệ).
-  const needsGpsPrompt = step === STEP.LOCATE && gps === "idle";
+  // Vào từ "Tôi cũng vừa thấy" thì bỏ qua bước chọn — vẫn phải ĐO MỚI như mọi lượt khác. Trình
+  // duyệt chỉ hỏi quyền khi người chơi đã chủ động bấm báo, không hỏi lúc mới mở trang.
+  // Hoãn một nhịp: để sheet vẽ xong rồi mới đo, và để không đổi state ngay trong thân effect.
+  useEffect(() => {
+    if (step !== STEP.LOCATE || gpsRef.current !== "idle") return undefined;
+    const timer = setTimeout(() => requestGps(), 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ chạy khi đổi bước
+  }, [step]);
+
+  const weak = fix?.source === "gps" && fix.accuracy > ACCURACY_WARN_M;
+  // Ghim tay CHỈ mở khi máy thật sự không đo được — không cho ghim bừa cho nhanh.
+  const manualAllowed = gps === "denied" || gps === "unavailable" || gps === "timeout";
+  const canSubmit = Boolean(fix) && (!weak || acceptedWeak);
 
   async function pickPhoto(fileList) {
     const file = fileList?.[0];
@@ -149,10 +175,11 @@ export function ReportSheet({
     if (local?.anonId) form.set("anonId", local.anonId);
     else form.set("nickname", readDraftName() ?? "");
     form.set("objectId", objectId);
-    form.set("lat", String(point.lat));
-    form.set("lng", String(point.lng));
-    if (point.accuracy) form.set("accuracy", String(point.accuracy));
-    form.set("locationSource", point.source);
+    form.set("lat", String(fix.lat));
+    form.set("lng", String(fix.lng));
+    if (fix.accuracy) form.set("accuracy", String(Math.round(fix.accuracy)));
+    form.set("locationSource", fix.source);
+    form.set("measuredAt", fix.measuredAt);
     if (withPhoto && photo?.file) form.set("photo", photo.file);
 
     try {
@@ -162,6 +189,13 @@ export function ReportSheet({
         // xử lý như lượt báo thử — câu đùa, không báo lỗi. Server không ghi gì.
         if (result.code === "pre_game" && onPreGameAttempt) {
           onPreGameAttempt(objectId);
+          return;
+        }
+        // Server bắt đo lại (thiếu/cũ/nhảy xa): đưa về bước vị trí và đo mới ngay.
+        if (["need_fix", "stale_fix", "jump"].includes(result.code)) {
+          setStep(STEP.LOCATE);
+          setError(result.error);
+          requestGps();
           return;
         }
         setError(result.error);
@@ -266,37 +300,59 @@ export function ReportSheet({
             Bạn thấy ở đâu?
           </h2>
           <p className="mt-1 text-[13px] leading-5 text-zinc-500">
-            <LocateStatus gps={gps} point={point} />
+            <LocateStatus gps={gps} fix={fix} manualAllowed={manualAllowed} />
           </p>
           <GameMap
-            center={point}
+            center={fix ?? event.map.center}
             zoom={focus?.zoom ?? event.map.zoom}
             focus={focus}
-            picker
+            picker={manualAllowed}
             venues={event.venues}
-            onPick={({ lat, lng }) => setPoint({ lat, lng, accuracy: null, source: "map" })}
+            onPick={
+              manualAllowed
+                ? ({ lat, lng }) =>
+                    setFix({ lat, lng, accuracy: null, measuredAt: new Date().toISOString(), source: "manual" })
+                : undefined
+            }
             className="mt-3 h-60 rounded-xl"
           />
+
+          {/* Sai số lớn: nói thẳng và bắt bấm thêm một lần — không bao giờ gửi lặng lẽ một điểm lệch. */}
+          {weak && (
+            <div className="mt-3 rounded-xl bg-[#fdf0e6] p-3 text-[13px] leading-5 text-[#8a3b28]">
+              Vị trí hiện chưa đủ chính xác (sai số khoảng {Math.round(fix.accuracy)} m). Thử đứng thoáng
+              hơn rồi đo lại nhé.
+            </div>
+          )}
+
           <div className="mt-4 flex flex-col gap-2">
-            {needsGpsPrompt && (
+            <button type="button" className={secondaryButton} onClick={requestGps} disabled={gps === "locating"}>
+              {gps === "locating" ? "Đang định vị…" : "📡 Định vị lại"}
+            </button>
+            {weak && !acceptedWeak ? (
               <button
                 type="button"
-                className={secondaryButton}
-                onClick={requestGps}
+                className={primaryButton}
+                onClick={() => {
+                  playGameSound("tap-soft");
+                  setAcceptedWeak(true);
+                }}
               >
-                📡 Lấy vị trí của tôi
+                Vẫn dùng vị trí này
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={primaryButton}
+                disabled={!canSubmit}
+                onClick={() => {
+                  playGameSound("tap-soft");
+                  setStep(STEP.PHOTO);
+                }}
+              >
+                {canSubmit ? "Dùng vị trí này" : "Chờ đo vị trí…"}
               </button>
             )}
-            <button
-              type="button"
-              className={primaryButton}
-              onClick={() => {
-                playGameSound("tap-soft");
-                setStep(STEP.PHOTO);
-              }}
-            >
-              Dùng vị trí này
-            </button>
           </div>
         </div>
       )}
@@ -434,12 +490,16 @@ function SelectedHeader({ object, unknown, event, onChange }) {
   );
 }
 
-function LocateStatus({ gps, point }) {
-  if (gps === "locating") return "Đang lấy vị trí của bạn…";
-  if (point.source === "gps") {
-    return `Đã lấy vị trí${point.accuracy ? ` (sai số khoảng ${Math.round(point.accuracy)} m)` : ""}. Kéo bản đồ nếu cần chỉnh.`;
+function LocateStatus({ gps, fix, manualAllowed }) {
+  if (gps === "locating") return "Đang đo vị trí của bạn…";
+  if (fix?.source === "gps") {
+    return `Đã đo xong (sai số khoảng ${Math.round(fix.accuracy)} m).`;
   }
-  if (gps === "denied") return "Không lấy được vị trí. Kéo bản đồ để đặt ghim vào chỗ bạn thấy — gần đúng là được.";
-  if (point.source === "marker") return "Đặt sẵn ở chỗ vừa được báo. Kéo bản đồ nếu bạn thấy ở chỗ khác.";
-  return "Kéo bản đồ để đặt ghim vào chỗ bạn thấy.";
+  if (fix?.source === "manual") return "Đang dùng ghim bạn đặt trên bản đồ.";
+  if (gps === "denied") {
+    return "Trình duyệt đang chặn vị trí. Kéo bản đồ để đặt ghim vào chỗ bạn thấy — gần đúng là được.";
+  }
+  if (gps === "timeout") return "Đo lâu quá chưa xong. Đo lại, hoặc kéo bản đồ đặt ghim.";
+  if (manualAllowed) return "Máy chưa định vị được. Kéo bản đồ để đặt ghim vào chỗ bạn thấy.";
+  return "Chuẩn bị đo vị trí…";
 }

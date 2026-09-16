@@ -13,8 +13,16 @@ import {
   normalizeObject,
   resolveObjectId,
 } from "./catalog.js";
-import { areaCell, isWithinBounds } from "./geo.js";
+import { areaCell, distanceMeters, isWithinBounds } from "./geo.js";
 import { HIDE_AFTER_FLAGS, buildMarkers, buildTonightStats } from "./mapLayer.js";
+import {
+  ACCURACY_WARN_M,
+  BURST_PER_RISK_KEY,
+  MANY_IDS_PER_IP,
+  MANY_IDS_PER_RISK_KEY,
+  REPEAT_SAME_MODEL,
+  plausibleJumpMeters,
+} from "./risk.js";
 import { generateQuests } from "./quests.js";
 import { resolveObjectStats } from "./progress.js";
 import { computeRarity } from "./collections.js";
@@ -58,6 +66,12 @@ export const GAME_KEYS = {
   cooldown: (e, anonId, objectId) => key(e, `cooldown:${anonId}:${objectId}`),
   rate: (e, anonId, bucket) => key(e, `rate:${anonId}:${bucket}`),
   flagLock: (e, sightingId, anonId) => key(e, `flag-lock:${sightingId}:${anonId}`),
+  // Chống nhảy vị trí: lần đo gần nhất của một người (TTL 1 giờ) — rẻ hơn đọc lại lịch sử.
+  lastFix: (e, anonId) => key(e, `last-fix:${anonId}`),
+  // Dấu vết rủi ro (lib/game/risk.js). Gom theo NGÀY giờ VN rồi tự hết hạn.
+  riskIds: (e, riskKey, day) => key(e, `risk-ids:${riskKey}:${day}`),
+  riskIdsIp: (e, ipHash, day) => key(e, `risk-ids-ip:${ipHash}:${day}`),
+  riskRate: (e, riskKey, bucket) => key(e, `risk-rate:${riskKey}:${bucket}`),
 };
 
 // @upstash/redis tự parse JSON khi đọc, nhưng giá trị cũ/ghi tay có thể vẫn là chuỗi.
@@ -195,20 +209,47 @@ async function createUnknownObject(event) {
 
 // ─────────────────────────────── Sighting ───────────────────────────────
 
+// Giờ đo cũ hơn ngần này thì không nhận: bắt buộc mỗi lượt báo là MỘT phép đo mới tại chỗ,
+// không phải toạ độ nhặt lại của lần trước (chốt 2026-09-16).
+const MAX_FIX_AGE_MS = 5 * 60 * 1000;
+
+/**
+ * Lượt báo chỉ hợp lệ khi có đủ: toạ độ trong vùng · nguồn rõ ràng · GIỜ ĐO mới · và sai số nếu
+ * là GPS. Thiếu bất cứ thứ nào là từ chối — thà mất một lượt báo còn hơn có một chấm sai trên
+ * bản đồ mà không ai biết nó sai.
+ */
 function sanitizeLocation(event, input) {
   const lat = Number(input.lat);
   const lng = Number(input.lng);
   if (!isWithinBounds({ lat, lng }, event.map?.bounds)) {
     throw new GameInputError("Vị trí nằm ngoài khu vực lễ hội. Kéo bản đồ về đúng chỗ bạn thấy.");
   }
+
+  // "manual" = người chơi tự ghim vì máy không lấy được GPS. Chỉ hai nguồn này tồn tại; toạ độ
+  // lấy sẵn từ marker của người khác đã bị bỏ hẳn ở phía giao diện.
+  const locationSource = input.locationSource === "manual" ? "manual" : "gps";
+
   const accuracy = Number(input.accuracy);
+  const hasAccuracy = Number.isFinite(accuracy) && accuracy > 0;
+  if (locationSource === "gps" && !hasAccuracy) {
+    throw new GameInputError("Chưa đo được vị trí. Bấm “Định vị lại” rồi thử lại nhé.", "need_fix");
+  }
+
+  const measuredAt = Date.parse(input.measuredAt ?? "");
+  if (!Number.isFinite(measuredAt)) {
+    throw new GameInputError("Chưa đo được vị trí. Bấm “Định vị lại” rồi thử lại nhé.", "need_fix");
+  }
+  const age = Date.now() - measuredAt;
+  if (age > MAX_FIX_AGE_MS || age < -60 * 1000) {
+    throw new GameInputError("Vị trí đo đã lâu rồi. Bấm “Định vị lại” để đo lại nhé.", "stale_fix");
+  }
+
   return {
     lat,
     lng,
-    accuracy: Number.isFinite(accuracy) && accuracy > 0 ? Math.min(Math.round(accuracy), 5000) : null,
-    locationSource: ["gps", "map", "marker"].includes(input.locationSource)
-      ? input.locationSource
-      : "map",
+    accuracy: hasAccuracy ? Math.min(Math.round(accuracy), 5000) : null,
+    locationSource,
+    measuredAt: new Date(measuredAt).toISOString(),
   };
 }
 
@@ -222,11 +263,69 @@ async function enforceRateLimit(event, anonId) {
   }
 }
 
+// Cùng một người, hai lượt cách nhau dưới ngần này thì vị trí phải đi được bằng chân.
+const JUMP_WINDOW_MS = 60 * 1000;
+
+/**
+ * Từ chối lượt báo mà vị trí nhảy xa vô lý so với lần đo trước của CHÍNH người đó (chốt
+ * 2026-09-16: không ghi rồi giấu — đã ghi là tin được). Lần đo trước lưu riêng, TTL 1 giờ.
+ */
+async function rejectImpossibleJump(event, anonId, fix) {
+  const previous = parseJson(await redis.get(GAME_KEYS.lastFix(event.id, anonId)));
+  if (!previous) return;
+  const gap = Date.parse(fix.measuredAt) - Date.parse(previous.measuredAt ?? "");
+  if (!Number.isFinite(gap) || gap < 0 || gap > JUMP_WINDOW_MS) return;
+  const moved = distanceMeters(previous, fix);
+  if (moved > plausibleJumpMeters(gap / 1000, previous.accuracy, fix.accuracy)) {
+    throw new GameInputError(
+      "Vị trí vừa đo nhảy quá xa so với lượt báo trước. Bấm “Định vị lại” rồi thử lại nhé.",
+      "jump"
+    );
+  }
+}
+
+/**
+ * Dấu vết rủi ro của lượt báo này (lib/game/risk.js §"giai đoạn 1"). CHỈ gắn cờ để chủ dự án xem,
+ * không chặn ai — anonId đổi theo trình duyệt nên mọi tín hiệu ở đây đều là phỏng đoán.
+ * @returns string[] mã cờ
+ */
+async function collectRiskFlags(event, { anonId, riskKey, ipHash, fix, objectId, day }) {
+  const flags = [];
+  if (fix.locationSource === "manual") flags.push("manual_location");
+  if (fix.accuracy && fix.accuracy > ACCURACY_WARN_M) flags.push("low_accuracy");
+  if (!riskKey) return flags;
+
+  const idsKey = GAME_KEYS.riskIds(event.id, riskKey, day);
+  const ipKey = ipHash ? GAME_KEYS.riskIdsIp(event.id, ipHash, day) : null;
+  const rateKey = GAME_KEYS.riskRate(event.id, riskKey, Math.floor(Date.now() / (RATE_WINDOW_SECONDS * 1000)));
+  const [, ids, bursts, seenSameModel, , ipIds] = await Promise.all([
+    redis.sadd(idsKey, anonId),
+    redis.scard(idsKey),
+    redis.incr(rateKey),
+    redis.hget(GAME_KEYS.collectionCounts(event.id, anonId), objectId),
+    ipKey ? redis.sadd(ipKey, anonId) : null,
+    ipKey ? redis.scard(ipKey) : 0,
+  ]);
+  // Hết ngày/hết cửa sổ thì tự dọn, không để rác trong Redis.
+  await Promise.all([
+    redis.expire(idsKey, 36 * 3600),
+    redis.expire(rateKey, RATE_WINDOW_SECONDS * 2),
+    ipKey ? redis.expire(ipKey, 36 * 3600) : null,
+  ]);
+
+  if (Number(ids) > MANY_IDS_PER_RISK_KEY) flags.push("many_ids");
+  if (Number(ipIds) > MANY_IDS_PER_IP) flags.push("many_ids_ip");
+  if (Number(bursts) > BURST_PER_RISK_KEY) flags.push("burst");
+  if (Number(seenSameModel) + 1 > REPEAT_SAME_MODEL) flags.push("repeat_model");
+  return flags;
+}
+
 /**
  * Ghi một lượt "vừa thấy" (NOTE-04 §8, §18). Ảnh KHÔNG xử lý ở đây — action upload trước rồi
  * truyền `photo` vào, để lỗi ảnh không bao giờ làm mất lượt báo.
+ * `risk` = dấu vết phía server (riskContext trong lib/game/risk.js); thiếu cũng vẫn ghi được.
  */
-export async function recordSighting(event, { anonId, nickname, objectId, location, photo }) {
+export async function recordSighting(event, { anonId, nickname, objectId, location, photo, risk }) {
   const phase = eventPhase(event);
   // Chặn ở server dù UI pre-game không gọi tới đây: trước giờ rước không được có sighting thật
   // (NOTE-05 §1, §3) — không collection, marker, số đếm hay first discovery.
@@ -238,6 +337,8 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   }
   if (!anonId) throw new GameInputError("Thiếu hồ sơ người chơi.");
   const cleanLocation = sanitizeLocation(event, location ?? {});
+  // Chặn TRƯỚC mọi bước ghi: nhảy vị trí vô lý thì không tạo gì cả.
+  await rejectImpossibleJump(event, anonId, cleanLocation);
 
   let catalog = await readCatalog(event);
   let index = catalogIndex(catalog);
@@ -263,6 +364,14 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   }
 
   const now = new Date().toISOString();
+  const riskFlags = await collectRiskFlags(event, {
+    anonId,
+    riskKey: risk?.riskKey ?? null,
+    ipHash: risk?.ipHash ?? null,
+    fix: cleanLocation,
+    objectId: target.id,
+    day: vnDayKey(now),
+  });
   const sighting = {
     id: `s-${crypto.randomUUID()}`,
     eventId: event.id,
@@ -272,6 +381,12 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
     unknownModelId: target.kind === OBJECT_KIND.UNKNOWN ? target.id : null,
     anonId,
     ...cleanLocation,
+    // Dấu vết rủi ro — KHÔNG có IP thô, KHÔNG có chuỗi trình duyệt thô (lib/game/risk.js).
+    device: risk?.device ?? null,
+    ipHash: risk?.ipHash ?? null,
+    uaHash: risk?.uaHash ?? null,
+    riskKey: risk?.riskKey ?? null,
+    riskFlags,
     photo: photo ?? null,
     source: "user_sighting",
     createdAt: now,
@@ -297,6 +412,17 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   tx.hincrby(GAME_KEYS.counters(event.id), "sightings", 1);
   tx.hincrby(GAME_KEYS.areaActivity(event.id), areaCell(cleanLocation), 1);
   if (photo) tx.hincrby(GAME_KEYS.objectPhotos(event.id), target.id, 1);
+  // Mốc để so cho lượt kế tiếp (rejectImpossibleJump). Chỉ giữ 1 giờ.
+  tx.set(
+    GAME_KEYS.lastFix(event.id, anonId),
+    JSON.stringify({
+      lat: cleanLocation.lat,
+      lng: cleanLocation.lng,
+      accuracy: cleanLocation.accuracy,
+      measuredAt: cleanLocation.measuredAt,
+    }),
+    { ex: 3600 }
+  );
   await tx.exec();
 
   // HSETNX: hai lượt báo gần như đồng thời của cùng người chỉ một lượt được tính "mới gặp".

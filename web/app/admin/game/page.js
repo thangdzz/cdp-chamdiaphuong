@@ -15,6 +15,7 @@ import {
 } from "@/lib/game/catalog";
 import { resolveObjectStats } from "@/lib/game/progress";
 import { HIDE_AFTER_FLAGS } from "@/lib/game/mapLayer";
+import { RISK_FLAGS } from "@/lib/game/riskLimits";
 import { adminReadEverything, loadGameEvent } from "@/lib/game/store";
 import { formatClock, formatDayMonth } from "@/lib/game/format";
 import { EVENT_SOUND_RECIPES, SOUND_SAMPLES, eventSoundRecipe, soundFamilyOf, soundRecipeFor } from "@/lib/game/sounds";
@@ -457,9 +458,25 @@ function SightingTable({ event, sightings, index, flags, noun }) {
                   >
                     {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
                   </a>
-                  <span className="text-xs text-zinc-400"> · {s.locationSource}{s.accuracy ? ` ±${s.accuracy}m` : ""}</span>
+                  <span className="text-xs text-zinc-400">
+                    {" "}
+                    · {s.locationSource === "manual" ? "ghim tay" : "GPS"}
+                    {s.accuracy ? ` ±${s.accuracy}m` : ""}
+                    {/* Giờ ĐO trên máy người chơi — lệch nhiều so với "Lúc" là dấu hiệu bất thường. */}
+                    {s.measuredAt ? ` · đo ${when(s.measuredAt)}` : " · chưa có giờ đo"}
+                  </span>
                 </td>
-                <td className="px-3 py-2 text-xs text-zinc-400">{s.anonId.slice(0, 10)}…</td>
+                <td className="px-3 py-2 text-xs text-zinc-400">
+                  {s.anonId.slice(0, 10)}…
+                  {s.device ? <span className="block">{s.device}</span> : null}
+                  {/* Dấu máy/mạng: nhiều danh tính khác nhau mà TRÙNG dấu này là đáng nhìn. */}
+                  {s.riskKey ? <span className="block text-zinc-300">máy {s.riskKey.slice(0, 6)}</span> : null}
+                  {s.riskFlags?.length ? (
+                    <span className="mt-1 block text-[#8a3b28]">
+                      {s.riskFlags.map((flag) => RISK_FLAGS[flag] ?? flag).join(" · ")}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="px-3 py-2 text-right">
                   <form action={deleteGameSighting}>
                     <input type="hidden" name="slug" value={event.slug} />

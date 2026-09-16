@@ -6,6 +6,21 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (phiên khuya, sau) — SỬA ĐỊNH VỊ + CHỐNG GIAN LẬN GĐ1, CHƯA DEPLOY.**
+
+Mỗi lượt báo giờ là **một phép đo GPS mới**; bỏ hết vị trí mặc định (tâm bản đồ, toạ độ marker của
+người khác, bản đo cũ 30 giây). Server bắt buộc có giờ đo mới và sai số. Nhảy vị trí vô lý thì **từ
+chối, không ghi**. Thêm dấu vết rủi ro phía server (IP băm, trình duyệt băm, dấu máy) để **gắn cờ,
+không chặn ai**. Lý do và hạn chế: DECISIONS 2026-09-16.
+
+Test tự viết (namespace `cdp-test-anticheat`, đã xoá sạch 77 khoá sau khi chạy): **18/18 đạt** — gồm
+kịch bản Chrome thường → ẩn danh → trình duyệt khác, thiếu/cũ giờ đo, nhảy 700 m trong 5 giây, sai số
+180 m, ghim tay, và hai hạn chế đã biết (4G thoát được · chung wifi dễ oan).
+Kiểm giao diện thật bằng trình duyệt: chưa đo xong thì nút gửi **khoá**, hiện "Chờ đo vị trí…"; sai số
+180 m thì hiện cảnh báo và bắt bấm "Vẫn dùng vị trí này"; bị chặn GPS thì mới mở ghim tay.
+
+---
+
 **Cập nhật mới nhất 2026-09-16 (phiên khuya) — TEST TẢI 10.000 NGƯỜI + SỬA ĐỆM MENU, CHƯA DEPLOY.**
 
 Ép 10.000 yêu cầu **cùng lúc** vào bản build production ở cổng 3100. Web **không sập**: 10.000/10.000

@@ -1,6 +1,7 @@
 "use server";
 
 import crypto from "crypto";
+import { headers } from "next/headers";
 import { createContributor, getContributor } from "@/lib/contributors";
 import {
   GameInputError,
@@ -14,6 +15,7 @@ import {
   recordSighting,
 } from "@/lib/game/store";
 import { EVENT_PHASE, eventPhase } from "@/lib/game/registry";
+import { riskContext } from "@/lib/game/risk";
 import { deleteMedia, uploadMedia } from "@/lib/mediaStorage";
 import { processMediaFile } from "@/lib/mediaProcessing";
 
@@ -122,8 +124,12 @@ export async function reportSighting(formData) {
         lng: formData.get("lng"),
         accuracy: formData.get("accuracy"),
         locationSource: formData.get("locationSource")?.toString(),
+        // Giờ ĐO trên máy người chơi, khác giờ server ghi — server kiểm để bắt buộc đo mới.
+        measuredAt: formData.get("measuredAt")?.toString(),
       },
       photo,
+      // Dấu vết phía server; trình duyệt không gửi và không sửa được (lib/game/risk.js).
+      risk: riskContext(await headers()),
     });
     uploadedKey = null;
 
