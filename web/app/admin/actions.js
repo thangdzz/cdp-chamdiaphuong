@@ -21,6 +21,7 @@ import { placeFromFormData } from "@/lib/placeForm";
 import { getAllClosedPlaces } from "@/lib/closedPlaces";
 import { matchPlaceAgainstClosedPlaces } from "@/lib/ingestion/match";
 import { queueClosedHistoryHold } from "@/lib/ingestion/closedHold";
+import { cleanCoordinates } from "@/lib/coordinates";
 import { removeLatestCheckin } from "@/lib/checkins";
 import { removePlaceAnswers } from "@/lib/answers";
 import { removePhoneConfirmations } from "@/lib/phoneConfirmations";
@@ -150,4 +151,25 @@ export async function deleteLive(formData) {
 
   revalidatePath("/admin");
   revalidatePath("/");
+}
+
+/**
+ * Ghi vị trí đã ghim cho MỘT địa điểm (spec Location-Routing §13 — bảng xác minh hàng loạt).
+ * Tách khỏi `updateLive` để bảng đó không phải gửi lại toàn bộ form của từng chỗ.
+ */
+export async function savePlaceLocation({ id, coordinates }) {
+  "use server";
+  await requireAdmin();
+  if (!id) return { ok: false, error: "Thiếu địa điểm." };
+  const clean = coordinates === null ? null : cleanCoordinates(coordinates);
+  if (coordinates && !clean) return { ok: false, error: "Toạ độ không hợp lệ." };
+
+  const live = await getLivePlaces();
+  if (!live.some((p) => p.id === id)) return { ok: false, error: "Không tìm thấy địa điểm này." };
+  await setLivePlaces(live.map((p) => (p.id === id ? { ...p, coordinates: clean } : p)));
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/vi-tri");
+  revalidatePath("/");
+  return { ok: true };
 }

@@ -564,6 +564,13 @@ function AdminDashboard({
       </Link>
 
       <Link
+        href="/admin/vi-tri"
+        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
+      >
+        Vị trí địa điểm — ghim trên bản đồ để khách chỉ đường đúng chỗ →
+      </Link>
+
+      <Link
         href="/admin/gioi-thieu"
         className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
       >
