@@ -6,6 +6,34 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (cuối phiên) — VỊ TRÍ ĐỊA ĐIỂM: ĐÃ DEPLOY (`web-obr2zmzdd`), Google Places ĐÃ BẬT.**
+
+Cả NOTE-14 P0 lẫn spec `CDP-Google-Maps-Location-Routing-v1` đều đã lên production. Nguyên tắc chốt:
+**CDP xác định điểm, Google chỉ tính đường** — chuỗi chữ "tên + phường + tỉnh" chỉ để TÌM KIẾM.
+
+Đã có trên production:
+- Mọi chỗ nhập địa chỉ tay đều có khối **"Kiểm tra vị trí trên bản đồ"**: tra địa chỉ (Photon/OSM) → mở bản
+  đồ (MapLibre, ghim giữa khung, kéo bản đồ) → **"Xác nhận vị trí"**. Có khoá Google thì thêm nút
+  **"Tìm chỗ này trên Google"** để chọn ứng viên kèm Place ID.
+- Nút của địa điểm: **"Chỉ đường"** khi đã xác minh, **"Tìm trên Google Maps"** khi chưa.
+- `/admin/vi-tri` — bảng ghim hàng loạt.
+- Lộ trình: dịch vụ đón khách bắt chọn điểm đón thật; điểm chưa xác minh bị KỂ TÊN chứ không im lặng bỏ;
+  lộ trình dài chia chặng.
+- Nguồn nhập báo "đóng vĩnh viễn" thì không tự công khai; 3 đường lách guard NOTE-13 đã vá.
+
+**Số liệu lúc chốt phiên: 8/234 địa điểm đã ghim vị trí** (chủ dự án tự ghim tay). 226 chỗ còn lại vẫn để
+Google đoán theo tên.
+
+**Việc tiếp theo, theo thứ tự:**
+1. Chủ dự án ghim tiếp ở `/admin/vi-tri` (ưu tiên chỗ khách hay xem).
+2. Đặt hạn mức Places API + cảnh báo thanh toán trong Google Cloud.
+3. Ghim gần xong → đổi `REQUIRE_VERIFIED_LOCATION` trong `lib/mapsUrl.js` thành `true`.
+4. Thử lộ trình nhiều điểm trên iPhone thật → chỉnh `MAX_WAYPOINTS` nếu Google Maps nhận ít hơn 9 điểm giữa.
+5. Chủ dự án dán khối "TRANG THAI VA TOA DO" (docs/ROUTINE.md §7) lên routine claude.ai — chưa làm, nên
+   routine vẫn chưa gửi trạng thái đóng cửa và toạ độ về CDP.
+
+Chi tiết bàn giao: [HANDOFF.md](HANDOFF.md) mục 1. Lý do từng quyết định: [DECISIONS.md](DECISIONS.md) 16/9.
+
 **Cập nhật mới nhất 2026-09-16 — ĐÃ DEPLOY đợt sửa 3 lỗi + chặn cuộn xuyên** (`web-4tl2b0ue6`). Chủ dự án
 xác nhận iPhone thật OK. Production kiểm (WebKit iPhone 13, chặn `/api/track`): `/le-hoi-thanh-tuyen` đúng 1
 khối game, không còn chữ banner cũ; trang chủ hiện thẻ nổi 336×159 "Mở màn 19:00 · 18/9"; bảng báo lọc "long"
