@@ -141,14 +141,26 @@ function addVenueLayers(map, maplibregl, venues, { labels = true } = {}) {
       paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 6, 17, 16] } },
     beforeId
   );
+  // Tuyến vẽ nét liền (chỗ đi bộ, đứng xem) hay NÉT ĐỨT (đường đoàn rước đi qua rồi lại đi tiếp)
+  // do dữ liệu mùa quyết định. Phải tách hai lớp: `line-dasharray` không nhận biểu thức theo dữ liệu.
+  const dashed = ["==", ["get", "dashed"], true];
+  const routePaint = {
+    "line-color": "#c8553d",
+    "line-opacity": 0.8,
+    "line-width": ["interpolate", ["linear"], ["zoom"], 13, 3, 17, 10],
+  };
   map.addLayer(
-    { id: "cdp-venue-route", type: "line", source: VENUE_SOURCE, filter: isRoute,
+    { id: "cdp-venue-route", type: "line", source: VENUE_SOURCE, filter: ["all", isRoute, ["!", dashed]],
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": "#c8553d",
-        "line-opacity": 0.8,
-        "line-width": ["interpolate", ["linear"], ["zoom"], 13, 3, 17, 10],
-      } },
+      paint: routePaint },
+    beforeId
+  );
+  map.addLayer(
+    // Vạch dài — khoảng trống ngắn: đọc ra "đường đi", không lẫn với viền vùng. Đơn vị dash là LẦN
+    // bề rộng nét nên vạch tự to nhỏ theo mức phóng, không phải chỉnh riêng.
+    { id: "cdp-venue-route-dashed", type: "line", source: VENUE_SOURCE, filter: ["all", isRoute, dashed],
+      layout: { "line-cap": "butt", "line-join": "round" },
+      paint: { ...routePaint, "line-dasharray": [1.8, 1.1] } },
     beforeId
   );
 

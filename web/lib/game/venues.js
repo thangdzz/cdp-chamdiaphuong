@@ -1,6 +1,7 @@
 // Điểm tổ chức của một Event (quảng trường, tuyến phố đi bộ...) — lớp nền cố định trên Map Layer,
 // khác object/sighting (không sưu tầm, không di chuyển). Thuần, client dùng được.
-// venue: { id, kind: "area" | "route", name, shortName, icon, coordinates: [[lng, lat], ...] }
+// venue: { id, kind: "area" | "route", name, shortName, icon, dashed?, coordinates: [[lng, lat], ...] }
+// `dashed` chỉ dùng cho tuyến: vẽ NÉT ĐỨT thay vì nét liền (tuyến đoàn đi qua, không phải chỗ đứng).
 
 export function venueFeatureCollection(venues = []) {
   return {
@@ -10,7 +11,7 @@ export function venueFeatureCollection(venues = []) {
       .map((venue) => ({
         type: "Feature",
         id: venue.id,
-        properties: { id: venue.id, kind: venue.kind },
+        properties: { id: venue.id, kind: venue.kind, dashed: venue.dashed === true },
         geometry:
           venue.kind === "area"
             ? { type: "Polygon", coordinates: [venue.coordinates] }

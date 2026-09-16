@@ -245,6 +245,11 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       kiểm. Trần 3 mục chờ duyệt/ngày từ nguồn kiểm lại
 - [ ] Xoay vòng trọng tâm quét theo ngày + thêm nguồn ngoài Google Maps/Facebook
 
+### Bản đồ game
+- [x] **Vẽ tuyến rước đèn (nét đứt)** — xong 2026-09-16. Ngã 8 → Bình Thuận → Đại lộ Tân Trào →
+      Phan Thiết → Quang Trung → về Ngã 8, toạ độ từ OSM. Chưa deploy
+- [ ] Chủ dự án xem lại tuyến trên máy thật, có chỗ nào đoàn đi khác thì sửa toạ độ trong file mùa
+
 ### Dọn gọn khu quản trị (admin) — gộp cả việc sửa đường dẫn
 > Ý anh nêu 2026-09-16. Chưa chốt phạm vi, cần bàn trước khi code.
 - [ ] **Rà lại toàn bộ trang `/admin/*`** — hiện là `game`, `vi-tri`, `gioi-thieu`,

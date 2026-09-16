@@ -103,6 +103,31 @@ export const THANH_TUYEN_2026 = {
         [105.2087579, 21.8187192], [105.2090836, 21.8182784],
       ],
     },
+    {
+      id: "tuyen-ruoc-den",
+      kind: "route",
+      // Chủ dự án tả ngày 16/9/2026: đoàn mô hình đi vòng này và lặp lại liên tục cả tối.
+      name: "Tuyến rước đèn — Ngã 8 → Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung → Ngã 8",
+      shortName: "Tuyến rước đèn",
+      icon: "🏮",
+      // Nét đứt: đây là đường đoàn ĐI QUA rồi lại đi tiếp, khác tuyến phố đi bộ (chỗ đứng xem).
+      dashed: true,
+      // Bám đúng tim đường theo OpenStreetMap ngày 16/9/2026 (không vẽ tay), vòng khép kín ~3,2 km.
+      // Hết Đại lộ Tân Trào đường đổi tên thành 17/8 khoảng 130m rồi mới tới ngã rẽ Phan Thiết —
+      // đoàn đi thẳng qua đoạn đó (chủ dự án xác nhận 16/9).
+      source:
+        "OSM: Đường Bình Thuận (741065202…) · Đường Tân Trào (896940865/866) · Đường 17/8 · " +
+        "Đường Phan Thiết (309132172) · Đường Quang Trung (741065203); nút Ngã 8 6937972553",
+      coordinates: [
+        [105.2127222, 21.8153350], [105.2128049, 21.8154812], [105.2129389, 21.8155929],
+        [105.2148663, 21.8190927], [105.2147913, 21.8191674], [105.2147716, 21.8192679],
+        [105.2114977, 21.8212785], [105.2095455, 21.8221609], [105.2078947, 21.8228290],
+        [105.2067191, 21.8234168], [105.2066297, 21.8233676], [105.2065266, 21.8233798],
+        [105.2064674, 21.8234263], [105.2064377, 21.8235227], [105.2052927, 21.8240644],
+        [105.2045728, 21.8228474], [105.2030865, 21.8205733], [105.2038700, 21.8200990],
+        [105.2117014, 21.8158063], [105.2126644, 21.8152960], [105.2127222, 21.8153350],
+      ],
+    },
   ],
 
   // "Bản đồ tối nay" hiện lượt báo trong khoảng này. Mô hình di chuyển nên dữ liệu cũ hơn vài

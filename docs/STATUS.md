@@ -6,6 +6,21 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (phiên tối, sau) — TUYẾN RƯỚC ĐÈN TRÊN BẢN ĐỒ GAME, CHƯA DEPLOY.**
+
+Chủ dự án tả tuyến đoàn mô hình đi: Ngã 8 → Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung
+→ về Ngã 8, lặp lại liên tục. Đã vẽ **nét đứt** lên bản đồ game (lý do chọn nét đứt: DECISIONS).
+
+- Toạ độ lấy từ OpenStreetMap ngày 16/9 (không vẽ tay): vòng khép kín 3.225 m, 21 điểm, 96% chiều
+  dài nằm đúng trên 4 con đường anh kể, phần còn lại là các nhánh nối trong nút giao.
+- Venue thêm cờ `dashed`; `GameMap` tách lớp `cdp-venue-route-dashed` (MapLibre không cho đổi kiểu
+  nét theo dữ liệu trong cùng một lớp).
+- Chụp màn hình kiểm trên `localhost:3100` (khổ iPhone): vòng hiện đủ, nét đứt rõ, không lẫn với nét
+  liền của phố đi bộ; nhãn "🏮 Tuyến rước đèn" nằm ở góc trên trái vòng; bản đồ tự thu vừa khung.
+- Lint giữ nguyên 1 lỗi cũ; build đạt.
+
+---
+
 **Cập nhật mới nhất 2026-09-16 (phiên tối) — ĐỔI ĐƯỜNG DẪN GAME, ĐÃ DEPLOY (`web-5oqws6bid`).**
 
 Chủ dự án thấy `chamdiaphuong.io.vn/cham/thanh-tuyen-2026` lặp chữ "cham" và không nói rõ là trò gì.

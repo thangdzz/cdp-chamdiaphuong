@@ -632,7 +632,9 @@ web/
 │   │   ├── registry.js            Event: đăng ký mùa, pha upcoming/live/ended
 │   │   ├── seasons/thanh-tuyen-2026.js  Cấu hình mùa (copy, bản đồ, category, điểm tổ chức
 │   │   │                          `venues` lấy từ OSM, seed object)
-│   │   ├── venues.js              Venue → GeoJSON, điểm đặt nhãn, khung bao để căn bản đồ
+│   │   ├── venues.js              Venue → GeoJSON, điểm đặt nhãn, khung bao để căn bản đồ.
+│   │   │                          `kind: "area"` vẽ vùng, `"route"` vẽ tuyến; thêm `dashed: true`
+│   │   │                          thì tuyến vẽ NÉT ĐỨT (đường đoàn đi qua, khác chỗ đứng xem)
 │   │   ├── catalog.js             Object: chuẩn hoá + fallback tên/icon, gộp seed + Redis, ghép
 │   │   ├── progress.js            Tiến độ cá nhân/cộng đồng (đã quy alias)
 │   │   ├── badge.js               Huy hiệu sưu tập (NOTE-07): khung theo nhóm + 1 hình hero + trạng

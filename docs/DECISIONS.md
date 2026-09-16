@@ -3,6 +3,25 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Tuyến rước đèn vẽ nét đứt trên bản đồ game
+
+Người đi xem hỏi câu đầu tiên là "đứng đâu thì gặp đèn?". Bản đồ mới chỉ có quảng trường và phố đi
+bộ — hai chỗ ĐỨNG, chưa có đường đoàn ĐI. Chủ dự án tả tuyến ngày 16/9: **Ngã 8 (Bình Thuận ×
+Quang Trung) → Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung → về Ngã 8**, đi vòng lặp
+lại liên tục cả tối.
+
+- **Nét đứt, không phải nét liền.** Nét liền đang mang nghĩa "chỗ đi bộ / chỗ đứng xem" (phố đi bộ).
+  Đường đoàn rước chỉ đi qua rồi lại đi tiếp — nét đứt nói đúng nghĩa đó mà không cần chú thích.
+  Giữ cam CDP `#c8553d`, không thêm màu mới (SPEC-giao-dien §4).
+- **Là DỮ LIỆU, không phải code Trung thu.** Venue thêm cờ `dashed`; mùa sau khai tuyến của mùa đó.
+  `line-dasharray` của MapLibre không nhận biểu thức theo dữ liệu nên phải tách hai lớp — đó là lý
+  do có `cdp-venue-route` và `cdp-venue-route-dashed`.
+- **Toạ độ lấy từ OpenStreetMap, không vẽ tay** (đúng lệ đã đặt cho 2 điểm tổ chức cũ): tìm đường
+  theo tên, bám tim đường, vòng khép kín ~3,2 km, rút còn 21 điểm mà sai số dưới 2,5 m.
+- **Hết Đại lộ Tân Trào đường đổi tên thành 17/8 khoảng 130 m** rồi mới tới ngã rẽ Phan Thiết —
+  chủ dự án xác nhận đoàn đi thẳng qua đoạn đó, nên tuyến vẽ liền mạch.
+- Bản đồ tự thu vừa đủ để thấy trọn vòng (khung bao tính cả tuyến mới).
+
 ## 2026-09-16 — Đường dẫn game bỏ tầng `/cham/` (ĐÃ DEPLOY)
 
 `https://chamdiaphuong.io.vn/cham/thanh-tuyen-2026` lặp chữ "cham" hai lần và không nói cho người
