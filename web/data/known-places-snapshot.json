@@ -45,6 +45,11 @@
     "address": "54 đường Bình Than (bên hông phải TT Hội nghị)"
   },
   {
+    "name": "Ẩm thực quê",
+    "type": "an",
+    "address": "Thôn 7, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
     "name": "Bách Thảo Ngân Hotel Resort",
     "type": "ngu",
     "address": "Số 465 đường Lê Duẩn, Tổ dân phố Tân Hà 1, phường Minh Xuân, TP Tuyên Quang"
@@ -420,6 +425,11 @@
     "address": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang"
   },
   {
+    "name": "Karaoke NEW89",
+    "type": "choi",
+    "address": "Tổ 2, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Kem 81",
     "type": "an",
     "address": "154 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
@@ -428,6 +438,11 @@
     "name": "Khách sạn Bảo Linh",
     "type": "ngu",
     "address": "169 Nguyễn Trãi, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Khách sạn Công Đoàn",
+    "type": "ngu",
+    "address": "Tổ 10, phường Nông Tiến, TP Tuyên Quang"
   },
   {
     "name": "Khách sạn Eden",
@@ -848,6 +863,11 @@
     "name": "Nhà vườn Thủy Viên 2",
     "type": "ngu",
     "address": "Trung Việt 2, phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà xe Hồng Thịnh",
+    "type": "dilai",
+    "address": "62 Phạm Văn Đồng, Tổ 1, phường Hưng Thành, TP Tuyên Quang"
   },
   {
     "name": "Nướng Than Hoa Tuyên Quang",
