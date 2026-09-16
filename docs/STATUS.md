@@ -11,8 +11,12 @@
 Chủ dự án tả tuyến đoàn mô hình đi: Ngã 8 → Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung
 → về Ngã 8, lặp lại liên tục. Đã vẽ **nét đứt** lên bản đồ game (lý do chọn nét đứt: DECISIONS).
 
-- Toạ độ lấy từ OpenStreetMap ngày 16/9 (không vẽ tay): vòng khép kín 3.225 m, 21 điểm, 96% chiều
-  dài nằm đúng trên 4 con đường anh kể, phần còn lại là các nhánh nối trong nút giao.
+- Toạ độ lấy từ OpenStreetMap ngày 16/9 (không vẽ tay): vòng khép kín 3.309 m, 63 điểm, 91% chiều
+  dài nằm đúng trên 4 con đường anh kể, phần còn lại là xuyến và nhánh nối trong nút giao.
+- **Chủ dự án bắt được 2 lỗi, đã sửa trong phiên:** (1) Tân Trào là đường đôi một chiều, bản vẽ đầu
+  chạy ngược chiều — sửa bằng cách tìm đường trên đồ thị CÓ HƯỚNG (đọc `oneway`/`roundabout` của
+  OSM) nên tuyến tự vòng qua xuyến Di tích thành nhà Mạc sang làn đối diện; (2) bùng binh Ngã 8 bị
+  bước rút gọn điểm bóp thành đường thẳng cắt ngang — giữ sai số dưới 0,4 m thì hết.
 - Venue thêm cờ `dashed`; `GameMap` tách lớp `cdp-venue-route-dashed` (MapLibre không cho đổi kiểu
   nét theo dữ liệu trong cùng một lớp).
 - Chụp màn hình kiểm trên `localhost:3100` (khổ iPhone): vòng hiện đủ, nét đứt rõ, không lẫn với nét
