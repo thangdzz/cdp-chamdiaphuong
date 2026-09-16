@@ -490,6 +490,7 @@ export async function updateStop({
   customAddress,
   customProvince,
   coordinates,
+  googlePlaceId,
 }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
@@ -533,6 +534,10 @@ export async function updateStop({
     if (customProvince !== undefined) stop.customProvince = normalizeProvince(customProvince);
     if (coordinates !== undefined) {
       stop.coordinates = cleanCoordinates(coordinates);
+      // Place ID chỉ có nghĩa khi đi kèm toạ độ hợp lệ của chính chỗ đó.
+      stop.googlePlaceId = stop.coordinates && typeof googlePlaceId === "string"
+        ? googlePlaceId.trim().slice(0, 200) || null
+        : null;
     } else if (addressChanged && stop.coordinates?.confirmed) {
       const { confirmed, ...rest } = stop.coordinates;
       stop.coordinates = rest;

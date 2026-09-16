@@ -278,6 +278,18 @@ Dùng ở: điểm riêng lộ trình (`coordinates` trên stop, lưu qua `confi
 của nhà xe (dạng phẳng `lat`/`lng`/`locationSource`/`locationConfirmed`, `cleanPickupLocation` ở `lib/pickupPoints.js`).
 `stopMapsQuery` ưu tiên toạ độ đã ghim cho MỌI loại điểm, chỉ rơi về địa chỉ chữ khi chưa có.
 
+### Dẫn đường vs tìm kiếm (2026-09-16, spec CDP-Google-Maps-Location-Routing-v1)
+
+`lib/placeLocation.js` — `locationOf()` / `isLocationVerified()`: **đã xác minh = có `googlePlaceId`,
+hoặc có toạ độ `confirmed: true`**. Toạ độ máy tự suy không tính. Suy ra lúc đọc, không migration.
+`lib/mapsUrl.js` tách hai việc: `placeRouteTarget()`/`stopRouteTarget()` cho DẪN ĐƯỜNG (null khi chưa
+xác minh), `placeSearchQuery()`/`mapsSearchUrl()` cho TÌM KIẾM. `placeMapAction()` chọn nút đúng.
+`routeMapsUrl()` nhận danh sách điểm đã resolve và trả `legs[]` (chia chặng khi dài).
+Hai công tắc: `REQUIRE_VERIFIED_LOCATION` (đang false — xem DECISIONS) và `MAX_WAYPOINTS`.
+Admin ghim hàng loạt ở `/admin/vi-tri`; ghim một chỗ ở form sửa (`PlaceLocationEditor`).
+Google Places (tuỳ chọn): `lib/googlePlaces.js` + `app/googlePlacesActions.js`, bật bằng
+`GOOGLE_MAPS_SERVER_KEY` + `NEXT_PUBLIC_GOOGLE_PLACES=1`, chỉ gọi khi người dùng bấm nút.
+
 ```js
 {
   id: "live-<uuid>",

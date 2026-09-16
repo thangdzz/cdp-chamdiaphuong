@@ -5,6 +5,11 @@ import { GameMap } from "@/app/_game/GameMap";
 import { geocodeAddress } from "@/app/geocodeActions";
 import { provinceCenter } from "@/lib/geocode";
 import { locationOf, locationSourceLabel } from "@/lib/placeLocation";
+import { searchGooglePlaces } from "@/app/googlePlacesActions";
+
+// Bật/tắt phần chọn từ Google. Cờ CÔNG KHAI (không phải khoá): khoá thật chỉ nằm ở máy chủ
+// (GOOGLE_MAPS_SERVER_KEY). Chưa bật thì cả khối Google ẩn đi, kéo ghim tay vẫn chạy như thường.
+const GOOGLE_PLACES_ON = process.env.NEXT_PUBLIC_GOOGLE_PLACES === "1";
 
 // Khối "xác nhận vị trí trên bản đồ" — dùng chung cho mọi chỗ người dùng gõ địa chỉ bằng tay
 // (điểm riêng trong lộ trình, điểm đón tự nhập, điểm đón của nhà xe ở trang admin).
@@ -24,6 +29,7 @@ export function coordinateSourceLabel(coordinates) {
 }
 
 export function LocationConfirm({
+  name,
   addressLine,
   wardOrDistrict,
   province,
@@ -49,6 +55,10 @@ export function LocationConfirm({
   const [foundLabel, setFoundLabel] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  // Chọn từ Google (spec §4): ứng viên đang hiện, và Place ID của cái đã chọn.
+  const [candidates, setCandidates] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const [pickedPlaceId, setPickedPlaceId] = useState(null);
   // Mỗi lần mở bản đồ là một lượt tra riêng; lượt cũ về muộn thì bỏ qua.
   const runRef = useRef(0);
   const boxRef = useRef(null);
@@ -60,6 +70,8 @@ export function LocationConfirm({
     setOpenFor(addressKey);
     setMoved(false);
     setError(null);
+    setCandidates(null);
+    setPickedPlaceId(null);
     const run = ++runRef.current;
     // Đưa cả khối vào giữa màn hình: mở ở lưng chừng trang thì nút "Xác nhận vị trí" nằm lọt dưới
     // thanh ghim ở đáy. Chờ một khung hình cho bản đồ chiếm chỗ xong rồi mới cuộn.
@@ -93,17 +105,46 @@ export function LocationConfirm({
     setFoundLabel(result.label ?? null);
   }
 
+  async function searchGoogle() {
+    setSearching(true);
+    setError(null);
+    const result = await searchGooglePlaces({
+      query: [name, addressLine, wardOrDistrict, province].filter(Boolean).join(", "),
+      near: point ?? provinceCenter(province),
+    });
+    setSearching(false);
+    if (!result?.ok) {
+      setCandidates(null);
+      setError(result?.error ?? "Không tìm được trên Google.");
+      return;
+    }
+    setCandidates(result.candidates);
+  }
+
+  function pickGoogle(candidate) {
+    setPickedPlaceId(candidate.placeId);
+    setPoint({ lat: candidate.lat, lng: candidate.lng });
+    setFocus({ lat: candidate.lat, lng: candidate.lng, zoom: 18 });
+    setMoved(false); // vị trí này là của Google, chưa ai chỉnh
+    setError(null);
+  }
+
   async function confirm() {
     if (!point || saving) return;
     setSaving(true);
     setError(null);
     // Có người nhìn bản đồ và bấm xác nhận → tính là đã xác minh, dù có kéo hay không (kết quả tra
     // đúng sẵn thì khỏi kéo). Nguồn ghi theo NGƯỜI ghim, không theo cách ghim.
+    //
+    // Chọn từ danh sách Google rồi KHÔNG kéo đi đâu → giữ nguyên Place ID và ghi nguồn `google_place`
+    // (§3 Priority 1). Kéo ghim sau khi chọn nghĩa là Google chỉ sai chỗ: bỏ Place ID, lấy ý người dùng.
+    const keepsGooglePick = pickedPlaceId && !moved;
     const result = await onConfirm({
       lat: point.lat,
       lng: point.lng,
-      source: pinSource,
+      source: keepsGooglePick ? "google_place" : pinSource,
       confirmed: true,
+      googlePlaceId: keepsGooglePick ? pickedPlaceId : null,
     });
     setSaving(false);
     if (result && result.ok === false) {
@@ -153,6 +194,44 @@ export function LocationConfirm({
           </p>
           {status === "found" && foundLabel && (
             <p className="mt-0.5 text-xs text-zinc-500">Tìm thấy: {foundLabel}</p>
+          )}
+
+          {/* §4: chỗ nào Google đã có thì chọn thẳng — chính xác hơn kéo tay, và có Place ID. */}
+          {GOOGLE_PLACES_ON && (
+            <div className="mt-2">
+              <button
+                type="button"
+                disabled={searching}
+                onClick={searchGoogle}
+                className="cdp-pressable min-h-11 cursor-pointer rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-700 disabled:opacity-50"
+              >
+                {searching ? "Đang tìm trên Google…" : "Tìm chỗ này trên Google"}
+              </button>
+              {candidates?.length === 0 && (
+                <p className="mt-1 text-xs text-zinc-500">Google không có chỗ nào khớp — kéo ghim tay nhé.</p>
+              )}
+              {candidates?.length > 0 && (
+                <ul className="mt-1 flex flex-col gap-1">
+                  {candidates.map((candidate) => (
+                    <li key={candidate.placeId}>
+                      <button
+                        type="button"
+                        onClick={() => pickGoogle(candidate)}
+                        className={`cdp-pressable flex w-full cursor-pointer flex-col items-start rounded-lg border px-3 py-2 text-left ${
+                          pickedPlaceId === candidate.placeId ? "border-[#c8553d] bg-white" : "border-zinc-200 bg-white"
+                        }`}
+                      >
+                        <span className="text-sm font-medium text-zinc-900">
+                          {pickedPlaceId === candidate.placeId ? "● " : "○ "}
+                          {candidate.name}
+                        </span>
+                        {candidate.address && <span className="text-xs text-zinc-500">{candidate.address}</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
 
           {point && (

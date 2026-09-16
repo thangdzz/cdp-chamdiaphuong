@@ -134,7 +134,7 @@ export function stopRouteTarget(stop) {
     if (!pickup || pickup.locationConfirmed !== true) return null;
     const coords = cleanCoordinates({ lat: pickup.lat, lng: pickup.lng });
     if (!coords) return null;
-    return { placeId: null, lat: coords.lat, lng: coords.lng, label: pickup.name ?? null };
+    return { placeId: pickup.googlePlaceId ?? null, lat: coords.lat, lng: coords.lng, label: pickup.name ?? null };
   }
   if (stop.place) return placeRouteTarget(stop.place);
   // Điểm riêng và đề xuất: chỉ ghim đã xác nhận mới tính (§3 Priority 2).

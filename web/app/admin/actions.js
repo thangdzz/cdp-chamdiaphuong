@@ -157,7 +157,7 @@ export async function deleteLive(formData) {
  * Ghi vị trí đã ghim cho MỘT địa điểm (spec Location-Routing §13 — bảng xác minh hàng loạt).
  * Tách khỏi `updateLive` để bảng đó không phải gửi lại toàn bộ form của từng chỗ.
  */
-export async function savePlaceLocation({ id, coordinates }) {
+export async function savePlaceLocation({ id, coordinates, googlePlaceId = null }) {
   "use server";
   await requireAdmin();
   if (!id) return { ok: false, error: "Thiếu địa điểm." };
@@ -166,7 +166,8 @@ export async function savePlaceLocation({ id, coordinates }) {
 
   const live = await getLivePlaces();
   if (!live.some((p) => p.id === id)) return { ok: false, error: "Không tìm thấy địa điểm này." };
-  await setLivePlaces(live.map((p) => (p.id === id ? { ...p, coordinates: clean } : p)));
+  const placeId = clean && typeof googlePlaceId === "string" ? googlePlaceId.trim().slice(0, 200) || null : null;
+  await setLivePlaces(live.map((p) => (p.id === id ? { ...p, coordinates: clean, googlePlaceId: placeId } : p)));
 
   revalidatePath("/admin");
   revalidatePath("/admin/vi-tri");

@@ -24,6 +24,14 @@
         áp dụng cho điểm riêng, điểm đón tận nơi, điểm đón nhà xe ở admin; Maps ưu tiên toạ độ đã xác nhận — 💻 chỉ local
   - [x] Ba sửa nhỏ trang lộ trình: điểm đón tự nhập tự lưu khi bấm ra ngoài, điểm riêng hiện địa chỉ đầy đủ,
         nút "Xem lộ trình" ghim đáy trang sửa — 💻 chỉ local
+  - [x] Spec Google-Maps-Location-Routing chặng 1: tách "Chỉ đường" (chỉ khi đã xác minh) khỏi "Tìm trên
+        Google Maps"; lộ trình kể tên điểm chưa xác minh; chia chặng khi dài; admin ghim vị trí trong form — 💻 chỉ local
+  - [x] Chặng 2: bảng `/admin/vi-tri` ghim hàng loạt cho 234 địa điểm chưa có toạ độ — 💻 chỉ local
+  - [x] Chặng 3: Google Places Text Search (tuỳ chọn, tắt sẵn) — chọn ứng viên có Place ID — 💻 chỉ local
+  - [ ] Chủ dự án: tạo khoá `GOOGLE_MAPS_SERVER_KEY` + đặt `NEXT_PUBLIC_GOOGLE_PLACES=1` nếu muốn bật Google Places
+  - [ ] Chủ dự án: ghim dần 234 địa điểm ở `/admin/vi-tri` (ưu tiên chỗ hay dùng)
+  - [ ] Sau khi ghim gần xong: đổi `REQUIRE_VERIFIED_LOCATION = true` trong `lib/mapsUrl.js`
+  - [ ] Thử trên iPhone thật xem Google Maps nhận được bao nhiêu điểm giữa, rồi chỉnh `MAX_WAYPOINTS`
   - [ ] Deploy NOTE-14 P0 khi chủ dự án bảo
   - [ ] Chủ dự án: sau deploy, mở `/lo-trinh/ep3jjcay/sua` ghim đúng vị trí "Khu đỉnh dốc Bà The" và điểm đón
         "Quán Cháo Lòng" (test đã chạy trên lộ trình này rồi TRẢ LẠI NGUYÊN TRẠNG — chưa có ghim thật)

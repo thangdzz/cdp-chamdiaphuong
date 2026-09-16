@@ -56,12 +56,14 @@ export function cleanPickupLocation(raw) {
     source: raw?.locationSource,
     confirmed: raw?.locationConfirmed === true,
   });
-  if (!coords) return { lat: null, lng: null, locationSource: null, locationConfirmed: false };
+  if (!coords) return { lat: null, lng: null, locationSource: null, locationConfirmed: false, googlePlaceId: null };
+  const placeId = typeof raw?.googlePlaceId === "string" ? raw.googlePlaceId.trim().slice(0, 200) : "";
   return {
     lat: coords.lat,
     lng: coords.lng,
     locationSource: coords.source ?? null,
     locationConfirmed: coords.confirmed === true,
+    googlePlaceId: placeId || null,
   };
 }
 

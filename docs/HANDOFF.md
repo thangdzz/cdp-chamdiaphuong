@@ -8,6 +8,33 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 (cuối) — SPEC GOOGLE-MAPS-LOCATION-ROUTING: ĐÃ LÀM CẢ 3 CHẶNG, CHƯA DEPLOY.** Spec
+`docs/CDP-Google-Maps-Location-Routing-v1.md`; lý do ở DECISIONS 2026-09-16 "CDP xác định điểm…".
+- **Nguyên tắc:** chuỗi chữ là câu TÌM KIẾM, không phải định danh địa lý. Chỉ điểm ĐÃ XÁC MINH
+  (Place ID của Google, hoặc toạ độ có người xác nhận trên bản đồ) mới được dùng để dẫn đường.
+- **Đã làm:** (1) tách `placeRouteTarget()` khỏi `placeSearchQuery()`; nút địa điểm là "Chỉ đường" hay
+  "Tìm trên Google Maps" tuỳ trạng thái; lộ trình kể tên điểm chưa xác minh; chia chặng khi dài; admin
+  ghim vị trí ngay trong form sửa. (2) bảng `/admin/vi-tri` ghim hàng loạt. (3) Google Places Text
+  Search (tắt sẵn, bật bằng env).
+- **File mới:** `lib/placeLocation.js`, `lib/googlePlaces.js`, `app/googlePlacesActions.js`,
+  `app/admin/PlaceLocationEditor.js`, `app/admin/vi-tri/{page,LocationQueue}.js`.
+  **Sửa:** `lib/{mapsUrl,coordinates,pickupPoints,placeForm,routes}.js`, `app/{LocationConfirm,PlaceDetail,
+  PlaceExplorer,NotebookPlaceCard,routeActions}.js`, `app/admin/{actions,page,PlaceFormFields,PickupPointsEditor}.js`,
+  `app/lo-trinh/[slug]/{page,sua/page}.js`, `app/lo-trinh/xem/[token]/page.js`.
+- **HAI CÔNG TẮC phải biết:**
+  - `REQUIRE_VERIFIED_LOCATION` trong `lib/mapsUrl.js` đang `false`. Spec muốn `true` (chưa xác minh thì
+    KHÔNG mở lộ trình), nhưng 0/234 địa điểm có toạ độ nên bật ngay là 7 lộ trình đứng im. Ghim gần xong
+    thì đổi thành `true`.
+  - `MAX_WAYPOINTS = 9` (theo tài liệu Google). Spec đoán điện thoại chỉ nhận 3 — chưa kiểm chứng, thử
+    máy thật rồi chỉnh.
+- **Env cho Google Places (tuỳ chọn):** `GOOGLE_MAPS_SERVER_KEY` (bí mật, chỉ máy chủ) +
+  `NEXT_PUBLIC_GOOGLE_PLACES=1` (cờ hiện giao diện). Không đặt thì khối Google ẩn hoàn toàn, mọi thứ
+  khác chạy bình thường. Cần bật **Places API (New)** trong Google Cloud.
+- **Test:** 8 bộ script trong scratchpad đều đạt (gm-stage1, gm-stage1-ui, gm-stage2, gm-stage3,
+  gm-stage3-ui với khoá giả, n15-step1/2/3, note14-c). Phần gọi Google THẬT chưa test được vì chưa có
+  khoá — mới chỉ xác nhận Google từ chối đúng cách khi khoá sai.
+- **Tiếp:** chủ dự án ghim dần ở `/admin/vi-tri` → deploy → bật `REQUIRE_VERIFIED_LOCATION`.
+
 **2026-09-16 (sau) — XÁC NHẬN VỊ TRÍ TRÊN BẢN ĐỒ + 3 SỬA NHỎ TRANG LỘ TRÌNH, ĐÃ CODE, CHƯA DEPLOY.** Lý do ở
 DECISIONS 2026-09-16 hai mục đầu.
 - **Vì sao:** chủ dự án báo điểm riêng "63 Lê Duẩn, Minh Xuân, Tuyên Quang" vẫn bị Google dẫn sang "321 Lê Duẩn".

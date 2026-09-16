@@ -122,6 +122,7 @@ export function PickupPointsEditor({ place }) {
                 <div className="col-span-2">
                   {/* Cách chắc ăn hơn dán link: xem ghim trên bản đồ rồi kéo cho đúng (2026-09-16). */}
                   <LocationConfirm
+                    name={point.name}
                     addressLine={point.addressLine}
                     wardOrDistrict={point.wardOrDistrict}
                     province={point.province}
@@ -129,7 +130,7 @@ export function PickupPointsEditor({ place }) {
                     pinSource="admin_pin"
                     value={
                       hasCoords
-                        ? { lat: point.lat, lng: point.lng, source: point.locationSource, confirmed: point.locationConfirmed }
+                        ? { lat: point.lat, lng: point.lng, source: point.locationSource, confirmed: point.locationConfirmed, googlePlaceId: point.googlePlaceId }
                         : null
                     }
                     onConfirm={(next) => {
@@ -139,6 +140,7 @@ export function PickupPointsEditor({ place }) {
                         lng: next.lng,
                         locationSource: next.source,
                         locationConfirmed: true,
+                        googlePlaceId: next.googlePlaceId ?? null,
                       });
                       return { ok: true };
                     }}

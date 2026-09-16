@@ -10,8 +10,8 @@ import { locationSourceLabel } from "@/lib/placeLocation";
 // Bảng xác minh vị trí hàng loạt (spec Location-Routing §13). Một chỗ, một hàng, ghim xong là xong —
 // không phải mở form sửa đầy đủ của từng địa điểm.
 //
-// Bản này KHÔNG gọi Google Places: tra địa chỉ bằng OpenStreetMap rồi người ghim. Khi có khoá Google
-// thì thêm nút chọn từ danh sách gợi ý vào đúng hàng này.
+// Mỗi hàng: tra địa chỉ (OpenStreetMap) → bản đồ → kéo ghim → xác nhận. Có khoá Google thì trong
+// bản đồ còn thêm nút "Tìm chỗ này trên Google" để chọn thẳng ứng viên có sẵn Place ID.
 
 export function LocationQueue({ places, verifiedCount }) {
   // Chỗ vừa ghim xong / vừa bỏ qua: bỏ khỏi danh sách đang làm để hàng tiếp theo trôi lên.
@@ -66,6 +66,7 @@ export function LocationQueue({ places, verifiedCount }) {
               </div>
 
               <LocationConfirm
+                name={place.name}
                 addressLine={place.address || place.name}
                 wardOrDistrict={place.ward}
                 province={DEFAULT_PROVINCE}
@@ -73,7 +74,7 @@ export function LocationQueue({ places, verifiedCount }) {
                 pinSource="admin_pin"
                 value={place.coordinates}
                 onConfirm={async (next) => {
-                  const result = await savePlaceLocation({ id: place.id, coordinates: next });
+                  const result = await savePlaceLocation({ id: place.id, coordinates: next, googlePlaceId: next.googlePlaceId });
                   if (result?.ok) setDone((current) => ({ ...current, [place.id]: "pinned" }));
                   else setError(result?.error ?? "Chưa lưu được vị trí.");
                   return result;

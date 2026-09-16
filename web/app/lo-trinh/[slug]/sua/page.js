@@ -456,6 +456,7 @@ function PickupChooser({ stop, index, slug, onChosen }) {
           <p className="text-xs text-zinc-400">Bấm ra ngoài khung này cũng tự lưu.</p>
           {/* Địa chỉ nhà khách còn khó tra hơn địa chỉ quán — ghim trên bản đồ để xe đón đúng chỗ. */}
           <LocationConfirm
+            name={custom.name}
             addressLine={custom.addressLine}
             province={custom.province}
             label="điểm đón"
@@ -474,6 +475,7 @@ function PickupChooser({ stop, index, slug, onChosen }) {
                 lng: next.lng,
                 locationSource: next.source,
                 locationConfirmed: true,
+                googlePlaceId: next.googlePlaceId,
               });
               if (result?.ok) savedCustomRef.current = { ...custom };
               return result;
@@ -683,6 +685,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
           chỗ thay vì đoán sang số nhà khác cùng đường. */}
       {isCustom && (
         <LocationConfirm
+          name={customName}
           addressLine={address}
           province={province}
           value={coordinates}
@@ -693,6 +696,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
               slug,
               index,
               coordinates: next,
+              googlePlaceId: next.googlePlaceId,
             });
             if (result?.ok) setCoordinates(next);
             return result;

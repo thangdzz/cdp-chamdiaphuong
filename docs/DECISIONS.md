@@ -3,6 +3,44 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — CDP xác định điểm, Google chỉ tính đường (spec CDP-Google-Maps-Location-Routing-v1)
+
+Nối tiếp mục dưới. Spec chốt nguyên tắc: **chuỗi chữ "tên + phường + tỉnh" là câu TÌM KIẾM, không
+phải định danh địa lý.** Làm cả 3 chặng (chủ dự án duyệt 16/9).
+
+**Chặng 1 — tách dẫn đường khỏi tìm kiếm (không tốn tiền)**
+- `lib/placeLocation.js` trả lời một câu duy nhất: chỗ này đã đủ chính xác để dẫn đường chưa?
+  **Đã xác minh = có Google Place ID, HOẶC có toạ độ mà một con người đã xác nhận trên bản đồ.**
+  Toạ độ máy tự suy (nguồn nhập, link Maps, tra địa chỉ) KHÔNG tính — nó chỉ là điểm khởi đầu.
+  Suy ra lúc đọc từ field đã có → không migration; dữ liệu cũ đọc ra `legacy_text`.
+- `mapsUrl.js` tách `placeRouteTarget()` (dẫn đường) khỏi `placeSearchQuery()` (tìm kiếm).
+  Chưa xác minh → nút đổi thành **"Tìm trên Google Maps"**, không giả vờ là đã chính xác (§6).
+- Lộ trình **kể tên từng điểm chưa xác minh** thay vì im lặng bỏ (§10), kèm nút "Xác nhận vị trí".
+- **`REQUIRE_VERIFIED_LOCATION = false` (tạm).** Spec §3/§10 muốn chặn hẳn lộ trình có điểm chưa
+  xác minh, nhưng lúc làm **0/234 địa điểm có toạ độ** — bật ngay là cả 7 lộ trình đang có đứng im.
+  Điểm chưa xác minh tạm vào link bằng chữ, giao diện nói rõ. Ghim xong phần lớn danh bạ thì đổi
+  hằng số → mọi nơi theo ngay.
+- §11 giới hạn waypoint: tài liệu Google ghi 9 điểm giữa; spec đoán trình duyệt điện thoại chỉ nhận
+  3 — **chưa kiểm chứng được**, nên để thành hằng số `MAX_WAYPOINTS`, đổi một chỗ là xong sau khi
+  thử máy thật. Lộ trình dài thì chia chặng nối đuôi nhau (điểm cuối chặng trước = điểm đầu chặng sau).
+
+**Chặng 2 — bảng ghim hàng loạt.** `/admin/vi-tri` chỉ liệt kê chỗ CHƯA xác minh, mỗi chỗ một hàng có
+sẵn bản đồ. Chỗ đã có toạ độ máy tự suy xếp lên trước (chỉ cần liếc rồi xác nhận). "Bỏ qua" không ghi gì.
+
+**Chặng 3 — Google Places (tuỳ chọn, cần khoá)**
+- Chỉ **Text Search**, chỉ chạy khi người dùng BẤM nút, không chạy theo từng ký tự gõ (§14, §17).
+  Thêm: câu ngắn hơn 3 ký tự thì không gọi, giãn lượt, nhớ tạm trong tiến trình, **trần 300 lượt/giờ
+  mỗi máy chủ** — không thể thành hoá đơn bất ngờ.
+- **Chỉ một khoá máy chủ `GOOGLE_MAPS_SERVER_KEY`.** Spec §16 đề nghị tách thêm khoá trình duyệt,
+  nhưng dự án KHÔNG nhúng thư viện JS của Google (bản đồ dùng MapLibre + OSM) — tạo thêm một khoá lộ
+  ra ngoài mà không dùng là tự rước rủi ro.
+- Bật/tắt bằng cờ công khai `NEXT_PUBLIC_GOOGLE_PLACES=1`. Chưa bật → cả khối Google ẩn, phần kéo
+  ghim tay chạy y nguyên. Khoá sai → báo rõ, không làm hỏng luồng ghim.
+- Chọn ứng viên Google rồi KHÔNG kéo đi đâu → lưu Place ID, nguồn `google_place`. **Kéo ghim sau khi
+  chọn = Google chỉ sai chỗ** → bỏ Place ID, lấy ý người dùng (`user_pin`/`admin_pin`).
+- Place ID chỉ gắn cho điểm ĐẦU và CUỐI của link lộ trình: `waypoint_place_ids` bắt buộc khớp số
+  lượng và thứ tự với `waypoints`, mà lộ trình thật hay lẫn chỗ có ID và chỗ chỉ có toạ độ.
+
 ## 2026-09-16 — Xác nhận vị trí trên bản đồ cho mọi địa chỉ nhập tay (kéo P1 §14–§15 lên làm sớm)
 
 Chủ dự án báo: điểm riêng "Khu đỉnh dốc Bà The — 63 Lê Duẩn, Minh Xuân, Tuyên Quang" vẫn bị Google Maps

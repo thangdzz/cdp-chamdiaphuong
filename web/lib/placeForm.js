@@ -29,7 +29,10 @@ function locationFieldsFromFormData(formData) {
   if (!formData.has("placeLocationJson")) return {};
   try {
     const raw = JSON.parse(formData.get("placeLocationJson")?.toString() || "null");
-    return { coordinates: cleanCoordinates(raw) };
+    // Bản cũ của ô ẩn chỉ chứa toạ độ; bản mới chứa cả Place ID của Google.
+    const coordinates = cleanCoordinates(raw?.coordinates ?? raw);
+    const id = typeof raw?.googlePlaceId === "string" ? raw.googlePlaceId.trim().slice(0, 200) : null;
+    return { coordinates, googlePlaceId: coordinates && id ? id : null };
   } catch {
     return {}; // ô ẩn hỏng: giữ nguyên vị trí cũ
   }

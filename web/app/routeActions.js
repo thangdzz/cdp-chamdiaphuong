@@ -187,9 +187,9 @@ export async function createRouteFromPlan({ anonId, title, stops }) {
  * Lưu ghim người dùng vừa xác nhận trên bản đồ cho một ĐIỂM RIÊNG. Tách riêng khỏi saveStopDetails
  * để không phải gửi lại toàn bộ chữ đang gõ chỉ vì xác nhận vị trí.
  */
-export async function confirmStopLocation({ anonId, slug, index, coordinates }) {
+export async function confirmStopLocation({ anonId, slug, index, coordinates, googlePlaceId = null }) {
   if (!anonId || !slug) return { ok: false };
-  return updateStop({ anonId, slug, index, coordinates });
+  return updateStop({ anonId, slug, index, coordinates, googlePlaceId });
 }
 
 export async function choosePickupForStop({ anonId, slug, index, selection }) {
@@ -271,6 +271,7 @@ export async function getRouteForEdit({ anonId, slug }) {
         customProvince: s.customProvince ?? null,
         // Ghim đã xác nhận của điểm riêng — trang sửa cần biết để hiện "đã xác nhận" hay nhắc kiểm tra.
         coordinates: s.coordinates ?? null,
+        googlePlaceId: s.googlePlaceId ?? null,
         deleted: s.deleted,
         nameSnapshot: s.nameSnapshot,
         plannedAt: s.plannedAt,
