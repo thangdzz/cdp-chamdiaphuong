@@ -3,6 +3,41 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 — Audit tải trước đêm 18/9: hồ sơ người chơi là chỗ vỡ đầu tiên
+
+Chạy audit + thử tải toàn web với giả định 1.000–2.000 người cùng vào. Kết quả quan trọng nhất
+KHÔNG nằm ở game mà ở kho hồ sơ người chơi dùng chung cả site.
+
+**Lỗi nặng nhất — mất hồ sơ hàng loạt.** Mọi thao tác trên hồ sơ đều "đọc CẢ mảng → sửa → ghi đè CẢ
+mảng". Đo thật: **40 người đăng ký cùng lúc thì chỉ 1 hồ sơ sống sót, mất 39 (98%)** — và vì ghi đè
+cả mảng nên nó xoá luôn hồ sơ CŨ đang có. Đêm 18/9 cả nghìn người vào lúc 19:00 thì phần lớn hồ sơ
+sẽ bốc hơi ngay trong phút đầu.
+
+- **Đã sửa: mỗi hồ sơ một ô riêng** trong hash `contributors:by-id`. Đăng ký = MỘT lệnh, không ai
+  phải chờ ai, không ai ghi đè ai. Đo lại: **60 người cùng lúc → còn đủ 60, 0 lỗi, 1,0 giây**.
+- Đã thử phương án nhẹ hơn (ghi có kiểm tra phiên bản cả mảng): hết mất dữ liệu nhưng 60 người cùng
+  lúc thì **phần lớn bị "đang bận"** — tranh nhau một khoá nóng. Ghi lại để sau khỏi thử lại.
+- Sửa một hồ sơ đã có thì dùng **ghi-kiểm-ô** (Lua CAS trên đúng ô đó) + thử lại: cộng điểm và đổi
+  tên đến cùng lúc từ hai luồng vẫn vào đủ cả hai.
+- **Không migration.** Mảng `contributors:all` cũ vẫn được ĐỌC (23 hồ sơ cũ), chỉ không bao giờ bị
+  ghi đè nữa. Đã kiểm: hồ sơ cũ vẫn tra được, mã khôi phục cũ vẫn dùng được.
+- **Mã khôi phục chỉ 6 chữ số** — với 2.000 người một đêm thì trùng là chuyện SẼ xảy ra. Giờ giành
+  mã bằng `HSETNX` (nguyên tử) thay vì dò cả mảng.
+- **Thêm namespace cho khoá hồ sơ** (`CDP_CONTRIBUTORS_NAMESPACE`, mặc định rơi về
+  `CDP_GAME_NAMESPACE`). Trước đó chạy thử ở máy cá nhân là ghi thẳng vào hồ sơ thật.
+
+**Lỗi thứ hai — bài lễ hội không dùng bộ đệm.** `/le-hoi-thanh-tuyen` gọi bản đọc KHÔNG đệm nên tốn
+**4 lệnh Redis mỗi lượt mở trang** (2.000 lượt = 8.000 lệnh), trong khi trang game tốn 0. Cộng thêm
+lịch sự kiện cũng đọc Redis mỗi lượt. Sửa xong: **2.000 lượt = 0 lệnh**.
+
+**Những chỗ KHÔNG hỏng (đã thử bằng đồng thời thật):** người-đầu-tiên chỉ ghi đúng 1 dù 60 người
+cùng báo một mô hình; bộ sưu tập không cộng đôi khi bấm 30 lần cùng lúc; trần 20 lượt/10 phút,
+khoá 3 phút cùng mô hình, chặn nhảy vị trí, gắn cờ nhiều danh tính — đều giữ.
+
+**Ngân sách Redis một đêm (đo, không đoán):** mở trang ~0 · mỗi lượt báo đèn **28 lệnh** · mỗi gói
+ghi nhận truy cập **1 lệnh**. Với 2.000 người và ~6.000 lượt báo: **khoảng 250.000 lệnh/đêm**. Gói
+miễn phí 500K/tháng là **hết veo trong 2 đêm** → bắt buộc Pay-as-you-go. Cả mùa ước ~3–6 USD.
+
 ## 2026-09-16 — Định vị: mỗi lượt báo là một phép đo mới + chống gian lận giai đoạn 1
 
 Chủ dự án thấy nhiều lượt báo của cùng một người bị gắn vào các điểm lệch nhau, hoặc dùng lại toạ độ

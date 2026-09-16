@@ -16,7 +16,7 @@ import { InteractivePlan } from "@/app/InteractivePlan";
 import { EventCard } from "./EventCard";
 import { GameEntryCard } from "@/app/_game/GameEntryCard";
 import { eventPhase, gameEventHref, publicEventConfig } from "@/lib/game/registry";
-import { getGameTeaser, loadGameEvent } from "@/lib/game/store";
+import { getSharedGameTeaser, loadGameEventShared } from "@/lib/game/store";
 
 // Mùa game gắn với bài viết này. Bài lễ hội năm sau chỉ đổi slug, không đổi code game.
 const FESTIVAL_GAME_SLUG = "san-den-thanh-tuyen-2026"; // phải khớp `slug` trong lib/game/seasons/*.js
@@ -66,11 +66,13 @@ function TimelineGroups({ events, now }) {
 }
 
 export default async function LeHoiThanhTuyenPage() {
-  const gameEvent = await loadGameEvent(FESTIVAL_GAME_SLUG);
+  // Dùng bản ĐỌC CHUNG 20 giây như trang game và trang chủ. Đo ngày 17/9: bản không đệm tốn
+  // 4 lệnh Redis cho MỖI lượt mở trang (2.000 lượt = 8.000 lệnh), trong khi trang game tốn 0.
+  const gameEvent = await loadGameEventShared(FESTIVAL_GAME_SLUG);
   const [now, events, gameTeaser] = await Promise.all([
     readNow(),
     getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
-    gameEvent ? getGameTeaser(gameEvent).catch(() => null) : null,
+    gameEvent ? getSharedGameTeaser(gameEvent).catch(() => null) : null,
   ]);
   const gameConfig = gameEvent ? publicEventConfig(gameEvent) : null;
   const gamePhase = gameEvent ? eventPhase(gameEvent, now) : null;

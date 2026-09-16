@@ -1,4 +1,5 @@
 import { redis } from "./redis.js";
+import { createSharedRead } from "./sharedRead.js";
 import { TIME_PRECISION, VERIFICATION, timePrecisionOf } from "./events.js";
 
 const MAX_EVENTS_PER_POST = 100;
@@ -92,9 +93,16 @@ export function normalizePostEvents(value) {
   return events;
 }
 
+// Lịch nằm trong bài lễ hội — trang đông nhất tối 18/9. Đo ngày 17/9: bản không đệm tốn 1 lệnh
+// Redis cho MỖI lượt mở trang. Admin sửa lịch xong thấy ngay trên máy chủ vừa sửa, máy chủ khác
+// chậm nhất 60 giây — chấp nhận được với lịch sự kiện.
+const POST_EVENTS_TTL_MS = 60 * 1000;
+const readShared = createSharedRead(POST_EVENTS_TTL_MS);
+
 export async function getPostEvents(slug, fallbackEvents) {
   try {
-    const stored = normalizePostEvents(await redis.get(postEventsKey(slug)));
+    const key = postEventsKey(slug);
+    const stored = normalizePostEvents(await readShared(key, () => redis.get(key)));
     return stored ?? fallbackEvents;
   } catch {
     // Lịch là nội dung gấp nhưng trang phải tiếp tục mở được nếu Redis tạm lỗi.
@@ -106,6 +114,7 @@ export async function setPostEvents(slug, events) {
   const normalized = normalizePostEvents(events);
   if (!normalized) throw new Error("Lịch sự kiện không hợp lệ.");
   await redis.set(postEventsKey(slug), normalized);
+  readShared.forget(postEventsKey(slug)); // admin lưu xong thấy ngay, khỏi chờ hết 60 giây
   return normalized;
 }
 
