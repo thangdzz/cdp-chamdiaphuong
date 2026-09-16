@@ -6,6 +6,26 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (phiên tối) — ĐỔI ĐƯỜNG DẪN GAME, CHƯA DEPLOY.**
+
+Chủ dự án thấy `chamdiaphuong.io.vn/cham/thanh-tuyen-2026` lặp chữ "cham" và không nói rõ là trò gì.
+Đổi thành **`chamdiaphuong.io.vn/san-den-thanh-tuyen-2026`** (lý do đầy đủ ở DECISIONS 2026-09-16).
+
+- `slug` trong file mùa đổi; `id` GIỮ NGUYÊN nên **không mất chút dữ liệu Redis nào**.
+- Route `app/cham/[eventSlug]` chuyển lên tầng gốc `app/[eventSlug]`.
+- `next.config.mjs` thêm chuyển hướng 308 để link cũ ai đã lưu vẫn vào đúng trang.
+- Sửa thêm 2 chỗ ghim slug cứng (`HOME_GAME_SLUG`, `FESTIVAL_GAME_SLUG`) — quên là khối game
+  biến mất im lặng; đã kiểm thấy và sửa ngay trong phiên.
+
+Kiểm trên `localhost:3100`: link mới 200, link cũ 308 về đúng link mới, các trang tĩnh
+(`/so`, `/ghi-chu`, `/lo-trinh`, `/gioi-thieu`, `/le-hoi-thanh-tuyen`) vẫn 200, đường dẫn bịa 404,
+`/admin/game` vẫn 307 về đăng nhập, khối game trên bài lễ hội + thẻ nổi trang chủ trỏ link mới
+(đếm ngược "còn 2 ngày 2 giờ" đúng). Lint giữ nguyên 1 lỗi cũ đã biết; build đạt.
+
+**Chưa deploy** — chờ chủ dự án bảo. Việc còn: dọn gọn khu quản trị `/admin/*` (TASKS).
+
+---
+
 **Cập nhật mới nhất 2026-09-16 (phiên chiều) — CỘNG ĐỒNG XÁC NHẬN VỊ TRÍ: ĐÃ DEPLOY (`web-88aul2m11`).**
 
 Làm nốt phần còn thiếu của spec `CDP-Google-Places-Location-Consensus` (§6–§8, §15–§17). Phần còn lại của

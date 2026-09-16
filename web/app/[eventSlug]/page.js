@@ -17,7 +17,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-// Route chung cho mọi mùa game (NOTE-04 §28: không code riêng một trò Trung thu).
+// Route chung cho mọi mùa game (NOTE-04 §28: không code riêng một trò Trung thu). Nằm ở TẦNG GỐC
+// để link ngắn: chamdiaphuong.io.vn/san-den-thanh-tuyen-2026 (DECISIONS 2026-09-16). Next ưu tiên
+// route tĩnh (/dia-diem, /so, /admin…) trước route động này; slug lạ thì getGameEvent trả null →
+// notFound() ngay, không gọi Redis.
 export default async function GameEventPage({ params, searchParams }) {
   const [{ eventSlug }, query] = await Promise.all([params, searchParams]);
   const event = await loadGameEventShared(eventSlug);

@@ -19,7 +19,7 @@ import { eventPhase, gameEventHref, publicEventConfig } from "@/lib/game/registr
 import { getGameTeaser, loadGameEvent } from "@/lib/game/store";
 
 // Mùa game gắn với bài viết này. Bài lễ hội năm sau chỉ đổi slug, không đổi code game.
-const FESTIVAL_GAME_SLUG = "thanh-tuyen-2026";
+const FESTIVAL_GAME_SLUG = "san-den-thanh-tuyen-2026"; // phải khớp `slug` trong lib/game/seasons/*.js
 
 // Trạng thái mốc lịch tính lúc MỞ TRANG, không phải lúc build (CDP_P1-P8 §"Dynamic Timeline":
 // "không cần deploy code mỗi khi thời gian chuyển trạng thái"). Trang này trước đây là trang

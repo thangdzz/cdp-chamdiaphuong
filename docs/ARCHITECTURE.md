@@ -449,8 +449,10 @@ web/
 │   │                              `GameEntryCard` ngay dưới tiêu đề (ẩn nếu Redis lỗi). Cổng vào game
 │   │                              kiểu banner nằm ở TRANG CHỦ: `_game/HomeGameEntry.js` (server, bộ đệm
 │   │                              20s) → `_game/HomeGameDock.js` (thẻ nổi mép phải, thu gọn/ẩn hôm nay)
-│   ├── cham/[eventSlug]/page.js    ⭐ Game layer: route CHUNG mọi mùa (`/cham/thanh-tuyen-2026`),
-│   │                              `?bao=1` mở sẵn bảng báo
+│   ├── [eventSlug]/page.js         ⭐ Game layer: route CHUNG mọi mùa, ở TẦNG GỐC
+│   │                              (`/san-den-thanh-tuyen-2026` — đổi 2026-09-16, link cũ `/cham/...`
+│   │                              chuyển hướng 308 trong `next.config.mjs`). `?bao=1` mở sẵn bảng báo.
+│   │                              Route tĩnh luôn thắng route động này; slug lạ → 404 không gọi Redis
 │   ├── gameActions.js              Server Action game: báo sighting (tạo hồ sơ ẩn danh im
 │   │                              lặng), thêm ảnh, báo sai vị trí, tải snapshot/người chơi
 │   ├── _game/                      Component game (thư mục `_` = không thành route):

@@ -1,5 +1,5 @@
 // Primitive "Event" của game layer (NOTE-04 §19). Mọi mùa game đăng ký ở đây; route
-// /cham/[eventSlug], trang admin và store đều tra qua getGameEvent(), không import thẳng file mùa.
+// /[eventSlug] (tầng gốc), trang admin và store đều tra qua getGameEvent(), không import thẳng file mùa.
 
 import { THANH_TUYEN_2026 } from "./seasons/thanh-tuyen-2026.js";
 
@@ -22,7 +22,7 @@ export function getGameEvent(slug) {
 }
 
 export function gameEventHref(event) {
-  return `/cham/${event.slug}`;
+  return `/${event.slug}`;
 }
 
 function timeOf(iso) {

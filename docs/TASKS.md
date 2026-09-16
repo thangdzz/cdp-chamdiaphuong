@@ -245,6 +245,16 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       kiểm. Trần 3 mục chờ duyệt/ngày từ nguồn kiểm lại
 - [ ] Xoay vòng trọng tâm quét theo ngày + thêm nguồn ngoài Google Maps/Facebook
 
+### Dọn gọn khu quản trị (admin) — gộp cả việc sửa đường dẫn
+> Ý anh nêu 2026-09-16. Chưa chốt phạm vi, cần bàn trước khi code.
+- [ ] **Rà lại toàn bộ trang `/admin/*`** — hiện là `game`, `vi-tri`, `gioi-thieu`,
+      `navigation`, `content-inbox` cộng trang gốc `/admin`, mỗi việc một trang rời. Xem chỗ
+      nào gộp được, chỗ nào thừa, có cần một trang chủ admin dẫn đường không
+- [x] **Sửa đường dẫn game** — xong 2026-09-16 (làm trước, không đợi đợt dọn admin):
+      `/cham/thanh-tuyen-2026` → `/san-den-thanh-tuyen-2026`, link cũ chuyển hướng 308.
+      Chưa deploy
+- [ ] Nhân tiện soát luôn đường dẫn các trang admin cho thống nhất một kiểu đặt tên
+
 ### Nợ kỹ thuật & việc nhỏ
 - [ ] Sửa lỗi lint cũ ở `web/app/PlaceExplorer.js` (`react-hooks/set-state-in-effect`)
 - [ ] Đưa test Playwright vào repo (hiện là script rời, chạy tay, không commit)

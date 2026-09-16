@@ -103,7 +103,10 @@ npm run lint     # eslint
   .20 ↔ .178) — luôn lấy lại bằng `ipconfig getifaddr en0` trước khi gửi link. Qua `http://192.168…`
   **không lấy được GPS** (trình duyệt chỉ cho trên https) — kéo ghim trên bản đồ. Đăng nhập `/admin`
   qua LAN dùng được từ 15/9 (cookie phiên chỉ bật `secure` khi request thật sự là https, xem
-  `isHttpsRequest` trong `lib/adminAuth.js`). Trang admin game là `/admin/game`, không phải `/cham/admin`.
+  `isHttpsRequest` trong `lib/adminAuth.js`). Trang admin game là `/admin/game`.
+- Đường dẫn game là **`/san-den-thanh-tuyen-2026`** (tầng gốc, đổi 2026-09-16). `slug` trong file mùa
+  khác `id`: khoá Redis dựng từ `id`, đổi slug không đụng dữ liệu. Hai trang ghim slug cứng phải sửa
+  cùng lúc: `app/page.js` (`HOME_GAME_SLUG`) và `app/le-hoi-thanh-tuyen/page.js` (`FESTIVAL_GAME_SLUG`).
 - ⚠️ Localhost **ghi vào Redis/Blob thật** (namespace test chỉ phủ một phần key). Hành động
   không hoàn tác được (duyệt đóng cửa, crawler) chỉ test bằng namespace riêng, không bấm tay.
 

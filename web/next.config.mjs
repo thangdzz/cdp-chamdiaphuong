@@ -10,6 +10,15 @@ const nextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
   },
+  // Link cũ không được chết (DECISIONS 2026-09-16): game bỏ tầng `/cham/` và đổi slug.
+  // Ai đã lưu/đã share link cũ vẫn vào đúng trang, trình duyệt nhớ luôn địa chỉ mới.
+  async redirects() {
+    return [
+      { source: "/cham/thanh-tuyen-2026", destination: "/san-den-thanh-tuyen-2026", permanent: true },
+      // Mùa khác lỡ còn link dạng cũ thì vẫn về đúng tầng gốc.
+      { source: "/cham/:slug", destination: "/:slug", permanent: true },
+    ];
+  },
   turbopack: {
     root: import.meta.dirname,
   },

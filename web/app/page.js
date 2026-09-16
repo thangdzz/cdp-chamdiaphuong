@@ -15,7 +15,7 @@ import { FirstVisitIntroCard } from "./FirstVisitIntroCard";
 import { HomeGameEntry } from "./_game/HomeGameEntry";
 
 // Mùa game đang mời khách từ trang chủ (NOTE-08 §1). Mùa sau chỉ đổi slug.
-const HOME_GAME_SLUG = "thanh-tuyen-2026";
+const HOME_GAME_SLUG = "san-den-thanh-tuyen-2026"; // phải khớp `slug` trong lib/game/seasons/*.js
 
 export const dynamic = "force-dynamic";
 

@@ -5,7 +5,9 @@
 
 export const THANH_TUYEN_2026 = {
   id: "thanh-tuyen-2026",
-  slug: "thanh-tuyen-2026",
+  // Đường dẫn công khai: chamdiaphuong.io.vn/san-den-thanh-tuyen-2026 (DECISIONS 2026-09-16).
+  // KHÁC `id` — khoá Redis dựng từ `id`, nên đổi slug không đụng dữ liệu.
+  slug: "san-den-thanh-tuyen-2026",
   name: "Săn đèn Thành Tuyên 2026",
   shortName: "Săn đèn Thành Tuyên",
   year: 2026,

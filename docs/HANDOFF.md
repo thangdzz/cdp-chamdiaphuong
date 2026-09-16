@@ -8,6 +8,12 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 (tối) — ĐƯỜNG DẪN GAME ĐỔI, CHƯA DEPLOY.** Trang game giờ là
+`/san-den-thanh-tuyen-2026` (tầng gốc), không còn `/cham/[eventSlug]`. `slug` khác `id`; khoá Redis
+dựng từ `id` nên dữ liệu nguyên vẹn. Link cũ chuyển hướng 308 trong `next.config.mjs`. Ai đổi slug lần
+sau nhớ sửa kèm `HOME_GAME_SLUG` (`app/page.js`) và `FESTIVAL_GAME_SLUG`
+(`app/le-hoi-thanh-tuyen/page.js`) — quên thì khối game ẩn mà không báo lỗi. Lý do: DECISIONS 2026-09-16.
+
 **2026-09-16 (cuối) — SPEC GOOGLE-MAPS-LOCATION-ROUTING: ĐÃ LÀM CẢ 3 CHẶNG, CHƯA DEPLOY.** Spec
 `docs/CDP-Google-Maps-Location-Routing-v1.md`; lý do ở DECISIONS 2026-09-16 "CDP xác định điểm…".
 - **Nguyên tắc:** chuỗi chữ là câu TÌM KIẾM, không phải định danh địa lý. Chỉ điểm ĐÃ XÁC MINH

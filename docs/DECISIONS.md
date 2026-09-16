@@ -3,6 +3,23 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Đường dẫn game bỏ tầng `/cham/` (đã code, chưa deploy)
+
+`https://chamdiaphuong.io.vn/cham/thanh-tuyen-2026` lặp chữ "cham" hai lần và không nói cho người
+nhìn biết đó là trò gì. Chốt đổi thành **`https://chamdiaphuong.io.vn/san-den-thanh-tuyen-2026`** —
+một tầng duy nhất, đọc phát hiểu ngay, share Facebook/Zalo gọn hơn.
+
+- **Vẫn không code riêng cho Trung thu.** Chỉ đổi `slug` trong file mùa và đưa route
+  `app/cham/[eventSlug]` lên `app/[eventSlug]`. Mùa sau khai slug của mùa đó, không thêm thư mục.
+- **Dữ liệu an toàn.** Khoá Redis dựng từ `event.id` (`game:{eventId}:…`), không dùng `slug` — đổi
+  slug không đụng một byte dữ liệu nào.
+- **Link cũ không chết.** `next.config.mjs` chuyển hướng 308 (vĩnh viễn): `/cham/thanh-tuyen-2026`
+  → `/san-den-thanh-tuyen-2026`, kèm một luật chung `/cham/:slug` → `/:slug` cho mùa sau.
+- **Bẫy đã vấp:** hai trang ghim slug cứng — `HOME_GAME_SLUG` (`app/page.js`) và
+  `FESTIVAL_GAME_SLUG` (`app/le-hoi-thanh-tuyen/page.js`). Quên sửa thì khối game biến mất
+  KHÔNG báo lỗi (`loadGameEvent` trả null → ẩn khối). Đổi slug lần sau phải sửa cả hai.
+- **Thời điểm:** làm ngay 2026-09-16, trước khi link được phát đi rộng (game mở thật 19:00 18/9).
+
 ## 2026-09-16 — Cộng đồng xác nhận vị trí (spec CDP-Google-Places-Location-Consensus §6–§8, §15–§17)
 
 Nối tiếp mục dưới. Sau khi ghim tay được 8/234 chỗ, rõ ràng **một mình chủ dự án không ghim xuể**.
