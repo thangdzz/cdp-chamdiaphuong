@@ -281,6 +281,19 @@ export default function EditRoutePage({ params }) {
           Xoá lộ trình này
         </button>
 
+        {/* Trang sửa dài hơn một màn hình rất nhanh (mỗi điểm một thẻ). Ghim đường quay lại trang
+            xem ở đáy màn để lúc nào cũng bấm được, khỏi phải vuốt ngược lên đầu tìm link. Mọi thay
+            đổi đã tự lưu lúc rời ô nên đây chỉ là điều hướng, không phải nút "lưu". */}
+        <div className="sticky bottom-0 z-20 -mx-4 mt-4 border-t border-zinc-200 bg-zinc-50/95 px-4 pb-[calc(0.625rem+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur sm:-mx-6 sm:px-6">
+          <Link
+            href={`/lo-trinh/${slug}`}
+            transitionTypes={["nav-back"]}
+            className="cdp-pressable block w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-center text-sm font-medium text-white"
+          >
+            Xem lộ trình
+          </Link>
+        </div>
+
         {pickerOpen && (
           <PlacePicker
             title="Thêm địa điểm"
@@ -316,17 +329,21 @@ export default function EditRoutePage({ params }) {
 }
 
 // NOTE-14 §13–§15: "Bạn sẽ đón xe ở đâu?" — điểm đón cố định của nhà xe, hoặc đón tận nơi/điểm khác (tự
-// nhập, chỉ thuộc lộ trình này). Chọn điểm cố định là lưu ngay; điểm tự nhập lưu bằng nút.
+// nhập, chỉ thuộc lộ trình này). Chọn điểm cố định là lưu ngay; điểm tự nhập tự lưu lúc rời khối,
+// giống mọi ô khác trong trang này — nút "Lưu điểm đón" chỉ để người dùng yên tâm.
 function PickupChooser({ stop, index, slug, onChosen }) {
   const selection = stop.pickupSelection;
   const hasPoints = stop.pickupPoints.length > 0;
-  const [customOpen, setCustomOpen] = useState(!hasPoints || selection?.type === PICKUP_SELECTION_TYPES.CUSTOM);
+  const isCustomSelection = selection?.type === PICKUP_SELECTION_TYPES.CUSTOM;
+  const [customOpen, setCustomOpen] = useState(!hasPoints || isCustomSelection);
   const [custom, setCustom] = useState({
-    name: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM ? selection.name : "",
-    addressLine: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM ? selection.addressLine : "",
-    province: selection?.type === PICKUP_SELECTION_TYPES.CUSTOM ? selection.province : "",
+    name: isCustomSelection ? selection.name : "",
+    addressLine: isCustomSelection ? selection.addressLine : "",
+    province: isCustomSelection ? selection.province : "",
   });
   const [state, setState] = useState(null); // null | "saving" | lỗi
+  // Bản đã gửi đi lần gần nhất: rời khối mà không sửa gì thì khỏi tốn thêm một lượt ghi Redis.
+  const savedCustomRef = useRef(isCustomSelection ? { ...custom } : null);
 
   async function choose(nextSelection) {
     setState("saving");
@@ -337,6 +354,23 @@ function PickupChooser({ stop, index, slug, onChosen }) {
     } else {
       setState(result?.error ?? "Chưa lưu được điểm đón.");
     }
+    return result;
+  }
+
+  async function saveCustom() {
+    if (state === "saving") return;
+    if (!custom.addressLine.trim() || !custom.province) return; // thiếu địa chỉ/tỉnh: chưa lưu được, dòng nhắc đã nói rõ
+    const saved = savedCustomRef.current;
+    if (saved && JSON.stringify(saved) === JSON.stringify(custom)) return;
+    const result = await choose({ type: PICKUP_SELECTION_TYPES.CUSTOM, ...custom });
+    if (result?.ok) savedCustomRef.current = { ...custom };
+  }
+
+  // Bấm/chạm ra ngoài khối là tự lưu. `relatedTarget` nằm trong khối (nhảy sang ô khác, bấm nút
+  // Lưu) thì bỏ qua — chưa rời khối. Trên iOS chạm vào vùng trống trả về null, tức là đã ra ngoài.
+  function handleCustomBlur(event) {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    saveCustom();
   }
 
   return (
@@ -381,7 +415,7 @@ function PickupChooser({ stop, index, slug, onChosen }) {
       )}
 
       {customOpen && (
-        <div className="mt-2 flex flex-col gap-2 rounded-lg bg-white p-2 ring-1 ring-zinc-200">
+        <div onBlur={handleCustomBlur} className="mt-2 flex flex-col gap-2 rounded-lg bg-white p-2 ring-1 ring-zinc-200">
           <p className="text-xs text-zinc-500">Đón tận nơi / Điểm khác — chỉ lưu trong lộ trình của bạn, không công khai.</p>
           <input
             className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
@@ -412,11 +446,12 @@ function PickupChooser({ stop, index, slug, onChosen }) {
           <button
             type="button"
             disabled={state === "saving" || !custom.addressLine.trim() || !custom.province}
-            onClick={() => choose({ type: PICKUP_SELECTION_TYPES.CUSTOM, ...custom })}
+            onClick={saveCustom}
             className="cdp-pressable min-h-11 cursor-pointer rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white disabled:opacity-50"
           >
             Lưu điểm đón
           </button>
+          <p className="text-xs text-zinc-400">Bấm ra ngoài khung này cũng tự lưu.</p>
         </div>
       )}
 

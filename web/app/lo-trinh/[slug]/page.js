@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getRoute, resolveRouteStops, stopTitle, transportModeLabel, TRANSPORT_MODES } from "@/lib/routes";
+import { getRoute, resolveRouteStops, stopFullAddress, stopTitle, transportModeLabel, STOP_TYPES, TRANSPORT_MODES } from "@/lib/routes";
 import { routeMapsUrl, stopMapsQuery } from "@/lib/mapsUrl";
 import { isPickupService, pickupSelectionLabel, stopNeedsPickupSelection } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
@@ -115,6 +115,7 @@ function RouteStopRow({ stop, index }) {
     : stop.deleted
       ? "Chỗ này không còn trong danh bạ"
       : (stop.proposal?.ward ?? null);
+  const address = stopFullAddress(stop);
   const navigationMedia = stop.place ? placeNavigationMedia(stop.place) : null;
 
   return (
@@ -138,6 +139,17 @@ function RouteStopRow({ stop, index }) {
           </span>
         </div>
         {subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{subtitle}</p>}
+        {/* Điểm riêng hiện địa chỉ đầy đủ ngay dưới tên, cùng kiểu với dòng "Đón tại" của dịch vụ
+            đón khách: đó là thứ Google sẽ nhận, nhìn thấy mới biết nó đúng hay sai. */}
+        {stop.type === STOP_TYPES.CUSTOM && (
+          <p className={`mt-0.5 text-[13px] ${address ? "text-zinc-700" : "font-medium text-amber-700"}`}>
+            {address
+              ? `📍 ${address}`
+              : stop.customProvince
+                ? `Chưa có địa chỉ — Google Maps chỉ tìm theo tên trong ${stop.customProvince}`
+                : "Chưa có địa chỉ và tỉnh/thành — chưa mở đường đi tới đây được"}
+          </p>
+        )}
         {/* NOTE-14 §12: dịch vụ đón khách hiện điểm đón thật, không để khách tưởng xe đón ở địa chỉ service. */}
         {stop.place && isPickupService(stop.place) && (
           <p className={`mt-0.5 text-[13px] ${stop.pickupSelection ? "text-zinc-700" : "font-medium text-amber-700"}`}>

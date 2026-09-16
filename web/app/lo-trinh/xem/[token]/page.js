@@ -4,7 +4,7 @@ import { getShareSnapshot, withLegacyNavigationMedia } from "@/lib/routeShare";
 import { routeMapsUrl } from "@/lib/mapsUrl";
 import { pickupSelectionLabel } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
-import { TRANSPORT_MODES, transportModeLabel } from "@/lib/routes";
+import { STOP_TYPES, TRANSPORT_MODES, stopFullAddress, transportModeLabel } from "@/lib/routes";
 import { FALLBACK_COVER } from "@/lib/cover";
 import { StopBadge } from "@/app/StopBadge";
 import { MediaImage } from "@/app/MediaImage";
@@ -87,6 +87,11 @@ export default async function SharedRoutePage({ params }) {
                   </span>
                 </div>
                 {stop.subtitle && <p className="mt-0.5 text-[13px] text-zinc-500">{stop.subtitle}</p>}
+                {/* Điểm riêng: người nhận link cần đọc được địa chỉ, không chỉ cái tên do chủ đặt
+                    ("Khu đình dốc Bà The" không ai ngoài chủ biết nó ở đâu). */}
+                {stop.type === STOP_TYPES.CUSTOM && stopFullAddress(stop) && (
+                  <p className="mt-0.5 text-[13px] text-zinc-700">📍 {stopFullAddress(stop)}</p>
+                )}
                 {stop.pickupSelection && (
                   <p className="mt-0.5 text-[13px] text-zinc-700">📍 Đón tại: {pickupSelectionLabel(stop.pickupSelection)}</p>
                 )}

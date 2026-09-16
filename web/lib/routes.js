@@ -19,6 +19,7 @@ import { containsLinkOrPhone } from "./textFilter.js";
 import { getProposalIndex, PROPOSAL_STATUS } from "./proposals.js";
 import { DEFAULT_PROVINCE, PROVINCES, isValidProvince, normalizeProvince } from "./provinces.js";
 import { routeStorageKey } from "./routeStorageKeys.js";
+import { normalizeForSearch } from "./placeTextSearch.js";
 import { cleanPickupSelection, isPickupService, PICKUP_SELECTION_TYPES, sanitizeStoredPickupSelection } from "./pickupPoints.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
@@ -636,4 +637,20 @@ export function stopTitle(stop) {
   return (
     stop.customTitle ?? stop.place?.name ?? stop.proposal?.name ?? stop.nameSnapshot ?? "Điểm đã bị xoá"
   );
+}
+
+/**
+ * Địa chỉ đầy đủ của ĐIỂM RIÊNG để hiện trên trang xem: "63 Lê Duẩn, Minh Xuân, Tuyên Quang".
+ * Tên điểm ("Khu đình dốc Bà The") chỉ để nhận ra chỗ đó; địa chỉ mới là thứ người đi cần đọc —
+ * và là thứ Google nhận khi chưa có toạ độ, nên phải nhìn thấy để biết nó có đúng không.
+ * Địa chỉ đã tự nói tỉnh rồi thì không lặp lại. @returns {string|null}
+ */
+export function stopFullAddress(stop) {
+  const address = cleanText(stop?.customAddress, MAX_CUSTOM_ADDRESS_LENGTH);
+  // Chỉ có tỉnh mà không có số nhà/tên đường thì KHÔNG phải địa chỉ — hiện "📍 Hà Nội" trần chẳng
+  // chỉ đường cho ai được. Trả null để trang xem nhắc là chưa khai địa chỉ.
+  if (!address) return null;
+  const province = isValidProvince(stop?.customProvince) ? stop.customProvince : null;
+  if (!province || normalizeForSearch(address).includes(normalizeForSearch(province))) return address;
+  return `${address}, ${province}`;
 }
