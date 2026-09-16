@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-16 (phiên tối, sau) — TUYẾN RƯỚC ĐÈN TRÊN BẢN ĐỒ GAME, CHƯA DEPLOY.**
+**Cập nhật mới nhất 2026-09-16 (phiên tối, sau) — TUYẾN RƯỚC ĐÈN TRÊN BẢN ĐỒ GAME, ĐÃ DEPLOY (`web-421078m6k`).**
 
 Chủ dự án tả tuyến đoàn mô hình đi: Ngã 8 → Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung
 → về Ngã 8, lặp lại liên tục. Đã vẽ **nét đứt** lên bản đồ game (lý do chọn nét đứt: DECISIONS).
@@ -22,6 +22,8 @@ Chủ dự án tả tuyến đoàn mô hình đi: Ngã 8 → Bình Thuận → �
      quanh khu đều đúng) → bỏ qua chiều vẽ, ép mọi vòng tròn chạy ngược kim đồng hồ theo luật VN;
      đồng thời đặt điểm đầu/cuối vòng ngay lối ra Bình Thuận để không vẽ chồng lên xuyến hai lần.
 - Đã chụp màn hình kiểm cả hai bùng binh: khớp đúng hướng chủ dự án vẽ tay.
+- Kiểm trên production sau deploy: trang game 200 và vẫn đúng pha `pre_game`, tuyến rước có mặt
+  trong dữ liệu trang, link cũ `/cham/...` vẫn chuyển đúng, các trang khác 200, `/admin/game` 307.
 - Venue thêm cờ `dashed`; `GameMap` tách lớp `cdp-venue-route-dashed` (MapLibre không cho đổi kiểu
   nét theo dữ liệu trong cùng một lớp).
 - Chụp màn hình kiểm trên `localhost:3100` (khổ iPhone): vòng hiện đủ, nét đứt rõ, không lẫn với nét

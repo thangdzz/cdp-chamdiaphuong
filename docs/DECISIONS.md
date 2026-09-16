@@ -3,7 +3,7 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
-## 2026-09-16 — Tuyến rước đèn vẽ nét đứt trên bản đồ game
+## 2026-09-16 — Tuyến rước đèn vẽ nét đứt trên bản đồ game (ĐÃ DEPLOY)
 
 Người đi xem hỏi câu đầu tiên là "đứng đâu thì gặp đèn?". Bản đồ mới chỉ có quảng trường và phố đi
 bộ — hai chỗ ĐỨNG, chưa có đường đoàn ĐI. Chủ dự án tả tuyến ngày 16/9: **Ngã 8 (Bình Thuận ×

@@ -246,8 +246,9 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
 - [ ] Xoay vòng trọng tâm quét theo ngày + thêm nguồn ngoài Google Maps/Facebook
 
 ### Bản đồ game
-- [x] **Vẽ tuyến rước đèn (nét đứt)** — xong 2026-09-16. Ngã 8 → Bình Thuận → Đại lộ Tân Trào →
-      Phan Thiết → Quang Trung → về Ngã 8, toạ độ từ OSM. Chưa deploy
+- [x] **Vẽ tuyến rước đèn (nét đứt)** — xong 2026-09-16, đã deploy (`web-421078m6k`). Ngã 8 →
+      Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung → về Ngã 8, 3.339 m, toạ độ từ OSM,
+      đi đúng chiều một chiều và ngược kim đồng hồ qua 2 bùng binh
 - [ ] Chủ dự án xem lại tuyến trên máy thật, có chỗ nào đoàn đi khác thì sửa toạ độ trong file mùa
 
 ### Dọn gọn khu quản trị (admin) — gộp cả việc sửa đường dẫn

@@ -8,6 +8,11 @@
 
 ## 1. Task hiện tại
 
+**2026-09-16 (tối, sau) — TUYẾN RƯỚC ĐÈN ĐÃ DEPLOY** (`web-421078m6k`). Bản đồ game có tuyến nét đứt
+Ngã 8 → Bình Thuận → Tân Trào → Phan Thiết → Quang Trung → Ngã 8 (venue `tuyen-ruoc-den`, cờ `dashed`).
+Ai sửa toạ độ tuyến nhớ 2 bẫy đã vấp: (1) đường đôi một chiều phải dò trên đồ thị CÓ HƯỚNG; (2) bùng
+binh phải ép ngược kim đồng hồ theo luật VN — xuyến Ngã 8 trong OSM bị vẽ ngược. Chi tiết: DECISIONS 16/9.
+
 **2026-09-16 (tối) — ĐƯỜNG DẪN GAME ĐỔI, ĐÃ DEPLOY** (`web-5oqws6bid`, alias `chamdiaphuong.io.vn`). Trang game giờ là
 `/san-den-thanh-tuyen-2026` (tầng gốc), không còn `/cham/[eventSlug]`. `slug` khác `id`; khoá Redis
 dựng từ `id` nên dữ liệu nguyên vẹn. Link cũ chuyển hướng 308 trong `next.config.mjs`. Ai đổi slug lần
