@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-16 (phiên chiều) — CỘNG ĐỒNG XÁC NHẬN VỊ TRÍ: đã code xong, CHƯA deploy.**
+**Cập nhật mới nhất 2026-09-16 (phiên chiều) — CỘNG ĐỒNG XÁC NHẬN VỊ TRÍ: ĐÃ DEPLOY (`web-88aul2m11`).**
 
 Làm nốt phần còn thiếu của spec `CDP-Google-Places-Location-Consensus` (§6–§8, §15–§17). Phần còn lại của
 spec đó đã có trên production từ phiên trước.
@@ -14,7 +14,11 @@ spec đó đã có trên production từ phiên trước.
 Vì sao làm: ghim tay được 8/234 chỗ — một mình không xuể. Giờ khách cũng ghim được, **2 người lạ cùng chỉ
 một chỗ (trong bán kính 40m) là CDP dám "Chỉ đường" tới đó**.
 
-Đã có (chạy được, lint + build sạch, chưa thử trên máy thật):
+Kiểm nhanh trên production sau deploy: trang chủ 9 chỗ hiện "Chỉ đường" / 216 chỗ "Tìm trên Google Maps"
+(đúng với 8 chỗ đã ghim tay); mở một địa điểm chưa ghim thì thấy dòng "chưa được xác nhận" + nút "Ghim vị
+trí trên bản đồ". **Chưa bấm thử trọn một vòng trên máy thật.**
+
+Đã có:
 - `lib/locationVotes.js` — kho phiếu + luật gom cụm. Một người một phiếu cho một chỗ; hai cụm bằng nhau
   thì KHÔNG tự chọn, đẩy sang admin; điểm chỉ cộng khi phiếu trùng kết luận, mỗi chỗ một lần/người.
 - Trang địa điểm có khối vị trí: *"Vị trí do CDP xác nhận"* / *"cộng đồng xác nhận (N người)"* /
@@ -29,7 +33,8 @@ tới đó. Nay mọi điểm dừng là địa điểm CDP đều có khối gh
 (dẫn đường theo toạ độ ngay), vừa gửi một phiếu cho danh bạ.
 
 **Việc tiếp theo, theo thứ tự:**
-1. Deploy rồi thử thật: mở một địa điểm chưa ghim, bấm "Ghim vị trí", kiểm `/admin/vi-tri` có hiện không.
+1. Thử thật trên điện thoại: mở một địa điểm chưa ghim → bấm "Ghim vị trí trên bản đồ" → xác nhận → kiểm
+   `/admin/vi-tri` xem có hiện ở mục "Khách đã ghim giúp" không. Thử cả đường ghim từ trang sửa lộ trình.
 2. Vẫn nên ghim tiếp ở `/admin/vi-tri` — phiếu khách cần thời gian mới gom đủ 2 người.
 3. Đặt hạn mức Places API + cảnh báo thanh toán trong Google Cloud (chưa làm).
 4. Ghim gần xong → đổi `REQUIRE_VERIFIED_LOCATION` trong `lib/mapsUrl.js` thành `true`.
