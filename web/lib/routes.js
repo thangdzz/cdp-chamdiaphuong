@@ -21,6 +21,7 @@ import { DEFAULT_PROVINCE, PROVINCES, isValidProvince, normalizeProvince } from 
 import { routeStorageKey } from "./routeStorageKeys.js";
 import { normalizeForSearch } from "./placeTextSearch.js";
 import { cleanCoordinates } from "./coordinates.js";
+import { getAllLocationConsensus } from "./locationVotes.js";
 import { cleanPickupSelection, isPickupService, PICKUP_SELECTION_TYPES, sanitizeStoredPickupSelection } from "./pickupPoints.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
@@ -532,16 +533,23 @@ export async function updateStop({
       (customProvince !== undefined && normalizeProvince(customProvince) !== stop.customProvince);
     if (customAddress !== undefined) stop.customAddress = cleanAddress;
     if (customProvince !== undefined) stop.customProvince = normalizeProvince(customProvince);
-    if (coordinates !== undefined) {
-      stop.coordinates = cleanCoordinates(coordinates);
-      // Place ID chỉ có nghĩa khi đi kèm toạ độ hợp lệ của chính chỗ đó.
-      stop.googlePlaceId = stop.coordinates && typeof googlePlaceId === "string"
-        ? googlePlaceId.trim().slice(0, 200) || null
-        : null;
-    } else if (addressChanged && stop.coordinates?.confirmed) {
+    if (coordinates === undefined && addressChanged && stop.coordinates?.confirmed) {
       const { confirmed, ...rest } = stop.coordinates;
       stop.coordinates = rest;
     }
+  }
+
+  // Ghim toạ độ áp dụng cho MỌI loại điểm, kể cả địa điểm CDP (16/9, spec Consensus §6).
+  // Vì sao: danh bạ mới ghim được 8/234 chỗ, mà chủ lộ trình thì đang cần đi ngay. Ghim ở đây
+  // sửa ĐÚNG lộ trình của họ; cùng lúc trang sửa gửi một phiếu cho danh bạ (app/StopPlaceLocation.js)
+  // để chỗ đó dần đủ đồng thuận cho mọi khách khác. Tên/địa chỉ của địa điểm CDP vẫn KHÔNG sửa
+  // được ở đây — chỉ toạ độ.
+  if (coordinates !== undefined) {
+    stop.coordinates = cleanCoordinates(coordinates);
+    // Place ID chỉ có nghĩa khi đi kèm toạ độ hợp lệ của chính chỗ đó.
+    stop.googlePlaceId = stop.coordinates && typeof googlePlaceId === "string"
+      ? googlePlaceId.trim().slice(0, 200) || null
+      : null;
   }
 
   route.updatedAt = new Date().toISOString();
@@ -606,11 +614,16 @@ export async function resolveRouteStops(stops) {
   const hasProposal = normalized.some((s) => s.type === STOP_TYPES.PROPOSED);
   // Chỉ đọc bảng đề xuất khi lộ trình thật sự có điểm đề xuất — lộ trình thường vẫn đúng 1
   // lệnh Redis như trước.
-  const [places, proposals] = await Promise.all([
+  const [places, proposals, locationConsensus] = await Promise.all([
     getLivePlaces(),
     hasProposal ? getProposalIndex() : Promise.resolve({}),
+    // Vị trí do khách cùng xác nhận (spec Consensus §6): lộ trình dẫn tới đó được, nên phải đọc
+    // cùng lúc — 1 lệnh cho cả lộ trình, không phải mỗi điểm một lệnh.
+    getAllLocationConsensus(),
   ]);
-  const placeMap = new Map(places.map((p) => [p.id, p]));
+  const placeMap = new Map(
+    places.map((p) => [p.id, { ...p, locationConsensus: locationConsensus[p.id] ?? null }])
+  );
 
   return normalized.map((stop) => {
     if (stop.type === STOP_TYPES.CUSTOM) return { ...stop, place: null, deleted: false };

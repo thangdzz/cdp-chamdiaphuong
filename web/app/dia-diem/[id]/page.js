@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getLivePlaces } from "@/lib/redis";
 import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
+import { getAllLocationConsensus } from "@/lib/locationVotes";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { placeCover, FALLBACK_COVER } from "@/lib/cover";
@@ -71,10 +72,11 @@ export default async function PlacePage({ params }) {
     );
   }
 
-  const [latestCheckins, allConsensus, allNotes] = await Promise.all([
+  const [latestCheckins, allConsensus, allNotes, allLocationConsensus] = await Promise.all([
     getAllLatestCheckins(),
     getAllConsensus(),
     getAllPublishedNotes(),
+    getAllLocationConsensus(),
   ]);
   const place = record.place;
 
@@ -82,6 +84,7 @@ export default async function PlacePage({ params }) {
     ...place,
     lastCheckinAt: latestCheckins[place.id] ?? null,
     consensus: allConsensus[place.id] ?? null,
+    locationConsensus: allLocationConsensus[place.id] ?? null,
     notes: filterVisibleNotes(allNotes[place.id] ?? []),
   };
 

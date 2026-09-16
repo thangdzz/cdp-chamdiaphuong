@@ -19,6 +19,7 @@ import {
   confirmStopLocation,
 } from "@/app/routeActions";
 import { LocationConfirm } from "@/app/LocationConfirm";
+import { StopPlaceLocation } from "@/app/StopPlaceLocation";
 import { PlacePicker } from "@/app/PlacePicker";
 import { ProposePlaceForm } from "@/app/ProposePlaceForm";
 import { StopBadge } from "@/app/StopBadge";
@@ -706,6 +707,13 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
 
       {stop.isPickupService && !stop.deleted && (
         <PickupChooser stop={stop} index={index} slug={slug} onChosen={onPickupChosen} />
+      )}
+
+      {/* Địa điểm CDP cũng phải ghim được ngay tại đây: cảnh báo "chưa xác nhận vị trí" ở trang xem
+          dẫn thẳng tới chỗ này, mà trước đó chỉ điểm riêng mới có bản đồ (sửa 16/9). Dịch vụ đón
+          khách không tính — vị trí cần xác nhận của nó là ĐIỂM ĐÓN, do PickupChooser lo. */}
+      {stop.place && !stop.isPickupService && !stop.deleted && (
+        <StopPlaceLocation stop={stop} index={index} slug={slug} disabled={busy} />
       )}
 
       <label className="mt-2 flex flex-col gap-1 text-xs text-zinc-500">

@@ -27,6 +27,8 @@ import { getNotebook } from "@/lib/notebooks";
 import { getLivePlaces } from "@/lib/redis";
 import { createProposal } from "@/lib/proposals";
 import { isValidProvince } from "@/lib/provinces";
+import { coordinatesOf } from "@/lib/coordinates";
+import { googlePlaceIdOf } from "@/lib/placeLocation";
 
 // Không cần đăng nhập, chưa có hồ sơ thì tự tạo im lặng — giống hệt Sổ (SPEC-chang-4 §5 quy
 // tắc 1). Chỉ tạo lúc khách THỰC SỰ tạo/sửa gì, không phải lúc chỉ xem.
@@ -289,6 +291,19 @@ export async function getRouteForEdit({ anonId, slug }) {
             }))
           : [],
         pickupSelection: s.pickupSelection ?? null,
+        // Địa điểm CDP: đủ dữ liệu để trang sửa hiện khối ghim vị trí và gửi phiếu cho danh bạ
+        // (spec Consensus §6). Chỉ vài field cần cho việc đó, không gửi cả hồ sơ địa điểm.
+        place: s.place
+          ? {
+              id: s.place.id,
+              name: s.place.name,
+              address: s.place.address ?? null,
+              ward: s.place.ward ?? null,
+              coordinates: coordinatesOf(s.place),
+              googlePlaceId: googlePlaceIdOf(s.place),
+              locationConsensus: s.place.locationConsensus ?? null,
+            }
+          : null,
       })),
     },
   };

@@ -24,6 +24,7 @@ import { queueClosedHistoryHold } from "@/lib/ingestion/closedHold";
 import { cleanCoordinates } from "@/lib/coordinates";
 import { removeLatestCheckin } from "@/lib/checkins";
 import { removePlaceAnswers } from "@/lib/answers";
+import { removePlaceLocationVotes } from "@/lib/locationVotes";
 import { removePhoneConfirmations } from "@/lib/phoneConfirmations";
 
 async function requireAdmin() {
@@ -148,6 +149,7 @@ export async function deleteLive(formData) {
   await removeLatestCheckin(id);
   await removePlaceAnswers(id);
   await removePhoneConfirmations(id);
+  await removePlaceLocationVotes(id);
 
   revalidatePath("/admin");
   revalidatePath("/");

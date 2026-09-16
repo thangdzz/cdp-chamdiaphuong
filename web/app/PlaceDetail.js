@@ -10,6 +10,7 @@ import { PhoneBlock } from "./PhoneBlock";
 import { AddToNotebook } from "./AddToNotebook";
 import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
 import { CheckinButton } from "./CheckinButton";
+import { PlaceLocationVote } from "./PlaceLocationVote";
 import { ContributionPanel } from "./ContributionPanel";
 import { NoteInput } from "./NoteInput";
 import { QuestionPrompt } from "./QuestionPrompt";
@@ -340,6 +341,12 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
           >
             {copyLabel}
           </button>
+          {/* Vị trí đứng ngay dưới nút bản đồ vì nó giải thích đúng cái nút đó: chỗ đã xác nhận
+              mới được "Chỉ đường" (spec Consensus §16). `w-full` để khối này xuống hàng riêng
+              thay vì chen vào hàng nút. */}
+          <div className="w-full pt-1">
+            <PlaceLocationVote place={place} />
+          </div>
         </section>
       </div>
 

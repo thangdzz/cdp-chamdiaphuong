@@ -6,6 +6,7 @@
 import { redis } from "./redis.js";
 import { getLivePlaces } from "./redis.js";
 import { containsLinkOrPhone } from "./textFilter.js";
+import { getAllLocationConsensus } from "./locationVotes.js";
 
 const SLUG_CHARS = "23456789abcdefghjkmnpqrstuvwxyz"; // bỏ 0 O 1 l I — không gây nhầm lẫn
 const SLUG_LENGTH = 8;
@@ -209,8 +210,11 @@ export async function getAdminNotebookStats() {
 // Tra sang places:live MỘT LẦN (không đụng dữ liệu chỗ, chỉ đọc) rồi ghép vào items — chỗ đổi
 // giá/địa chỉ thì sổ tự cập nhật theo (§4.3). Chỗ bị xoá thì dùng nameSnapshot làm phao cứu.
 export async function resolveNotebookItems(items) {
-  const places = await getLivePlaces();
-  const placeMap = new Map(places.map((p) => [p.id, p]));
+  // Kèm vị trí khách đã cùng xác nhận, để thẻ trong sổ hiện đúng nút "Chỉ đường" như trang chủ.
+  const [places, locationConsensus] = await Promise.all([getLivePlaces(), getAllLocationConsensus()]);
+  const placeMap = new Map(
+    places.map((p) => [p.id, { ...p, locationConsensus: locationConsensus[p.id] ?? null }])
+  );
   return items.map((item) => {
     const place = placeMap.get(item.placeId);
     if (place) return { ...item, place, deleted: false };

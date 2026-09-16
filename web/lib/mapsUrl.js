@@ -136,7 +136,16 @@ export function stopRouteTarget(stop) {
     if (!coords) return null;
     return { placeId: pickup.googlePlaceId ?? null, lat: coords.lat, lng: coords.lng, label: pickup.name ?? null };
   }
-  if (stop.place) return placeRouteTarget(stop.place);
+  if (stop.place) {
+    // Chủ lộ trình tự ghim chỗ này trong lộ trình của họ (16/9) → ghim đó thắng cho ĐÚNG lộ trình
+    // này, kể cả khi danh bạ đã có vị trí khác: họ vừa đứng ở đó, họ biết rõ hơn. Phiếu gửi kèm
+    // sẽ lo phần danh bạ, không sửa ngang dữ liệu chung ở đây.
+    const own = locationOf({ coordinates: stop.coordinates, googlePlaceId: stop.googlePlaceId });
+    if (own.verified) {
+      return { placeId: own.googlePlaceId, lat: own.lat, lng: own.lng, label: cleanPart(stop.place.name) || null };
+    }
+    return placeRouteTarget(stop.place);
+  }
   // Điểm riêng và đề xuất: chỉ ghim đã xác nhận mới tính (§3 Priority 2).
   const location = locationOf(stop);
   if (!location.verified) return null;
@@ -177,7 +186,12 @@ export function stopMapsQuery(stop) {
     // chọn → null, trang lộ trình chặn mở Maps và bắt chọn (§17).
     if (isPickupService(stop.place)) return pickupSelectionMapsQuery(stop.pickupSelection);
     // Có toạ độ thì dẫn đúng ghim; chưa có (hầu hết dữ liệu hiện tại) thì giữ cách tra theo tên.
-    return coordinatesQuery(coordinatesOf(stop.place)) ?? placeSearchQuery(stop.place);
+    // Ghim của chính điểm dừng đứng trước toạ độ danh bạ, cùng lý do như `stopRouteTarget`.
+    return (
+      coordinatesQuery(coordinatesOf(stop)) ??
+      coordinatesQuery(coordinatesOf(stop.place)) ??
+      placeSearchQuery(stop.place)
+    );
   }
   if (stop.proposal) {
     // Đề xuất là chỗ xin đưa vào danh bạ CDP, mà danh bạ chỉ nhận Tuyên Quang.

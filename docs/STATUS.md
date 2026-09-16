@@ -6,6 +6,38 @@
 
 ## Đang ở giai đoạn nào
 
+**Cập nhật mới nhất 2026-09-16 (phiên chiều) — CỘNG ĐỒNG XÁC NHẬN VỊ TRÍ: đã code xong, CHƯA deploy.**
+
+Làm nốt phần còn thiếu của spec `CDP-Google-Places-Location-Consensus` (§6–§8, §15–§17). Phần còn lại của
+spec đó đã có trên production từ phiên trước.
+
+Vì sao làm: ghim tay được 8/234 chỗ — một mình không xuể. Giờ khách cũng ghim được, **2 người lạ cùng chỉ
+một chỗ (trong bán kính 40m) là CDP dám "Chỉ đường" tới đó**.
+
+Đã có (chạy được, lint + build sạch, chưa thử trên máy thật):
+- `lib/locationVotes.js` — kho phiếu + luật gom cụm. Một người một phiếu cho một chỗ; hai cụm bằng nhau
+  thì KHÔNG tự chọn, đẩy sang admin; điểm chỉ cộng khi phiếu trùng kết luận, mỗi chỗ một lần/người.
+- Trang địa điểm có khối vị trí: *"Vị trí do CDP xác nhận"* / *"cộng đồng xác nhận (N người)"* /
+  *"chưa được xác nhận"* + nút **Vị trí này đúng** và **Ghim vị trí trên bản đồ** (`app/PlaceLocationVote.js`).
+- `/admin/vi-tri` thêm mục **"Khách đã ghim giúp"**: xem từng cụm toạ độ trên bản đồ rồi bấm **Chốt chỗ này**;
+  cảnh báo ⚠ khi khách chỉ về hai chỗ khác nhau, hoặc khi khách báo chỗ cách vị trí CDP đang dùng khá xa.
+- Phiếu khách **không ghi đè** dữ liệu gốc: `places:live` chỉ đổi khi admin chốt.
+
+Sửa thêm ngay trong phiên (chủ dự án thử và báo): trang **sửa lộ trình** trước đây chỉ cho ghim "điểm
+riêng"; địa điểm CDP như Nhà hàng Bin không có nút nào, dù cảnh báo "chưa xác nhận vị trí" lại dẫn thẳng
+tới đó. Nay mọi điểm dừng là địa điểm CDP đều có khối ghim — ghim một lần vừa sửa đúng lộ trình của mình
+(dẫn đường theo toạ độ ngay), vừa gửi một phiếu cho danh bạ.
+
+**Việc tiếp theo, theo thứ tự:**
+1. Deploy rồi thử thật: mở một địa điểm chưa ghim, bấm "Ghim vị trí", kiểm `/admin/vi-tri` có hiện không.
+2. Vẫn nên ghim tiếp ở `/admin/vi-tri` — phiếu khách cần thời gian mới gom đủ 2 người.
+3. Đặt hạn mức Places API + cảnh báo thanh toán trong Google Cloud (chưa làm).
+4. Ghim gần xong → đổi `REQUIRE_VERIFIED_LOCATION` trong `lib/mapsUrl.js` thành `true`.
+5. Thử lộ trình nhiều điểm trên iPhone thật → chỉnh `MAX_WAYPOINTS` nếu cần.
+6. Dán khối "TRANG THAI VA TOA DO" (docs/ROUTINE.md §7) lên routine claude.ai (chưa làm).
+
+Lý do từng lựa chọn: [DECISIONS.md](DECISIONS.md) mục 16/9 "Cộng đồng xác nhận vị trí".
+
 **Cập nhật mới nhất 2026-09-16 (cuối phiên) — VỊ TRÍ ĐỊA ĐIỂM: ĐÃ DEPLOY (`web-obr2zmzdd`), Google Places ĐÃ BẬT.**
 
 Cả NOTE-14 P0 lẫn spec `CDP-Google-Maps-Location-Routing-v1` đều đã lên production. Nguyên tắc chốt:

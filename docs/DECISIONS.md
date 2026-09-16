@@ -3,6 +3,39 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-16 — Cộng đồng xác nhận vị trí (spec CDP-Google-Places-Location-Consensus §6–§8, §15–§17)
+
+Nối tiếp mục dưới. Sau khi ghim tay được 8/234 chỗ, rõ ràng **một mình chủ dự án không ghim xuể**.
+Người vừa tới quán mới là người biết nó nằm đâu — nên mở cho khách ghim, và tin khi ĐỦ NGƯỜI ĐỘC LẬP
+cùng chỉ một chỗ.
+
+- **Kho riêng, không đụng `places:live`.** Phiếu khách nằm ở `place_location:votes:{placeId}` +
+  bảng tính sẵn `place_location:consensus`. Lý do: `places:live` là 1 key = 1 mảng JSON, ghi kiểu
+  đọc-cả-mảng-rồi-ghi-lại **không an toàn với thao tác của khách** (nhiều người bấm cùng lúc, đúng lý
+  do Chặng 1–2 đã tách hash riêng). Chỉ admin chốt mới ghi vào hồ sơ địa điểm.
+- **Bán kính gom cụm 40m** (`LOCATION_CONSENSUS_RADIUS_METERS`): đủ rộng để hai người đứng hai đầu
+  một cái quán vẫn tính là đồng ý, đủ hẹp để hai nhà kế bên không bị gộp.
+- **Ngưỡng 2 người** — bằng ngưỡng đồng thuận câu hỏi Chặng 2, không đặt luật mới cho cùng một ý.
+- **Hai cụm bằng nhau → KHÔNG tự chọn** (spec §7 "không chọn bừa"): trạng thái `conflict`, chỗ đó
+  vẫn là chưa xác minh, đẩy sang `/admin/vi-tri`. Nhưng **3 người vs 2 người thì vẫn theo đa số** và
+  chỉ gắn cờ cảnh báo cho admin — chặn cả hai bên khi đã có đa số rõ ràng là phạt người đúng.
+- **Thứ tự tin cậy** (spec §8): CDP chốt > cộng đồng > chưa xác minh. Phiếu khách **không bao giờ** đè
+  vị trí CDP đã chốt; báo khác chỗ thì thành cảnh báo trong bảng admin ("khách báo cách X mét").
+- **Chống farm điểm** (§17): một người một phiếu cho một chỗ (field = anonId, gửi lại là thay phiếu).
+  Điểm chỉ cộng khi phiếu trùng kết luận cuối, **một chỗ cộng đúng một lần cho một người** — ghim chỗ A
+  lấy điểm rồi dời sang B không lấy thêm được. Thêm trần 20 phiếu/người/ngày (chặn bơm dữ liệu, khác
+  trần điểm 30đ/ngày đã có).
+- **Ghim địa điểm CDP ngay trong lộ trình** (bổ sung cùng ngày, sau khi chủ dự án thử thật): cảnh báo
+  "chưa xác nhận vị trí" ở trang xem lộ trình dẫn tới trang sửa, mà ở đó **chỉ điểm riêng mới có bản đồ** —
+  địa điểm trong danh bạ không có nút nào, bấm vào thấy trống. Nay mọi điểm dừng là địa điểm CDP đều có
+  khối ghim (`app/StopPlaceLocation.js`). Một lần ghim làm hai việc: **lưu toạ độ lên điểm dừng** (sửa đúng
+  lộ trình đó ngay) **và gửi một phiếu cho danh bạ**. Ghim của chủ lộ trình **thắng trong lộ trình của
+  chính họ**, kể cả khi danh bạ đã chốt vị trí khác — họ vừa đứng ở đó, và đây là lộ trình riêng của họ;
+  dữ liệu chung vẫn chỉ đổi qua đồng thuận hoặc admin chốt. Tên/địa chỉ của địa điểm CDP vẫn không sửa
+  được ở lộ trình (chỉ toạ độ), giữ nguyên lý do cũ: mỗi lộ trình một phiên bản tên là loạn.
+- **Giá phải trả: +1 lệnh Redis mỗi lượt xem** trang chủ / trang địa điểm / lộ trình / sổ (đọc bảng đã
+  tính sẵn, 1 lệnh cho cả danh sách dù bao nhiêu chỗ) — cùng mức với `place_answers:consensus` đang có.
+
 ## 2026-09-16 — CDP xác định điểm, Google chỉ tính đường (spec CDP-Google-Maps-Location-Routing-v1)
 
 Nối tiếp mục dưới. Spec chốt nguyên tắc: **chuỗi chữ "tên + phường + tỉnh" là câu TÌM KIẾM, không

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getLivePlaces } from "@/lib/redis";
 import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
+import { getAllLocationConsensus } from "@/lib/locationVotes";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
 import { EVENT_STATUS, eventStatus, groupEvents, formatEventWhen, readNow } from "@/lib/events";
 import { FESTIVAL_EVENTS } from "@/lib/postEvents/le-hoi-thanh-tuyen-2026";
@@ -19,17 +20,22 @@ const HOME_GAME_SLUG = "thanh-tuyen-2026";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [livePlaces, latestCheckins, allConsensus, allNotes, festivalEvents] = await Promise.all([
-    getLivePlaces(),
-    getAllLatestCheckins(),
-    getAllConsensus(),
-    getAllPublishedNotes(),
-    getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
-  ]);
+  const [livePlaces, latestCheckins, allConsensus, allNotes, festivalEvents, allLocationConsensus] =
+    await Promise.all([
+      getLivePlaces(),
+      getAllLatestCheckins(),
+      getAllConsensus(),
+      getAllPublishedNotes(),
+      getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
+      getAllLocationConsensus(),
+    ]);
   const places = livePlaces.map((p) => ({
     ...p,
     lastCheckinAt: latestCheckins[p.id] ?? null,
     consensus: allConsensus[p.id] ?? null,
+    // Vị trí khách đã cùng nhau xác nhận (spec Consensus §6) — để thẻ nào đủ tin thì nút là
+    // "Chỉ đường" chứ không phải "Tìm trên Google Maps".
+    locationConsensus: allLocationConsensus[p.id] ?? null,
     notes: filterVisibleNotes(allNotes[p.id] ?? []),
   }));
   // Card lễ hội lấy mốc sắp tới từ ĐÚNG nguồn dữ liệu của trang lễ hội — hai nơi không bao giờ

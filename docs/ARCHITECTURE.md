@@ -30,7 +30,7 @@ viết code Next.js.**
 
 ---
 
-## 2. Kho dữ liệu — 24 key Redis
+## 2. Kho dữ liệu — 27 key Redis
 
 Tất cả đều là **một key = một mảng JSON**, **trừ `places:closed`**,
 `place_checkins:latest` (Chặng 1), 3 key của Chặng 2, và 4 key của Chặng 4 (xem bên dưới) —
@@ -208,9 +208,9 @@ Cộng 2 key đếm: `answers:count:{anonId}:{placeId}:{ngày}` (trần 5 câu/c
 `points:day:{anonId}:{ngày}` (`lib/pointsCap.js` — trần CHUNG 30 điểm/ngày, áp dụng cho **mọi**
 nguồn điểm kể cả Chặng 1's checkin, TTL 48h).
 
-**Vì sao phần dữ liệu địa điểm chỉ dùng đúng 3 lệnh Redis/lượt xem dù bao nhiêu chỗ:** `places:live` (mảng) +
-`place_checkins:latest` (`HGETALL`) + `place_answers:consensus` (`HGETALL`) — không lệnh nào
-tăng theo số địa điểm. Việc "chọn câu nào để hỏi" (đọc phiếu + đồng thuận + phiếu "Không rõ"
+**Vì sao phần dữ liệu địa điểm chỉ dùng đúng 4 lệnh Redis/lượt xem dù bao nhiêu chỗ:** `places:live` (mảng) +
+`place_checkins:latest` (`HGETALL`) + `place_answers:consensus` (`HGETALL`) +
+`place_location:consensus` (`HGETALL`, từ 16/9) — không lệnh nào tăng theo số địa điểm. Việc "chọn câu nào để hỏi" (đọc phiếu + đồng thuận + phiếu "Không rõ"
 của 1 chỗ cụ thể) chỉ chạy khi khách **bung 1 thẻ**, không chạy cho mọi chỗ lúc tải trang.
 Root Layout đọc thêm đúng một object `site_config:navigation`; bài lễ hội, ghi chú công khai
 và content khác có lệnh riêng theo module, không tăng theo số địa điểm.
@@ -223,6 +223,32 @@ tiên luôn ghi `weak: true` để hiển thị ngay (§3.3 SPEC), nhưng KHÔNG
 khi có phiếu thứ hai trùng. Cộng điểm hồi tố: khi đồng thuận vừa đạt, duyệt lại các phiếu
 trùng đáp án thắng, phiếu nào chưa `awarded` thì cộng và đánh dấu — người bấm đầu tiên được
 cộng đúng lúc người thứ hai bấm trùng, không phải lúc họ tự bấm.
+
+### Cộng đồng xác nhận vị trí (2026-09-16, `lib/locationVotes.js`)
+
+| Key | Kiểu | Chứa gì |
+|---|---|---|
+| `place_location:consensus` | **Hash**, field = `placeId` | Kết luận đã tính sẵn `{lat, lng, googlePlaceId, voters, status, conflict, at, clusters[]}`. `status`: `community_verified` \| `conflict` \| `pending`. 1 `HGETALL` phục vụ cả trang công khai lẫn bảng admin |
+| `place_location:votes:{placeId}` | **Hash**, field = `anonId` | `{lat, lng, googlePlaceId, at, awarded}` — **một người một phiếu cho một chỗ**, gửi lại là thay phiếu cũ. Chỉ đọc khi có người vừa bấm ở đúng chỗ đó |
+| `location_votes:count:{anonId}:{ngày}` | String (số đếm), TTL 48h | Trần 20 phiếu vị trí/người/ngày — chặn bơm dữ liệu, khác trần điểm chung 30đ/ngày |
+
+**Luật đồng thuận (spec Consensus §7):** gom phiếu thành cụm bán kính **40m**
+(`LOCATION_CONSENSUS_RADIUS_METERS`, tâm cụm = trung bình các phiếu trong cụm; xét theo thứ tự thời
+gian nên hai lần tính cho cùng kết quả). Cụm đông nhất **≥2 người VÀ đông hơn cụm nhì** →
+`community_verified`. Hai cụm bằng nhau → `conflict`, **không tự chọn**, chỗ đó vẫn là chưa xác minh.
+Cụm nhì có ≥2 người thì luôn bật cờ `conflict` để admin xem lại, kể cả khi đã có đa số.
+
+**Thứ tự tin cậy (§8):** hồ sơ có Place ID / toạ độ `confirmed` (CDP hoặc chủ lộ trình ghim) →
+`admin_verified`; chưa có gì mà cộng đồng đồng thuận → `community_verified`; còn lại `unverified`.
+Phiếu khách **không bao giờ ghi đè `places:live`** — admin chốt ở `/admin/vi-tri` mới ghi vào hồ sơ.
+
+**Cách nối vào chỗ khác:** trang nào cần nút bản đồ thì gắn `locationConsensus` vào từng place
+(`getAllLocationConsensus()`, 1 lệnh cho cả danh sách) — `app/page.js`, `app/dia-diem/[id]/page.js`,
+`resolveRouteStops()` (lib/routes.js), `resolveNotebookItems()` (lib/notebooks.js). `locationOf()` tự
+đọc field đó, nên `placeMapAction()`/`stopRouteTarget()` không phải sửa gì.
+Giao diện khách: `app/PlaceLocationVote.js` (+ `app/locationVoteActions.js`) ở trang địa điểm, và
+`app/StopPlaceLocation.js` ở trang sửa lộ trình. Bảng admin: `app/admin/vi-tri/LocationSuggestions.js`. Xoá/gộp chỗ → `removePlaceLocationVotes()` dọn cùng
+`removePlaceAnswers()`.
 
 ### Sổ chia sẻ được (Chặng 4, `lib/notebooks.js`)
 
@@ -277,6 +303,9 @@ nhìn bản đồ và xác nhận. Đổi địa chỉ → bỏ `confirmed`, GI�
 Dùng ở: điểm riêng lộ trình (`coordinates` trên stop, lưu qua `confirmStopLocation`), điểm đón tận nơi và điểm đón
 của nhà xe (dạng phẳng `lat`/`lng`/`locationSource`/`locationConfirmed`, `cleanPickupLocation` ở `lib/pickupPoints.js`).
 `stopMapsQuery` ưu tiên toạ độ đã ghim cho MỌI loại điểm, chỉ rơi về địa chỉ chữ khi chưa có.
+**Từ 16/9 điểm dừng là ĐỊA ĐIỂM CDP cũng ghim được** (`updateStop` nhận `coordinates` cho mọi loại điểm):
+ghim lưu trên điểm dừng và thắng vị trí danh bạ **trong đúng lộ trình đó** (`stopRouteTarget`), đồng thời
+gửi một phiếu cho danh bạ. Tên/địa chỉ của địa điểm CDP vẫn chỉ sửa được bằng "Đổi chỗ".
 
 ### Dẫn đường vs tìm kiếm (2026-09-16, spec CDP-Google-Maps-Location-Routing-v1)
 
@@ -287,6 +316,7 @@ xác minh), `placeSearchQuery()`/`mapsSearchUrl()` cho TÌM KIẾM. `placeMapAct
 `routeMapsUrl()` nhận danh sách điểm đã resolve và trả `legs[]` (chia chặng khi dài).
 Hai công tắc: `REQUIRE_VERIFIED_LOCATION` (đang false — xem DECISIONS) và `MAX_WAYPOINTS`.
 Admin ghim hàng loạt ở `/admin/vi-tri`; ghim một chỗ ở form sửa (`PlaceLocationEditor`).
+Khách cũng ghim được, và đủ 2 người đồng ý là dẫn đường được — xem mục "Cộng đồng xác nhận vị trí" bên trên.
 Google Places (tuỳ chọn): `lib/googlePlaces.js` + `app/googlePlacesActions.js`, bật bằng
 `GOOGLE_MAPS_SERVER_KEY` + `NEXT_PUBLIC_GOOGLE_PLACES=1`, chỉ gọi khi người dùng bấm nút.
 
@@ -514,6 +544,9 @@ web/
 │   │                              Chặng 4) — file lõi nặng nhất của Chặng 2
 │   ├── pointsCap.js         (27)  Trần CHUNG 30 điểm/ngày, dùng chung mọi nguồn điểm kể
 │   │                              cả checkin (Chặng 1) — không thay thế trần riêng từng nơi
+│   ├── locationVotes.js    (268)  ⭐ Cộng đồng xác nhận VỊ TRÍ (16/9): phiếu 1 người/1 chỗ,
+│   │                              gom cụm 40m, ≥2 người là dẫn đường được, hai cụm bằng nhau
+│   │                              thì không tự chọn. KHÔNG ghi đè places:live — xem §2
 │   ├── notebooks.js        (215)  ⭐ Chặng 4: tạo/sửa sổ, sinh slug 8 ký tự (SET NX chống
 │   │                              trùng), tra places:live 1 lần rồi ghép vào items, đếm
 │   │                              view/copy — file lõi nặng nhất của Chặng 4
