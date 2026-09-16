@@ -44,7 +44,13 @@ export default async function SharedRoutePage({ params }) {
 
   const snapshot = await withLegacyNavigationMedia(shared.snapshot);
   const mapsMode = TRANSPORT_MODES.find((m) => m.id === snapshot.transportMode)?.mapsMode ?? "driving";
-  const maps = routeMapsUrl(snapshot.stops, mapsMode);
+  // Bản chụp đã đóng băng chuỗi `mapsQuery` của từng điểm (có thể là "lat,lng" hoặc chữ). Link đã
+  // gửi đi phải mở ra y như lúc chia sẻ, nên ở đây KHÔNG tính lại vị trí — chỉ bọc chuỗi đã lưu
+  // thành điểm cho hàm ghép link dùng chung.
+  const maps = routeMapsUrl(
+    snapshot.stops.map((stop) => (stop.mapsQuery ? { placeId: null, lat: null, lng: null, label: stop.mapsQuery } : null)),
+    mapsMode
+  );
 
   return (
     <div className="flex flex-1 justify-center">
@@ -115,19 +121,33 @@ export default async function SharedRoutePage({ params }) {
         </ol>
 
         {maps && (
-          <div className="mt-5">
-            <a
-              href={maps.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cdp-pressable block w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-center text-sm font-medium text-white"
-            >
-              Mở toàn bộ lộ trình trên Google Maps
-            </a>
-            {maps.omitted > 0 && (
-              <p className="mt-1.5 text-center text-xs text-zinc-400">
-                Google Maps chỉ nhận 11 điểm — {maps.omitted} điểm giữa không nằm trong link này.
-              </p>
+          <div className="mt-5 flex flex-col gap-2">
+            {maps.legs.length === 1 ? (
+              <a
+                href={maps.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cdp-pressable block w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-center text-sm font-medium text-white"
+              >
+                Mở toàn bộ lộ trình trên Google Maps
+              </a>
+            ) : (
+              <>
+                <p className="text-center text-xs text-zinc-500">
+                  Lộ trình dài hơn sức chứa của một link Google Maps — chia thành {maps.legs.length} chặng.
+                </p>
+                {maps.legs.map((leg, index) => (
+                  <a
+                    key={index}
+                    href={leg.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cdp-pressable block w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-center text-sm font-medium text-white"
+                  >
+                    Mở chặng {index + 1} trên Google Maps (điểm {leg.from + 1} → {leg.to + 1})
+                  </a>
+                ))}
+              </>
             )}
           </div>
         )}

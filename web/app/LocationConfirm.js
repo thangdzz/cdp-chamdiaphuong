@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { GameMap } from "@/app/_game/GameMap";
 import { geocodeAddress } from "@/app/geocodeActions";
 import { provinceCenter } from "@/lib/geocode";
+import { locationOf, locationSourceLabel } from "@/lib/placeLocation";
 
 // Khối "xác nhận vị trí trên bản đồ" — dùng chung cho mọi chỗ người dùng gõ địa chỉ bằng tay
 // (điểm riêng trong lộ trình, điểm đón tự nhập, điểm đón của nhà xe ở trang admin).
@@ -18,11 +19,8 @@ import { provinceCenter } from "@/lib/geocode";
 
 /** Nhãn nguồn toạ độ cho người không rành kỹ thuật. */
 export function coordinateSourceLabel(coordinates) {
-  if (!coordinates) return null;
-  if (coordinates.source === "user_adjusted") return "bạn tự đặt trên bản đồ";
-  if (coordinates.source === "cdp_verified") return "CDP đã xác minh";
-  if (coordinates.source === "geocoded") return "máy tra từ địa chỉ";
-  return null;
+  // Bọc lại thành hình dạng một "chỗ" để dùng chung luật ở lib/placeLocation.js.
+  return coordinates ? locationSourceLabel(locationOf({ coordinates }).source) : null;
 }
 
 export function LocationConfirm({
@@ -33,6 +31,9 @@ export function LocationConfirm({
   onConfirm,
   disabled = false,
   label = "vị trí",
+  // Ai đang ghim (spec Location-Routing §5): khách tự ghim trong lộ trình của họ, hay admin ghim
+  // cho cả danh bạ. Lưu lại để sau còn biết vị trí này đáng tin tới đâu.
+  pinSource = "user_pin",
 }) {
   // Địa chỉ mà bản đồ đang mở CHO NÓ. Sửa địa chỉ là bản đồ tự đóng, vì ghim đang chỉ chỗ của địa
   // chỉ cũ. Suy ra từ state thay vì dùng effect đóng tay: không có bước render thừa.
@@ -96,11 +97,12 @@ export function LocationConfirm({
     if (!point || saving) return;
     setSaving(true);
     setError(null);
-    // Kéo ghim thì ý người dùng đè lên kết quả máy tra.
+    // Có người nhìn bản đồ và bấm xác nhận → tính là đã xác minh, dù có kéo hay không (kết quả tra
+    // đúng sẵn thì khỏi kéo). Nguồn ghi theo NGƯỜI ghim, không theo cách ghim.
     const result = await onConfirm({
       lat: point.lat,
       lng: point.lng,
-      source: moved ? "user_adjusted" : "geocoded",
+      source: pinSource,
       confirmed: true,
     });
     setSaving(false);

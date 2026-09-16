@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { mapsUrl } from "@/lib/mapsUrl";
+import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { transportSummary, transportFamilyOf } from "@/lib/transport";
@@ -21,6 +21,7 @@ export function NotebookPlaceCard({ item }) {
   const [galleryIndex, setGalleryIndex] = useState(null);
   const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   const place = item.place;
+  const mapAction = placeMapAction(place);
   const photos = placeGeneralMedia(place);
   const menuPhotos = placeMenuMedia(place);
   const newestMenuPhotoAge =
@@ -195,14 +196,17 @@ export function NotebookPlaceCard({ item }) {
       )}
 
       <div className="mt-5 flex items-center gap-1">
-        <a
-          href={mapsUrl(place)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]"
-        >
-          Chỉ đường
-        </a>
+        {/* Spec Location-Routing §6: chỗ chưa xác nhận vị trí thì đây là nút TÌM, không phải chỉ đường. */}
+        {mapAction && (
+          <a
+            href={mapAction.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]"
+          >
+            {mapAction.label}
+          </a>
+        )}
         {expanded && place.phone && (
           <a
             href={`tel:${place.phone}`}

@@ -12,9 +12,8 @@
 // (lng,lat) hoặc link của nơi khác — thà bỏ còn hơn dẫn khách sang nước khác.
 const VN_BOUNDS = { minLat: 8, maxLat: 24, minLng: 102, maxLng: 110 };
 
-// `geocoded`   — máy tra từ địa chỉ chữ, CHƯA ai nhìn bản đồ xác nhận.
-// `user_adjusted` — người dùng đã kéo ghim tới đúng chỗ (đè lên kết quả tra, 2026-09-16).
-// `cdp_verified`  — CDP tự đối chiếu và xác nhận.
+// Ý nghĩa từng nguồn và nhóm "đã đủ tin để dẫn đường hay chưa": xem lib/placeLocation.js.
+// `user_adjusted` là tên cũ của `user_pin` (16/9 sáng) — giữ lại để dữ liệu đã lưu vẫn đọc được.
 export const COORDINATE_SOURCES = [
   "import",
   "google_maps_link",
@@ -23,6 +22,9 @@ export const COORDINATE_SOURCES = [
   "geocoded",
   "user_adjusted",
   "cdp_verified",
+  "google_place",
+  "user_pin",
+  "admin_pin",
 ];
 
 /**

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { PLACE_TYPES } from "@/lib/placeTypes";
-import { mapsUrl } from "@/lib/mapsUrl";
+import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
 import { PhoneBlock } from "./PhoneBlock";
@@ -54,6 +54,8 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   const [activeNoteContext, setActiveNoteContext] = useState(null);
   const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
   const action = primaryAction(place);
+  // Spec Location-Routing §6: chưa xác nhận vị trí thì nút bản đồ là "Tìm trên Google Maps", không phải "Chỉ đường".
+  const mapAction = placeMapAction(place);
 
   function handleCorrectionPanelChange(open) {
     setCorrectionPanelOpen(open);
@@ -320,12 +322,12 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             </button>
           ) : (
             <a
-              href={action.kind === "google" ? findPhoneOnGoogleUrl(place) : mapsUrl(place)}
+              href={action.kind === "google" ? findPhoneOnGoogleUrl(place) : mapAction?.href}
               target="_blank"
               rel="noopener noreferrer"
               className={ctaClass}
             >
-              {action.label}
+              {action.kind === "google" ? action.label : mapAction?.label ?? action.label}
             </a>
           )}
           <AddToNotebook place={place} />

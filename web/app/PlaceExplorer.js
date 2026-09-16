@@ -9,7 +9,7 @@ import { PlaceFacts } from "./PlaceFacts";
 import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { comparePlaceReliability } from "@/lib/placeReliability";
-import { mapsUrl } from "@/lib/mapsUrl";
+import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { AddToNotebook } from "./AddToNotebook";
 import { NoteInput } from "./NoteInput";
@@ -466,6 +466,8 @@ function PlaceCard({ place }) {
 
   const compactPrice = formatPriceCompact(place);
   const action = primaryAction(place);
+  // Spec Location-Routing §6: chưa xác nhận vị trí thì nút bản đồ là "Tìm trên Google Maps", không phải "Chỉ đường".
+  const mapAction = placeMapAction(place);
 
   // "Liên hệ đặt xe" không gọi thẳng — nó bung thẻ rồi đưa khách xuống khối "Liên hệ", nơi có
   // nhãn đã ai xác nhận số chưa (NOTE-05 §7: số điện thoại ở CDP luôn chỉ là số tham khảo,
@@ -651,14 +653,14 @@ function PlaceCard({ place }) {
       <div className="mt-5 flex flex-wrap items-center gap-2">
         {/* CTA chính đổi theo loại hình Đi lại (NOTE-05 §6): với xe ghép / xe khách thì
             "Chỉ đường" là nút vô nghĩa — địa chỉ nhà xe không phải nơi khách cần tới. */}
-        {action.kind === "directions" && (
+        {action.kind === "directions" && mapAction && (
           <a
-            href={mapsUrl(place)}
+            href={mapAction.href}
             target="_blank"
             rel="noopener noreferrer"
             className={ctaClass}
           >
-            {action.label}
+            {mapAction.label}
           </a>
         )}
         {action.kind === "google" && (

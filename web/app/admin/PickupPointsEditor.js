@@ -126,6 +126,7 @@ export function PickupPointsEditor({ place }) {
                     wardOrDistrict={point.wardOrDistrict}
                     province={point.province}
                     label="điểm đón"
+                    pinSource="admin_pin"
                     value={
                       hasCoords
                         ? { lat: point.lat, lng: point.lng, source: point.locationSource, confirmed: point.locationConfirmed }

@@ -2,6 +2,7 @@ import { formatPriceText } from "@/lib/priceFormat";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { transportSubtypeGroups, VEHICLE_TYPES, vehicleTypesOf } from "@/lib/transport";
 import { PickupPointsEditor } from "./PickupPointsEditor";
+import { PlaceLocationEditor } from "./PlaceLocationEditor";
 
 // Tách riêng khỏi page.js (Server Component, có import next/headers) để LivePlacesManager.js
 // (Client Component) dùng chung được — Client Component không được import trực tiếp từ 1
@@ -51,6 +52,10 @@ export function PlaceForm({ place, children }) {
       <p className="mt-2 text-xs text-zinc-500">
         Giá sẽ hiển thị cho khách: <span className="font-medium text-zinc-700">{preview}</span>
       </p>
+
+      {/* Spec Location-Routing §5, §12: ghim vị trí thật cho chỗ này. Chưa ghim thì khách chỉ có
+          nút "Tìm trên Google Maps". */}
+      <PlaceLocationEditor place={place} />
 
       {/* Ô riêng cho nhóm "Đi lại" (NOTE-04 §1–§2). Chỉ hiện khi chỗ này ĐANG là Đi lại — form
           không chạy JavaScript nên đổi ô "Loại hình" sang Đi lại thì phải Lưu rồi mở lại mới

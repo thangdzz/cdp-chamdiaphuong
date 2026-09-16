@@ -2,6 +2,7 @@ import { formatPriceText } from "./priceFormat.js";
 import { assertValidPlaceType } from "./placeTypes.js";
 import { familyOfSubtype, isValidTransportSubtype, VEHICLE_TYPES } from "./transport.js";
 import { cleanPickupPoints, isValidPickupMode } from "./pickupPoints.js";
+import { cleanCoordinates } from "./coordinates.js";
 
 // Điểm đón (NOTE-14 §8–§11) chỉ đọc khi form THẬT SỰ có khối điểm đón — thẻ hàng chờ tự động không có
 // khối này, nếu cứ trả [] thì lưu từ đó sẽ xoá sạch điểm đón đang có.
@@ -20,6 +21,18 @@ function pickupFieldsFromFormData(formData, transportSubtype) {
     pickupMode: isValidPickupMode(mode) ? mode : null,
     pickupPoints: cleanPickupPoints(raw),
   };
+}
+
+// Vị trí ghim trên bản đồ (spec Location-Routing §5). Cũng chỉ đọc khi form THẬT SỰ có khối này —
+// thẻ hàng chờ tự động không có, trả null từ đó sẽ xoá mất vị trí admin đã ghim.
+function locationFieldsFromFormData(formData) {
+  if (!formData.has("placeLocationJson")) return {};
+  try {
+    const raw = JSON.parse(formData.get("placeLocationJson")?.toString() || "null");
+    return { coordinates: cleanCoordinates(raw) };
+  } catch {
+    return {}; // ô ẩn hỏng: giữ nguyên vị trí cũ
+  }
 }
 
 // Đọc dữ liệu địa điểm từ 1 <form> (dùng chung cho "Đang công khai", "Chờ duyệt" thủ công,
@@ -80,5 +93,7 @@ export function placeFromFormData(formData) {
           ...pickupFieldsFromFormData(formData, transportSubtype),
         }
       : {}),
+    // Vị trí ghim: mọi loại hình đều cần, không riêng Đi lại.
+    ...locationFieldsFromFormData(formData),
   };
 }

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getRoute, resolveRouteStops, stopFullAddress, stopTitle, transportModeLabel, STOP_TYPES, TRANSPORT_MODES } from "@/lib/routes";
-import { routeMapsUrl, stopMapsQuery } from "@/lib/mapsUrl";
+import { REQUIRE_VERIFIED_LOCATION, routeMapsUrl, stopRouteTarget, stopTextTarget } from "@/lib/mapsUrl";
 import { isPickupService, pickupSelectionLabel, stopNeedsPickupSelection } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
 import { RouteOwnerActions } from "@/app/RouteOwnerActions";
@@ -28,15 +28,22 @@ export default async function RouteViewPage({ params }) {
 
   const stops = await resolveRouteStops(route.stops);
   const mapsMode = TRANSPORT_MODES.find((m) => m.id === route.transportMode)?.mapsMode ?? "driving";
-  // Điểm đề xuất cũng phải vào được link Google Maps — bỏ qua thì lộ trình mở ra thiếu chặng.
-  const mapsQueries = stops.map((s) => ({ mapsQuery: stopMapsQuery(s) }));
+  // Spec Location-Routing §3, §10: chỉ điểm ĐÃ XÁC MINH vị trí mới là định danh dẫn đường. Điểm chưa
+  // xác minh tạm vào link bằng chữ (REQUIRE_VERIFIED_LOCATION) nhưng phải được kể tên bên dưới —
+  // không bao giờ im lặng bỏ điểm.
+  const targets = stops.map(stopRouteTarget);
+  const points = stops.map((stop, i) =>
+    targets[i] ?? (REQUIRE_VERIFIED_LOCATION ? null : stopTextTarget(stop))
+  );
   // NOTE-14 §17: còn dịch vụ đón khách chưa chọn điểm đón thì KHÔNG đưa link Maps — mở ra sẽ thiếu đúng
   // chặng lên xe. Chặn lại và dẫn thẳng tới chỗ chọn.
   const missingPickupIndex = stops.findIndex(stopNeedsPickupSelection);
-  const maps = missingPickupIndex === -1 ? routeMapsUrl(mapsQueries, mapsMode) : null;
-  // Điểm riêng chưa khai địa chỉ thì Google không tra nổi, nên nó rơi khỏi link — nói thẳng
-  // ra thay vì để khách mở link rồi mới phát hiện thiếu chặng.
-  const missingAddress = stops.filter((s, i) => !mapsQueries[i].mapsQuery && !stopNeedsPickupSelection(s)).length;
+  const maps = missingPickupIndex === -1 ? routeMapsUrl(points, mapsMode) : null;
+  // Ba mức, nói rõ từng mức thay vì gộp thành một câu chung chung:
+  const unverified = stops
+    .map((stop, i) => ({ stop, i }))
+    .filter(({ stop, i }) => !targets[i] && !stopNeedsPickupSelection(stop) && !stop.deleted);
+  const unroutable = unverified.filter(({ i }) => !points[i]);
 
   return (
     <div className="flex flex-1 justify-center">
@@ -81,26 +88,65 @@ export default async function RouteViewPage({ params }) {
         {/* §P7 giai đoạn 1 + §P8 "CDP lo kế hoạch, Google lo đường" — CDP giữ danh sách và thứ
             tự, việc dẫn đường giao hẳn cho Google. */}
         {maps && (
-          <div className="mt-5">
-            <a
-              href={maps.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cdp-pressable block w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-zinc-700"
+          <div className="mt-5 flex flex-col gap-2">
+            {/* §11: lộ trình dài hơn sức chứa của một link Maps thì chia chặng nối đuôi nhau,
+                điểm cuối chặng trước là điểm đầu chặng sau — không hụt đoạn nào. */}
+            {maps.legs.length === 1 ? (
+              <a
+                href={maps.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cdp-pressable block w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-zinc-700"
+              >
+                Mở toàn bộ lộ trình trên Google Maps
+              </a>
+            ) : (
+              <>
+                <p className="text-center text-xs text-zinc-500">
+                  Lộ trình dài hơn sức chứa của một link Google Maps — chia thành {maps.legs.length} chặng.
+                </p>
+                {maps.legs.map((leg, index) => (
+                  <a
+                    key={index}
+                    href={leg.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cdp-pressable block w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-zinc-700"
+                  >
+                    Mở chặng {index + 1} trên Google Maps (điểm {leg.from + 1} → {leg.to + 1})
+                  </a>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Spec §10: KHÔNG im lặng bỏ điểm. Kể tên từng chỗ chưa chắc vị trí, kèm đường đi sửa. */}
+        {unverified.length > 0 && (
+          <div className="mt-3 rounded-xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200">
+            <p className="text-sm font-medium text-amber-900">
+              {unverified.length} điểm chưa xác nhận vị trí chính xác
+            </p>
+            <ul className="mt-1 list-inside list-disc text-[13px] text-amber-900">
+              {unverified.map(({ stop, i }) => (
+                <li key={i}>
+                  {i + 1}. {stopTitle(stop)}
+                  {!points[i] && " — chưa đủ dữ liệu, không nằm trong link"}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-1 text-xs text-amber-800">
+              {unroutable.length === unverified.length
+                ? "Google Maps chưa dẫn tới được những chỗ này."
+                : "Google Maps đang tự đoán những chỗ này theo tên và địa chỉ, có thể lệch."}{" "}
+              Ghim đúng vị trí ở trang sửa lộ trình để dẫn đường chính xác.
+            </p>
+            <Link
+              href={`/lo-trinh/${slug}/sua#stop-${unverified[0].i + 1}`}
+              className="cdp-pressable mt-2 inline-flex min-h-11 items-center rounded-lg bg-[#c8553d] px-4 text-sm font-medium text-white"
             >
-              Mở toàn bộ lộ trình trên Google Maps
-            </a>
-            {maps.omitted > 0 && (
-              <p className="mt-1.5 text-center text-xs text-zinc-400">
-                Google Maps chỉ nhận 11 điểm — {maps.omitted} điểm giữa không nằm trong link này.
-              </p>
-            )}
-            {missingAddress > 0 && (
-              <p className="mt-1.5 text-center text-xs text-zinc-400">
-                {missingAddress} điểm riêng chưa có địa chỉ nên không vào được link. Thêm địa chỉ
-                ở trang sửa lộ trình.
-              </p>
-            )}
+              Xác nhận vị trí
+            </Link>
           </div>
         )}
       </main>
