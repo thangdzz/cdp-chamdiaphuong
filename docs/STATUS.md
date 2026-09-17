@@ -6,14 +6,15 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, CHƯA DEPLOY.**
+**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-2dc7ytio3`).
 
 Chủ dự án test trên iPhone: hộp thông báo che mất bản đồ, nút vị trí lúc bật lúc không. Đã sửa:
 thông báo **dữ liệu game** và thông báo **GPS** tách thành hai dòng mỏng riêng ở mép trên bản đồ,
 hướng dẫn dài chuyển vào sheet "Cách bật vị trí"; nút vị trí đổi thành **máy trạng thái do React
 giữ** (idle/requesting/active/off + denied/unavailable/insecure), dùng `watchPosition` với
 `maximumAge: 0` nên chấm xanh đi theo người chơi và mỗi lần bật lại là một phép đo mới. Test trình
-duyệt thật (Playwright, khung iPhone, bản build production): 22/22 đạt. Lý do: DECISIONS 2026-09-17.
+duyệt thật (Playwright, khung iPhone): 22/22 đạt trên bản build, và 22/22 lần nữa trên web thật
+sau khi deploy. Lý do: DECISIONS 2026-09-17.
 
 **Trước đó 2026-09-16 (phiên khuya, sau) — SỬA ĐỊNH VỊ + CHỐNG GIAN LẬN GĐ1, CHƯA DEPLOY.**
 

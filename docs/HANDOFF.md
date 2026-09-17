@@ -8,6 +8,22 @@
 
 ## 1. Task hiện tại
 
+**2026-09-17 — UX BẢN ĐỒ + NÚT VỊ TRÍ + HỒ SƠ NGƯỜI CHƠI, ĐÃ DEPLOY** (`web-2dc7ytio3`, alias
+`chamdiaphuong.io.vn`). Ba việc trong một lần deploy:
+
+1. **Hồ sơ người chơi mỗi người một ô riêng** (`lib/contributors.js`). Trước đó mọi thao tác ghi đè
+   CẢ mảng: 40 người đăng ký cùng lúc chỉ còn 1, và xoá luôn hồ sơ cũ. Đây là thứ sẽ vỡ đầu tiên tối
+   18/9. Đo lại sau sửa: 60 người cùng lúc còn đủ 60.
+2. **Bản đồ và trang lễ hội hết đọc Redis mỗi lượt xem** (`lib/sharedRead.js`): 2.000 lượt mở trang
+   lễ hội từ 8.000 lệnh xuống 0.
+3. **Nút vị trí thành máy trạng thái do React giữ** (`app/_game/GameMap.js`) + tách hai dòng thông
+   báo + sheet "Cách bật vị trí" (`app/_game/LocationHelpSheet.js`).
+
+Bẫy cho người sau: **test giao diện bản đồ phải chạy trên `next build` + `next start`**, không chạy
+`next dev` — ở dev, StrictMode chạy effect hai lần và MapLibre không khởi tạo xong, bản đồ đứng ở
+"Đang tải bản đồ…". Lỗi chỉ ở dev. Deploy bằng `npx vercel --prod --yes --scope thangdz1` —
+**thiếu `--scope thangdz1` là báo "Not authorized"**. Lý do từng quyết định: DECISIONS 17/9.
+
 **2026-09-16 (tối, sau) — TUYẾN RƯỚC ĐÈN ĐÃ DEPLOY** (`web-421078m6k`). Bản đồ game có tuyến nét đứt
 Ngã 8 → Bình Thuận → Tân Trào → Phan Thiết → Quang Trung → Ngã 8 (venue `tuyen-ruoc-den`, cờ `dashed`).
 Ai sửa toạ độ tuyến nhớ 2 bẫy đã vấp: (1) đường đôi một chiều phải dò trên đồ thị CÓ HƯỚNG; (2) bùng
