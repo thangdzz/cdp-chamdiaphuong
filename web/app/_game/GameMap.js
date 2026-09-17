@@ -289,6 +289,8 @@ export function GameMap({
   venues = null,
   // Trạng thái DỮ LIỆU của game (ví dụ "chưa có đèn rước") — một dòng riêng, không dính gì tới GPS.
   statusNote = null,
+  // Đang mở màn báo đèn: bản đồ nhường cảm biến cho màn đó (xem ghi chú ở effect bên dưới).
+  pauseLocate = false,
   // Mở sheet hướng dẫn bật quyền vị trí. Sheet phải do trang cha dựng: khung bản đồ có
   // `transform: translateZ(0)` nên mọi thứ `position: fixed` bên trong đều bị cắt gọn trong khung.
   onLocationHelp = null,
@@ -403,6 +405,31 @@ export function GameMap({
     },
     []
   );
+
+  // Trong lúc mở màn báo đèn thì bản đồ NGỪNG theo dõi vị trí (chốt 2026-09-17).
+  //
+  // Màn báo đèn tự đo một phép đo riêng, bắt buộc mới tinh (`maximumAge: 0`). Để hai bên cùng đòi
+  // cảm biến một lúc thì phép đo mới phải xếp hàng sau luồng theo dõi đang chạy — đo thật trên trình
+  // duyệt thấy nó chờ hết 15 giây rồi báo quá giờ, người chơi đứng nhìn "Đang đo vị trí…" mãi không
+  // xong. Đóng màn báo thì bản đồ tự theo dõi lại đúng như cũ. Bản đồ lúc này nằm sau màn báo, không
+  // ai nhìn, nên tắt đi cũng không mất gì mà còn đỡ tốn pin.
+  const resumeRef = useRef(false);
+  useEffect(() => {
+    if (!showLocate) return undefined;
+    // Hoãn một nhịp để không đổi state ngay trong thân effect.
+    const timer = setTimeout(() => {
+      if (pauseLocate) {
+        if (stateRef.current === LOCATE.ACTIVE || stateRef.current === LOCATE.REQUESTING) {
+          resumeRef.current = true;
+          stopLocating(LOCATE.IDLE);
+        }
+      } else if (resumeRef.current) {
+        resumeRef.current = false;
+        startLocating();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [pauseLocate, showLocate, startLocating, stopLocating]);
 
   // Ai ĐÃ cho phép từ trước thì hiện chấm xanh ngay, không bắt bấm lại (chốt 2026-09-17).
   //

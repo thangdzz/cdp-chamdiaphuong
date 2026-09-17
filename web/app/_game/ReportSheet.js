@@ -14,6 +14,10 @@ import { foldText, formatAgo } from "@/lib/game/format";
 import { ACCURACY_WARN_M } from "@/lib/game/riskLimits";
 
 const STEP = { PICK: "pick", LOCATE: "locate", PHOTO: "photo" };
+// Bản đo lấy lúc mở sheet còn dùng được trong ngần này; quá thì đo lại ở bước chọn chỗ. Người chơi
+// đứng ngắm một mô hình rồi bấm báo thì trong 45 giây họ vẫn ở đúng chỗ đó — đo lại chỉ tốn thêm
+// thời gian chờ. Lâu hơn thì coi như đã đi chỗ khác.
+const FIX_REUSE_MS = 45_000;
 const MAX_MYSTERIES_IN_PICKER = 4;
 
 const primaryButton =
@@ -45,6 +49,7 @@ export function ReportSheet({
   // Vị trí sẽ gửi đi. null = CHƯA ĐO ĐƯỢC → không có cách nào bấm gửi (chốt 2026-09-16).
   // Không còn điểm mặc định: tâm bản đồ lễ hội và toạ độ marker của người khác từng lọt vào đây.
   const [fix, setFix] = useState(null); // { lat, lng, accuracy, measuredAt, source: "gps"|"manual" }
+  const fixRef = useRef(null); // bản sao của `fix` cho các hàm ngoài vòng render đọc tuổi bản đo
   const [acceptedWeak, setAcceptedWeak] = useState(false); // đã bấm "vẫn dùng" khi sai số lớn
   // preset.lat/lng của marker CHỈ dùng để căn khung nhìn bản đồ, không bao giờ là vị trí gửi đi.
   const [focus, setFocus] = useState(() =>
@@ -100,6 +105,7 @@ export function ReportSheet({
       return;
     }
     setAcceptedWeak(false);
+    fixRef.current = null;
     setFix(null);
     setGpsState("locating");
     navigator.geolocation.getCurrentPosition(
@@ -114,6 +120,7 @@ export function ReportSheet({
           measuredAt: position.timestamp || Date.now(), // mốc nội bộ, chỉ dùng để tính tuổi
           source: "gps",
         };
+        fixRef.current = next;
         setFix(next);
         setFocus({ lat: next.lat, lng: next.lng, zoom: 17 });
         setGpsState("ok");
@@ -124,6 +131,15 @@ export function ReportSheet({
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
+  }
+
+  // Đo khi CẦN, không đo chồng: đang đo dở thì để yên, còn bản đo mới nguyên thì dùng lại.
+  // Nút "Định vị lại" vẫn gọi thẳng requestGps() để ép đo lại bất kể đang có gì.
+  function ensureGps() {
+    if (gpsRef.current === "locating") return;
+    const current = fixRef.current;
+    if (current && Date.now() - current.measuredAt < FIX_REUSE_MS) return;
+    requestGps();
   }
 
   function choose(id) {
@@ -139,18 +155,35 @@ export function ReportSheet({
     setObjectId(id);
     setStep(STEP.LOCATE);
     setError(null);
-    requestGps();
+    ensureGps();
   }
 
-  // Vào từ "Tôi cũng vừa thấy" thì bỏ qua bước chọn — vẫn phải ĐO MỚI như mọi lượt khác. Trình
-  // duyệt chỉ hỏi quyền khi người chơi đã chủ động bấm báo, không hỏi lúc mới mở trang.
+  // Hỏi quyền vị trí NGAY khi người chơi bấm "vừa thấy mô hình" (chốt 2026-09-17).
+  //
+  // Sheet này chỉ được dựng đúng lúc bấm nút, nên đo ở đây = đo ngay lúc bấm. Trước đây phải chọn
+  // xong mô hình mới hỏi, người chơi đứng chờ thêm một nhịp nữa. Hỏi sớm còn cho GPS thêm chục giây
+  // để bắt cho chuẩn trong lúc họ dò tên mô hình, nên sai số thường nhỏ hơn hẳn.
+  //
+  // TRƯỚC GIỜ RƯỚC thì KHÔNG hỏi: lượt báo thử không được ghi nhận gì cả, mà hộp thoại xin quyền
+  // hiện lúc chưa có gì diễn ra rất dễ bị bấm "Không cho phép" — trên iPhone lựa chọn đó dính luôn
+  // cho cả trang và chặn nốt đúng tối 18/9.
+  //
   // Hoãn một nhịp: để sheet vẽ xong rồi mới đo, và để không đổi state ngay trong thân effect.
   useEffect(() => {
-    if (step !== STEP.LOCATE || gpsRef.current !== "idle") return undefined;
-    const timer = setTimeout(() => requestGps(), 0);
+    if (preGame) return undefined;
+    const timer = setTimeout(() => ensureGps(), 0);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ chạy khi đổi bước
-  }, [step]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ chạy một lần lúc mở sheet
+  }, []);
+
+  const pickHint =
+    gps === "locating"
+      ? "📍 Đang lấy vị trí của bạn trong lúc bạn chọn…"
+      : gps === "denied"
+        ? "📍 Chưa có quyền vị trí — chọn xong bạn tự ghim chỗ đứng trên bản đồ."
+        : gps === "unavailable" || gps === "timeout"
+          ? "📍 Chưa bắt được vị trí — chọn xong bạn ghim tay hoặc đo lại."
+          : null;
 
   const weak = fix?.source === "gps" && fix.accuracy > ACCURACY_WARN_M;
   // Ghim tay CHỈ mở khi máy thật sự không đo được — không cho ghim bừa cho nhanh.
@@ -243,6 +276,9 @@ export function ReportSheet({
               autoComplete="off"
               className="mt-3 h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none focus:border-[#c8553d] focus:ring-2 focus:ring-[#c8553d]/15"
             />
+            {/* Máy hỏi quyền vị trí ngay lúc này, nên nói một câu cho người chơi hiểu vì sao bị hỏi
+                giữa lúc đang dò tên mô hình. Đo xong xuôi thì im lặng. */}
+            {pickHint && <p className="mt-2 text-[12px] leading-4 text-zinc-500">{pickHint}</p>}
           </div>
 
           <ul className="mt-1 flex flex-col gap-1.5">

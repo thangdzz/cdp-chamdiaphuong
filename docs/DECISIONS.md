@@ -3,6 +3,37 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (cuối) — Hỏi quyền vị trí ngay lúc bấm "vừa thấy mô hình"
+
+Chủ dự án muốn: bấm nút báo là trình duyệt hỏi quyền vị trí luôn, để người chơi bấm cho phép ngay.
+
+Trước đây phải **chọn xong mô hình** mới hỏi. Giờ màn báo đèn đo ngay lúc mở — mà màn này chỉ được
+dựng đúng lúc bấm nút, nên đo ở đó = đo ngay lúc bấm. Hỏi sớm còn cho GPS thêm chục giây bắt cho
+chuẩn trong lúc người chơi dò tên mô hình, nên **sai số thường nhỏ hơn hẳn** so với đo sau.
+
+- **Trước giờ rước thì KHÔNG hỏi.** Lượt báo thử không ghi nhận gì cả; bật hộp thoại xin quyền lúc
+  chưa có gì diễn ra rất dễ bị bấm "Không cho phép" — trên iPhone lựa chọn đó dính luôn cho cả trang
+  và chặn nốt đúng tối 18/9.
+- Bản đo lấy lúc mở màn còn dùng được **45 giây** (`FIX_REUSE_MS`); quá thì đo lại ở bước chọn chỗ.
+  Người đứng ngắm một mô hình rồi bấm báo thì trong 45 giây vẫn ở đúng chỗ đó — đo lại chỉ tốn thêm
+  thời gian chờ. Nút "Định vị lại" vẫn ép đo mới bất kể đang có gì.
+- Bước chọn mô hình có thêm một dòng nhỏ nói đang lấy vị trí / chưa có quyền, để người chơi hiểu vì
+  sao bị hỏi giữa lúc đang dò tên.
+
+**Lỗi thật mà test bắt được: hai bên cùng đòi cảm biến thì phép đo mới bị treo.** Từ hôm nay bản đồ tự
+theo dõi vị trí với ai đã cho phép. Mở màn báo đèn, màn này gọi một phép đo mới bắt buộc tươi
+(`maximumAge: 0`) — đo trên trình duyệt thật thấy nó **xếp hàng sau luồng theo dõi đang chạy, chờ hết
+15 giây rồi báo quá giờ**: người chơi đứng nhìn "Đang đo vị trí…" mãi không xong, không gửi được lượt
+báo. Sửa: mở màn báo thì **bản đồ ngừng theo dõi**, đóng màn thì theo dõi lại (`pauseLocate`). Bản đồ
+lúc đó nằm sau màn báo, không ai nhìn, nên tắt đi không mất gì mà còn đỡ tốn pin.
+
+Test: **15/15** cho luồng báo (hỏi ngay lúc bấm, không hỏi lại khi chọn mô hình, bị chặn thì nói ngay,
+trước giờ rước không hỏi, bản đồ nhường rồi lấy lại cảm biến) và **30/30** cho bản đồ — chạy trên bản
+build, namespace `cdp-test-report` đã xoá sạch sau khi xong.
+
+**Cách thử luồng "đã mở game" trước 18/9:** chạy `next start` với `CDP_GAME_NAMESPACE=cdp-test-report`
+rồi đặt `gameLiveAt` về quá khứ trong namespace đó — dữ liệu thật không hề bị đụng.
+
 ## 2026-09-17 (sau) — Đã cho phép rồi thì hiện chấm xanh tự động, chưa hỏi thì đừng tự hỏi
 
 Chủ dự án thử hai máy: Samsung A56 + Chrome bật tắt vị trí ngon; iPhone 15 báo "Chưa có quyền vị

@@ -436,6 +436,8 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             // Trạng thái DỮ LIỆU game, tách khỏi trạng thái GPS — GameMap xếp hai dòng chồng nhau
             // ở mép trên, không dòng nào đè lên marker hay nhãn tuyến.
             statusNote={preGame ? event.copy.preGameMap : null}
+            // Màn báo đèn tự đo vị trí riêng — bản đồ nhường cảm biến trong lúc đó.
+            pauseLocate={Boolean(report)}
             onLocationHelp={() => setLocationHelp(true)}
             // svh (không phải dvh): chiều cao KHÔNG đổi khi thanh địa chỉ Safari co/giãn lúc cuộn,
             // nên cuộn trang không kéo theo resize bản đồ (nguyên nhân nháy canvas).
