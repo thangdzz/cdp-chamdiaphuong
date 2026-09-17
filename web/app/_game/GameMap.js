@@ -302,6 +302,7 @@ export function GameMap({
   const markerRefs = useRef(new Map());
   const onMarkerClickRef = useRef(onMarkerClick);
   const onPickRef = useRef(onPick);
+  const onLocationHelpRef = useRef(onLocationHelp);
   const initialView = useRef({ center, zoom, venues, picker });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -313,6 +314,9 @@ export function GameMap({
   const watchRef = useRef(null);
   const dotRef = useRef(null);
   const stateRef = useRef(LOCATE.IDLE);
+  // Người chơi VỪA CHỦ ĐỘNG bấm nút (khác với lúc bản đồ tự bật vì đã có quyền sẵn). Chỉ khi họ tự
+  // bấm mà bị trình duyệt chặn thì mới bật hướng dẫn lên — tự bật mà chặn thì im lặng.
+  const userAskedRef = useRef(false);
   // Mỗi lần bật/tắt tăng số đếm này. Lần đo cũ trả kết quả về sau khi người chơi đã tắt sẽ thấy số
   // không khớp và tự bỏ đi — đây chính là chỗ trước kia làm chấm xanh sống lại sau khi tắt.
   const seqRef = useRef(0);
@@ -364,6 +368,7 @@ export function GameMap({
           map.easeTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16), duration: 600 });
         }
         stateRef.current = LOCATE.ACTIVE;
+        userAskedRef.current = false;
         // Giữ nguyên object cũ khi không có gì đổi: mỗi nhịp GPS mà render lại là bản đồ nháy.
         setLocate((prev) =>
           prev.state === LOCATE.ACTIVE && Math.round(prev.accuracy ?? -1) === Math.round(accuracy ?? -1)
@@ -373,7 +378,13 @@ export function GameMap({
       },
       (error) => {
         if (seq !== seqRef.current) return;
-        stopLocating(error.code === 1 ? LOCATE.DENIED : LOCATE.UNAVAILABLE);
+        const denied = error.code === 1;
+        stopLocating(denied ? LOCATE.DENIED : LOCATE.UNAVAILABLE);
+        // Tự bấm mà bị chặn thì mở luôn hướng dẫn — không bắt bấm thêm một nhịp nữa. Vẫn thử đo
+        // trước rồi mới mở (thay vì thấy "đã chặn" là chặn luôn): người vừa mở quyền trong Cài đặt
+        // xong quay lại thì lần đo này chạy được, không ai phải đọc hướng dẫn thừa.
+        if (denied && userAskedRef.current) onLocationHelpRef.current?.();
+        userAskedRef.current = false;
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
@@ -384,8 +395,12 @@ export function GameMap({
   const toggleLocate = useCallback(() => {
     setGpsNoticeHidden(false); // vừa chủ động bấm thì được quyền nói lại vì sao chưa có vị trí
     const state = stateRef.current;
-    if (state === LOCATE.ACTIVE || state === LOCATE.REQUESTING) stopLocating(LOCATE.OFF);
-    else startLocating();
+    if (state === LOCATE.ACTIVE || state === LOCATE.REQUESTING) {
+      stopLocating(LOCATE.OFF);
+      return;
+    }
+    userAskedRef.current = true;
+    startLocating();
   }, [startLocating, stopLocating]);
 
   useEffect(() => {
@@ -475,6 +490,7 @@ export function GameMap({
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
     onPickRef.current = onPick;
+    onLocationHelpRef.current = onLocationHelp;
   });
 
   useEffect(() => {

@@ -41,6 +41,7 @@ export function ReportSheet({
   onSubmitted,
   preGame = false,
   onPreGameAttempt,
+  onLocationHelp,
 }) {
   const noun = event.copy.objectNoun;
   const [step, setStep] = useState(preset?.objectId ? STEP.LOCATE : STEP.PICK);
@@ -176,14 +177,24 @@ export function ReportSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ chạy một lần lúc mở sheet
   }, []);
 
+  const helpLink = onLocationHelp ? (
+    <button
+      type="button"
+      onClick={onLocationHelp}
+      className="cursor-pointer font-medium text-[#c8553d] underline underline-offset-2"
+    >
+      Cách bật vị trí
+    </button>
+  ) : null;
+
   const pickHint =
-    gps === "locating"
-      ? "📍 Đang lấy vị trí của bạn trong lúc bạn chọn…"
-      : gps === "denied"
-        ? "📍 Chưa có quyền vị trí — chọn xong bạn tự ghim chỗ đứng trên bản đồ."
-        : gps === "unavailable" || gps === "timeout"
-          ? "📍 Chưa bắt được vị trí — chọn xong bạn ghim tay hoặc đo lại."
-          : null;
+    gps === "locating" ? (
+      <>📍 Đang lấy vị trí của bạn trong lúc bạn chọn…</>
+    ) : gps === "denied" ? (
+      <>📍 Chưa có quyền vị trí · {helpLink}</>
+    ) : gps === "unavailable" || gps === "timeout" ? (
+      <>📍 Chưa bắt được vị trí — chọn xong bạn ghim tay hoặc đo lại.</>
+    ) : null;
 
   const weak = fix?.source === "gps" && fix.accuracy > ACCURACY_WARN_M;
   // Ghim tay CHỈ mở khi máy thật sự không đo được — không cho ghim bừa cho nhanh.
@@ -340,7 +351,7 @@ export function ReportSheet({
             Bạn thấy ở đâu?
           </h2>
           <p className="mt-1 text-[13px] leading-5 text-zinc-500">
-            <LocateStatus gps={gps} fix={fix} manualAllowed={manualAllowed} />
+            <LocateStatus gps={gps} fix={fix} manualAllowed={manualAllowed} helpLink={helpLink} />
           </p>
           <GameMap
             center={fix ?? event.map.center}
@@ -530,14 +541,19 @@ function SelectedHeader({ object, unknown, event, onChange }) {
   );
 }
 
-function LocateStatus({ gps, fix, manualAllowed }) {
+function LocateStatus({ gps, fix, manualAllowed, helpLink }) {
   if (gps === "locating") return "Đang đo vị trí của bạn…";
   if (fix?.source === "gps") {
     return `Đã đo xong (sai số khoảng ${Math.round(fix.accuracy)} m).`;
   }
   if (fix?.source === "manual") return "Đang dùng ghim bạn đặt trên bản đồ.";
   if (gps === "denied") {
-    return "Trình duyệt đang chặn vị trí. Kéo bản đồ để đặt ghim vào chỗ bạn thấy — gần đúng là được.";
+    return (
+      <>
+        Trình duyệt đang chặn vị trí. Kéo bản đồ để đặt ghim vào chỗ bạn thấy — gần đúng là được.
+        {helpLink ? <> · {helpLink}</> : null}
+      </>
+    );
   }
   if (gps === "timeout") return "Đo lâu quá chưa xong. Đo lại, hoặc kéo bản đồ đặt ghim.";
   if (manualAllowed) return "Máy chưa định vị được. Kéo bản đồ để đặt ghim vào chỗ bạn thấy.";

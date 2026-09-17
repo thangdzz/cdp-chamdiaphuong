@@ -521,6 +521,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           onSubmitted={handleSubmitted}
           preGame={preGame}
           onPreGameAttempt={showTroll}
+          onLocationHelp={() => setLocationHelp(true)}
         />
       )}
 

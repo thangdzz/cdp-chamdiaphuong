@@ -3,6 +3,38 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt) — Web KHÔNG mở được Cài đặt iPhone; bị chặn thì bật hướng dẫn ngay
+
+Chủ dự án muốn: bấm nút vị trí trên iPhone thì nhảy thẳng vào chỗ bật trong Cài đặt, hoặc hỏi ngay
+trong trình duyệt như Android.
+
+**Nhảy vào Cài đặt: không làm được, và sẽ không bao giờ làm được từ web.** Apple chặn mọi đường:
+lược đồ `prefs:root=` / `App-Prefs:` chỉ ứng dụng gọi được, Safari bấm vào không có gì xảy ra, và
+không có API web nào mở được cài đặt hệ thống. Ghi lại đây để lần sau khỏi mất công thử.
+
+**Hỏi ngay trong trình duyệt: iPhone VỐN ĐÃ làm đúng như Android** — Safari tự hiện hộp thoại xin
+quyền. Máy chủ dự án không hiện vì đã bấm "Không cho phép" từ những lần thử trước, Safari nhớ riêng
+cho từng trang. Người mới vào tối 18/9 chưa từ chối bao giờ thì thấy hộp thoại bình thường. Không có
+gì để sửa cho trường hợp thường.
+
+**Sửa được cho trường hợp đã bị chặn:** tự bấm nút vị trí mà bị từ chối thì **mở luôn sheet hướng
+dẫn**, thay vì hiện một dòng rồi bắt bấm thêm nhịp nữa. Đây là thứ gần nhất với "nhảy vào chỗ bật"
+mà web làm được.
+
+- Vẫn **thử đo trước rồi mới mở hướng dẫn** (không phải thấy Permissions API báo "đã chặn" là chặn
+  luôn): người vừa mở quyền trong Cài đặt xong quay lại thì lần đo này chạy được, không ai phải đọc
+  hướng dẫn thừa. Safari không bắn sự kiện đổi quyền nên đây là đường duy nhất biết được.
+- Chỉ mở khi người chơi **tự bấm** (`userAskedRef`). Bản đồ tự bật vì đã có quyền sẵn mà lỗi thì im
+  lặng — không ai vừa mở trang đã bị một tờ hướng dẫn đập vào mặt.
+- Luồng báo đèn thì **không** tự mở (sẽ đè lên danh sách mô hình), chỉ để sẵn đường dẫn "Cách bật vị
+  trí" ở cả bước chọn mô hình lẫn bước chọn chỗ. Sheet hướng dẫn chồng lên được màn báo.
+
+Lối thoát cuối cho máy đã chặn mà không muốn vào Cài đặt: **Thêm vào màn hình chính** — web chạy từ
+biểu tượng ngoài màn hình chính có ô quyền RIÊNG, tách khỏi Safari, nên được hỏi lại từ đầu. Chưa đưa
+vào hướng dẫn trong app: với khách vãng lai thì bảo cài app lên màn hình chính là đòi hỏi quá lớn.
+
+Test: **31/31** bản đồ, **17/17** luồng báo.
+
 ## 2026-09-17 (cuối) — Hỏi quyền vị trí ngay lúc bấm "vừa thấy mô hình"
 
 Chủ dự án muốn: bấm nút báo là trình duyệt hỏi quyền vị trí luôn, để người chơi bấm cho phép ngay.
