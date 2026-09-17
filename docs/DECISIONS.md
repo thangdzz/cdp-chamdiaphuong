@@ -3,6 +3,24 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 6) — Bản đồ ở màn báo đèn đo xong mà không vẽ gì
+
+Chủ dự án: Samsung A56 (Chrome) và MacBook đều đo được vị trí nhưng **bản đồ trống trơn**, không có
+chấm nào đánh dấu chỗ vừa đo.
+
+Đúng vậy: bản đồ trong màn báo đèn không truyền `showLocate`, không có marker, và chỉ bật chế độ ghim
+khi máy KHÔNG đo được. Đo được thì nó chỉ căn khung vào toạ độ rồi… để trống. Người chơi không có gì
+để đối chiếu, nhìn như chưa đo được gì.
+
+Sửa: thêm `youAreHere` cho `GameMap` — chấm xanh do NGƯỜI GỌI truyền toạ độ vào, không tự đo. Màn báo
+đèn đã có sẵn bản đo của nó; bắt bản đồ đo thêm một lần nữa chỉ để vẽ cái chấm là thừa, lại đúng vào
+lúc bản đồ chính đang nhường cảm biến. Kéo bản đồ đi thì chấm đứng yên đúng chỗ đã đo, không chạy
+theo khung nhìn — đó mới là thứ để đối chiếu.
+
+Ghim tay thì KHÔNG vẽ chấm: đã có cái ghim đứng giữa khung rồi, thêm chấm nữa là rối.
+
+Test: **43/43** bản đồ, **23/23** luồng báo.
+
 ## 2026-09-17 (chốt 5) — Không được bảo người ta "chờ đo" khi chẳng còn gì để chờ
 
 Chủ dự án thử trên bản chơi thử: "màn hình game thử cứ chờ đo". Đây là **lỗi thật**, và là lỗi sẽ

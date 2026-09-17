@@ -358,6 +358,9 @@ export function ReportSheet({
             zoom={focus?.zoom ?? event.map.zoom}
             focus={focus}
             picker={manualAllowed}
+            // Đo bằng GPS thì vẽ chấm xanh đúng chỗ đo được. Ghim tay thì đã có cái ghim đứng giữa
+            // khung rồi, thêm chấm nữa là rối.
+            youAreHere={fix?.source === "gps" ? fix : null}
             venues={event.venues}
             onPick={
               manualAllowed

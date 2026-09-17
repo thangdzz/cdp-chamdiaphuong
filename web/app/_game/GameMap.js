@@ -291,6 +291,9 @@ export function GameMap({
   statusNote = null,
   // Đang mở màn báo đèn: bản đồ nhường cảm biến cho màn đó (xem ghi chú ở effect bên dưới).
   pauseLocate = false,
+  // Chấm xanh do NGƯỜI GỌI đặt ({ lat, lng }) thay vì tự đo — màn báo đèn đã có sẵn bản đo của nó,
+  // không cần (và không được) đo thêm lần nữa chỉ để vẽ cái chấm.
+  youAreHere = null,
   // Mở sheet hướng dẫn bật quyền vị trí. Sheet phải do trang cha dựng: khung bản đồ có
   // `transform: translateZ(0)` nên mọi thứ `position: fixed` bên trong đều bị cắt gọn trong khung.
   onLocationHelp = null,
@@ -451,6 +454,35 @@ export function GameMap({
     },
     []
   );
+
+  // Chấm xanh "bạn đang ở đây" khi vị trí do người gọi truyền vào (chốt 2026-09-17).
+  //
+  // Màn báo đèn vẽ một bản đồ CHỈ để người chơi soi lại chỗ sắp báo, nhưng trước đây nó không vẽ gì
+  // cả: bản đồ căn đúng chỗ đo được mà mặt bản đồ trống trơn, nhìn như chưa đo được gì (chủ dự án
+  // gặp trên Samsung A56 và MacBook). Giờ có chấm để đối chiếu; kéo bản đồ đi thì chấm vẫn đứng
+  // đúng chỗ đã đo, không chạy theo khung nhìn.
+  const pinRef = useRef(null);
+  useEffect(() => {
+    const map = mapRef.current;
+    const maplibregl = libRef.current;
+    if (!ready || !map || !maplibregl) return undefined;
+    if (!youAreHere || !Number.isFinite(youAreHere.lat) || !Number.isFinite(youAreHere.lng)) {
+      pinRef.current?.remove();
+      pinRef.current = null;
+      return undefined;
+    }
+    const lngLat = [youAreHere.lng, youAreHere.lat];
+    if (pinRef.current) {
+      pinRef.current.setLngLat(lngLat);
+    } else {
+      const element = document.createElement("div");
+      element.className =
+        "h-4 w-4 rounded-full border-[3px] border-white bg-[#2f7de1] shadow-[0_0_0_6px_rgba(47,125,225,0.22)]";
+      element.setAttribute("aria-label", "Vị trí vừa đo được của bạn");
+      pinRef.current = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
+    }
+    return undefined;
+  }, [youAreHere, ready]);
 
   // Trong lúc mở màn báo đèn thì bản đồ NGỪNG theo dõi vị trí (chốt 2026-09-17).
   //
@@ -629,6 +661,7 @@ export function GameMap({
       mapRef.current = null;
       controlRef.current = null;
       dotRef.current = null;
+      pinRef.current = null;
     };
   }, [showLocate]);
 
