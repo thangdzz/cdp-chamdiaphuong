@@ -6,7 +6,13 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-2dc7ytio3`).
+**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-5pdq9ky68`).
+
+Chủ dự án thử hai máy: Samsung A56 + Chrome ngon, iPhone 15 báo "Chưa có quyền vị trí" (Safari chặn
+ở cấp trang, không phải lỗi code). Từ câu hỏi đó sửa thêm: **đã cho phép từ trước thì chấm xanh hiện
+tự động** khi mở trang (hỏi qua Permissions API nên không bật hộp thoại xin quyền); chưa từng hỏi thì
+không tự hỏi. Hướng dẫn iPhone thêm bước "bấm nút 📍 một lần" — Safari chỉ thêm dòng "Vị trí" vào menu
+Cài đặt trang web sau khi trang đã hỏi. Test trình duyệt trên web thật: 30/30 đạt.
 
 Chủ dự án test trên iPhone: hộp thông báo che mất bản đồ, nút vị trí lúc bật lúc không. Đã sửa:
 thông báo **dữ liệu game** và thông báo **GPS** tách thành hai dòng mỏng riêng ở mép trên bản đồ,
