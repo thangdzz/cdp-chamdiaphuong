@@ -434,7 +434,14 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   const isNewForUser = alreadyCollected
     ? false
     : (await redis.hsetnx(GAME_KEYS.collection(event.id, anonId), target.id, now)) === 1;
-  const isFirstDiscovery = alreadyFirst
+  // Ghim tay KHÔNG giành được danh hiệu "người đầu tiên" (chốt 2026-09-17).
+  //
+  // Vẫn ghi nhận lượt báo, vẫn lên bản đồ, vẫn tính vào bộ sưu tập — chỉ không cướp được danh hiệu.
+  // Lý do: ghim tay là LỜI KHAI, không phải phép đo; ngồi nhà vẫn ghim được vào Quảng trường, mà
+  // kiểm tra nhảy vị trí vô lý lại không áp dụng được cho nó (không có sai số để so). Danh hiệu là
+  // thứ đáng gian lận nhất, nên chỉ trao cho lượt có phép đo thật.
+  const measuredHere = cleanLocation.locationSource === "gps";
+  const isFirstDiscovery = alreadyFirst || !measuredHere
     ? false
     : (await redis.hsetnx(
         GAME_KEYS.firsts(event.id),

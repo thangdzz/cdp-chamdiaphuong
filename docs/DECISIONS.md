@@ -3,6 +3,20 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 8) — Ghim tay không giành được danh hiệu "người đầu tiên"
+
+Duyệt 17/9. Lượt báo bằng ghim tay vẫn được ghi nhận, vẫn lên bản đồ, vẫn tính vào bộ sưu tập — chỉ
+**không cướp được danh hiệu người đầu tiên tìm ra**.
+
+Lý do: ghim tay là **lời khai**, không phải phép đo. Ngồi nhà vẫn ghim được vào Quảng trường, mà kiểm
+tra nhảy vị trí vô lý lại không áp dụng được cho nó (không có sai số để so). Danh hiệu là thứ đáng
+gian lận nhất trong game, nên chỉ trao cho lượt có phép đo GPS thật.
+
+Vẫn phải giữ đường ghim tay: máy không định vị được thì không có nó là không chơi được.
+
+Test canh: ghim tay gửi trong kho dữ liệu TRỐNG (chưa ai báo mô hình đó) vẫn không hiện "người đầu
+tiên ghi nhận". **24/24** luồng báo.
+
 ## 2026-09-17 (chốt 7) — Thủ phạm trên máy chủ dự án: mục "Trang web Safari" xếp ở chữ T
 
 Chủ dự án thêm web ra Màn hình chính thì **định vị chạy bình thường**, cả hai link thử. Đây là mảnh
