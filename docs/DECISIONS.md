@@ -3,6 +3,23 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 2) — Hướng dẫn phải tự khai vì sao nó bật lên
+
+Chủ dự án: trên iPhone bấm nút vị trí thì "cứ hiện ra hướng dẫn", đáng ra Safari phải hỏi cho phép.
+
+Đây là đúng hành vi: trang đã bị chặn từ trước nên Safari **không hỏi lại nữa**, lần đo trả về mã 1
+tức thì và hướng dẫn bật lên. Nhưng nhìn từ phía người dùng thì y như nút vị trí bị nối nhầm vào tờ
+hướng dẫn — thiếu đúng một câu giải thích.
+
+- Sheet mở lên vì BỊ CHẶN giờ có ô đỏ đầu trang: "Trình duyệt đang chặn vị trí cho trang này, nên nó
+  **sẽ không hỏi lại** nữa dù bạn bấm bao nhiêu lần." Mở bằng cách tự bấm "Cách bật vị trí" thì vẫn
+  là câu giới thiệu bình thường.
+- Cuối sheet thêm một dòng mờ: **"Trình duyệt đang báo quyền vị trí: đã cho phép / đang chặn / chưa
+  hỏi lần nào"** (đọc từ Permissions API). Để lần sau có ai báo lỗi thì đọc thẳng máy họ đang ở mức
+  nào, khỏi đoán. Nếu dòng này ghi "chưa hỏi lần nào" mà vẫn nhảy ra hướng dẫn thì mới là lỗi thật.
+
+Test: **33/33** bản đồ, **17/17** luồng báo.
+
 ## 2026-09-17 (chốt) — Web KHÔNG mở được Cài đặt iPhone; bị chặn thì bật hướng dẫn ngay
 
 Chủ dự án muốn: bấm nút vị trí trên iPhone thì nhảy thẳng vào chỗ bật trong Cài đặt, hoặc hỏi ngay

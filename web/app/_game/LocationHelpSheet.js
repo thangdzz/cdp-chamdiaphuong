@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BottomSheet } from "./BottomSheet";
 
 // Hướng dẫn bật quyền vị trí — tách hẳn khỏi bản đồ (chốt 2026-09-17).
@@ -47,14 +48,44 @@ const STEPS = [
   },
 ];
 
-export function LocationHelpSheet({ open, onClose }) {
+/** Trình duyệt tự khai đang để quyền vị trí ở mức nào — để khỏi phải đoán khi có người báo lỗi. */
+function usePermissionState(open) {
+  const [state, setState] = useState(null);
+  useEffect(() => {
+    if (!open) return;
+    navigator.permissions
+      ?.query({ name: "geolocation" })
+      .then((result) => setState(result.state))
+      .catch(() => setState("không đọc được"));
+  }, [open]);
+  return state;
+}
+
+const PERMISSION_LABEL = {
+  granted: "đã cho phép",
+  denied: "đang chặn",
+  prompt: "chưa hỏi lần nào",
+};
+
+export function LocationHelpSheet({ open, onClose, blocked = false }) {
+  const permission = usePermissionState(open);
   return (
     <BottomSheet open={open} onClose={onClose} title="Cách bật vị trí">
       <h2 className="text-lg font-medium tracking-tight text-zinc-900">Cách bật vị trí</h2>
-      <p className="mt-1 text-[13px] leading-5 text-zinc-500">
-        Bật vị trí thì chấm xanh của bạn mới hiện trên bản đồ. Không bật vẫn chơi được — lúc báo đèn
-        bạn tự ghim chỗ đứng trên bản đồ.
-      </p>
+      {/* Mở lên vì vừa BỊ CHẶN thì phải nói ngay vì sao trình duyệt không hỏi — không có câu này,
+          người dùng tưởng nút vị trí bị nối nhầm vào tờ hướng dẫn. */}
+      {blocked ? (
+        <p className="mt-2 rounded-xl bg-[#fdf0e6] p-3 text-[13px] leading-5 text-[#8a3b28]">
+          Trình duyệt đang chặn vị trí cho trang này, nên nó <strong>sẽ không hỏi lại</strong> nữa dù
+          bạn bấm bao nhiêu lần. Máy đã từng bấm “Không cho phép” cho trang này rồi — phải mở bằng tay
+          một lần theo các bước dưới đây, sau đó thì không phải làm lại nữa.
+        </p>
+      ) : (
+        <p className="mt-1 text-[13px] leading-5 text-zinc-500">
+          Bật vị trí thì chấm xanh của bạn mới hiện trên bản đồ. Không bật vẫn chơi được — lúc báo đèn
+          bạn tự ghim chỗ đứng trên bản đồ.
+        </p>
+      )}
 
       {STEPS.map((step) => (
         <div key={step.title} className="mt-4 rounded-xl bg-white p-3 ring-1 ring-black/5">
@@ -75,6 +106,12 @@ export function LocationHelpSheet({ open, onClose }) {
       >
         Tải lại trang
       </button>
+
+      {permission && (
+        <p className="mt-3 text-center text-[11px] leading-4 text-zinc-400">
+          Trình duyệt đang báo quyền vị trí: {PERMISSION_LABEL[permission] ?? permission}
+        </p>
+      )}
     </BottomSheet>
   );
 }

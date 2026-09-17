@@ -144,7 +144,7 @@ function locateNotice(locate, onHelp) {
         tone: "warn",
         body: (
           <>
-            📍 Chưa có quyền vị trí{onHelp ? <> · <HelpLink onClick={onHelp} /></> : null}
+            📍 Chưa có quyền vị trí{onHelp ? <> · <HelpLink onClick={() => onHelp("denied")} /></> : null}
           </>
         ),
       };
@@ -383,7 +383,7 @@ export function GameMap({
         // Tự bấm mà bị chặn thì mở luôn hướng dẫn — không bắt bấm thêm một nhịp nữa. Vẫn thử đo
         // trước rồi mới mở (thay vì thấy "đã chặn" là chặn luôn): người vừa mở quyền trong Cài đặt
         // xong quay lại thì lần đo này chạy được, không ai phải đọc hướng dẫn thừa.
-        if (denied && userAskedRef.current) onLocationHelpRef.current?.();
+        if (denied && userAskedRef.current) onLocationHelpRef.current?.("denied");
         userAskedRef.current = false;
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }

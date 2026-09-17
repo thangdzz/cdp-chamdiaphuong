@@ -78,7 +78,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   const [justUnlockedId, setJustUnlockedId] = useState(null);
   const [troll, setTroll] = useState(null); // { session, attempt }
   const [liveBanner, setLiveBanner] = useState(false);
-  const [locationHelp, setLocationHelp] = useState(false);
+  const [locationHelp, setLocationHelp] = useState(null); // null = đóng · "denied" = bị chặn · "ask" = tự mở xem
   const [nameSheet, setNameSheet] = useState(0); // 0 = đóng; số tăng = mở phiên mới (reset ô nhập)
   const playerName = usePlayerName();
   const snapshotRef = useRef(initialSnapshot);
@@ -438,7 +438,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             statusNote={preGame ? event.copy.preGameMap : null}
             // Màn báo đèn tự đo vị trí riêng — bản đồ nhường cảm biến trong lúc đó.
             pauseLocate={Boolean(report)}
-            onLocationHelp={() => setLocationHelp(true)}
+            onLocationHelp={(reason) => setLocationHelp(reason ?? "ask")}
             // svh (không phải dvh): chiều cao KHÔNG đổi khi thanh địa chỉ Safari co/giãn lúc cuộn,
             // nên cuộn trang không kéo theo resize bản đồ (nguyên nhân nháy canvas).
             className="h-[58svh] min-h-80 rounded-2xl shadow-sm lg:h-[calc(100svh-7rem)]"
@@ -521,11 +521,15 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           onSubmitted={handleSubmitted}
           preGame={preGame}
           onPreGameAttempt={showTroll}
-          onLocationHelp={() => setLocationHelp(true)}
+          onLocationHelp={(reason) => setLocationHelp(reason ?? "ask")}
         />
       )}
 
-      <LocationHelpSheet open={locationHelp} onClose={() => setLocationHelp(false)} />
+      <LocationHelpSheet
+        open={Boolean(locationHelp)}
+        blocked={locationHelp === "denied"}
+        onClose={() => setLocationHelp(null)}
+      />
 
       {nameSheet > 0 && (
         <PlayerNameSheet

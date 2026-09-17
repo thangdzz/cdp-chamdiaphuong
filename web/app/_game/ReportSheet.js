@@ -180,7 +180,7 @@ export function ReportSheet({
   const helpLink = onLocationHelp ? (
     <button
       type="button"
-      onClick={onLocationHelp}
+      onClick={() => onLocationHelp(gps === "denied" ? "denied" : null)}
       className="cursor-pointer font-medium text-[#c8553d] underline underline-offset-2"
     >
       Cách bật vị trí
