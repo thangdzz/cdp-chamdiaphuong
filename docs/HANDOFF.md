@@ -8,8 +8,8 @@
 
 ## 1. Task hiện tại
 
-**2026-09-17 — UX BẢN ĐỒ + NÚT VỊ TRÍ + HỒ SƠ NGƯỜI CHƠI, ĐÃ DEPLOY** (`web-2n1gfngrf` là bản mới
-nhất, trước đó `web-60u9h7jcj`, `web-2780ec4vo`, `web-q8hmsexiu`, `web-30cq14r6g`, `web-edou16hkn`, `web-9p77ilsve`, `web-9p24dpvva`, `web-hjbxaycyl`, `web-5pdq9ky68`, `web-2dc7ytio3`; alias `chamdiaphuong.io.vn`). Ba việc trong một lần deploy:
+**2026-09-17 — UX BẢN ĐỒ + NÚT VỊ TRÍ + HỒ SƠ NGƯỜI CHƠI, ĐÃ DEPLOY** (`web-r5eienc8o` là bản mới
+nhất, trước đó `web-2n1gfngrf`, `web-60u9h7jcj`, `web-2780ec4vo`, `web-q8hmsexiu`, `web-30cq14r6g`, `web-edou16hkn`, `web-9p77ilsve`, `web-9p24dpvva`, `web-hjbxaycyl`, `web-5pdq9ky68`, `web-2dc7ytio3`; alias `chamdiaphuong.io.vn`). Ba việc trong một lần deploy:
 
 1. **Hồ sơ người chơi mỗi người một ô riêng** (`lib/contributors.js`). Trước đó mọi thao tác ghi đè
    CẢ mảng: 40 người đăng ký cùng lúc chỉ còn 1, và xoá luôn hồ sơ cũ. Đây là thứ sẽ vỡ đầu tiên tối
