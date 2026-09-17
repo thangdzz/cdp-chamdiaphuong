@@ -229,7 +229,7 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       tốn 28 lệnh, một đêm 2.000 người ≈ 250.000 lệnh → gói miễn phí (500K/tháng) hết sau ~2 đêm,
       Redis bị bóp là game đứng. Cả mùa ước 3–6 USD. Việc duy nhất không ai làm thay được
 - [ ] 🟠 **Thử luồng báo đèn trên iPhone thật** (bản đồ, nút vị trí, gửi lượt báo) — code đã deploy.
-      Bản chơi thử: `https://web-iqcnn2j7y-thangdz1.vercel.app/san-den-thanh-tuyen-2026` (phải đăng
+      Bản chơi thử: `https://web-b2g1s4t7g-thangdz1.vercel.app/san-den-thanh-tuyen-2026` (phải đăng
       nhập Vercel một lần). Game đã MỞ trong namespace `cdp-thu-choi`, dữ liệu thật không đụng tới
 - [ ] 🧹 **Dọn sau khi thử xong**: xoá khoá `cdp-thu-choi:*` trong Redis và xoá 3 biến
       `CDP_*_NAMESPACE` ở môi trường Preview của Vercel (`vercel env rm <tên> preview`)

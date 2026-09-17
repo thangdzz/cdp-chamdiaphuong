@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-2780ec4vo`).
+**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-60u9h7jcj`).
 
 Chủ dự án thử hai máy: Samsung A56 + Chrome ngon, iPhone 15 báo "Chưa có quyền vị trí" (Safari chặn
 ở cấp trang, không phải lỗi code). Từ câu hỏi đó sửa thêm: **đã cho phép từ trước thì chấm xanh hiện
