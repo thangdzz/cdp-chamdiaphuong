@@ -401,7 +401,15 @@ export function ReportSheet({
                   setStep(STEP.PHOTO);
                 }}
               >
-                {canSubmit ? "Dùng vị trí này" : "Chờ đo vị trí…"}
+                {/* Máy không đo được thì nút này KHÔNG được nói "chờ đo" — chẳng còn gì để chờ,
+                    người chơi phải tự kéo bản đồ. Nói sai chỗ này là họ ngồi đợi mãi rồi bỏ cuộc
+                    (chủ dự án gặp đúng cảnh đó 17/9). Vẫn khoá nút cho tới khi họ kéo thật: tâm bản
+                    đồ lúc mới mở là giữa thành phố, gửi đi là ghi sai chỗ. */}
+                {canSubmit
+                  ? "Dùng vị trí này"
+                  : manualAllowed
+                    ? "Kéo bản đồ tới chỗ bạn thấy"
+                    : "Chờ đo vị trí…"}
               </button>
             )}
           </div>
@@ -550,12 +558,24 @@ function LocateStatus({ gps, fix, manualAllowed, helpLink }) {
   if (gps === "denied") {
     return (
       <>
-        Trình duyệt đang chặn vị trí. Kéo bản đồ để đặt ghim vào chỗ bạn thấy — gần đúng là được.
-        {helpLink ? <> · {helpLink}</> : null}
+        <strong>Kéo bản đồ</strong> để đặt ghim vào chỗ bạn thấy — gần đúng là được. (Máy đang chặn
+        vị trí nên không tự đo được.){helpLink ? <> {helpLink}</> : null}
       </>
     );
   }
-  if (gps === "timeout") return "Đo lâu quá chưa xong. Đo lại, hoặc kéo bản đồ đặt ghim.";
-  if (manualAllowed) return "Máy chưa định vị được. Kéo bản đồ để đặt ghim vào chỗ bạn thấy.";
+  if (gps === "timeout") {
+    return (
+      <>
+        Đo lâu quá chưa xong. Bấm “Định vị lại”, hoặc <strong>kéo bản đồ</strong> để đặt ghim.
+      </>
+    );
+  }
+  if (manualAllowed) {
+    return (
+      <>
+        Máy chưa định vị được. <strong>Kéo bản đồ</strong> để đặt ghim vào chỗ bạn thấy.
+      </>
+    );
+  }
   return "Chuẩn bị đo vị trí…";
 }

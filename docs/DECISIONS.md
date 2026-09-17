@@ -3,6 +3,34 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 5) — Không được bảo người ta "chờ đo" khi chẳng còn gì để chờ
+
+Chủ dự án thử trên bản chơi thử: "màn hình game thử cứ chờ đo". Đây là **lỗi thật**, và là lỗi sẽ
+đánh vào người thật tối 18/9.
+
+Máy không đo được vị trí thì luồng báo mở bản đồ ghim tay — đúng. Nhưng nút gửi vẫn ghi **"Chờ đo vị
+trí…"** và khoá, trong khi thật ra **không còn gì để chờ**: nó đang đợi người chơi tự kéo bản đồ. Ai
+đọc câu đó cũng ngồi đợi rồi bỏ cuộc.
+
+Sửa: máy không đo được thì nút ghi **"Kéo bản đồ tới chỗ bạn thấy"**. Dòng trạng thái cũng đảo lại,
+đưa mệnh lệnh lên trước, lý do ra sau: "**Kéo bản đồ** để đặt ghim vào chỗ bạn thấy — gần đúng là
+được. (Máy đang chặn vị trí nên không tự đo được.)"
+
+**Vẫn khoá nút cho tới khi họ kéo thật.** Tâm bản đồ lúc mới mở là giữa thành phố; mở khoá sẵn là
+đúng cái "điểm mặc định" đã bỏ đi hôm 16/9, gửi đi thành ghi sai chỗ.
+
+Test mới: bị chặn vị trí → chọn mô hình → nút bảo kéo bản đồ → kéo → nút mở khoá → gửi được lượt báo
+thật. Đây là đường mà ai bấm "Không cho phép" tối 18/9 sẽ đi, giờ có test canh.
+
+Tổng: **43/43** bản đồ, **22/22** luồng báo.
+
+**Về máy iPhone 15 của chủ dự án:** iPhone 14 Plus, Samsung A56, Pixel 8a đều chạy ngon trên web
+thật. Riêng máy đó hỏng ở **cả Safari lẫn Brave** — hai ứng dụng, hai kho quyền riêng biệt. Nên
+không còn là chuyện lệnh cấm của một trang nữa mà là **thiết lập ở tầng máy**: Dịch vụ định vị tắt,
+hoặc bị khoá bởi Thời gian sử dụng (Screen Time → Giới hạn nội dung & quyền riêng tư). Không phải lỗi
+web — nhưng 5 lần đoán sai liên tiếp ở đây đáng ghi lại: **có máy khác chạy được thì đừng sửa code
+nữa, đi soi thiết lập máy.**
+
 ## 2026-09-17 (chốt 4) — "Cho phép tất cả trang web" KHÔNG xoá lệnh cấm riêng từng trang
 
 Chủ dự án đã vào Cài đặt → Safari → Vị trí → **Cho phép**, mà bấm nút vị trí vẫn ra hướng dẫn. Lần
