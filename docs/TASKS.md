@@ -228,7 +228,11 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
 - [ ] 🔴 **Chủ dự án bật Pay-as-you-go cho Upstash + đặt hạn mức $25.** Đo được: mỗi lượt báo đèn
       tốn 28 lệnh, một đêm 2.000 người ≈ 250.000 lệnh → gói miễn phí (500K/tháng) hết sau ~2 đêm,
       Redis bị bóp là game đứng. Cả mùa ước 3–6 USD. Việc duy nhất không ai làm thay được
-- [ ] 🟠 **Thử luồng báo đèn trên iPhone thật** (bản đồ, nút vị trí, gửi lượt báo) — code đã deploy
+- [ ] 🟠 **Thử luồng báo đèn trên iPhone thật** (bản đồ, nút vị trí, gửi lượt báo) — code đã deploy.
+      Bản chơi thử: `https://web-bm6a9kfpq-thangdz1.vercel.app/san-den-thanh-tuyen-2026` (phải đăng
+      nhập Vercel một lần). Game đã MỞ trong namespace `cdp-thu-choi`, dữ liệu thật không đụng tới
+- [ ] 🧹 **Dọn sau khi thử xong**: xoá khoá `cdp-thu-choi:*` trong Redis và xoá 3 biến
+      `CDP_*_NAMESPACE` ở môi trường Preview của Vercel (`vercel env rm <tên> preview`)
 - [ ] **Routine quét nâng 2–3 lần/ngày trong tuần lễ hội**, xong lại về 1
 - [ ] Gọi điện xác minh 10–15 chỗ quan trọng nhất (không cần code)
 - [ ] 🟠 **Đêm 18/9 mở thử bản đồ trên máy khác mạng.** Nền bản đồ OpenFreeMap là dịch vụ miễn phí
