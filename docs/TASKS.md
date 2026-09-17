@@ -225,8 +225,17 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
 ## 📋 TODO
 
 ### Gấp — trước lễ hội 19–25/9
+- [ ] 🔴 **Chủ dự án bật Pay-as-you-go cho Upstash + đặt hạn mức $25.** Đo được: mỗi lượt báo đèn
+      tốn 28 lệnh, một đêm 2.000 người ≈ 250.000 lệnh → gói miễn phí (500K/tháng) hết sau ~2 đêm,
+      Redis bị bóp là game đứng. Cả mùa ước 3–6 USD. Việc duy nhất không ai làm thay được
+- [ ] 🟠 **Thử luồng báo đèn trên iPhone thật** (bản đồ, nút vị trí, gửi lượt báo) — code đã deploy
 - [ ] **Routine quét nâng 2–3 lần/ngày trong tuần lễ hội**, xong lại về 1
 - [ ] Gọi điện xác minh 10–15 chỗ quan trọng nhất (không cần code)
+- [ ] 🟠 **Đêm 18/9 mở thử bản đồ trên máy khác mạng.** Nền bản đồ OpenFreeMap là dịch vụ miễn phí
+      bên thứ ba, KHÔNG thử tải được (không thể bắn tải vào họ) — 2.000 người cùng kéo bản đồ là
+      rủi ro chưa có số liệu. Ô bản đồ trắng thì báo để bật nền dự phòng
+- [ ] 🟡 **Thử 50–100 người cùng tải ảnh** — luồng ảnh chưa bắn tải bao giờ. Có sẵn giới hạn 8 MB
+      mỗi ảnh và nén ở điện thoại, nhưng chưa biết ngưỡng thật
 
 ### Chặn bởi thiếu dữ liệu
 - [ ] **Toạ độ địa điểm** — 0/210 chỗ có. Chặn: bản đồ lộ trình · khoảng cách/thời gian từng
@@ -250,6 +259,14 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       Bình Thuận → Đại lộ Tân Trào → Phan Thiết → Quang Trung → về Ngã 8, 3.339 m, toạ độ từ OSM,
       đi đúng chiều một chiều và ngược kim đồng hồ qua 2 bùng binh
 - [ ] Chủ dự án xem lại tuyến trên máy thật, có chỗ nào đoàn đi khác thì sửa toạ độ trong file mùa
+- [x] **Tách thông báo dữ liệu game / thông báo GPS + sửa nút vị trí** — xong 2026-09-17, đã deploy
+      (`web-2dc7ytio3`). Hai dòng mỏng ở mép trên, hướng dẫn dài vào sheet riêng; nút vị trí thành
+      máy trạng thái do React giữ, `watchPosition` + `maximumAge: 0`. 22/22 test trình duyệt đạt
+- [ ] **Vòng tròn sai số quanh chấm xanh** — chưa làm: cần thêm nguồn/lớp GeoJSON, mà `setStyle`
+      (lúc rơi về nền dự phòng) xoá sạch source. Hiện chỉ báo bằng một câu khi sai số > 50 m
+- [ ] **Bản đồ treo ở "Đang tải bản đồ…" nếu style không về** — `loadGameMapStyle()` không có hạn
+      giờ: nhà cung cấp chậm/treo là chờ mãi, không rơi sang nền dự phòng. Sóng 4G đêm hội đông là
+      đúng cảnh đó. Nên thêm hạn giờ ~6 giây rồi chuyển nền dự phòng
 
 ### Chống gian lận game — giai đoạn 2 (sau lễ hội, chỉ làm khi có giải thưởng thật)
 > Giai đoạn 1 (quan sát + gắn cờ) đã xong 2026-09-16. Xem DECISIONS cùng ngày để biết hạn chế.
@@ -272,7 +289,11 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
 
 ### Nợ kỹ thuật & việc nhỏ
 - [ ] Sửa lỗi lint cũ ở `web/app/PlaceExplorer.js` (`react-hooks/set-state-in-effect`)
-- [ ] Đưa test Playwright vào repo (hiện là script rời, chạy tay, không commit)
+- [ ] Đưa test Playwright vào repo (hiện là script rời, chạy tay, không commit) — đã có sẵn 22 test
+      định vị/bố cục bản đồ viết 17/9, đáng giữ lại
+- [ ] **MapLibre không khởi tạo xong ở `next dev`** (StrictMode chạy effect hai lần) — bản đồ đứng ở
+      "Đang tải bản đồ…". Chỉ ở dev, bản build bình thường; nhưng làm mọi test giao diện bản đồ phải
+      chạy trên `next build` + `next start`. Đáng sửa cho đỡ vướng về sau
 - [ ] **Gộp bộ đệm đọc**: `lib/game/store.js` giữ bản sao riêng của `createSharedRead`
       (`lib/sharedRead.js`). Cố ý chưa gộp để không đụng luồng game sát 18/9 — làm sau lễ hội
 - [ ] Soát các lượt đọc Redis mỗi-lượt-mở-trang còn lại (`lib/aboutPage.js` trên `/gioi-thieu`)
