@@ -611,7 +611,10 @@ export function GameMap({
           // Bản đồ chính: căn khung vừa mọi điểm tổ chức (điện thoại hẹp, zoom cố định bị cắt mất).
           const bounds = !isPicker && venueBounds(initialVenues ?? []);
           if (bounds && containerRef.current?.clientWidth > 0) {
-            map.fitBounds(bounds, { padding: { top: 56, bottom: 36, left: 36, right: 60 }, maxZoom: 16, duration: 0 });
+            // Đệm đáy rộng hơn hẳn: nút "Bạn vừa thấy mô hình nào?" nổi đè lên đáy bản đồ, mà từ
+            // 17/9 tuyến rước kéo dài thêm xuống phía nam (nhánh xuyến Lý Thái Tổ) nên đuôi tuyến
+            // hay chui vào sau nút đó.
+            map.fitBounds(bounds, { padding: { top: 56, bottom: 92, left: 36, right: 60 }, maxZoom: 16, duration: 0 });
           }
           setReady(true);
           // Điện thoại: dòng ghi công OSM mở sẵn che mất góc bản đồ — thu về nút "i" (vẫn bấm

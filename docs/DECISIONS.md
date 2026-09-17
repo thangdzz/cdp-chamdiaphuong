@@ -3,6 +3,38 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 10) — Tuyến rước đèn dựng lại: 4.455 m, có hai đoạn đi rồi quay lại
+
+Chủ dự án tả lại tuyến ngày 17/9, thay tuyến tả 16/9. Khác biệt lớn nhất: thêm **nhánh xuống xuyến
+Lý Thái Tổ rồi vòng lại**, và **quay đầu tại ngã tư 17/8 (HĐND tỉnh)** chứ không đi tiếp.
+
+Vòng khép kín 4.455 m (cũ 3.339 m), sáu chặng: Ngã 8 → Bình Thuận → xuyến Lý Thái Tổ (trọn vòng) →
+ngược lên hết Bình Thuận → ngã tư 17/8 (quay đầu) → xuống lại Bình Thuận → xuyến Thành nhà Mạc →
+Tân Trào → 17/8 → Phan Thiết → Quang Trung → Ngã 8.
+
+Dựng bằng **đồ thị CÓ HƯỚNG** từ OSM (tải ngày 17/9), Dijkstra từng chặng có giới hạn tên đường, rồi
+rút gọn Douglas–Peucker 0,4 m: 157 nút → 89 điểm. Bình Thuận và Tân Trào đều là đường đôi một chiều
+nên hai lượt đi/về tự rơi vào hai làn khác nhau, nét vẽ không chồng lên nhau.
+
+**Suýt vấp lại đúng cái bẫy 16/9:** lần dựng đầu em viết NGƯỢC công thức xác định chiều bùng binh
+(diện tích có dấu), đoàn chạy cùng chiều kim đồng hồ. Cách kiểm đã dùng, ghi lại để lần sau khỏi
+đoán: **dấu ÂM = ngược kim đồng hồ**; đối chiếu 4 way mang tag `junction=roundabout` quanh khu vực
+(OSM luôn vẽ chúng theo chiều xe chạy) — cả 4 đều âm, riêng xuyến Ngã 8 (way 1431622682, KHÔNG có
+tag đó) dương tức bị vẽ ngược.
+
+**Tự kiểm bằng máy trước khi trình, không nhìn mắt:** 73/73 đoạn trên 4 bùng binh đúng chiều ·
+156/156 bước hợp lệ theo chiều đường một chiều · đủ 3 mốc bắt buộc · vòng khép kín. Kèm ảnh bản đồ
+render thật (tổng thể + 3 chỗ dễ sai) cho chủ dự án duyệt trước khi ghi vào code — cách này bắt được
+lỗi chiều bùng binh mà đọc code không thấy.
+
+Chủ dự án duyệt tuyến, chỉ bắt lỗi **cái pin số 1 trong ảnh** nằm sai phía — đó là lỗi ảnh (em dùng
+toạ độ của lần dựng đầu), tuyến thật vốn đã xuất phát đúng phía Quang Trung.
+
+Kèm một sửa nhỏ: `fitBounds` nới đệm đáy 36 → 92 px. Tuyến giờ kéo dài thêm xuống phía nam nên đuôi
+tuyến chui vào sau nút "Bạn vừa thấy mô hình nào?" nổi ở đáy màn hình.
+
+Ảnh duyệt để ở `data/tuyen-ruoc-den-2026/` (không commit — nặng 3 MB).
+
 ## 2026-09-17 (chốt 9) — Tên tạm cho mô hình chưa biết tên
 
 Người chơi gặp mô hình lạ, gõ tên mà tìm không ra thì trước đây chỉ còn đường "Không biết tên" —
