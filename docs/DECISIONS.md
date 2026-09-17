@@ -24,11 +24,19 @@ xong. Hỏi kiểu này **không bật hộp thoại xin quyền**, nên:
 
 Trình duyệt không có Permissions API thì bỏ qua, nút vẫn bấm được như cũ.
 
-**Thêm một bước vào hướng dẫn iPhone** vì nó là chỗ thật sự làm người ta tắc: Safari **chỉ thêm dòng
-"Vị trí" vào menu "Cài đặt trang web" SAU KHI trang đã hỏi xin vị trí ít nhất một lần**. Chưa bấm nút
-📍 mà mở aA thì không thấy gì để chỉnh, và người dùng tưởng máy hỏng. Hướng dẫn giờ bắt đầu bằng
-"bấm nút 📍 một lần", và phần ghi chú nói cả đường Cài đặt máy → Dịch vụ định vị (bật cả *Vị trí
-chính xác*, nếu tắt thì có quyền nhưng sai số hàng trăm mét).
+**Hướng dẫn iPhone viết lại theo đường Cài đặt máy, không theo menu trong Safari.** Bản đầu bảo "bấm
+chữ aA ở đầu thanh địa chỉ" — chủ dự án thử trên iPhone 15 và **không có chữ aA**: iOS đời mới đổi nút
+đó thành biểu tượng mấy gạch ngang cạnh địa chỉ, và thanh địa chỉ có máy ở trên có máy ở dưới. Tả
+theo hình nút là sai với ai đó, đời iOS nào cũng có thể đổi tiếp.
+
+Đường chính giờ là **Cài đặt → Safari → Cài đặt cho trang web → Vị trí → Hỏi/Cho phép**: mọi đời iOS
+đều giống nhau, và nó xoá luôn cái "đã từ chối" mà Safari nhớ riêng cho từng trang. Menu trong Safari
+hạ xuống thành ghi chú phụ (có tả cả biểu tượng lẫn chữ aA cho máy cũ). Kèm một ô riêng cho trường
+hợp vẫn không lên chấm xanh: Dịch vụ định vị → Safari → *Khi dùng ứng dụng* + bật **Vị trí chính xác**
+(tắt thì vẫn có quyền nhưng sai số hàng trăm mét).
+
+Vẫn giữ lưu ý: Safari **chỉ thêm dòng "Vị trí" vào menu Cài đặt trang web SAU KHI trang đã hỏi xin vị
+trí ít nhất một lần** — chưa bấm nút 📍 thì mở menu ra không thấy gì để chỉnh.
 
 Test trình duyệt: **30/30 đạt** (thêm 8 test mới cho tự bật, tắt tay rồi không tự bật lại, và "chưa
 có quyền thì không được tự hỏi").

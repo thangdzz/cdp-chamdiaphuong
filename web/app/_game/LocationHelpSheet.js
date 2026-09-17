@@ -14,17 +14,27 @@ import { BottomSheet } from "./BottomSheet";
 
 const STEPS = [
   {
-    title: "iPhone · Safari",
-    // Bước 1 nghe thừa nhưng KHÔNG thừa: Safari chỉ thêm dòng "Vị trí" vào menu Cài đặt trang web
-    // sau khi trang đã hỏi xin vị trí ít nhất một lần. Chưa bấm nút thì mở aA sẽ không thấy gì để
-    // chỉnh, và người dùng tưởng máy hỏng.
+    title: "iPhone · Safari — cách chắc ăn nhất",
+    // Đi đường Cài đặt máy chứ KHÔNG đi đường menu trong Safari: nút mở menu đó đổi hình theo đời
+    // iOS (xưa là chữ "aA", nay là biểu tượng mấy gạch ngang cạnh địa chỉ, và thanh địa chỉ có máy
+    // ở trên có máy ở dưới) — tả kiểu gì cũng có người không tìm thấy. Đường Cài đặt thì mọi đời
+    // iOS đều giống nhau, và nó xoá luôn cái "đã từ chối" mà Safari nhớ cho riêng trang này.
     lines: [
-      "Bấm nút 📍 trên bản đồ một lần (để Safari biết trang này cần vị trí)",
-      "Bấm chữ aA ở đầu thanh địa chỉ",
-      "Chọn Cài đặt trang web → Vị trí → Cho phép",
-      "Tải lại trang (Safari chỉ nhận quyền mới sau khi tải lại)",
+      "Mở Cài đặt (Settings) trên iPhone → kéo tìm Safari",
+      "Kéo xuống mục Cài đặt cho trang web → bấm Vị trí",
+      "Chọn Hỏi (Ask) hoặc Cho phép (Allow)",
+      "Quay lại Safari và tải lại trang",
     ],
-    note: "Không thấy dòng Vị trí, hoặc đã cho phép mà vẫn không được? Vào Cài đặt máy → Quyền riêng tư & Bảo mật → Dịch vụ định vị: bật mục này, kéo xuống chọn Safari → Khi dùng ứng dụng, và bật cả Vị trí chính xác.",
+    note: "Đang mở Safari thì nhanh hơn: bấm biểu tượng ≡ ngay bên trái địa chỉ web (thanh địa chỉ có thể ở trên hoặc dưới màn hình — máy iOS đời cũ hiện chữ aA) → Cài đặt trang web → Vị trí → Cho phép. Dòng Vị trí chỉ hiện ra sau khi bạn đã bấm nút 📍 trên bản đồ ít nhất một lần.",
+  },
+  {
+    title: "iPhone · vẫn không lên chấm xanh",
+    lines: [
+      "Cài đặt → Quyền riêng tư & Bảo mật → Dịch vụ định vị: bật mục này",
+      "Kéo xuống chọn Safari → Khi dùng ứng dụng",
+      "Bật thêm Vị trí chính xác",
+    ],
+    note: "Tắt Vị trí chính xác thì vẫn có quyền nhưng sai số hàng trăm mét — lúc báo đèn web sẽ báo vị trí còn lệch.",
   },
   {
     title: "Android · Chrome, Cốc Cốc, Samsung Internet",
