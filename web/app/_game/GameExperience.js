@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GameMap } from "./GameMap";
 import { GameSummary, SoundToggle } from "./GameProgress";
+import { LocationHelpSheet } from "./LocationHelpSheet";
 import { CollectionView, HistoryList, NightHighlights, QuestList, RecentFeed } from "./GameViews";
 import { ObjectSheet } from "./ObjectSheet";
 import { PreGameSheet, bumpPreGameAttempts } from "./PreGameSheet";
@@ -77,6 +78,7 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
   const [justUnlockedId, setJustUnlockedId] = useState(null);
   const [troll, setTroll] = useState(null); // { session, attempt }
   const [liveBanner, setLiveBanner] = useState(false);
+  const [locationHelp, setLocationHelp] = useState(false);
   const [nameSheet, setNameSheet] = useState(0); // 0 = đóng; số tăng = mở phiên mới (reset ô nhập)
   const playerName = usePlayerName();
   const snapshotRef = useRef(initialSnapshot);
@@ -423,11 +425,6 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             tab === "map" ? "block" : "hidden"
           }`}
         >
-          {preGame && (
-            <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[70%] rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-medium text-[#8a5a10] shadow-sm">
-              🌙 {event.copy.preGameMap}
-            </p>
-          )}
           <GameMap
             center={event.map.center}
             zoom={event.map.zoom}
@@ -436,6 +433,10 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
             focus={mapFocus}
             venues={event.venues}
             showLocate
+            // Trạng thái DỮ LIỆU game, tách khỏi trạng thái GPS — GameMap xếp hai dòng chồng nhau
+            // ở mép trên, không dòng nào đè lên marker hay nhãn tuyến.
+            statusNote={preGame ? event.copy.preGameMap : null}
+            onLocationHelp={() => setLocationHelp(true)}
             // svh (không phải dvh): chiều cao KHÔNG đổi khi thanh địa chỉ Safari co/giãn lúc cuộn,
             // nên cuộn trang không kéo theo resize bản đồ (nguyên nhân nháy canvas).
             className="h-[58svh] min-h-80 rounded-2xl shadow-sm lg:h-[calc(100svh-7rem)]"
@@ -520,6 +521,8 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
           onPreGameAttempt={showTroll}
         />
       )}
+
+      <LocationHelpSheet open={locationHelp} onClose={() => setLocationHelp(false)} />
 
       {nameSheet > 0 && (
         <PlayerNameSheet

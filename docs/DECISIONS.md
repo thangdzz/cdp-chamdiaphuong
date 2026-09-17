@@ -3,6 +3,49 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 — Bản đồ: tách trạng thái GPS khỏi trạng thái game, nút vị trí thành máy trạng thái
+
+Test thật trên iPhone lòi ra hai chuyện khác nhau bị gộp làm một.
+
+**1. Hộp thông báo đè lên bản đồ.** Thông báo "chưa có đèn rước" (trạng thái DỮ LIỆU) và hướng dẫn
+"bấm aA → Cài đặt trang web → Vị trí" (trạng thái MÁY) chồng lên nhau thành một hộp cao bốn dòng
+nằm giữa bản đồ, che mất nhãn tuyến rước và marker. Gộp như vậy còn làm người chơi tưởng **chưa tới
+giờ nên mới không có vị trí** — hai thứ không liên quan gì nhau.
+
+- Giờ là **hai dòng riêng, mỗi dòng tối đa hai dòng chữ**, xếp dọc ở mép trên bản đồ, đóng được,
+  chừa sẵn lề phải cho nút zoom/vị trí.
+- Hướng dẫn dài chuyển vào **sheet riêng sau nút "Cách bật vị trí"** (`app/_game/LocationHelpSheet.js`).
+  Sheet phải do trang cha dựng, KHÔNG dựng trong `GameMap`: khung bản đồ có `transform: translateZ(0)`
+  (chống nháy canvas Safari) nên mọi thứ `position: fixed` bên trong đều bị nhốt lại trong khung.
+
+**2. Nút vị trí lúc bật lúc không — nguyên nhân gốc: nút tự giữ trạng thái riêng.** `createLocateControl`
+giữ `dot`/`busy` trong closure của MapLibre, sinh ba lỗi người chơi nhìn thấy:
+
+- bấm **trong lúc đang đo** thì không có gì xảy ra (`busy` chặn, không có đường thoát) — nút như chết;
+- **tắt rồi mà lần đo cũ trả về sau vẫn dựng lại chấm xanh** — không có gì huỷ lần đo đang bay;
+- dùng `getCurrentPosition` + `maximumAge: 30000`: chấm xanh **đứng nguyên ở lần đo đầu tiên mãi mãi**,
+  nhìn như đang bật nhưng thật ra không còn lấy vị trí; tắt rồi bật lại trong 30 giây thì **nhận lại
+  đúng toạ độ cũ**.
+
+Sửa: React giữ máy trạng thái `idle → requesting → active → off`, cộng `denied`/`unavailable`/`insecure`;
+control chỉ còn là cái nút cộng một hàm đổi hình. Dùng `watchPosition` (chấm xanh đi theo người chơi)
+với `maximumAge: 0` (mỗi lần bật lại là một phép đo mới). Mỗi lần bật/tắt tăng một số đếm — kết quả
+của lần đo cũ về sau thấy số không khớp thì tự bỏ đi, đây chính là chỗ làm chấm xanh sống lại.
+Tắt là `clearWatch` + gỡ chấm, không còn gì chạy nền.
+
+Sai số lớn hơn `ACCURACY_WARN_M` (50 m) thì nói một câu ngắn ngay trên dải trạng thái, không vẽ vòng
+tròn sai số — vòng tròn cần thêm nguồn/lớp GeoJSON, mà `setStyle` (khi phải rơi về nền dự phòng) xoá
+sạch source; chưa đáng làm sát đêm hội.
+
+Test bằng trình duyệt thật (Playwright, khung iPhone 13, bản build production): **22/22 đạt** — chặn
+quyền, bật/tắt/bật lại, đo lại ra toạ độ mới, đua "tắt trong lúc đang đo", và bố cục (dải không đè
+nút zoom, không đè nhãn tuyến, nằm trong 1/4 trên của khung).
+
+**Ghi lại một cái bẫy khi test:** ở chế độ `next dev`, StrictMode chạy effect hai lần nên MapLibre
+không khởi tạo trong trình duyệt tự động — bản đồ đứng ở "Đang tải bản đồ…". Bản `next build` +
+`next start` thì bình thường. Lỗi có từ trước, chỉ ở dev, **test giao diện bản đồ phải chạy trên bản
+build**.
+
 ## 2026-09-17 — Audit tải trước đêm 18/9: hồ sơ người chơi là chỗ vỡ đầu tiên
 
 Chạy audit + thử tải toàn web với giả định 1.000–2.000 người cùng vào. Kết quả quan trọng nhất

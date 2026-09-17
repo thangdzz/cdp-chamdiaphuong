@@ -1,10 +1,11 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FALLBACK_MAP_STYLE, loadGameMapStyle } from "@/lib/game/mapStyle";
 import { venueBounds, venueFeatureCollection, venueLabelPoint } from "@/lib/game/venues";
 import { badgeHtml } from "@/lib/game/badge";
+import { ACCURACY_WARN_M } from "@/lib/game/riskLimits";
 
 // Primitive "Map Layer" phía giao diện: một bản đồ MapLibre + OSM nhận danh sách marker chung
 // chung ({id, lat, lng, icon, ...}). Không biết gì về đèn Trung thu — mùa khác, lớp khác
@@ -21,78 +22,49 @@ const MARKER_TONE = {
 
 const VENUE_SOURCE = "cdp-venues";
 
-// Safari nhớ lần từ chối tới khi TẢI LẠI TRANG (cho phép lại trong cài đặt cũng chưa ăn ngay) —
-// nên thông báo bị chặn có nút tải lại.
-const LOCATE_NOTICE = {
-  insecure: {
-    text: "Trang này đang mở bằng http nên trình duyệt không cho lấy vị trí. Trên chamdiaphuong.io.vn (https) nút này dùng được.",
-  },
-  denied: {
-    text: "Trình duyệt đang chặn vị trí cho trang này. Trên iPhone: bấm aA ở thanh địa chỉ → Cài đặt trang web → Vị trí → Cho phép, rồi tải lại trang.",
-    reload: true,
-  },
-  unavailable: { text: "Chưa bắt được vị trí. Ra chỗ thoáng hơn rồi bấm lại nút." },
+// Máy trạng thái định vị — MỘT nguồn sự thật duy nhất (chốt 2026-09-17).
+//
+// Trước đây nút vị trí tự giữ trạng thái bên trong control MapLibre, sinh ra ba lỗi người chơi
+// nhìn thấy: (1) bấm trong lúc đang đo thì không có gì xảy ra, nút như chết; (2) tắt rồi mà lần đo
+// cũ về sau vẫn dựng lại chấm xanh; (3) chấm xanh đứng nguyên ở lần đo ĐẦU TIÊN mãi mãi — nhìn như
+// đang bật nhưng thật ra không còn theo dõi vị trí nữa. Giờ React giữ trạng thái, control chỉ còn
+// là cái nút cộng một hàm đổi hình.
+export const LOCATE = {
+  IDLE: "idle", // chưa bấm lần nào
+  REQUESTING: "requesting", // đang đo
+  ACTIVE: "active", // đang theo dõi, có chấm xanh
+  OFF: "off", // người chơi tự tắt
+  DENIED: "denied", // trình duyệt chặn quyền
+  UNAVAILABLE: "unavailable", // có quyền nhưng không bắt được tín hiệu
+  INSECURE: "insecure", // trang mở bằng http
+};
+
+const LOCATE_TITLE = {
+  [LOCATE.REQUESTING]: "Đang lấy vị trí — bấm để huỷ",
+  [LOCATE.ACTIVE]: "Đang hiện vị trí của bạn — bấm để tắt",
+  [LOCATE.DENIED]: "Trình duyệt đang chặn vị trí — bấm để thử lại",
 };
 
 // Nút "vị trí của tôi" tự viết thay GeolocateControl của MapLibre: control gốc KHOÁ VĨNH VIỄN nút
 // (icon gạch chéo) sau một lần trình duyệt từ chối quyền — kể cả khi người dùng cho phép lại, phải
-// tải lại trang mới bấm được. Nút này luôn bấm lại được, bấm lần nữa để tắt chấm vị trí, và nói rõ
-// vì sao chưa lấy được. Dùng lại class CSS của MapLibre để giữ đúng icon.
-function createLocateControl(maplibregl, onNotice) {
-  let map = null;
+// tải lại trang mới bấm được. Nút này luôn bấm lại được. Dùng lại class CSS của MapLibre để giữ
+// đúng icon và hiệu ứng nhấp nháy lúc đang đo.
+function createLocateControl(onToggle) {
   let container = null;
   let button = null;
-  let dot = null;
-  let busy = false;
-
-  const setState = (state) => {
-    button.classList.toggle("maplibregl-ctrl-geolocate-waiting", state === "waiting");
-    button.classList.toggle("maplibregl-ctrl-geolocate-active", state === "on");
-    button.setAttribute("aria-pressed", state === "on" ? "true" : "false");
-  };
-
-  function locate() {
-    if (dot) {
-      dot.remove();
-      dot = null;
-      setState("off");
-      onNotice(null);
-      return;
-    }
-    if (busy) return;
-    if (!window.isSecureContext || !navigator.geolocation) {
-      onNotice(LOCATE_NOTICE.insecure);
-      return;
-    }
-    busy = true;
-    setState("waiting");
-    onNotice(null);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        busy = false;
-        if (!map) return;
-        const lngLat = [position.coords.longitude, position.coords.latitude];
-        const element = document.createElement("div");
-        element.className =
-          "h-4 w-4 rounded-full border-[3px] border-white bg-[#2f7de1] shadow-[0_0_0_6px_rgba(47,125,225,0.22)]";
-        element.setAttribute("aria-label", "Vị trí của bạn");
-        dot = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
-        setState("on");
-        map.easeTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16), duration: 600 });
-      },
-      (error) => {
-        busy = false;
-        if (!map) return;
-        setState("off");
-        onNotice(error.code === 1 ? LOCATE_NOTICE.denied : LOCATE_NOTICE.unavailable);
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
-    );
-  }
 
   return {
-    onAdd(targetMap) {
-      map = targetMap;
+    // React gọi hàm này mỗi lần trạng thái đổi — nút không tự đoán mình đang bật hay tắt.
+    setVisual(state) {
+      if (!button) return;
+      button.classList.toggle("maplibregl-ctrl-geolocate-waiting", state === LOCATE.REQUESTING);
+      button.classList.toggle("maplibregl-ctrl-geolocate-active", state === LOCATE.ACTIVE);
+      button.setAttribute("aria-pressed", state === LOCATE.ACTIVE ? "true" : "false");
+      const title = LOCATE_TITLE[state] ?? "Vị trí của tôi";
+      button.title = title;
+      button.setAttribute("aria-label", title);
+    },
+    onAdd() {
       container = document.createElement("div");
       container.className = "maplibregl-ctrl maplibregl-ctrl-group";
       button = document.createElement("button");
@@ -104,17 +76,85 @@ function createLocateControl(maplibregl, onNotice) {
       icon.className = "maplibregl-ctrl-icon";
       icon.setAttribute("aria-hidden", "true");
       button.append(icon);
-      button.addEventListener("click", locate);
+      button.addEventListener("click", onToggle);
       container.append(button);
-      setState("off");
       return container;
     },
     onRemove() {
-      dot?.remove();
       container?.remove();
-      map = null;
+      container = null;
+      button = null;
     },
   };
+}
+
+// Một dòng trạng thái MỎNG ở mép trên bản đồ: tối đa hai dòng chữ, đóng được, và dải chứa nó đã
+// chừa sẵn lề phải cho nút zoom/vị trí. Thay cho hộp thông báo cũ nằm giữa bản đồ — hộp đó cao
+// bốn dòng và che mất nhãn tuyến rước lẫn marker (ảnh test trên iPhone 17/9).
+function MapNotice({ tone = "info", children, onClose }) {
+  return (
+    <div
+      role="status"
+      className={`pointer-events-auto flex max-w-full items-start gap-1 rounded-xl px-2.5 py-1.5 text-[12px] leading-[17px] shadow-sm ring-1 ${
+        tone === "warn"
+          ? "bg-[#fdf0e6] text-[#8a3b28] ring-[#c8553d]/25"
+          : "bg-white/95 text-zinc-700 ring-black/5"
+      }`}
+    >
+      <span className="line-clamp-2 min-w-0 flex-1">{children}</span>
+      <button
+        type="button"
+        aria-label="Đóng thông báo"
+        onClick={onClose}
+        className="-mr-0.5 flex h-[17px] w-4 shrink-0 cursor-pointer items-center justify-center text-[11px] opacity-50"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
+function HelpLink({ onClick }) {
+  return (
+    <button type="button" onClick={onClick} className="cursor-pointer font-medium underline underline-offset-2">
+      Cách bật vị trí
+    </button>
+  );
+}
+
+// Trạng thái GPS nói bằng MỘT câu, và chỉ nói khi người chơi cần làm gì đó — đang chạy tốt thì im
+// lặng. Hướng dẫn dài ("bấm aA → Cài đặt trang web → Vị trí") nằm trong sheet riêng sau nút
+// "Cách bật vị trí", không nhồi lên bản đồ.
+//
+// Đây là trạng thái CỦA MÁY, tách hẳn khỏi trạng thái DỮ LIỆU GAME ("chưa có đèn rước"): hai thứ
+// không liên quan nhau, gộp chung một hộp làm người chơi tưởng chưa tới giờ nên mới không có vị trí.
+function locateNotice(locate, onHelp) {
+  switch (locate.state) {
+    case LOCATE.REQUESTING:
+      return { tone: "info", body: <>📍 Đang lấy vị trí của bạn…</> };
+    case LOCATE.ACTIVE:
+      return locate.accuracy && locate.accuracy > ACCURACY_WARN_M
+        ? {
+            tone: "warn",
+            body: <>📍 Vị trí còn lệch khoảng {Math.round(locate.accuracy)} m — ra chỗ thoáng hơn.</>,
+          }
+        : null;
+    case LOCATE.DENIED:
+      return {
+        tone: "warn",
+        body: (
+          <>
+            📍 Chưa có quyền vị trí{onHelp ? <> · <HelpLink onClick={onHelp} /></> : null}
+          </>
+        ),
+      };
+    case LOCATE.UNAVAILABLE:
+      return { tone: "warn", body: <>📍 Chưa bắt được vị trí — ra chỗ thoáng rồi bấm lại nút.</> };
+    case LOCATE.INSECURE:
+      return { tone: "warn", body: <>📍 Trang đang mở bằng http nên trình duyệt không cho lấy vị trí.</> };
+    default:
+      return null;
+  }
 }
 
 // Lớp điểm tổ chức (quảng trường, phố đi bộ) nằm DƯỚI nhãn tên đường của nền bản đồ và dưới
@@ -237,6 +277,11 @@ export function GameMap({
   onPick,
   showLocate = false,
   venues = null,
+  // Trạng thái DỮ LIỆU của game (ví dụ "chưa có đèn rước") — một dòng riêng, không dính gì tới GPS.
+  statusNote = null,
+  // Mở sheet hướng dẫn bật quyền vị trí. Sheet phải do trang cha dựng: khung bản đồ có
+  // `transform: translateZ(0)` nên mọi thứ `position: fixed` bên trong đều bị cắt gọn trong khung.
+  onLocationHelp = null,
   className = "",
 }) {
   const containerRef = useRef(null);
@@ -248,14 +293,106 @@ export function GameMap({
   const initialView = useRef({ center, zoom, venues, picker });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [locateNotice, setLocateNotice] = useState(null);
+  const [locate, setLocate] = useState({ state: LOCATE.IDLE, accuracy: null });
+  const [noteHidden, setNoteHidden] = useState(false);
+  const [gpsNoticeHidden, setGpsNoticeHidden] = useState(false);
+  const controlRef = useRef(null);
+  const toggleRef = useRef(null);
+  const watchRef = useRef(null);
+  const dotRef = useRef(null);
+  const stateRef = useRef(LOCATE.IDLE);
+  // Mỗi lần bật/tắt tăng số đếm này. Lần đo cũ trả kết quả về sau khi người chơi đã tắt sẽ thấy số
+  // không khớp và tự bỏ đi — đây chính là chỗ trước kia làm chấm xanh sống lại sau khi tắt.
+  const seqRef = useRef(0);
 
-  // Thông báo vì sao chưa lấy được vị trí tự ẩn sau vài giây (vẫn đóng tay được).
+  // Dừng HẲN: huỷ mọi lần đo đang bay, tắt watch, gỡ chấm xanh. Sau lời gọi này chắc chắn không
+  // còn gì chạy nền (yêu cầu §6).
+  const stopLocating = useCallback((next, accuracy = null) => {
+    seqRef.current += 1;
+    if (watchRef.current !== null) {
+      navigator.geolocation.clearWatch(watchRef.current);
+      watchRef.current = null;
+    }
+    dotRef.current?.remove();
+    dotRef.current = null;
+    stateRef.current = next;
+    setLocate({ state: next, accuracy });
+  }, []);
+
+  const startLocating = useCallback(() => {
+    if (!window.isSecureContext || !navigator.geolocation) {
+      stopLocating(LOCATE.INSECURE);
+      return;
+    }
+    seqRef.current += 1;
+    const seq = seqRef.current;
+    stateRef.current = LOCATE.REQUESTING;
+    setLocate({ state: LOCATE.REQUESTING, accuracy: null });
+    // `watchPosition` chứ không phải `getCurrentPosition`: bật rồi thì chấm xanh phải ĐI THEO người
+    // chơi, không đứng yên ở lần đo đầu. `maximumAge: 0` — mỗi lần bật lại là một lần đo mới, không
+    // nhận lại toạ độ cũ trình duyệt còn giữ.
+    watchRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        if (seq !== seqRef.current) return; // người chơi đã tắt trong lúc chờ
+        const map = mapRef.current;
+        const maplibregl = libRef.current;
+        if (!map || !maplibregl) return;
+        const lngLat = [position.coords.longitude, position.coords.latitude];
+        const accuracy = Number(position.coords.accuracy) || null;
+        if (dotRef.current) {
+          dotRef.current.setLngLat(lngLat);
+        } else {
+          const element = document.createElement("div");
+          element.className =
+            "h-4 w-4 rounded-full border-[3px] border-white bg-[#2f7de1] shadow-[0_0_0_6px_rgba(47,125,225,0.22)]";
+          element.setAttribute("aria-label", "Vị trí của bạn");
+          dotRef.current = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
+          // Chỉ kéo khung về ở lần đo ĐẦU; những lần cập nhật sau chỉ dời chấm, không giật chỗ
+          // người chơi đang xem.
+          map.easeTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16), duration: 600 });
+        }
+        stateRef.current = LOCATE.ACTIVE;
+        // Giữ nguyên object cũ khi không có gì đổi: mỗi nhịp GPS mà render lại là bản đồ nháy.
+        setLocate((prev) =>
+          prev.state === LOCATE.ACTIVE && Math.round(prev.accuracy ?? -1) === Math.round(accuracy ?? -1)
+            ? prev
+            : { state: LOCATE.ACTIVE, accuracy }
+        );
+      },
+      (error) => {
+        if (seq !== seqRef.current) return;
+        stopLocating(error.code === 1 ? LOCATE.DENIED : LOCATE.UNAVAILABLE);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, [stopLocating]);
+
+  // idle/off/denied/unavailable → bấm là đo lại; requesting/active → bấm là tắt. Không có trạng
+  // thái nào mà bấm xong không có gì xảy ra.
+  const toggleLocate = useCallback(() => {
+    setGpsNoticeHidden(false); // vừa chủ động bấm thì được quyền nói lại vì sao chưa có vị trí
+    const state = stateRef.current;
+    if (state === LOCATE.ACTIVE || state === LOCATE.REQUESTING) stopLocating(LOCATE.OFF);
+    else startLocating();
+  }, [startLocating, stopLocating]);
+
   useEffect(() => {
-    if (!locateNotice) return;
-    const timer = window.setTimeout(() => setLocateNotice(null), 9000);
-    return () => window.clearTimeout(timer);
-  }, [locateNotice]);
+    toggleRef.current = toggleLocate;
+  }, [toggleLocate]);
+
+  useEffect(() => {
+    controlRef.current?.setVisual(locate.state);
+  }, [locate.state]);
+
+  // Rời trang giữa chừng: tắt watch, không để GPS chạy nền.
+  useEffect(
+    () => () => {
+      seqRef.current += 1;
+      if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
+      watchRef.current = null;
+    },
+    []
+  );
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
@@ -290,7 +427,11 @@ export function GameMap({
         });
         map.touchZoomRotate.disableRotation();
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-        if (showLocate) map.addControl(createLocateControl(maplibregl, setLocateNotice), "top-right");
+        if (showLocate) {
+          // Nút chỉ báo "người dùng vừa bấm"; toàn bộ quyết định nằm ở toggleLocate phía trên.
+          controlRef.current = createLocateControl(() => toggleRef.current?.());
+          map.addControl(controlRef.current, "top-right");
+        }
 
         // Chỉ báo vị trí khi CHÍNH người dùng kéo/zoom — lần di chuyển do code (GPS vừa về) đã
         // được báo riêng, tránh ghi đè nguồn "gps" thành "map".
@@ -361,6 +502,8 @@ export function GameMap({
       markerMap.clear();
       mapRef.current?.remove();
       mapRef.current = null;
+      controlRef.current = null;
+      dotRef.current = null;
     };
   }, [showLocate]);
 
@@ -423,6 +566,9 @@ export function GameMap({
     });
   }, [focus, ready, picker]);
 
+  const gameNote = Boolean(statusNote) && !noteHidden;
+  const gpsNotice = gpsNoticeHidden ? null : locateNotice(locate, onLocationHelp);
+
   return (
     // Lớp compositing riêng (translateZ + isolate): Safari hay nháy khi canvas WebGL nằm trong
     // khối bo góc + overflow:hidden cuộn dưới header sticky có backdrop-blur.
@@ -440,28 +586,20 @@ export function GameMap({
           </div>
         </div>
       )}
-      {locateNotice && (
-        <div role="status" className="absolute left-2 right-14 top-2 z-20 flex items-start gap-2 rounded-xl bg-white/95 px-3 py-2 text-[13px] leading-5 text-zinc-700 shadow-md">
-          <span className="min-w-0 flex-1">
-            📍 {locateNotice.text}
-            {locateNotice.reload && (
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="ml-1 cursor-pointer font-medium text-[#c8553d] underline underline-offset-2"
-              >
-                Tải lại trang
-              </button>
-            )}
-          </span>
-          <button
-            type="button"
-            aria-label="Đóng thông báo"
-            onClick={() => setLocateNotice(null)}
-            className="-mr-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400"
-          >
-            ✕
-          </button>
+      {/* Dải trạng thái ở MÉP TRÊN bản đồ: tối đa hai dòng độc lập (dữ liệu game / GPS), mỗi dòng
+          cao nhất hai dòng chữ, chừa sẵn lề phải cho nút zoom và nút vị trí. `pointer-events-none` ở
+          khung ngoài để phần trống hai bên vẫn kéo được bản đồ. Đóng rồi thì không hiện lại nữa
+          trong suốt lần xem này — GameMap không bị dựng lại khi đổi tab nên state ở đây là đủ. */}
+      {(gameNote || gpsNotice) && (
+        <div className="pointer-events-none absolute left-2 right-14 top-2 z-20 flex flex-col items-start gap-1.5">
+          {gameNote && (
+            <MapNotice onClose={() => setNoteHidden(true)}>🌙 {statusNote}</MapNotice>
+          )}
+          {gpsNotice && (
+            <MapNotice tone={gpsNotice.tone} onClose={() => setGpsNoticeHidden(true)}>
+              {gpsNotice.body}
+            </MapNotice>
+          )}
         </div>
       )}
       {!ready && !failed && (
