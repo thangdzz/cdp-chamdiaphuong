@@ -335,6 +335,36 @@ export function GameMap({
     setLocate({ state: next, accuracy });
   }, []);
 
+  // Đặt/di chuyển chấm xanh theo một phép đo. Tách riêng vì cả lần đo đầu lẫn các nhịp theo dõi
+  // sau đó đều dùng chung.
+  const applyFix = useCallback((position) => {
+    const map = mapRef.current;
+    const maplibregl = libRef.current;
+    if (!map || !maplibregl) return;
+    const lngLat = [position.coords.longitude, position.coords.latitude];
+    const accuracy = Number(position.coords.accuracy) || null;
+    if (dotRef.current) {
+      dotRef.current.setLngLat(lngLat);
+    } else {
+      const element = document.createElement("div");
+      element.className =
+        "h-4 w-4 rounded-full border-[3px] border-white bg-[#2f7de1] shadow-[0_0_0_6px_rgba(47,125,225,0.22)]";
+      element.setAttribute("aria-label", "Vị trí của bạn");
+      dotRef.current = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
+      // Chỉ kéo khung về ở lần đo ĐẦU; những lần cập nhật sau chỉ dời chấm, không giật chỗ người
+      // chơi đang xem.
+      map.easeTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16), duration: 600 });
+    }
+    stateRef.current = LOCATE.ACTIVE;
+    userAskedRef.current = false;
+    // Giữ nguyên object cũ khi không có gì đổi: mỗi nhịp GPS mà render lại là bản đồ nháy.
+    setLocate((prev) =>
+      prev.state === LOCATE.ACTIVE && Math.round(prev.accuracy ?? -1) === Math.round(accuracy ?? -1)
+        ? prev
+        : { state: LOCATE.ACTIVE, accuracy }
+    );
+  }, []);
+
   const startLocating = useCallback(() => {
     if (!window.isSecureContext || !navigator.geolocation) {
       stopLocating(LOCATE.INSECURE);
@@ -344,51 +374,52 @@ export function GameMap({
     const seq = seqRef.current;
     stateRef.current = LOCATE.REQUESTING;
     setLocate({ state: LOCATE.REQUESTING, accuracy: null });
-    // `watchPosition` chứ không phải `getCurrentPosition`: bật rồi thì chấm xanh phải ĐI THEO người
-    // chơi, không đứng yên ở lần đo đầu. `maximumAge: 0` — mỗi lần bật lại là một lần đo mới, không
-    // nhận lại toạ độ cũ trình duyệt còn giữ.
-    watchRef.current = navigator.geolocation.watchPosition(
+
+    // BƯỚC 1 — một phép đo đơn bằng `getCurrentPosition` (chốt 2026-09-17).
+    //
+    // Trước đây gọi thẳng `watchPosition`. Trên iPhone thật, máy đã để Vị trí = "Cho phép" mà
+    // watchPosition vẫn trả về NGAY mã 1 ("người dùng từ chối") — nên bản đồ tưởng bị chặn và bật
+    // tờ hướng dẫn, trong khi luồng báo đèn dùng getCurrentPosition thì chạy bình thường trên cùng
+    // máy đó. `getCurrentPosition` là đường mọi trang web đều đi và là đường Safari hỏi xin quyền,
+    // nên lần đo ĐẦU luôn đi đường này. `maximumAge: 0`: mỗi lần bật lại là một lần đo mới.
+    navigator.geolocation.getCurrentPosition(
       (position) => {
         if (seq !== seqRef.current) return; // người chơi đã tắt trong lúc chờ
-        const map = mapRef.current;
-        const maplibregl = libRef.current;
-        if (!map || !maplibregl) return;
-        const lngLat = [position.coords.longitude, position.coords.latitude];
-        const accuracy = Number(position.coords.accuracy) || null;
-        if (dotRef.current) {
-          dotRef.current.setLngLat(lngLat);
-        } else {
-          const element = document.createElement("div");
-          element.className =
-            "h-4 w-4 rounded-full border-[3px] border-white bg-[#2f7de1] shadow-[0_0_0_6px_rgba(47,125,225,0.22)]";
-          element.setAttribute("aria-label", "Vị trí của bạn");
-          dotRef.current = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
-          // Chỉ kéo khung về ở lần đo ĐẦU; những lần cập nhật sau chỉ dời chấm, không giật chỗ
-          // người chơi đang xem.
-          map.easeTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16), duration: 600 });
-        }
-        stateRef.current = LOCATE.ACTIVE;
-        userAskedRef.current = false;
-        // Giữ nguyên object cũ khi không có gì đổi: mỗi nhịp GPS mà render lại là bản đồ nháy.
-        setLocate((prev) =>
-          prev.state === LOCATE.ACTIVE && Math.round(prev.accuracy ?? -1) === Math.round(accuracy ?? -1)
-            ? prev
-            : { state: LOCATE.ACTIVE, accuracy }
+        applyFix(position);
+        // BƯỚC 2 — có vị trí rồi mới theo dõi tiếp để chấm xanh đi theo người chơi.
+        watchRef.current = navigator.geolocation.watchPosition(
+          (next) => {
+            if (seq !== seqRef.current) return;
+            applyFix(next);
+          },
+          () => {
+            // Theo dõi hỏng SAU KHI đã có vị trí thì chỉ ngừng đi theo, GIỮ NGUYÊN chấm đang hiện.
+            // Không được vì lỗi ở bước này mà xoá chấm rồi kêu "bị chặn" — vị trí đã đo được thật.
+            if (seq !== seqRef.current) return;
+            if (watchRef.current !== null) {
+              navigator.geolocation.clearWatch(watchRef.current);
+              watchRef.current = null;
+            }
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       },
       (error) => {
         if (seq !== seqRef.current) return;
         const denied = error.code === 1;
-        stopLocating(denied ? LOCATE.DENIED : LOCATE.UNAVAILABLE);
+        const asked = userAskedRef.current;
+        // Bản đồ TỰ bật (vì quyền đã có sẵn) mà hỏng thì lui về im lặng: không kêu ca, không bật
+        // hướng dẫn, để lần người chơi tự bấm còn được thử lại từ đầu.
+        stopLocating(!asked ? LOCATE.IDLE : denied ? LOCATE.DENIED : LOCATE.UNAVAILABLE);
         // Tự bấm mà bị chặn thì mở luôn hướng dẫn — không bắt bấm thêm một nhịp nữa. Vẫn thử đo
-        // trước rồi mới mở (thay vì thấy "đã chặn" là chặn luôn): người vừa mở quyền trong Cài đặt
-        // xong quay lại thì lần đo này chạy được, không ai phải đọc hướng dẫn thừa.
-        if (denied && userAskedRef.current) onLocationHelpRef.current?.("denied");
+        // trước rồi mới mở (thay vì thấy Permissions API báo "đã chặn" là chặn luôn): người vừa mở
+        // quyền trong Cài đặt xong quay lại thì lần đo này chạy được, không ai phải đọc thừa.
+        if (denied && asked) onLocationHelpRef.current?.("denied");
         userAskedRef.current = false;
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
-  }, [stopLocating]);
+  }, [applyFix, stopLocating]);
 
   // idle/off/denied/unavailable → bấm là đo lại; requesting/active → bấm là tắt. Không có trạng
   // thái nào mà bấm xong không có gì xảy ra.

@@ -3,6 +3,40 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 3) — LỖI THẬT: `watchPosition` chết trên iPhone dù đã cho phép
+
+Chủ dự án vào Cài đặt đặt Vị trí = **Cho phép**, bấm nút vị trí trên bản đồ vẫn ra tờ hướng dẫn.
+Đây là lỗi thật của web, không phải máy.
+
+**Nguyên nhân:** bản đồ gọi thẳng `watchPosition`. Trên iPhone đó, `watchPosition` trả về **ngay mã 1
+("người dùng từ chối")** dù quyền đã cấp — trong khi `getCurrentPosition` trên **cùng máy đó** chạy
+bình thường (luồng báo đèn dùng hàm này, chủ dự án xác nhận chạy được). Bản đồ nhận mã 1, kết luận
+"bị chặn", xoá chấm xanh và bật hướng dẫn.
+
+**Sửa: đo hai bước.**
+1. `getCurrentPosition` cho lần đo ĐẦU — đường mọi trang web đều đi, và là đường Safari hỏi xin quyền.
+2. Có vị trí rồi mới `watchPosition` để chấm xanh đi theo người chơi.
+
+Và quan trọng: **theo dõi hỏng SAU KHI đã có vị trí thì chỉ ngừng đi theo, giữ nguyên chấm đang hiện**
+— không được vì lỗi ở bước 2 mà xoá chấm rồi kêu "bị chặn", vì vị trí đã đo được thật. Máy nào
+`watchPosition` chết thì chấm xanh đứng yên ở chỗ đo đầu, vẫn hơn hẳn không có gì.
+
+Thêm: bản đồ TỰ bật (vì quyền có sẵn) mà hỏng thì **lui về im lặng** (`idle`), không kêu ca cũng không
+bật hướng dẫn — để lần người chơi tự bấm còn thử lại từ đầu.
+
+**Tờ hướng dẫn giờ chẩn đoán đúng bệnh:** nếu Permissions API khai `granted` mà vẫn vào được đây thì
+lời nhắn đổi thành "Trang này ĐÃ được cho phép, gần như chắc chắn Dịch vụ định vị của máy đang tắt cho
+Safari — làm theo ô thứ hai" thay vì bảo họ đi sửa quyền cho trang (chỉ sai chỗ). Dòng khai mức quyền
+chuyển lên ĐẦU trang cho dễ đọc.
+
+**Test khoá lỗi này lại** (mục 7 trong bộ bản đồ): giả lập `watchPosition` lỗi mã 1 dù quyền vẫn có.
+Đã chạy thử trên code CŨ để chắc test bắt được — code cũ hỏng đúng 3 điểm và bật tờ hướng dẫn, code
+mới đạt cả 7. Tổng: **40/40** bản đồ, **17/17** luồng báo.
+
+**Bẫy khi viết test:** máy đếm số lần hỏi vị trí giờ đếm cả bản đồ (trước đây bản đồ dùng
+`watchPosition` nên không bị đếm). Test luồng báo phải tắt theo dõi của bản đồ rồi xoá bộ đếm trước,
+nếu không đếm nhầm.
+
 ## 2026-09-17 (chốt 2) — Hướng dẫn phải tự khai vì sao nó bật lên
 
 Chủ dự án: trên iPhone bấm nút vị trí thì "cứ hiện ra hướng dẫn", đáng ra Safari phải hỏi cho phép.

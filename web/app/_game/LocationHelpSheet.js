@@ -73,17 +73,36 @@ export function LocationHelpSheet({ open, onClose, blocked = false }) {
     <BottomSheet open={open} onClose={onClose} title="Cách bật vị trí">
       <h2 className="text-lg font-medium tracking-tight text-zinc-900">Cách bật vị trí</h2>
       {/* Mở lên vì vừa BỊ CHẶN thì phải nói ngay vì sao trình duyệt không hỏi — không có câu này,
-          người dùng tưởng nút vị trí bị nối nhầm vào tờ hướng dẫn. */}
+          người dùng tưởng nút vị trí bị nối nhầm vào tờ hướng dẫn. Và nếu chính trình duyệt khai là
+          ĐÃ CHO PHÉP thì lời nhắn phải khác hẳn: lỗi khi đó nằm ở Dịch vụ định vị của máy, bảo họ
+          vào sửa quyền cho trang là chỉ sai chỗ. */}
       {blocked ? (
         <p className="mt-2 rounded-xl bg-[#fdf0e6] p-3 text-[13px] leading-5 text-[#8a3b28]">
-          Trình duyệt đang chặn vị trí cho trang này, nên nó <strong>sẽ không hỏi lại</strong> nữa dù
-          bạn bấm bao nhiêu lần. Máy đã từng bấm “Không cho phép” cho trang này rồi — phải mở bằng tay
-          một lần theo các bước dưới đây, sau đó thì không phải làm lại nữa.
+          {permission === "granted" ? (
+            <>
+              Trang này <strong>đã được cho phép</strong> lấy vị trí, nhưng máy vẫn không trả vị trí
+              về. Gần như chắc chắn là <strong>Dịch vụ định vị của máy đang tắt cho Safari</strong> —
+              làm theo ô “vẫn không lên chấm xanh” bên dưới, không cần sửa gì ở ô đầu.
+            </>
+          ) : (
+            <>
+              Trình duyệt đang chặn vị trí cho trang này, nên nó <strong>sẽ không hỏi lại</strong> nữa
+              dù bạn bấm bao nhiêu lần. Máy đã từng bấm “Không cho phép” cho trang này rồi — phải mở
+              bằng tay một lần theo các bước dưới đây, sau đó thì không phải làm lại nữa.
+            </>
+          )}
         </p>
       ) : (
         <p className="mt-1 text-[13px] leading-5 text-zinc-500">
           Bật vị trí thì chấm xanh của bạn mới hiện trên bản đồ. Không bật vẫn chơi được — lúc báo đèn
           bạn tự ghim chỗ đứng trên bản đồ.
+        </p>
+      )}
+      {/* Để NGAY ĐẦU chứ không nhét cuối trang: đây là câu trả lời của chính trình duyệt, ai báo lỗi
+          chỉ cần đọc dòng này là biết máy đang ở mức nào, khỏi đoán. */}
+      {permission && (
+        <p className="mt-2 text-[11px] leading-4 text-zinc-400">
+          Trình duyệt đang báo quyền vị trí: {PERMISSION_LABEL[permission] ?? permission}
         </p>
       )}
 
@@ -106,12 +125,6 @@ export function LocationHelpSheet({ open, onClose, blocked = false }) {
       >
         Tải lại trang
       </button>
-
-      {permission && (
-        <p className="mt-3 text-center text-[11px] leading-4 text-zinc-400">
-          Trình duyệt đang báo quyền vị trí: {PERMISSION_LABEL[permission] ?? permission}
-        </p>
-      )}
     </BottomSheet>
   );
 }
