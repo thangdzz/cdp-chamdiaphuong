@@ -3,6 +3,30 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 4) — "Cho phép tất cả trang web" KHÔNG xoá lệnh cấm riêng từng trang
+
+Chủ dự án đã vào Cài đặt → Safari → Vị trí → **Cho phép**, mà bấm nút vị trí vẫn ra hướng dẫn. Lần
+này `getCurrentPosition` cũng bị từ chối, nên không phải lỗi `watchPosition` nữa (lỗi đó có thật và
+đã sửa, nhưng không phải nguyên nhân của cảnh này).
+
+**Sự thật về iOS:** thiết lập "Truy cập vị trí trên tất cả trang web" chỉ là **mặc định cho trang
+mới**. Safari còn giữ thiết lập RIÊNG cho từng trang, và thiết lập riêng ĐÈ LÊN mặc định. Đặt mặc
+định thành "Cho phép" **không xoá** lệnh cấm đã lưu riêng cho `chamdiaphuong.io.vn`. Cùng máy iPhone
+15 đó, Microsoft Edge chạy bình thường — vì mỗi ứng dụng giữ kho quyền riêng, chứng minh máy và GPS
+không hỏng.
+
+Chỉ có hai đường thoát, đưa vào hướng dẫn thành một khối riêng, hiện LÊN ĐẦU khi đang bị chặn:
+
+1. **Thêm vào Màn hình chính** rồi mở game từ biểu tượng đó — bản chạy từ màn hình chính có ô quyền
+   riêng, hỏi lại từ đầu. Nhanh và **không mất gì**, nên để trước.
+2. **Cài đặt → Safari → Nâng cao → Dữ liệu trang web → xoá `chamdiaphuong.io.vn`** — dứt điểm, nhưng
+   **xoá luôn tên săn đèn lưu trên máy**. Có cảnh báo kèm: lưu mã khôi phục trước khi xoá.
+
+Lời nhắn đầu tờ hướng dẫn cũng nói thẳng chuyện "đã chọn Cho phép mà vẫn bị chặn" thay vì bảo họ đi
+làm lại đúng việc vừa làm.
+
+Test: **43/43**.
+
 ## 2026-09-17 (chốt 3) — LỖI THẬT: `watchPosition` chết trên iPhone dù đã cho phép
 
 Chủ dự án vào Cài đặt đặt Vị trí = **Cho phép**, bấm nút vị trí trên bản đồ vẫn ra tờ hướng dẫn.

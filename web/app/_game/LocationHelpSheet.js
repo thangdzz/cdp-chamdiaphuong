@@ -67,8 +67,22 @@ const PERMISSION_LABEL = {
   prompt: "chưa hỏi lần nào",
 };
 
+// Safari giữ thiết lập RIÊNG cho từng trang, đè lên thiết lập chung "tất cả trang web". Đặt chung
+// thành "Cho phép" KHÔNG xoá được lệnh cấm đã lưu riêng cho một trang — đây là chỗ chủ dự án mắc
+// 17/9. Chỉ có hai đường thoát, và đường không mất gì để trước.
+const STUCK = {
+  title: "iPhone · đã chọn Cho phép mà vẫn bị chặn",
+  lines: [
+    "Cách nhanh, không mất gì: bấm nút Chia sẻ → Thêm vào Màn hình chính, rồi mở game từ biểu tượng đó. Bản chạy từ màn hình chính có ô quyền riêng nên sẽ hỏi lại từ đầu.",
+    "Cách dứt điểm: Cài đặt → Safari → Nâng cao → Dữ liệu trang web → tìm chamdiaphuong.io.vn → vuốt sang trái → Xoá. Mở lại trang là Safari hỏi lại.",
+  ],
+  note: "Lưu ý: xoá dữ liệu trang web sẽ xoá luôn tên săn đèn lưu trên máy này. Nếu đã có điểm, vào phần tên của bạn lưu lại mã khôi phục trước khi xoá.",
+};
+
 export function LocationHelpSheet({ open, onClose, blocked = false }) {
   const permission = usePermissionState(open);
+  // Bị chặn thì đưa khối gỡ kẹt lên ĐẦU — đó mới là thứ họ cần, không phải bốn bước họ vừa làm xong.
+  const blocks = blocked ? [STUCK, ...STEPS] : STEPS;
   return (
     <BottomSheet open={open} onClose={onClose} title="Cách bật vị trí">
       <h2 className="text-lg font-medium tracking-tight text-zinc-900">Cách bật vị trí</h2>
@@ -86,9 +100,10 @@ export function LocationHelpSheet({ open, onClose, blocked = false }) {
             </>
           ) : (
             <>
-              Trình duyệt đang chặn vị trí cho trang này, nên nó <strong>sẽ không hỏi lại</strong> nữa
-              dù bạn bấm bao nhiêu lần. Máy đã từng bấm “Không cho phép” cho trang này rồi — phải mở
-              bằng tay một lần theo các bước dưới đây, sau đó thì không phải làm lại nữa.
+              Trình duyệt đang chặn vị trí <strong>riêng cho trang này</strong>, nên nó sẽ không hỏi
+              lại nữa dù bạn bấm bao nhiêu lần. Nếu bạn đã vào Cài đặt chọn “Cho phép” mà vẫn thấy
+              dòng này: thiết lập đó là cho <em>tất cả</em> trang web, nó <strong>không xoá</strong>
+              lệnh cấm đã lưu riêng cho trang này — xem ô đầu tiên bên dưới.
             </>
           )}
         </p>
@@ -106,10 +121,14 @@ export function LocationHelpSheet({ open, onClose, blocked = false }) {
         </p>
       )}
 
-      {STEPS.map((step) => (
+      {blocks.map((step) => (
         <div key={step.title} className="mt-4 rounded-xl bg-white p-3 ring-1 ring-black/5">
           <p className="text-[13px] font-medium text-zinc-900">{step.title}</p>
-          <ol className="mt-1.5 list-decimal space-y-1 pl-4 text-[13px] leading-5 text-zinc-600">
+          <ol
+            className={`mt-1.5 space-y-1 pl-4 text-[13px] leading-5 text-zinc-600 ${
+              step === STUCK ? "list-disc space-y-2" : "list-decimal"
+            }`}
+          >
             {step.lines.map((line) => (
               <li key={line}>{line}</li>
             ))}
