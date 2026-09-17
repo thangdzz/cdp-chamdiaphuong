@@ -15,12 +15,16 @@ import { BottomSheet } from "./BottomSheet";
 const STEPS = [
   {
     title: "iPhone · Safari",
+    // Bước 1 nghe thừa nhưng KHÔNG thừa: Safari chỉ thêm dòng "Vị trí" vào menu Cài đặt trang web
+    // sau khi trang đã hỏi xin vị trí ít nhất một lần. Chưa bấm nút thì mở aA sẽ không thấy gì để
+    // chỉnh, và người dùng tưởng máy hỏng.
     lines: [
+      "Bấm nút 📍 trên bản đồ một lần (để Safari biết trang này cần vị trí)",
       "Bấm chữ aA ở đầu thanh địa chỉ",
       "Chọn Cài đặt trang web → Vị trí → Cho phép",
       "Tải lại trang (Safari chỉ nhận quyền mới sau khi tải lại)",
     ],
-    note: "Vẫn không được? Vào Cài đặt máy → Quyền riêng tư & Bảo mật → Dịch vụ định vị → Safari → Khi dùng ứng dụng.",
+    note: "Không thấy dòng Vị trí, hoặc đã cho phép mà vẫn không được? Vào Cài đặt máy → Quyền riêng tư & Bảo mật → Dịch vụ định vị: bật mục này, kéo xuống chọn Safari → Khi dùng ứng dụng, và bật cả Vị trí chính xác.",
   },
   {
     title: "Android · Chrome, Cốc Cốc, Samsung Internet",

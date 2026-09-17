@@ -149,7 +149,17 @@ function locateNotice(locate, onHelp) {
         ),
       };
     case LOCATE.UNAVAILABLE:
-      return { tone: "warn", body: <>📍 Chưa bắt được vị trí — ra chỗ thoáng rồi bấm lại nút.</> };
+      // Mã lỗi này vừa có nghĩa "chưa bắt được sóng" vừa có nghĩa "Dịch vụ định vị của máy đang
+      // tắt" — không phân biệt được, nên nói cả hai đường.
+      return {
+        tone: "warn",
+        body: (
+          <>
+            📍 Chưa bắt được vị trí — ra chỗ thoáng rồi bấm lại
+            {onHelp ? <> · <HelpLink onClick={onHelp} /></> : null}
+          </>
+        ),
+      };
     case LOCATE.INSECURE:
       return { tone: "warn", body: <>📍 Trang đang mở bằng http nên trình duyệt không cho lấy vị trí.</> };
     default:
@@ -393,6 +403,47 @@ export function GameMap({
     },
     []
   );
+
+  // Ai ĐÃ cho phép từ trước thì hiện chấm xanh ngay, không bắt bấm lại (chốt 2026-09-17).
+  //
+  // Hỏi qua Permissions API nên KHÔNG bật hộp thoại xin quyền — chỉ người đã đồng ý rồi mới tự bật.
+  // Người chưa từng được hỏi thì để họ bấm nút: bật hộp thoại xin quyền ngay lúc mở trang, khi người
+  // ta chưa hiểu vì sao lại hỏi, rất dễ bị bấm "Không cho phép" — mà trên iPhone lựa chọn đó DÍNH
+  // LUÔN cho cả trang, chặn nốt cả lúc báo đèn về sau. Lúc báo đèn thì ReportSheet tự hỏi, vì khi ấy
+  // người chơi đã biết mình đang khai chỗ đứng.
+  useEffect(() => {
+    if (!showLocate || !ready) return undefined;
+    let stopped = false;
+    let status = null;
+
+    const apply = (value) => {
+      if (stopped) return;
+      if (value === "granted" && stateRef.current === LOCATE.IDLE) startLocating();
+      // Vào cài đặt gỡ quyền giữa chừng: tắt luôn, không để chấm xanh đứng lại nói dối.
+      else if (value === "denied" && stateRef.current === LOCATE.ACTIVE) stopLocating(LOCATE.DENIED);
+    };
+    const onChange = () => apply(status?.state);
+
+    navigator.permissions
+      ?.query({ name: "geolocation" })
+      .then((result) => {
+        if (stopped) return;
+        status = result;
+        apply(result.state);
+        // Bật quyền trong cài đặt rồi quay lại tab: Chrome bắn sự kiện này nên chấm xanh hiện luôn.
+        // Safari chưa bắn — vẫn phải tải lại trang, nên sheet hướng dẫn có sẵn nút "Tải lại trang".
+        result.addEventListener("change", onChange);
+      })
+      // Trình duyệt cũ không có Permissions API (hoặc không nhận tên "geolocation"): bỏ qua, nút
+      // vị trí vẫn bấm được như thường.
+      .catch(() => {});
+
+    return () => {
+      stopped = true;
+      status?.removeEventListener("change", onChange);
+      status = null;
+    };
+  }, [ready, showLocate, startLocating, stopLocating]);
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;

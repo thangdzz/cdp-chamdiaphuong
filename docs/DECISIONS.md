@@ -3,6 +3,36 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (sau) — Đã cho phép rồi thì hiện chấm xanh tự động, chưa hỏi thì đừng tự hỏi
+
+Chủ dự án thử hai máy: Samsung A56 + Chrome bật tắt vị trí ngon; iPhone 15 báo "Chưa có quyền vị
+trí". Không phải lỗi code — Safari đang chặn ở cấp trang. Nhưng câu hỏi "có hiện vị trí tự động khi
+user chơi không?" chỉ ra thiếu sót thật: **phải bấm nút thì chấm xanh mới hiện**, kể cả với người đã
+đồng ý từ lần trước.
+
+Sửa: hỏi **Permissions API** (`navigator.permissions.query({ name: "geolocation" })`) lúc bản đồ dựng
+xong. Hỏi kiểu này **không bật hộp thoại xin quyền**, nên:
+
+- `granted` → tự bật theo dõi, chấm xanh hiện ngay khi mở trang.
+- `prompt` (chưa từng hỏi) → **không làm gì**. Cố tình không tự hỏi: bật hộp thoại xin quyền ngay lúc
+  mở trang, khi người ta chưa hiểu vì sao lại hỏi, rất dễ bị bấm "Không cho phép" — mà trên iPhone
+  lựa chọn đó **dính luôn cho cả trang** và chặn nốt cả lúc báo đèn. Lúc báo đèn thì `ReportSheet`
+  tự hỏi, vì khi ấy người chơi đã biết mình đang khai chỗ đứng.
+- `denied` khi đang bật → tắt chấm xanh, không để nó đứng lại nói dối.
+- Nghe `change`: bật quyền trong cài đặt rồi quay lại tab thì Chrome bắn sự kiện này, chấm xanh hiện
+  luôn không cần tải lại. Safari chưa bắn — vẫn phải tải lại trang, nên sheet hướng dẫn có sẵn nút.
+
+Trình duyệt không có Permissions API thì bỏ qua, nút vẫn bấm được như cũ.
+
+**Thêm một bước vào hướng dẫn iPhone** vì nó là chỗ thật sự làm người ta tắc: Safari **chỉ thêm dòng
+"Vị trí" vào menu "Cài đặt trang web" SAU KHI trang đã hỏi xin vị trí ít nhất một lần**. Chưa bấm nút
+📍 mà mở aA thì không thấy gì để chỉnh, và người dùng tưởng máy hỏng. Hướng dẫn giờ bắt đầu bằng
+"bấm nút 📍 một lần", và phần ghi chú nói cả đường Cài đặt máy → Dịch vụ định vị (bật cả *Vị trí
+chính xác*, nếu tắt thì có quyền nhưng sai số hàng trăm mét).
+
+Test trình duyệt: **30/30 đạt** (thêm 8 test mới cho tự bật, tắt tay rồi không tự bật lại, và "chưa
+có quyền thì không được tự hỏi").
+
 ## 2026-09-17 — Bản đồ: tách trạng thái GPS khỏi trạng thái game, nút vị trí thành máy trạng thái
 
 Test thật trên iPhone lòi ra hai chuyện khác nhau bị gộp làm một.
