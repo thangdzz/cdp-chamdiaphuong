@@ -31,8 +31,8 @@ const STEPS = [
   {
     title: "iPhone · vẫn không lên chấm xanh",
     lines: [
-      "Cài đặt → Quyền riêng tư & Bảo mật → Dịch vụ định vị: bật mục này",
-      "Kéo xuống chọn Safari → Khi dùng ứng dụng",
+      "Cài đặt → Quyền riêng tư & Bảo mật → Dịch vụ định vị: bật công tắc trên cùng",
+      "Kéo xuống tìm “Trang web Safari” (xếp ở chữ T, không phải chữ S) → Khi dùng ứng dụng",
       "Bật thêm Vị trí chính xác",
     ],
     note: "Tắt Vị trí chính xác thì vẫn có quyền nhưng sai số hàng trăm mét — lúc báo đèn web sẽ báo vị trí còn lệch.",
@@ -73,7 +73,8 @@ const PERMISSION_LABEL = {
 const STUCK = {
   title: "iPhone · đã chọn Cho phép mà vẫn bị chặn",
   lines: [
-    "Cách nhanh, không mất gì: bấm nút Chia sẻ → Thêm vào Màn hình chính, rồi mở game từ biểu tượng đó. Bản chạy từ màn hình chính có ô quyền riêng nên sẽ hỏi lại từ đầu.",
+    "Xem mục này TRƯỚC: Cài đặt → Quyền riêng tư & Bảo mật → Dịch vụ định vị → kéo tìm “Trang web Safari”. Nó xếp ở chữ T chứ không phải chữ S nên rất dễ tìm hụt. Chọn “Khi dùng ứng dụng”. Mục này tắt là chặn MỌI trang web trong Safari cùng một lúc.",
+    "Cách nhanh, không mất gì: bấm nút Chia sẻ → Thêm vào Màn hình chính, rồi mở game từ biểu tượng đó. Bản chạy từ màn hình chính có ô quyền riêng nên hỏi lại từ đầu.",
     "Cách dứt điểm: Cài đặt → Safari → Nâng cao → Dữ liệu trang web → tìm chamdiaphuong.io.vn → vuốt sang trái → Xoá. Mở lại trang là Safari hỏi lại.",
   ],
   note: "Lưu ý: xoá dữ liệu trang web sẽ xoá luôn tên săn đèn lưu trên máy này. Nếu đã có điểm, vào phần tên của bạn lưu lại mã khôi phục trước khi xoá.",

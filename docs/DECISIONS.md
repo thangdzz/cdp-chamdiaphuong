@@ -3,6 +3,22 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 7) — Thủ phạm trên máy chủ dự án: mục "Trang web Safari" xếp ở chữ T
+
+Chủ dự án thêm web ra Màn hình chính thì **định vị chạy bình thường**, cả hai link thử. Đây là mảnh
+ghép cuối: Dịch vụ định vị của máy KHÔNG hỏng (bản màn hình chính lấy được vị trí), nhưng **Safari
+với tư cách ứng dụng** thì bị chặn — khớp luôn với việc Brave cũng hỏng (mỗi ứng dụng một ô quyền
+riêng, đều bị đặt "Không bao giờ").
+
+Mục cần sửa là **Cài đặt → Quyền riêng tư & Bảo mật → Dịch vụ định vị → "Trang web Safari"**. Bốn lần
+trước hướng dẫn ghi là "Safari" — sai, và sai kiểu khó chịu nhất: trong danh sách tiếng Việt nó nằm ở
+chữ **T** ("Trang web Safari") chứ không phải chữ S, nên người kéo tìm "Safari" sẽ tìm hụt hoàn toàn.
+Hướng dẫn giờ ghi đúng tên và nói rõ chỗ xếp chữ. Tắt mục này là chặn MỌI trang web trong Safari cùng
+lúc — hợp với hiện tượng.
+
+Ghi lại cho lần sau: **"chạy được ở màn hình chính nhưng không chạy trong Safari" = quyền của ỨNG
+DỤNG Safari, không phải quyền của trang.**
+
 ## 2026-09-17 (chốt 6) — Bản đồ ở màn báo đèn đo xong mà không vẽ gì
 
 Chủ dự án: Samsung A56 (Chrome) và MacBook đều đo được vị trí nhưng **bản đồ trống trơn**, không có
