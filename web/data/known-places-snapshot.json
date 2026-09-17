@@ -125,6 +125,11 @@
     "address": "23 Lê Duẩn"
   },
   {
+    "name": "Bún Riêu An Tường",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Cà Phê Bên Hồ",
     "type": "an",
     "address": "39 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang"
@@ -415,6 +420,11 @@
     "address": "Thôn Phúc An, xã Lưỡng Vượng, TP Tuyên Quang"
   },
   {
+    "name": "Homestay Hoàng Liên Sơn",
+    "type": "ngu",
+    "address": "Xóm 15, xã Kim Phú, TP Tuyên Quang"
+  },
+  {
     "name": "Homestay Lê Quỳnh Trang",
     "type": "ngu",
     "address": "Tổ 34, phường Minh Xuân, TP Tuyên Quang"
@@ -662,7 +672,7 @@
   {
     "name": "Nhà hàng Bin (món ngon mỗi ngày)",
     "type": "an",
-    "address": "8 Đinh Tiên Hoàng"
+    "address": "08 Đinh Tiên Hoàng"
   },
   {
     "name": "Nhà hàng Cá Vân Kiên",
@@ -1033,6 +1043,11 @@
     "name": "Sơn Trang Hotel",
     "type": "ngu",
     "address": "46 Ngõ 98 Song Hào, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Taxi Đức Thu",
+    "type": "dilai",
+    "address": null
   },
   {
     "name": "Taxi Hoàng Ngân",
