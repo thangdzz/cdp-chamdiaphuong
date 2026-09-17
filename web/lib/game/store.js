@@ -188,7 +188,7 @@ function unknownCode() {
   return crypto.randomUUID().replace(/-/g, "").slice(0, 4).toUpperCase();
 }
 
-async function createUnknownObject(event) {
+async function createUnknownObject(event, guessedName = null) {
   const code = unknownCode();
   const now = new Date().toISOString();
   const object = normalizeObject(
@@ -196,6 +196,7 @@ async function createUnknownObject(event) {
       id: `unk-${code.toLowerCase()}-${crypto.randomUUID().slice(0, 6)}`,
       kind: OBJECT_KIND.UNKNOWN,
       code,
+      guessedName,
       eventYear: event.year,
       source: "user_sighting",
       createdAt: now,
@@ -330,7 +331,7 @@ async function collectRiskFlags(event, { anonId, riskKey, ipHash, fix, objectId,
  * truyền `photo` vào, để lỗi ảnh không bao giờ làm mất lượt báo.
  * `risk` = dấu vết phía server (riskContext trong lib/game/risk.js); thiếu cũng vẫn ghi được.
  */
-export async function recordSighting(event, { anonId, nickname, objectId, location, photo, risk }) {
+export async function recordSighting(event, { anonId, nickname, objectId, location, photo, risk, guessedName }) {
   const phase = eventPhase(event);
   // Chặn ở server dù UI pre-game không gọi tới đây: trước giờ rước không được có sighting thật
   // (NOTE-05 §1, §3) — không collection, marker, số đếm hay first discovery.
@@ -349,8 +350,19 @@ export async function recordSighting(event, { anonId, nickname, objectId, locati
   let index = catalogIndex(catalog);
   let target;
   if (objectId === "unknown") {
+    // Tên tạm: người chơi gõ tên mà tìm không ra thì được đặt tạm cho con bí ẩn này.
+    const guess = typeof guessedName === "string" ? guessedName.trim().slice(0, 80) : "";
+    // Đặt tên tạm thì BẮT BUỘC có ảnh (chốt 2026-09-17) — không có ảnh thì sau này không ai xác minh
+    // được cái tên đó, chỉ tổ đẻ ra một đống tên không kiểm chứng nổi. Báo "không biết tên" trơn thì
+    // vẫn gửi được không cần ảnh, để ai bị chặn camera vẫn chơi được.
+    if (guess && !photo) {
+      throw new GameInputError(
+        "Đặt tên tạm thì cần một tấm ảnh để sau còn xác minh. Chụp giúp một kiểu nhé.",
+        "need_photo"
+      );
+    }
     await enforceRateLimit(event, anonId);
-    target = await createUnknownObject(event);
+    target = await createUnknownObject(event, guess || null);
     catalog = [...catalog, target];
     index = catalogIndex(catalog);
   } else {

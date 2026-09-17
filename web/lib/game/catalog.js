@@ -36,6 +36,12 @@ export function objectDisplayName(object, noun = "mô hình") {
   return `${capitalize(noun)} chưa xác định${object?.code ? ` #${object.code}` : ""}`;
 }
 
+/** "có người nói đây là …" — chỉ mô hình bí ẩn CHƯA có tên chính thức mới có. */
+export function objectGuessNote(object) {
+  if (object?.kind !== OBJECT_KIND.UNKNOWN || object?.name || !object?.guessedName) return null;
+  return `có người nói đây là “${object.guessedName}”`;
+}
+
 // Slot model chưa có tên: đếm vào tổng, hiện trong bộ sưu tập, nhưng người chơi không chọn được khi
 // báo (không ai biết "#37" là con nào) — gặp thì báo "Không biết tên", admin ghép vào slot sau.
 export function isUnnamedSlot(object) {
@@ -78,6 +84,10 @@ export function normalizeObject(raw, eventId) {
     kind,
     code: cleanText(raw.code, 12),
     name: cleanText(raw.name, 80),
+    // TÊN TẠM do người chơi gõ khi không tìm thấy mô hình trong danh sách (chốt 2026-09-17). Cố ý
+    // KHÔNG ghi vào `name`: `name` là tên chính thức, còn đây mới chỉ là "có người nói đây là…".
+    // Danh tính của mô hình bí ẩn vẫn là mã #ABCD cho tới khi admin chuẩn hoá.
+    guessedName: cleanText(raw.guessedName, 80),
     slug: cleanText(raw.slug, 80),
     icon: cleanText(raw.icon, 40),
     // Tag sinh bộ sưu tập theo nhóm; soundFamily/soundKey chọn âm thanh mở khoá (NOTE-05 §22).

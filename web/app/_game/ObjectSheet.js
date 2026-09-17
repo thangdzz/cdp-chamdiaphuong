@@ -5,7 +5,13 @@ import { BottomSheet } from "./BottomSheet";
 import { ObjectIcon, ObjectMedia } from "./ObjectIcon";
 import { reportWrongLocation } from "@/app/gameActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
-import { OBJECT_KIND, VERIFICATION_LABEL, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
+import {
+  OBJECT_KIND,
+  VERIFICATION_LABEL,
+  isUnnamedSlot,
+  objectDisplayName,
+  objectGuessNote,
+} from "@/lib/game/catalog";
 import { formatAgo } from "@/lib/game/format";
 import { confidenceLabel } from "@/lib/game/mapLayer";
 import { RarityChip } from "./GameViews";
@@ -59,6 +65,10 @@ export function ObjectSheet({
           <h2 id="game-object-title" className="text-xl font-medium leading-snug tracking-tight text-zinc-900">
             {objectDisplayName(object, noun)}
           </h2>
+          {/* Tên tạm do người chơi đặt — ghi chú, KHÔNG phải tên chính thức. */}
+          {objectGuessNote(object) && (
+            <p className="mt-0.5 text-[13px] italic text-[#8a5a10]">{objectGuessNote(object)}</p>
+          )}
           {meta && <p className="mt-0.5 text-[13px] text-zinc-500">{meta}</p>}
           <div className="mt-2 flex flex-wrap gap-1.5">
             <span

@@ -9,7 +9,13 @@ import { reportSighting } from "@/app/gameActions";
 import { loadLocalContributor, saveLocalContributor } from "@/app/ContributionPanel";
 import { clearDraftName, readDraftName } from "./playerName";
 import { compressImageForUpload } from "@/lib/clientImageCompression";
-import { OBJECT_KIND, UNKNOWN_ICON, isUnnamedSlot, objectDisplayName } from "@/lib/game/catalog";
+import {
+  OBJECT_KIND,
+  UNKNOWN_ICON,
+  isUnnamedSlot,
+  objectDisplayName,
+  objectGuessNote,
+} from "@/lib/game/catalog";
 import { foldText, formatAgo } from "@/lib/game/format";
 import { ACCURACY_WARN_M } from "@/lib/game/riskLimits";
 
@@ -47,6 +53,8 @@ export function ReportSheet({
   const [step, setStep] = useState(preset?.objectId ? STEP.LOCATE : STEP.PICK);
   const [query, setQuery] = useState("");
   const [objectId, setObjectId] = useState(preset?.objectId ?? null);
+  // Tên tạm người chơi gõ khi tìm không ra mô hình nào. Có tên tạm thì BẮT BUỘC kèm ảnh.
+  const [guessedName, setGuessedName] = useState("");
   // Vị trí sẽ gửi đi. null = CHƯA ĐO ĐƯỢC → không có cách nào bấm gửi (chốt 2026-09-16).
   // Không còn điểm mặc định: tâm bản đồ lễ hội và toạ độ marker của người khác từng lọt vào đây.
   const [fix, setFix] = useState(null); // { lat, lng, accuracy, measuredAt, source: "gps"|"manual" }
@@ -78,6 +86,34 @@ export function ReportSheet({
       .filter((o) => o.kind === OBJECT_KIND.MODEL && !o.matchedTo && !isUnnamedSlot(o))
       .filter((o) => !q || foldText(`${o.name ?? ""} ${o.ward ?? ""}`).includes(q));
   }, [snapshot.catalog, query]);
+
+  // Mô hình bí ẩn đã được người khác đặt TÊN TẠM. Gõ đúng tên tạm là ra luôn con đó — người thứ hai
+  // chọn lại được thay vì đẻ thêm một con bí ẩn trùng. Không gõ gì thì không hiện (danh sách chính
+  // vẫn là các mô hình có tên thật).
+  const namedMysteries = useMemo(() => {
+    const q = foldText(query);
+    if (!q) return [];
+    return snapshot.catalog.filter(
+      (o) =>
+        o.kind === OBJECT_KIND.UNKNOWN &&
+        !o.matchedTo &&
+        !o.name &&
+        o.guessedName &&
+        foldText(o.guessedName).includes(q)
+    );
+  }, [snapshot.catalog, query]);
+
+  // Gõ rồi mà không ra gì: cho đặt tên tạm bằng chính từ khoá vừa gõ.
+  const trimmedQuery = query.trim();
+  const canName = trimmedQuery.length >= 2 && models.length === 0 && namedMysteries.length === 0;
+
+  // Không ra gì thì gợi ý các con bí ẩn đã có tên tạm, để chọn lại thay vì đẻ thêm con trùng.
+  const guessSuggestions = useMemo(() => {
+    if (!canName) return [];
+    return snapshot.catalog
+      .filter((o) => o.kind === OBJECT_KIND.UNKNOWN && !o.matchedTo && !o.name && o.guessedName)
+      .slice(0, MAX_MYSTERIES_IN_PICKER);
+  }, [snapshot.catalog, canName]);
 
   // Bí ẩn vừa được báo tối nay: người thứ hai gặp cùng "con chưa biết tên" chọn lại được, thay
   // vì đẻ thêm một bí ẩn trùng (NOTE-04 §16).
@@ -143,7 +179,7 @@ export function ReportSheet({
     requestGps();
   }
 
-  function choose(id) {
+  function choose(id, guess = "") {
     // Trước giờ rước (NOTE-05 §2): chọn mô hình như thường rồi dừng ở câu đùa — không hỏi GPS,
     // không gọi server, không có gì được ghi.
     if (preGame) {
@@ -154,6 +190,7 @@ export function ReportSheet({
     // Tải trước đúng tiếng của mô hình vừa chọn (vài chục KB) để lúc báo xong phát kịp, không tải cả thư viện.
     prefetchObjectSound(id === "unknown" ? { kind: OBJECT_KIND.UNKNOWN } : byId.get(id), event);
     setObjectId(id);
+    setGuessedName(guess);
     setStep(STEP.LOCATE);
     setError(null);
     ensureGps();
@@ -222,6 +259,7 @@ export function ReportSheet({
     if (local?.anonId) form.set("anonId", local.anonId);
     else form.set("nickname", readDraftName() ?? "");
     form.set("objectId", objectId);
+    if (guessedName) form.set("guessedName", guessedName);
     form.set("lat", String(fix.lat));
     form.set("lng", String(fix.lng));
     if (fix.accuracy) form.set("accuracy", String(Math.round(fix.accuracy)));
@@ -302,12 +340,55 @@ export function ReportSheet({
                 onClick={() => choose("unknown")}
               />
             </li>
+            {/* Gõ tên mà không ra gì: lấy CHÍNH từ khoá vừa gõ làm tên tạm. Mô hình vẫn là "chưa
+                biết tên #ABCD", tên tạm chỉ là ghi chú "có người nói đây là…" cho tới khi admin
+                chuẩn hoá (chốt 2026-09-17). */}
+            {canName && (
+              <li>
+                <PickRow
+                  icon={<span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fdf0e6] text-[22px]">✏️</span>}
+                  title={`Đặt tên tạm “${trimmedQuery}”`}
+                  meta={`Vẫn tính là ${noun} chưa biết tên — cần kèm một tấm ảnh để sau xác minh`}
+                  onClick={() => choose("unknown", trimmedQuery)}
+                />
+              </li>
+            )}
+            {/* Đã có người đặt tên tạm khớp từ khoá: chọn lại con đó, đừng đẻ thêm con trùng. */}
+            {namedMysteries.map((object) => (
+              <li key={object.id}>
+                <PickRow
+                  icon={<ObjectIcon object={object} event={event} size="sm" />}
+                  title={objectDisplayName(object, noun)}
+                  meta={objectGuessNote(object)}
+                  onClick={() => choose(object.id)}
+                />
+              </li>
+            ))}
+            {guessSuggestions.length > 0 && (
+              <li className="px-1 pb-0.5 pt-2 text-[12px] text-zinc-400">
+                Hay là một trong những {noun} này?
+              </li>
+            )}
+            {guessSuggestions.map((object) => (
+              <li key={object.id}>
+                <PickRow
+                  icon={<ObjectIcon object={object} event={event} size="sm" />}
+                  title={objectDisplayName(object, noun)}
+                  meta={objectGuessNote(object)}
+                  onClick={() => choose(object.id)}
+                />
+              </li>
+            ))}
             {recentMysteries.map(({ object, marker }) => (
               <li key={object.id}>
                 <PickRow
                   icon={<ObjectIcon object={object} event={event} size="sm" />}
                   title={objectDisplayName(object, noun)}
-                  meta={`Được báo ${formatAgo(marker.lastSeenAt, now)}`}
+                  // Có tên tạm thì nói luôn ở đây — đó mới là thứ giúp người chơi nhận ra con nào,
+                  // chứ mã #B7A1 thì chẳng gợi gì.
+                  meta={[objectGuessNote(object), `Được báo ${formatAgo(marker.lastSeenAt, now)}`]
+                    .filter(Boolean)
+                    .join(" · ")}
                   onClick={() => choose(object.id)}
                 />
               </li>
@@ -487,9 +568,18 @@ export function ReportSheet({
                 </button>
               </>
             ) : (
-              <button type="button" className={primaryButton} disabled={busy} onClick={() => submit(false)}>
-                {busy ? "Đang gửi…" : "Bỏ qua, gửi luôn"}
-              </button>
+              // Đặt tên tạm thì KHÔNG cho bỏ qua ảnh: không có ảnh thì cái tên đó sau này không ai
+              // xác minh nổi. Báo "không biết tên" trơn thì vẫn bỏ qua được như cũ.
+              guessedName ? (
+                <p className="rounded-xl bg-[#fdf0e6] p-3 text-center text-[13px] leading-5 text-[#8a3b28]">
+                  Bạn đang đặt tên tạm “{guessedName}” — cần một tấm ảnh thì sau này mới xác minh được
+                  tên. Chụp giúp một kiểu nhé.
+                </p>
+              ) : (
+                <button type="button" className={primaryButton} disabled={busy} onClick={() => submit(false)}>
+                  {busy ? "Đang gửi…" : "Bỏ qua, gửi luôn"}
+                </button>
+              )
             )}
           </div>
           <p className="mt-3 text-center text-xs leading-5 text-zinc-400">

@@ -3,6 +3,35 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-17 (chốt 9) — Tên tạm cho mô hình chưa biết tên
+
+Người chơi gặp mô hình lạ, gõ tên mà tìm không ra thì trước đây chỉ còn đường "Không biết tên" —
+sinh ra một con bí ẩn #ABCD không mang theo tí manh mối nào. Giờ **chính từ khoá vừa gõ thành tên
+tạm**.
+
+- Mô hình vẫn là **"Mô hình chưa biết tên #ABCD"**, tên tạm chỉ là ghi chú *"có người nói đây là
+  «Yêu quái vàng»"*. Cố ý KHÔNG ghi vào trường `name`: `name` là tên chính thức, tên tạm mới chỉ là
+  lời của một người. Admin chuẩn hoá sau.
+- **Ô tìm kiếm tìm cả tên tạm.** Người thứ hai gõ "Yêu quái vàng" là thấy luôn con đó, chọn lại được
+  — không đẻ thêm bí ẩn trùng. Đây mới là chỗ tính năng này trả giá trị thật.
+- Gõ mà không khớp gì thì ngoài nút đặt tên tạm còn gợi ý sẵn các con bí ẩn **đã có tên tạm** ("Hay
+  là một trong những mô hình này?").
+- Con bí ẩn được báo tối nay cũng hiện tên tạm ngay dòng phụ — mã #B7A1 thì chẳng gợi cho ai điều gì.
+- **Đặt tên tạm thì BẮT BUỘC kèm ảnh** (chốt cùng ngày): không ảnh thì cái tên đó sau này không ai
+  xác minh nổi, chỉ tổ đẻ ra một đống tên không kiểm chứng được. Chặn cả ở server (`need_photo`),
+  không chỉ ở giao diện.
+- **Báo "không biết tên" trơn thì ảnh vẫn tuỳ chọn.** Cố ý không siết: ai bị chặn quyền camera vẫn
+  phải chơi được — đúng bài học hai ngày vật lộn với quyền vị trí.
+
+Tên tạm hiện ở: ô chọn mô hình, màn chi tiết mô hình, và `/admin/game` (để chuẩn hoá về tên thật).
+
+**Bẫy khi test:** trình duyệt giả lập trả **sai số = 0**, mà server bắt buộc sai số > 0 cho lượt GPS
+— lượt báo bị trả về bước đo lại và test tưởng là lỗi code. Phải đặt `accuracy` trong `geolocation`
+của Playwright. Và tên tạm phải khác nhau mỗi lần chạy, nếu không lần sau đã có con khớp rồi thì nút
+"đặt tên tạm" không hiện nữa (đúng hành vi, nhưng test tự phá nhau).
+
+Test: **10/10** luồng đặt tên, **24/24** luồng báo, **43/43** bản đồ.
+
 ## 2026-09-17 (chốt 8) — Ghim tay không giành được danh hiệu "người đầu tiên"
 
 Duyệt 17/9. Lượt báo bằng ghim tay vẫn được ghi nhận, vẫn lên bản đồ, vẫn tính vào bộ sưu tập — chỉ

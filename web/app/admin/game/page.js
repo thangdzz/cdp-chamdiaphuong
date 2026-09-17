@@ -10,6 +10,7 @@ import {
   catalogIndex,
   isUnnamedSlot,
   objectDisplayName,
+  objectGuessNote,
   objectIcon,
   resolveObjectId,
 } from "@/lib/game/catalog";
@@ -311,6 +312,10 @@ export default async function GameAdminPage({ searchParams }) {
                 ❓ {objectDisplayName(object, noun)} · {counts[object.id] ?? 0} lượt báo
                 {object.createdAt ? ` · tạo ${when(object.createdAt)}` : ""}
               </p>
+              {/* Tên người chơi gõ lúc báo. Đây là manh mối để đặt tên thật, không phải tên thật. */}
+              {objectGuessNote(object) && (
+                <p className="mt-0.5 text-[13px] italic text-[#8a5a10]">{objectGuessNote(object)}</p>
+              )}
               {(photosByObject.get(object.id) ?? []).length > 0 && (
                 <div className="mt-2 flex gap-2 overflow-x-auto">
                   {photosByObject.get(object.id).slice(0, 6).map((s) => (

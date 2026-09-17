@@ -119,6 +119,8 @@ export async function reportSighting(formData) {
       anonId,
       nickname: contributor.nickname,
       objectId: formData.get("objectId")?.toString(),
+      // Tên tạm người chơi gõ khi tìm không ra mô hình nào khớp.
+      guessedName: formData.get("guessedName")?.toString(),
       location: {
         lat: formData.get("lat"),
         lng: formData.get("lng"),
