@@ -425,6 +425,11 @@
     "address": "Xóm 15, xã Kim Phú, TP Tuyên Quang"
   },
   {
+    "name": "Homestay Hoàng Thị Sen",
+    "type": "ngu",
+    "address": "Tổ 15, xã Kim Phú, TP Tuyên Quang"
+  },
+  {
     "name": "Homestay Lê Quỳnh Trang",
     "type": "ngu",
     "address": "Tổ 34, phường Minh Xuân, TP Tuyên Quang"
@@ -473,6 +478,11 @@
     "name": "Khách sạn Hoàng Kiên",
     "type": "ngu",
     "address": "Số 01, Tổ 21, phường Tân Hà, TP Tuyên Quang"
+  },
+  {
+    "name": "Khách sạn Hoàng Thành",
+    "type": "ngu",
+    "address": "214 đường Bình Thuận"
   },
   {
     "name": "Khách sạn Hùng Cường",
@@ -598,11 +608,6 @@
     "name": "Mắm Trà Chanh",
     "type": "an",
     "address": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
-  },
-  {
-    "name": "Memory Camping",
-    "type": "choi",
-    "address": "Ngách 7/148 đường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Min Garden Coffee",
@@ -750,6 +755,11 @@
     "address": "Khu ẩm thực mới Xuân Hoà, Tổ 2, Phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng Thủy Vịt",
+    "type": "an",
+    "address": "Tổ 15, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Tràng An",
     "type": "an",
     "address": "Số 6, Tổ 4, Phường Hưng Thành, TP Tuyên Quang"
@@ -778,6 +788,11 @@
     "name": "Nhà khách Minh Thanh",
     "type": "ngu",
     "address": "Tổ 10, đường Bình Ca, phường Nông Tiến, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà Nghỉ Ánh Tuyết",
+    "type": "ngu",
+    "address": "Tổ 27, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Nhà Nghỉ Bảo Ngân 1",
@@ -913,6 +928,11 @@
     "name": "Phở Bò 99",
     "type": "an",
     "address": "22 Tân Trào, phường Tân Quang, thành phố Tuyên Quang"
+  },
+  {
+    "name": "Phở bò Cồ Kháng",
+    "type": "an",
+    "address": "85 đường Bình Thuận, TP Tuyên Quang"
   },
   {
     "name": "Phở Hùng",
@@ -1178,6 +1198,11 @@
     "name": "Xì Quách Quán",
     "type": "an",
     "address": null
+  },
+  {
+    "name": "Xôi xéo Hà Nội (chị Lợi)",
+    "type": "an",
+    "address": "106 Lê Duẩn"
   },
   {
     "name": "Zhen Dong Tuyên Quang",
