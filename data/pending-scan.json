@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "name": "Nhà hàng Thủy Vịt",
+    "category_primary": "an",
+    "address_text": "Tổ 15, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": "cách Quốc lộ Tuyên Quang - Hà Giang khoảng 100m",
+    "phone": "0977658736",
+    "opening_hours_text": "08:00 - 22:00",
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["vịt"]
+  },
+  {
+    "name": "Phở bò Cồ Kháng",
+    "category_primary": "an",
+    "address_text": "85 đường Bình Thuận, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["phở bò"]
+  },
+  {
+    "name": "Homestay Hoàng Thị Sen",
+    "category_primary": "ngu",
+    "address_text": "Tổ 15, xã Kim Phú, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "037 802 2531",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Homestay Phan Thị Niên",
+    "category_primary": "ngu",
+    "address_text": "Xóm 15, xã Kim Phú, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
