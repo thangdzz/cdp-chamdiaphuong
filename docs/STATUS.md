@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-20 — TÌM KIẾM LAI CDP + GOOGLE (NOTE-15), CHƯA DEPLOY.**
+**Cập nhật mới nhất 2026-09-20 — TÌM KIẾM LAI CDP + GOOGLE (NOTE-15), ĐÃ DEPLOY** (`web-rduwrs5yk`).
 
 Làm theo `docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`, phần P0 còn thiếu:
 
@@ -27,8 +27,12 @@ trước, không đụng tới). Hai bộ test hàm thuần chạy tay: đoán t
 "Hà Nam" trả trống là ĐÚNG vì tỉnh đó đã sáp nhập 01/7/2025) và dẫn đường cho đề xuất đã ghim /
 điểm riêng chọn từ Google (4/4 đạt).
 
-**Chưa bấm thử trên máy thật** — cần: gõ một chữ không có trong danh bạ → "Tìm trên Google" →
-chọn một chỗ → xem điểm đó vào lộ trình có nút "Chỉ đường" sáng ngay không.
+Kiểm trên web thật sau deploy: trang chủ HTTP 200, 11 chỗ hiện "Chỉ đường" / 230 chỗ "Tìm trên
+Google Maps"; một trang địa điểm mẫu hiện đúng "chưa được xác nhận" + nút "Ghim vị trí trên bản đồ".
+
+**Chưa bấm thử trọn một vòng trên máy thật** — cần: gõ một chữ không có trong danh bạ → "Tìm trên
+Google" → chọn một chỗ → xem điểm đó vào lộ trình có nút "Chỉ đường" sáng ngay không. Và: đề xuất
+một địa điểm mới có ghim vị trí → xem lộ trình dẫn đúng chỗ vừa ghim chưa.
 
 **Cố ý chưa làm** (NOTE tự xếp P1/P2): bản đồ hiện toàn bộ địa điểm CDP (§6 — dự án chưa có màn
 đó), tên gọi địa phương `searchAliases[]` (§7), micro-location và vị trí tạm theo sự kiện (§11–13).
