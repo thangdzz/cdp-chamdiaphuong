@@ -1,1 +1,63 @@
-[]
+[
+  {
+    "name": "Chaboba",
+    "category_primary": "an",
+    "address_text": "357 Quang Trung, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0966 039 887",
+    "opening_hours_text": "08:00 - 22:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Phở bò Nam Định",
+    "category_primary": "an",
+    "address_text": "481 đường 17 tháng 8, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["phở bò"]
+  },
+  {
+    "name": "Hồ Trung Việt",
+    "category_primary": "choi",
+    "address_text": "phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Hồ công viên được cải tạo từ hồ hoang, có đường dạo ven hồ, cây xanh, đèn chiếu sáng"
+  },
+  {
+    "name": "Hồ Tân Hà",
+    "category_primary": "choi",
+    "address_text": "phường Tân Hà, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Hồ công viên được cải tạo, có đường dạo ven hồ, cây xanh, đèn chiếu sáng"
+  },
+  {
+    "name": "Đài tưởng niệm Tuyên Quang",
+    "category_primary": "choi",
+    "address_text": null,
+    "near_landmark": "Nằm trên đồi giữa quần thể hồ, công viên cây xanh trung tâm thành phố",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Địa chỉ cụ thể chưa xác định rõ - các nguồn ghi khác nhau (phường Minh Xuân hoặc phường Phan Thiết)"
+  },
+  {
+    "name": "Nhà Nghỉ Phương Thanh",
+    "category_primary": "ngu",
+    "address_text": "Phạm Văn Đồng, xã Lưỡng Vượng, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
