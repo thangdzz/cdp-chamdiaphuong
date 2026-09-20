@@ -160,6 +160,11 @@
     "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Chaboba",
+    "type": "an",
+    "address": "357 Quang Trung, TP Tuyên Quang"
+  },
+  {
     "name": "ChangMin Tea, Coffee & Food",
     "type": "an",
     "address": "Số nhà 01, Ngõ 280 Đại lộ Tân Trào, phường Minh Xuân, TP Tuyên Quang"
@@ -273,6 +278,11 @@
     "name": "Disney Park (khu vui chơi trẻ em)",
     "type": "choi",
     "address": "Số nhà 120, đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Đài tưởng niệm Tuyên Quang",
+    "type": "choi",
+    "address": null
   },
   {
     "name": "Đảo hoa cầu Tình Húc",
@@ -438,6 +448,21 @@
     "name": "Homestay Nguyễn Văn Siểng",
     "type": "ngu",
     "address": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang"
+  },
+  {
+    "name": "Hồ Tân Hà",
+    "type": "choi",
+    "address": "phường Tân Hà, TP Tuyên Quang"
+  },
+  {
+    "name": "Hồ Trung Việt",
+    "type": "choi",
+    "address": "phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Hội quán Luật",
+    "type": "an",
+    "address": "Kiot số 3 Sân bóng Phan thiết"
   },
   {
     "name": "Hương Thái - Chè Các Loại & Ăn Vặt",
@@ -938,6 +963,11 @@
     "name": "Phở bò Cồ Kháng",
     "type": "an",
     "address": "85 đường Bình Thuận, TP Tuyên Quang"
+  },
+  {
+    "name": "Phở bò Nam Định",
+    "type": "an",
+    "address": "481 đường 17 tháng 8, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Phở Hùng",
