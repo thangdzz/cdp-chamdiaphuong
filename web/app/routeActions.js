@@ -28,7 +28,8 @@ import { getLivePlaces } from "@/lib/redis";
 import { createProposal } from "@/lib/proposals";
 import { isValidProvince } from "@/lib/provinces";
 import { coordinatesOf } from "@/lib/coordinates";
-import { googlePlaceIdOf } from "@/lib/placeLocation";
+import { getAllLocationConsensus } from "@/lib/locationVotes";
+import { googlePlaceIdOf, locationOf } from "@/lib/placeLocation";
 
 // Không cần đăng nhập, chưa có hồ sơ thì tự tạo im lặng — giống hệt Sổ (SPEC-chang-4 §5 quy
 // tắc 1). Chỉ tạo lúc khách THỰC SỰ tạo/sửa gì, không phải lúc chỉ xem.
@@ -91,9 +92,25 @@ export async function createRouteAndAddPlace({ anonId, title, placeId, nameSnaps
   return { ...result, slug: created.slug, anonId: currentAnonId, newProfile };
 }
 
-export async function addCustomStop({ anonId, slug, customTitle, customAddress, customProvince }) {
+export async function addCustomStop({
+  anonId,
+  slug,
+  customTitle,
+  customAddress,
+  customProvince,
+  coordinates,
+  googlePlaceId,
+}) {
   if (!anonId || !slug) return { ok: false };
-  return addCustomStopToRoute({ anonId, slug, customTitle, customAddress, customProvince });
+  return addCustomStopToRoute({
+    anonId,
+    slug,
+    customTitle,
+    customAddress,
+    customProvince,
+    coordinates,
+    googlePlaceId,
+  });
 }
 
 export async function removeStop({ anonId, slug, index }) {
@@ -134,7 +151,8 @@ export async function saveStopDetails({
  * khách gõ lại. Thứ tự đúng bằng thứ tự khung.
  *
  * @param {{placeId?: string, name?: string, customTitle?: string, customAddress?: string,
- *          customProvince?: string, plannedAt?: string, durationMinutes?: number}[]} stops
+ *          customProvince?: string, coordinates?: object, googlePlaceId?: string,
+ *          plannedAt?: string, durationMinutes?: number}[]} stops
  */
 export async function createRouteFromPlan({ anonId, title, stops }) {
   if (!stops?.length) return { ok: false, error: "Chưa chọn chỗ nào." };
@@ -164,6 +182,8 @@ export async function createRouteFromPlan({ anonId, title, stops }) {
         customTitle: stop.customTitle,
         customAddress: stop.customAddress,
         customProvince: stop.customProvince,
+        coordinates: stop.coordinates,
+        googlePlaceId: stop.googlePlaceId,
       });
     } else {
       continue;
@@ -318,16 +338,27 @@ export async function checkRouteOwnership({ anonId, slug }) {
 // PlacePicker tải danh bạ MỘT LẦN lúc mở rồi lọc ngay trên máy khách (NOTE-07 §13 muốn tìm
 // kiếm mượt). Cắt còn 5 trường: ~210 chỗ × ~90 byte ≈ 20KB, rẻ hơn hẳn việc gọi máy chủ theo
 // từng ký tự gõ, và chỉ tốn đúng 1 lệnh Redis.
+// Danh bạ rút gọn cho PlacePicker. Kèm TRẠNG THÁI VỊ TRÍ (NOTE-15 §17) để kết quả nói rõ chỗ
+// này đã có ai xác nhận chưa — khách chọn giữa "CDP · 4 người xác nhận" và một cái tên Google
+// na ná thì đó là thông tin quyết định. Chỉ trả 3 field gọn, không trả cả bảng đồng thuận.
 export async function fetchPickerPlaces() {
-  const places = await getLivePlaces();
-  return places.map((p) => ({
-    id: p.id,
-    name: p.name,
-    type: p.type,
-    ward: p.ward ?? null,
-    address: p.address ?? null,
-    localArea: p.localArea ?? null,
-  }));
+  const [places, allLocationConsensus] = await Promise.all([
+    getLivePlaces(),
+    getAllLocationConsensus(),
+  ]);
+  return places.map((p) => {
+    const location = locationOf({ ...p, locationConsensus: allLocationConsensus[p.id] ?? null });
+    return {
+      id: p.id,
+      name: p.name,
+      type: p.type,
+      ward: p.ward ?? null,
+      address: p.address ?? null,
+      localArea: p.localArea ?? null,
+      locationStatus: location.status,
+      locationVoters: location.voters,
+    };
+  });
 }
 
 // "Tạo lộ trình từ đây" (§4) — tạo lộ trình mới với TẤT CẢ chỗ vừa chọn trong PlacePicker.
@@ -355,6 +386,8 @@ export async function createRouteWithPlaces({ anonId, title, places, customStops
       customTitle: custom.title,
       customAddress: custom.address ?? null,
       customProvince: custom.province,
+      coordinates: custom.coordinates,
+      googlePlaceId: custom.googlePlaceId,
     });
   }
   return { ok: true, slug: created.slug, anonId: currentAnonId, newProfile };
@@ -368,14 +401,33 @@ export async function addPlacesToMyRoute({ anonId, slug, places }) {
 
 // §6.B: đề xuất một chỗ chưa có trong danh bạ. Vào lộ trình NGAY (kèm nhãn chưa xác minh),
 // đồng thời xếp hàng chờ admin — hai việc trong một lượt bấm.
-export async function proposePlaceForRoute({ anonId, slug, name, type, ward, address, note }) {
+export async function proposePlaceForRoute({
+  anonId,
+  slug,
+  name,
+  type,
+  ward,
+  address,
+  note,
+  coordinates,
+  googlePlaceId,
+}) {
   if (!slug) return { ok: false };
   const { anonId: currentAnonId, newProfile } = await ensureProfile(anonId);
   const route = await getRoute(slug);
   if (!route || route.ownerAnonId !== currentAnonId) {
     return { ok: false, error: "Không tìm thấy lộ trình.", anonId: currentAnonId, newProfile };
   }
-  const proposal = await createProposal({ contributorId: currentAnonId, name, type, ward, address, note });
+  const proposal = await createProposal({
+    contributorId: currentAnonId,
+    name,
+    type,
+    ward,
+    address,
+    note,
+    coordinates,
+    googlePlaceId,
+  });
   if (!proposal.ok) return { ...proposal, anonId: currentAnonId, newProfile };
 
   const added = await addProposedStopToRoute({

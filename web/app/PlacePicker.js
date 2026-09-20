@@ -1,10 +1,35 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { provinceCenter } from "@/lib/geocode";
+import { LOCATION_STATUS } from "@/lib/placeLocation";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
-import { PROVINCES } from "@/lib/provinces";
+import { DEFAULT_PROVINCE, PROVINCES, provinceFromAddress } from "@/lib/provinces";
+import { searchGooglePlaces } from "./googlePlacesActions";
 import { fetchPickerPlaces } from "./routeActions";
+
+// Bật/tắt phần tìm trên Google. Cờ CÔNG KHAI, không phải khoá (khoá thật ở máy chủ) — tắt thì
+// bộ chọn quay về đúng như cũ: chỉ tìm trong danh bạ CDP.
+const GOOGLE_PLACES_ON = process.env.NEXT_PUBLIC_GOOGLE_PLACES === "1";
+const MIN_GOOGLE_QUERY = 3;
+
+// Thứ tự tin cậy để xếp kết quả CDP (NOTE-15 §14): chỗ đã có người xác nhận vị trí lên trước.
+const LOCATION_RANK = {
+  [LOCATION_STATUS.ADMIN_VERIFIED]: 0,
+  [LOCATION_STATUS.COMMUNITY_VERIFIED]: 1,
+  [LOCATION_STATUS.UNVERIFIED]: 2,
+};
+
+// Nhãn nguồn của một dòng kết quả (NOTE-15 §17). Khách phải phân biệt được ngay "chỗ này CDP
+// đã có người đứng tận nơi xác nhận" với "cái tên Google vừa tra ra" — hai thứ khác hẳn nhau.
+function cdpLocationLabel(place) {
+  if (place.locationStatus === LOCATION_STATUS.ADMIN_VERIFIED) return "CDP · đã xác nhận vị trí";
+  if (place.locationStatus === LOCATION_STATUS.COMMUNITY_VERIFIED) {
+    return `CDP · ${place.locationVoters} người xác nhận vị trí`;
+  }
+  return "CDP · chưa xác nhận vị trí";
+}
 
 // Bộ chọn địa điểm DÙNG CHUNG (NOTE-07 §3) — cùng một component cho:
 //   1. "Tạo lộ trình từ đây" trên thẻ địa điểm và trang địa điểm
@@ -54,7 +79,14 @@ export function PlacePicker({
   const [customTouched, setCustomTouched] = useState(false);
   // Chế độ giữ tạm (màn tạo mới) — điểm riêng gom ở đây tới lúc bấm nút cuối.
   const [pendingCustom, setPendingCustom] = useState([]);
+  // Tìm trên Google (NOTE-15 §2): null = chưa tìm lần nào, [] = tìm rồi mà không có gì.
+  const [googleResults, setGoogleResults] = useState(null);
+  const [googleSearching, setGoogleSearching] = useState(false);
+  const [googleError, setGoogleError] = useState(null);
+  // Kết quả Google khách vừa chọn — đi kèm điểm riêng sắp thêm để nó có vị trí ngay từ đầu.
+  const [pickedGoogle, setPickedGoogle] = useState(null);
   const searchRef = useRef(null);
+  const customRef = useRef(null);
   const holdsLocally = !onAddCustomStop;
   const existing = useMemo(() => new Set(existingPlaceIds), [existingPlaceIds]);
 
@@ -75,10 +107,20 @@ export function PlacePicker({
   const filtered = useMemo(() => {
     if (!places) return [];
     const q = normalizeForSearch(query).trim();
-    return places.filter((p) => {
+    const matched = places.filter((p) => {
       if (type !== "all" && p.type !== type) return false;
       if (q && !matchesSearchQuery(placeSearchHaystack(p), q)) return false;
       return true;
+    });
+    // Chỉ xếp lại KHI ĐANG TÌM. Danh sách mặc định giữ nguyên thứ tự danh bạ — đổi cả thứ tự
+    // lúc không tìm gì là đổi mặt trang mà không ai yêu cầu.
+    if (!q) return matched;
+    return matched.sort((a, b) => {
+      // Tên bắt đầu đúng chữ đang gõ lên trước, rồi mới tới mức tin của vị trí (§14).
+      const startsA = normalizeForSearch(a.name).startsWith(q) ? 0 : 1;
+      const startsB = normalizeForSearch(b.name).startsWith(q) ? 0 : 1;
+      if (startsA !== startsB) return startsA - startsB;
+      return (LOCATION_RANK[a.locationStatus] ?? 2) - (LOCATION_RANK[b.locationStatus] ?? 2);
     });
   }, [places, query, type]);
 
@@ -129,6 +171,46 @@ export function PlacePicker({
     setCustomProvince("");
     setCustomTouched(false);
     setQuery("");
+    setPickedGoogle(null);
+    setGoogleResults(null);
+    setGoogleError(null);
+  }
+
+  // NOTE-15 §2: danh bạ CDP không có thì hỏi Google — nhưng hỏi KHI KHÁCH BẤM, không gọi theo
+  // từng ký tự gõ. Google tính tiền theo lượt tra, và phần lớn lượt tìm đều có sẵn trong CDP.
+  async function handleSearchGoogle() {
+    const q = query.trim();
+    if (q.length < MIN_GOOGLE_QUERY || googleSearching) return;
+    setGoogleSearching(true);
+    setGoogleError(null);
+    const result = await searchGooglePlaces({
+      query: q,
+      // Ưu tiên quanh tỉnh khách đang khai cho điểm riêng; chưa khai thì quanh vùng CDP hoạt
+      // động. Chỉ là ưu tiên — Google vẫn trả chỗ ở tỉnh khác nếu khớp hơn.
+      near: provinceCenter(customProvince || DEFAULT_PROVINCE),
+    });
+    setGoogleSearching(false);
+    if (!result?.ok) {
+      setGoogleResults(null);
+      setGoogleError(result?.error ?? "Không tìm được trên Google.");
+      return;
+    }
+    setGoogleResults(result.candidates);
+  }
+
+  // Chọn một kết quả Google = điền sẵn ô "Điểm riêng" kèm vị trí. Tên vẫn sửa được: Google gọi
+  // là "Quán Cơm Bình Dân 79" mà khách quen gọi "cơm bà The" thì tên của khách mới là tên đúng
+  // trong lộ trình của họ (§4), còn vị trí thì giữ nguyên của Google.
+  function pickGoogle(candidate) {
+    setPickedGoogle(candidate);
+    setCustomTouched(true);
+    setCustomDraft(candidate.name);
+    setCustomAddress(candidate.address ?? "");
+    const province = provinceFromAddress(candidate.address);
+    if (province) setCustomProvince(province);
+    requestAnimationFrame(() =>
+      customRef.current?.scrollIntoView({ block: "center", behavior: "smooth" })
+    );
   }
 
   async function handleAddCustom() {
@@ -136,25 +218,38 @@ export function PlacePicker({
     const address = customAddress.trim();
     const province = customProvince;
     if (!title || !province || busy) return;
+    // Khách đã nhìn tận mắt và chọn đúng chỗ đó trên Google → tính là đã xác nhận, giữ luôn
+    // Place ID (bền hơn toạ độ khi quán dời vài mét hay đổi tên phường).
+    const pin = pickedGoogle
+      ? {
+          coordinates: {
+            lat: pickedGoogle.lat,
+            lng: pickedGoogle.lng,
+            source: "google_place",
+            confirmed: true,
+          },
+          googlePlaceId: pickedGoogle.placeId,
+        }
+      : {};
     // Đổi chỗ: điểm riêng vừa gõ chính là thứ thay cho điểm đang sửa, đi thẳng qua onConfirm
     // như khi chọn một địa điểm CDP.
     if (singlePick) {
       setBusy(true);
       try {
-        await onConfirm([], { customStops: [{ title, address: address || null, province }] });
+        await onConfirm([], { customStops: [{ title, address: address || null, province, ...pin }] });
       } finally {
         setBusy(false);
       }
       return;
     }
     if (holdsLocally) {
-      setPendingCustom((prev) => [...prev, { title, address: address || null, province }]);
+      setPendingCustom((prev) => [...prev, { title, address: address || null, province, ...pin }]);
       resetCustomInputs();
       return;
     }
     setBusy(true);
     try {
-      const result = await onAddCustomStop({ title, address: address || null, province });
+      const result = await onAddCustomStop({ title, address: address || null, province, ...pin });
       if (result?.ok) resetCustomInputs();
     } finally {
       setBusy(false);
@@ -259,6 +354,14 @@ export function PlacePicker({
                   <span className="block text-xs text-zinc-500">
                     {[PLACE_TYPES.find((t) => t.id === p.type)?.label, p.ward].filter(Boolean).join(" · ")}
                   </span>
+                  {/* §17: nói rõ đây là dữ liệu CDP và vị trí đã ai xác nhận chưa. */}
+                  <span
+                    className={`mt-0.5 block text-xs ${
+                      p.locationStatus === LOCATION_STATUS.UNVERIFIED ? "text-zinc-400" : "text-emerald-700"
+                    }`}
+                  >
+                    {cdpLocationLabel(p)}
+                  </span>
                   {/* Chỗ đã có trong lộ trình VẪN chọn được — sáng đi ăn rồi tối quay lại là
                       chuyện thường. Chỉ báo trước để khách biết đây là lần thứ hai, không
                       phải bấm nhầm. */}
@@ -275,7 +378,57 @@ export function PlacePicker({
         {/* §13: không có kết quả -> đưa ra 2 lối thoát, và 2 cái này KHÁC NGHĨA nhau, phải nói
             rõ để khách chọn đúng. */}
         {noResults && (
-          <p className="mb-3 text-sm text-zinc-500">Không tìm thấy chỗ nào khớp.</p>
+          <p className="mb-3 text-sm text-zinc-500">Không tìm thấy chỗ nào trong danh bạ CDP.</p>
+        )}
+
+        {/* §2 tìm kiếm lai: danh bạ CDP ở trên, Google ở dưới, mỗi bên ghi rõ nguồn. Không trộn
+            chung một danh sách — khách phải biết cái nào đã có người địa phương xác nhận. */}
+        {GOOGLE_PLACES_ON && query.trim().length >= MIN_GOOGLE_QUERY && (
+          <div className="mt-4 border-t border-zinc-200 pt-4">
+            <button
+              type="button"
+              disabled={googleSearching}
+              onClick={handleSearchGoogle}
+              className="cdp-pressable min-h-11 cursor-pointer rounded-lg border border-zinc-300 bg-white px-3 text-sm font-medium text-zinc-700 disabled:opacity-50"
+            >
+              {googleSearching ? "Đang tìm trên Google…" : `Tìm "${query.trim()}" trên Google`}
+            </button>
+            {googleError && <p className="mt-1 text-xs text-red-600">{googleError}</p>}
+            {googleResults?.length === 0 && (
+              <p className="mt-1.5 text-xs text-zinc-500">
+                Google cũng không có chỗ nào khớp. Thêm thành điểm riêng bên dưới, rồi ghim vị trí
+                ở trang sửa lộ trình.
+              </p>
+            )}
+            {googleResults?.length > 0 && (
+              <>
+                <p className="mt-2 mb-1.5 text-[13px] text-zinc-500">
+                  Google tìm thấy — chọn một chỗ để thêm kèm sẵn vị trí:
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  {googleResults.map((candidate) => (
+                    <button
+                      key={candidate.placeId}
+                      type="button"
+                      onClick={() => pickGoogle(candidate)}
+                      className={`w-full cursor-pointer rounded-lg border bg-white px-3 py-2 text-left ${
+                        pickedGoogle?.placeId === candidate.placeId ? "border-[#c8553d]" : "border-zinc-200"
+                      }`}
+                    >
+                      <span className="block text-sm text-zinc-900">
+                        {pickedGoogle?.placeId === candidate.placeId ? "● " : ""}
+                        {candidate.name}
+                      </span>
+                      {candidate.address && (
+                        <span className="block text-xs text-zinc-500">{candidate.address}</span>
+                      )}
+                      <span className="mt-0.5 block text-xs text-zinc-400">Google</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         )}
 
         <div className="mt-5 flex flex-col gap-3 border-t border-zinc-200 pt-4">
@@ -309,7 +462,7 @@ export function PlacePicker({
             )}
           </div>
 
-          <div>
+          <div ref={customRef}>
             <p className="text-[13px] font-medium text-zinc-700">Điểm riêng của bạn</p>
             <p className="mb-1.5 text-xs text-zinc-500">
               Chỗ chỉ mình bạn cần — nhà bạn bè, điểm hẹn. Không gửi CDP, không vào danh bạ.
@@ -352,6 +505,20 @@ export function PlacePicker({
                   </option>
                 ))}
               </select>
+              {/* Chọn từ Google rồi thì điểm riêng này đã có toạ độ + Place ID — nói ra để khách
+                  biết không phải kéo ghim lần nữa, và để họ bỏ được nếu chọn nhầm. */}
+              {pickedGoogle && (
+                <p className="flex flex-wrap items-center gap-x-2 text-xs text-emerald-700">
+                  ✓ Đã có vị trí từ Google ({pickedGoogle.lat.toFixed(5)}, {pickedGoogle.lng.toFixed(5)})
+                  <button
+                    type="button"
+                    onClick={() => setPickedGoogle(null)}
+                    className="cursor-pointer text-zinc-500 underline"
+                  >
+                    Bỏ vị trí này
+                  </button>
+                </p>
+              )}
               <button
                 type="button"
                 disabled={busy || !customTitle.trim() || !customProvince}

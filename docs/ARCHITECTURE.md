@@ -30,7 +30,7 @@ viết code Next.js.**
 
 ---
 
-## 2. Kho dữ liệu — 27 key Redis
+## 2. Kho dữ liệu — 28 key Redis
 
 Tất cả đều là **một key = một mảng JSON**, **trừ `places:closed`**,
 `place_checkins:latest` (Chặng 1), 3 key của Chặng 2, và 4 key của Chặng 4 (xem bên dưới) —
@@ -231,6 +231,7 @@ cộng đúng lúc người thứ hai bấm trùng, không phải lúc họ tự
 | `place_location:consensus` | **Hash**, field = `placeId` | Kết luận đã tính sẵn `{lat, lng, googlePlaceId, voters, status, conflict, at, clusters[]}`. `status`: `community_verified` \| `conflict` \| `pending`. 1 `HGETALL` phục vụ cả trang công khai lẫn bảng admin |
 | `place_location:votes:{placeId}` | **Hash**, field = `anonId` | `{lat, lng, googlePlaceId, at, awarded}` — **một người một phiếu cho một chỗ**, gửi lại là thay phiếu cũ. Chỉ đọc khi có người vừa bấm ở đúng chỗ đó |
 | `location_votes:count:{anonId}:{ngày}` | String (số đếm), TTL 48h | Trần 20 phiếu vị trí/người/ngày — chặn bơm dữ liệu, khác trần điểm chung 30đ/ngày |
+| `place_location:history` | **Hash**, field = `placeId` | Nhật ký đổi ghim (20/9, `lib/locationHistory.js`): mảng `{at, actor, reason, from, to}`, mới nhất trước, giữ 20 lần. Chỉ GHI — màn xem để P2. Ghim đè ghim mà không có cái này thì đổi nhầm là không lùi được |
 
 **Luật đồng thuận (spec Consensus §7):** gom phiếu thành cụm bán kính **40m**
 (`LOCATION_CONSENSUS_RADIUS_METERS`, tâm cụm = trung bình các phiếu trong cụm; xét theo thứ tự thời
@@ -248,7 +249,31 @@ Phiếu khách **không bao giờ ghi đè `places:live`** — admin chốt ở 
 đọc field đó, nên `placeMapAction()`/`stopRouteTarget()` không phải sửa gì.
 Giao diện khách: `app/PlaceLocationVote.js` (+ `app/locationVoteActions.js`) ở trang địa điểm, và
 `app/StopPlaceLocation.js` ở trang sửa lộ trình. Bảng admin: `app/admin/vi-tri/LocationSuggestions.js`. Xoá/gộp chỗ → `removePlaceLocationVotes()` dọn cùng
-`removePlaceAnswers()`.
+`removePlaceAnswers()`. Xoá địa điểm còn dọn thêm `removeLocationHistory()`.
+
+### Tìm kiếm lai CDP + Google (2026-09-20, NOTE-15 §2, §14, §17)
+
+Bộ chọn địa điểm (`app/PlacePicker.js`) tìm **danh bạ CDP trước**, Google chỉ là lớp bổ sung khi
+khách bấm — Google tính tiền theo lượt tra, và phần lớn lượt tìm đã có sẵn trong CDP. Hai khối
+tách rời nhau trên màn hình, mỗi bên ghi rõ nguồn: `CDP · đã xác nhận vị trí` /
+`CDP · N người xác nhận vị trí` / `CDP · chưa xác nhận vị trí`, còn bên kia là `Google`. Trộn
+chung một danh sách là mất đúng cái thông tin khách cần để chọn.
+
+Xếp hạng chỉ chạy **khi đang gõ tìm** (danh sách mặc định giữ nguyên thứ tự danh bạ): tên bắt đầu
+đúng chữ đang gõ trước, rồi tới mức tin vị trí (`admin_verified` → `community_verified` →
+`unverified`).
+
+Chọn một kết quả Google = điền sẵn ô **Điểm riêng** kèm `coordinates {source: "google_place",
+confirmed: true}` + `googlePlaceId`, tỉnh đoán từ địa chỉ (`provinceFromAddress`, đoán không ra thì
+để trống chứ không rơi về Tuyên Quang). Tên vẫn sửa được — tên của khách mới là tên đúng trong lộ
+trình của họ, vị trí thì giữ của Google. Đường đi của cái ghim đó: `PlacePicker` →
+`addCustomStop`/`createRouteWithPlaces`/`replaceStop` → `addCustomStopToRoute()` lưu thẳng vào điểm
+dừng. Google tắt (`NEXT_PUBLIC_GOOGLE_PLACES` ≠ `1`) thì cả khối ẩn, bộ chọn về đúng như cũ.
+
+**Đề xuất địa điểm mới cũng ghim được** (`app/ProposePlaceForm.js` + `LocationConfirm`): toạ độ đi
+theo proposal → lộ trình của chính người đề xuất dẫn đúng ngay khi chưa duyệt (`resolveRouteStops`
+đọc `proposal.coordinates`), duyệt xong thì theo luôn vào `places:live`, khỏi ghim lại ở
+`/admin/vi-tri`. Chế độ "chỗ mới thay chỗ cũ" KHÔNG mở ô ghim — vị trí kế thừa của chỗ cũ.
 
 ### Sổ chia sẻ được (Chặng 4, `lib/notebooks.js`)
 
@@ -549,6 +574,8 @@ web/
 │   ├── locationVotes.js    (268)  ⭐ Cộng đồng xác nhận VỊ TRÍ (16/9): phiếu 1 người/1 chỗ,
 │   │                              gom cụm 40m, ≥2 người là dẫn đường được, hai cụm bằng nhau
 │   │                              thì không tự chọn. KHÔNG ghi đè places:live — xem §2
+│   ├── locationHistory.js   (77)  Nhật ký đổi ghim (20/9, NOTE-15 §19): giữ toạ độ cũ, ai
+│   │                              đổi, vì sao. Chỉ ghi, chưa có màn xem
 │   ├── notebooks.js        (215)  ⭐ Chặng 4: tạo/sửa sổ, sinh slug 8 ký tự (SET NX chống
 │   │                              trùng), tra places:live 1 lần rồi ghép vào items, đếm
 │   │                              view/copy — file lõi nặng nhất của Chặng 4

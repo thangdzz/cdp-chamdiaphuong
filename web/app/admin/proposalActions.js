@@ -74,6 +74,7 @@ export async function approveProposalAction(formData) {
     ward: proposal.ward ?? null,
     localArea: proposal.localArea ?? null,
     coordinates: proposal.coordinates ?? null,
+    googlePlaceId: proposal.googlePlaceId ?? null,
     phone: null,
     priceMin: null,
     priceMax: null,

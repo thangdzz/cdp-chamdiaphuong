@@ -192,8 +192,16 @@ export function LocationConfirm({
                 ? `Không tìm thấy đúng địa chỉ này. Bản đồ đang mở ở giữa ${province} — kéo ghim tới đúng vị trí.`
                 : "Kéo bản đồ để đưa ghim tới đúng vị trí nếu cần."}
           </p>
+          {/* NOTE-15 §4: nói rõ AI tra ra chỗ này. "Tìm thấy: …" trống không khiến khách tưởng
+              CDP đã xác nhận, rồi bấm xác nhận mà không nhìn kỹ — trong khi đây mới chỉ là máy
+              tra theo chữ, thứ hay lệch nhất ở Việt Nam. */}
           {status === "found" && foundLabel && (
-            <p className="mt-0.5 text-xs text-zinc-500">Tìm thấy: {foundLabel}</p>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              Bản đồ tra được: {foundLabel}
+              <span className="block text-zinc-400">
+                Không đúng? Kéo bản đồ để đưa ghim tới vị trí thực tế.
+              </span>
+            </p>
           )}
 
           {/* §4: chỗ nào Google đã có thì chọn thẳng — chính xác hơn kéo tay, và có Place ID. */}
@@ -211,6 +219,11 @@ export function LocationConfirm({
                 <p className="mt-1 text-xs text-zinc-500">Google không có chỗ nào khớp — kéo ghim tay nhé.</p>
               )}
               {candidates?.length > 0 && (
+                <p className="mt-2 text-xs text-zinc-500">
+                  Google tìm thấy — chọn đúng chỗ, hoặc kéo ghim nếu không chỗ nào đúng:
+                </p>
+              )}
+              {candidates?.length > 0 && (
                 <ul className="mt-1 flex flex-col gap-1">
                   {candidates.map((candidate) => (
                     <li key={candidate.placeId}>
@@ -226,6 +239,7 @@ export function LocationConfirm({
                           {candidate.name}
                         </span>
                         {candidate.address && <span className="text-xs text-zinc-500">{candidate.address}</span>}
+                        <span className="text-xs text-zinc-400">Google</span>
                       </button>
                     </li>
                   ))}

@@ -194,6 +194,9 @@ export function stopMapsQuery(stop) {
     );
   }
   if (stop.proposal) {
+    // Ghim khách đã xác nhận lúc đề xuất thắng chuỗi chữ, cùng lý do như điểm riêng bên dưới.
+    const pinnedProposal = coordinatesQuery(coordinatesOf(stop));
+    if (pinnedProposal) return pinnedProposal;
     // Đề xuất là chỗ xin đưa vào danh bạ CDP, mà danh bạ chỉ nhận Tuyên Quang.
     return buildQuery([
       cleanPart(stop.proposal.name),

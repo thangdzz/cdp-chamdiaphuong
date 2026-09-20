@@ -35,6 +35,9 @@ export function InteractivePlan({ template }) {
           customTitle: custom.title,
           customAddress: custom.address ?? null,
           customProvince: custom.province,
+          // Chọn từ kết quả Google trong bộ chọn thì vị trí theo sang luôn (NOTE-15 §2).
+          coordinates: custom.coordinates ?? null,
+          googlePlaceId: custom.googlePlaceId ?? null,
         },
       }));
     }
@@ -57,6 +60,8 @@ export function InteractivePlan({ template }) {
                 customTitle: place.customTitle,
                 customAddress: place.customAddress,
                 customProvince: place.customProvince,
+                coordinates: place.coordinates ?? null,
+                googlePlaceId: place.googlePlaceId ?? null,
                 plannedAt: slot.plannedAt,
                 durationMinutes: slot.durationMinutes,
               };

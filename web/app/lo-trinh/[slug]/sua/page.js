@@ -136,7 +136,9 @@ export default function EditRoutePage({ params }) {
     if (result?.ok) await reload();
   }
 
-  async function handleAddCustom({ title, address, province }) {
+  // `coordinates` / `googlePlaceId` chỉ có khi khách chọn từ kết quả Google trong bộ chọn —
+  // điểm riêng gõ tay vẫn không có vị trí, phải ghim ở khối bản đồ bên dưới như trước.
+  async function handleAddCustom({ title, address, province, coordinates, googlePlaceId }) {
     const result = await run((anonId) =>
       addCustomStop({
         anonId,
@@ -144,6 +146,8 @@ export default function EditRoutePage({ params }) {
         customTitle: title,
         customAddress: address,
         customProvince: province,
+        coordinates,
+        googlePlaceId,
       })
     );
     if (result?.ok) {

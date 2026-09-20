@@ -36,6 +36,7 @@ export function LocationSuggestions({ items }) {
     const result = await savePlaceLocation({
       id: item.id,
       coordinates: { lat: cluster.lat, lng: cluster.lng, source: "admin_pin", confirmed: true },
+      reason: `chốt theo ${cluster.voters} phiếu của khách`,
     });
     setBusy(null);
     if (result?.ok) setDone((current) => ({ ...current, [item.id]: true }));

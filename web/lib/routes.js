@@ -332,12 +332,18 @@ export async function addProposedStopToRoute({ anonId, slug, proposalId, name })
 //
 // `customProvince` đi kèm địa chỉ: điểm riêng của khách nằm ở tỉnh nào cũng được ("31 Hàng Bún"
 // là Hà Nội chứ không phải Tuyên Quang), nên tỉnh phải do khách chọn chứ không suy từ CDP.
+//
+// `coordinates` / `googlePlaceId` (NOTE-15 §2, §5): điểm riêng sinh ra từ một kết quả Google mà
+// khách vừa CHỌN tận mắt thì đã có vị trí chuẩn ngay lúc thêm — khỏi bắt họ mở trang sửa rồi kéo
+// ghim thêm một lượt nữa. Không truyền thì vẫn là điểm chỉ có chữ như trước.
 export async function addCustomStopToRoute({
   anonId,
   slug,
   customTitle,
   customAddress,
   customProvince,
+  coordinates,
+  googlePlaceId,
 }) {
   const route = await getRoute(slug);
   if (!assertOwner(route, anonId)) return { ok: false, error: "Không tìm thấy lộ trình." };
@@ -353,6 +359,11 @@ export async function addCustomStopToRoute({
   if (route.stops.length >= MAX_STOPS_PER_ROUTE) {
     return { ok: false, error: `Lộ trình đã đủ ${MAX_STOPS_PER_ROUTE} điểm rồi.` };
   }
+  const cleanLocation = coordinates === undefined ? null : cleanCoordinates(coordinates);
+  const cleanGooglePlaceId =
+    cleanLocation && typeof googlePlaceId === "string"
+      ? googlePlaceId.trim().slice(0, 200) || null
+      : null;
   route.stops.push({
     type: STOP_TYPES.CUSTOM,
     placeId: null,
@@ -363,6 +374,8 @@ export async function addCustomStopToRoute({
     plannedAt: null,
     durationMinutes: null,
     note: null,
+    ...(cleanLocation ? { coordinates: cleanLocation } : {}),
+    ...(cleanGooglePlaceId ? { googlePlaceId: cleanGooglePlaceId } : {}),
   });
   route.updatedAt = new Date().toISOString();
   await redis.set(routeKey(slug), route);
@@ -392,8 +405,9 @@ export async function removeStopFromRoute({ anonId, slug, index }) {
  * giao diện nhắc xem lại — nhắc vẫn hơn tự ý xoá chữ người ta đã gõ.
  *
  * @param {{id: string, name: string}} [place] đổi sang một địa điểm CDP
- * @param {{title: string, address: string|null, province: string|null}} [custom] hoặc đổi
- *        thành điểm riêng
+ * @param {{title: string, address: string|null, province: string|null,
+ *          coordinates?: object, googlePlaceId?: string}} [custom] hoặc đổi thành điểm riêng
+ *        (kèm sẵn vị trí nếu khách chọn từ kết quả Google — NOTE-15 §2)
  */
 export async function replaceStop({ anonId, slug, index, place, custom }) {
   const route = await getRoute(slug);
@@ -427,6 +441,11 @@ export async function replaceStop({ anonId, slug, index, place, custom }) {
     if (containsLinkOrPhone(cleanTitle) || (cleanAddress && containsLinkOrPhone(cleanAddress))) {
       return { ok: false, error: "Không được chứa link hoặc số điện thoại." };
     }
+    const cleanLocation = cleanCoordinates(custom?.coordinates);
+    const cleanGooglePlaceId =
+      cleanLocation && typeof custom?.googlePlaceId === "string"
+        ? custom.googlePlaceId.trim().slice(0, 200) || null
+        : null;
     route.stops[index] = {
       type: STOP_TYPES.CUSTOM,
       placeId: null,
@@ -434,6 +453,8 @@ export async function replaceStop({ anonId, slug, index, place, custom }) {
       customAddress: cleanAddress,
       customProvince: normalizeProvince(custom?.province),
       nameSnapshot: null,
+      ...(cleanLocation ? { coordinates: cleanLocation } : {}),
+      ...(cleanGooglePlaceId ? { googlePlaceId: cleanGooglePlaceId } : {}),
       ...kept,
     };
   }
@@ -652,8 +673,14 @@ export async function resolveRouteStops(stops) {
         };
       }
       // Còn đang chờ -> hiện kèm nhãn chưa xác minh (§9).
+      //
+      // Vị trí khách đã ghim lúc đề xuất theo sang lộ trình của CHÍNH HỌ ngay (NOTE-15 §9):
+      // chỗ này chưa vào danh bạ, nhưng người tạo vẫn phải dẫn đường tới được đúng chỗ thay vì
+      // để Google đoán lại theo tên. Ghim trên điểm dừng (nếu có) vẫn đứng trước.
       return {
         ...stop,
+        coordinates: stop.coordinates ?? proposal?.coordinates ?? null,
+        googlePlaceId: stop.googlePlaceId ?? proposal?.googlePlaceId ?? null,
         place: null,
         deleted: false,
         proposal: proposal ?? { name: stop.nameSnapshot, ward: null, address: null },

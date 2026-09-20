@@ -76,6 +76,7 @@ export async function createProposal({
   address,
   localArea,
   coordinates,
+  googlePlaceId,
   note,
   replacesPlaceId,
   replacesPlaceName,
@@ -96,6 +97,10 @@ export async function createProposal({
   const cleanReplacesPlaceId = clean(replacesPlaceId, MAX_ADDRESS);
   const cleanReplacesPlaceName = clean(replacesPlaceName, MAX_NAME);
   const cleanLocation = cleanCoordinates(coordinates);
+  // Place ID chỉ có nghĩa khi đi kèm toạ độ đã ghim — không nhận ID trần (NOTE-15 §5: địa điểm
+  // CDP không bắt buộc có Place ID, nhưng có thì giữ vì nó bền hơn toạ độ).
+  const cleanGooglePlaceId =
+    cleanLocation && typeof googlePlaceId === "string" ? googlePlaceId.trim().slice(0, 200) || null : null;
   const cleanNote = clean(note, MAX_NOTE);
   // Cùng lớp lọc với mẹo địa phương: chặn link/số điện thoại trong chữ tự do, tránh biến ô đề
   // xuất thành chỗ rải quảng cáo.
@@ -132,6 +137,7 @@ export async function createProposal({
     address: cleanAddress,
     localArea: cleanLocalArea,
     coordinates: cleanLocation,
+    googlePlaceId: cleanGooglePlaceId,
     note: cleanNote,
     replacesPlaceId: cleanReplacesPlaceId,
     replacesPlaceName: cleanReplacesPlaceName,
@@ -151,6 +157,7 @@ export async function createProposal({
       address: cleanAddress,
       localArea: cleanLocalArea,
       coordinates: cleanLocation,
+      googlePlaceId: cleanGooglePlaceId,
       livePlaceId: null,
       replacesPlaceId: cleanReplacesPlaceId,
     },

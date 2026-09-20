@@ -25,6 +25,7 @@ import { cleanCoordinates } from "@/lib/coordinates";
 import { removeLatestCheckin } from "@/lib/checkins";
 import { removePlaceAnswers } from "@/lib/answers";
 import { removePlaceLocationVotes } from "@/lib/locationVotes";
+import { recordLocationChange, removeLocationHistory } from "@/lib/locationHistory";
 import { removePhoneConfirmations } from "@/lib/phoneConfirmations";
 
 async function requireAdmin() {
@@ -132,8 +133,17 @@ export async function updateLive(formData) {
   const updates = placeFromFormData(formData);
 
   const live = await getLivePlaces();
+  const before = live.find((p) => p.id === id) ?? null;
   const next = live.map((p) => (p.id === id ? { ...p, ...updates, id } : p));
   await setLivePlaces(next);
+  // §19: form sửa địa điểm cũng đổi được ghim, nên cũng phải vào nhật ký.
+  await recordLocationChange({
+    placeId: id,
+    before,
+    after: next.find((p) => p.id === id) ?? null,
+    actor: "admin",
+    reason: "sửa hồ sơ địa điểm",
+  });
 
   revalidatePath("/admin");
   revalidatePath("/");
@@ -150,6 +160,7 @@ export async function deleteLive(formData) {
   await removePlaceAnswers(id);
   await removePhoneConfirmations(id);
   await removePlaceLocationVotes(id);
+  await removeLocationHistory(id);
 
   revalidatePath("/admin");
   revalidatePath("/");
@@ -159,7 +170,7 @@ export async function deleteLive(formData) {
  * Ghi vị trí đã ghim cho MỘT địa điểm (spec Location-Routing §13 — bảng xác minh hàng loạt).
  * Tách khỏi `updateLive` để bảng đó không phải gửi lại toàn bộ form của từng chỗ.
  */
-export async function savePlaceLocation({ id, coordinates, googlePlaceId = null }) {
+export async function savePlaceLocation({ id, coordinates, googlePlaceId = null, reason = null }) {
   "use server";
   await requireAdmin();
   if (!id) return { ok: false, error: "Thiếu địa điểm." };
@@ -167,9 +178,18 @@ export async function savePlaceLocation({ id, coordinates, googlePlaceId = null 
   if (coordinates && !clean) return { ok: false, error: "Toạ độ không hợp lệ." };
 
   const live = await getLivePlaces();
-  if (!live.some((p) => p.id === id)) return { ok: false, error: "Không tìm thấy địa điểm này." };
+  const before = live.find((p) => p.id === id) ?? null;
+  if (!before) return { ok: false, error: "Không tìm thấy địa điểm này." };
   const placeId = clean && typeof googlePlaceId === "string" ? googlePlaceId.trim().slice(0, 200) || null : null;
   await setLivePlaces(live.map((p) => (p.id === id ? { ...p, coordinates: clean, googlePlaceId: placeId } : p)));
+  // §19: giữ lại toạ độ CŨ. Ghim đè ghim mà không có nhật ký thì đổi nhầm là không lùi được.
+  await recordLocationChange({
+    placeId: id,
+    before,
+    after: { ...before, coordinates: clean, googlePlaceId: placeId },
+    actor: "admin",
+    reason,
+  });
 
   revalidatePath("/admin");
   revalidatePath("/admin/vi-tri");

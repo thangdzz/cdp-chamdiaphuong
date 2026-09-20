@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LocationConfirm } from "@/app/LocationConfirm";
 import { PLACE_TYPES } from "@/lib/placeTypes";
+import { DEFAULT_PROVINCE } from "@/lib/provinces";
 
 // Form đề xuất một địa điểm chưa có trong danh bạ (NOTE-07 §6.B).
 //
@@ -21,6 +23,10 @@ export function ProposePlaceForm({
   const [ward, setWard] = useState(initialWard);
   const [address, setAddress] = useState(initialAddress);
   const [note, setNote] = useState("");
+  // Vị trí khách tự ghim (NOTE-15 §5). Địa điểm CDP KHÔNG bắt buộc có Place ID của Google —
+  // chỗ Google chưa có mà người địa phương ghim đúng vẫn là một địa điểm hợp lệ.
+  const [coordinates, setCoordinates] = useState(null);
+  const [googlePlaceId, setGooglePlaceId] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const replacementMode = variant === "replacement";
@@ -39,7 +45,7 @@ export function ProposePlaceForm({
     setBusy(true);
     setError(null);
     try {
-      const result = await onSubmit({ name, type, ward, address, note });
+      const result = await onSubmit({ name, type, ward, address, note, coordinates, googlePlaceId });
       if (result && !result.ok) setError(result.error ?? "Chưa gửi được, thử lại sau.");
     } finally {
       setBusy(false);
@@ -140,6 +146,30 @@ export function ProposePlaceForm({
               onChange={(e) => setNote(e.target.value)}
             />
           </label>
+
+          {/* §5, §9: ghim ngay lúc đề xuất. Chỗ này vào lộ trình của khách trước khi CDP duyệt,
+              nên có toạ độ là lộ trình của họ dẫn đúng ngay — không phải chờ. Duyệt xong thì
+              toạ độ đó theo luôn vào danh bạ, khỏi ghim lại lần nữa ở /admin/vi-tri. */}
+          {/* Chế độ "chỗ mới thay chỗ cũ" thì địa chỉ VÀ vị trí kế thừa nguyên của chỗ cũ (cùng
+              một mặt bằng), nên không mở ô ghim ở đây để khỏi có hai nguồn cãi nhau. */}
+          {!replacementMode && (
+          <div className="flex flex-col gap-1 text-[13px] text-zinc-500">
+            Vị trí trên bản đồ
+            <LocationConfirm
+              name={name}
+              addressLine={address.trim() || ward.trim()}
+              wardOrDistrict={ward}
+              province={DEFAULT_PROVINCE}
+              value={coordinates}
+              disabled={busy}
+              onConfirm={({ lat, lng, source, confirmed, googlePlaceId: pickedId }) => {
+                setCoordinates({ lat, lng, source, confirmed });
+                setGooglePlaceId(pickedId ?? null);
+                return { ok: true };
+              }}
+            />
+          </div>
+          )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
         </div>

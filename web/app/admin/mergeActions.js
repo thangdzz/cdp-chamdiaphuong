@@ -9,6 +9,7 @@ import { addContributorPoints } from "@/lib/contributors";
 import { removeLatestCheckin } from "@/lib/checkins";
 import { removePlaceAnswers } from "@/lib/answers";
 import { removePlaceLocationVotes } from "@/lib/locationVotes";
+import { removeLocationHistory } from "@/lib/locationHistory";
 import { removePhoneConfirmations } from "@/lib/phoneConfirmations";
 import { findSimilarPlaces } from "@/lib/placeSearch";
 import { assertValidPlaceType } from "@/lib/placeTypes";
@@ -110,6 +111,7 @@ export async function mergeDuplicatePlaces(formData) {
   await removePlaceAnswers(deleteId);
   await removePhoneConfirmations(deleteId);
   await removePlaceLocationVotes(deleteId);
+  await removeLocationHistory(deleteId);
 
   if (suggestionId) {
     const suggestions = await getSuggestions();

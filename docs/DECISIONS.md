@@ -3,6 +3,54 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-20 — Tìm kiếm lai: danh bạ CDP đứng trước Google, và nguồn phải hiện ra mặt
+
+Làm theo NOTE-15 (`docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`). Ca thật trong NOTE:
+khách gõ "1 ngõ 63 Lê Duẩn", Google trả "Ngõ 9 Lê Duẩn" — sai; khách kéo ghim tới 21.82796,
+105.20024 thì đúng. Kết luận: **Google Places chỉ là một nguồn tìm kiếm, CDP phải có lớp dữ liệu
+vị trí riêng.**
+
+**Gọi Google khi khách BẤM, không theo từng ký tự gõ.** Places API tính tiền theo lượt tra. Phần
+lớn lượt tìm đã có sẵn trong 234 địa điểm của danh bạ, gọi Google mỗi lần gõ là trả tiền cho việc
+CDP tự làm được. Đánh đổi: khách phải bấm thêm một nút — chấp nhận, vì nút đó chỉ hiện khi đang
+thật sự tìm một chỗ ngoài danh bạ.
+
+**Không trộn kết quả CDP và Google vào một danh sách.** NOTE §17 đòi phân biệt nguồn, và đó đúng là
+thứ khách cần để chọn: "CDP · 4 người xác nhận vị trí" khác hẳn một cái tên Google vừa tra ra. Trộn
+chung rồi xếp hạng bằng điểm số là giấu mất khác biệt đó. Hai khối tách rời, mỗi bên ghi rõ nguồn.
+
+**Xếp hạng chỉ chạy khi đang gõ tìm.** Đổi cả thứ tự danh sách mặc định là đổi mặt trang chủ mà
+không ai yêu cầu. Khi có chữ tìm thì: tên khớp đầu trước, rồi tới mức tin vị trí.
+
+**Chọn kết quả Google = điểm riêng có sẵn vị trí, KHÔNG phải địa điểm mới trong danh bạ.** Danh bạ
+là của CDP, thêm chỗ vào đó vẫn phải qua duyệt (CLAUDE.md §6). Muốn đưa vào danh bạ thì đi lối "Đề
+xuất địa điểm mới" như cũ. Giữ đúng ranh giới "lộ trình thuộc về người tạo, danh bạ thuộc về CDP".
+
+**Tên do khách gõ thắng tên Google.** NOTE §4. Google gọi "Quán Cơm Bình Dân 79", người địa phương
+gọi "cơm bà The" — trong lộ trình của họ, tên của họ mới đúng. Chỉ vị trí là lấy của Google.
+
+**Đoán tỉnh từ địa chỉ Google, đoán không ra thì để trống.** Không rơi về Tuyên Quang: "31 Hàng Bún"
+là Hà Nội. Địa chỉ còn ghi tên tỉnh cũ (Hà Nam, Vĩnh Phúc...) cũng trả trống — các tỉnh đó sáp nhập
+01/7/2025, có cái bị chia về nhiều nơi nên đoán là đoán sai.
+
+**Đề xuất địa điểm mới ghim được vị trí ngay (§5, §9).** Trước đây chỗ khách đề xuất vào danh bạ
+luôn ở trạng thái "chưa xác nhận", phải chờ admin ghim lại từ đầu. Giờ khách ghim lúc đề xuất →
+lộ trình của chính họ dẫn đúng ngay (chưa duyệt vẫn dùng được), duyệt xong toạ độ theo luôn vào
+`places:live`. Người đề xuất là người đã tới tận nơi — họ biết chỗ đó ở đâu rõ hơn bất kỳ cách tra
+tự động nào. Vẫn qua duyệt nên không phá nguyên tắc "danh bạ thuộc về CDP".
+
+**Chữ phải nói rõ AI tìm ra vị trí (§4).** "Tìm thấy: …" trống không khiến khách tưởng CDP đã xác
+nhận rồi bấm xác nhận mà không nhìn kỹ. Đổi thành "Bản đồ tra được: …" (máy tra theo chữ) và
+"Google tìm thấy: …", kèm câu "Không đúng? Kéo bản đồ tới vị trí thực tế".
+
+**Ghi nhật ký đổi ghim trước khi có màn xem nó (§19).** NOTE xếp "location history UI" vào P2, nhưng
+dữ liệu không ghi lúc xảy ra thì sau này dựng lại không được. Nên ghi ngay (`place_location:history`),
+màn xem để sau.
+
+**Cố ý CHƯA làm:** §6 bản đồ hiện toàn bộ địa điểm CDP (dự án chưa có màn đó, dựng mới là một tính
+năng riêng phải trình duyệt), §7 `searchAliases[]` tên gọi địa phương, §11–13 micro-location và vị
+trí tạm theo sự kiện — NOTE tự xếp P1/P2.
+
 ## 2026-09-17 (chốt 10) — Tuyến rước đèn dựng lại: 4.455 m, có hai đoạn đi rồi quay lại
 
 Chủ dự án tả lại tuyến ngày 17/9, thay tuyến tả 16/9. Khác biệt lớn nhất: thêm **nhánh xuống xuyến

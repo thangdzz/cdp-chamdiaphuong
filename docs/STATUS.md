@@ -6,7 +6,36 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-r4t28w65n`).
+**Cập nhật mới nhất 2026-09-20 — TÌM KIẾM LAI CDP + GOOGLE (NOTE-15), CHƯA DEPLOY.**
+
+Làm theo `docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`, phần P0 còn thiếu:
+
+- **Bộ chọn địa điểm tìm cả Google.** Danh bạ CDP ở trên, Google ở dưới, mỗi bên ghi rõ nguồn:
+  "CDP · 4 người xác nhận vị trí" / "CDP · chưa xác nhận vị trí" / "Google". Gọi Google khi khách
+  BẤM, không theo từng ký tự gõ. Chọn một kết quả Google → vào lộ trình dưới dạng điểm riêng
+  **có sẵn toạ độ + Place ID**, khỏi kéo ghim lần nữa. Tỉnh đoán từ địa chỉ, đoán không ra thì
+  để khách chọn.
+- **Đề xuất địa điểm mới ghim được vị trí.** Lộ trình của chính người đề xuất dẫn đúng ngay khi
+  chưa duyệt; duyệt xong toạ độ theo luôn vào danh bạ.
+- **Chữ nói rõ ai tìm ra vị trí:** "Bản đồ tra được: …" / "Google tìm thấy: …" kèm "Không đúng?
+  Kéo bản đồ tới vị trí thực tế." Trước đây chỉ ghi "Tìm thấy: …", khách dễ tưởng CDP đã xác nhận.
+- **Nhật ký đổi ghim** (`place_location:history`): giữ toạ độ cũ, ai đổi, vì sao — 20 lần gần nhất.
+  Chỉ ghi, màn xem để sau.
+
+Kiểm: `npm run build` đạt; `npm run lint` còn đúng 1 lỗi cũ ở `app/PlaceExplorer.js:410` (có từ
+trước, không đụng tới). Hai bộ test hàm thuần chạy tay: đoán tỉnh từ địa chỉ Google (6/6 đạt, ca
+"Hà Nam" trả trống là ĐÚNG vì tỉnh đó đã sáp nhập 01/7/2025) và dẫn đường cho đề xuất đã ghim /
+điểm riêng chọn từ Google (4/4 đạt).
+
+**Chưa bấm thử trên máy thật** — cần: gõ một chữ không có trong danh bạ → "Tìm trên Google" →
+chọn một chỗ → xem điểm đó vào lộ trình có nút "Chỉ đường" sáng ngay không.
+
+**Cố ý chưa làm** (NOTE tự xếp P1/P2): bản đồ hiện toàn bộ địa điểm CDP (§6 — dự án chưa có màn
+đó), tên gọi địa phương `searchAliases[]` (§7), micro-location và vị trí tạm theo sự kiện (§11–13).
+
+Lý do từng lựa chọn: [DECISIONS.md](DECISIONS.md) mục 2026-09-20.
+
+**Trước đó 2026-09-17 (phiên chiều) — SỬA UX BẢN ĐỒ + NÚT VỊ TRÍ, ĐÃ DEPLOY** (`web-r4t28w65n`).
 
 Chủ dự án thử hai máy: Samsung A56 + Chrome ngon, iPhone 15 báo "Chưa có quyền vị trí" (Safari chặn
 ở cấp trang, không phải lỗi code). Từ câu hỏi đó sửa thêm: **đã cho phép từ trước thì chấm xanh hiện
