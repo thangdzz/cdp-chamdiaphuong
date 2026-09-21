@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { PLACE_TYPES } from "@/lib/placeTypes";
+import { PLACE_TYPES, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
@@ -52,6 +52,10 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   const [copyLabel, setCopyLabel] = useState("Chia sẻ");
   const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
+  // "Chỗ quen gọi" (đỉnh dốc, cây đa) không mở cũng không đóng và không có giá — ẩn hết phần
+  // trạng thái thay vì hiện "Chưa cập nhật giá" với nút "Vẫn mở" vô nghĩa. Câu hỏi cho khách
+  // thì lib/questions.js đã tự cắt, PlaceFacts theo đó cũng rỗng.
+  const asksStatus = placeTypeAsksStatus(place.type);
   const [activeNoteContext, setActiveNoteContext] = useState(null);
   const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
   const action = primaryAction(place);
@@ -271,7 +275,7 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
 
       <div className="contents lg:col-start-2 lg:flex lg:flex-col lg:gap-5">
         <aside aria-label="Thông tin nhanh" className="order-2 flex flex-col gap-5 lg:order-none lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-6 lg:shadow-sm">
-          <div>
+          <div className={asksStatus ? "" : "hidden"}>
             <p className="flex items-baseline gap-1">
               {compactPrice ? (
                 <>
@@ -333,7 +337,7 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
           )}
           <AddToNotebook place={place} />
           <CreateRouteFromPlace place={place} />
-          <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
+          {asksStatus && <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />}
           <button
             type="button"
             onClick={handleShare}

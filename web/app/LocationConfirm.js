@@ -43,7 +43,7 @@ export function LocationConfirm({
 }) {
   // Địa chỉ mà bản đồ đang mở CHO NÓ. Sửa địa chỉ là bản đồ tự đóng, vì ghim đang chỉ chỗ của địa
   // chỉ cũ. Suy ra từ state thay vì dùng effect đóng tay: không có bước render thừa.
-  const addressKey = `${addressLine ?? ""}|${wardOrDistrict ?? ""}|${province ?? ""}`;
+  const addressKey = `${addressLine ?? ""}|${name ?? ""}|${wardOrDistrict ?? ""}|${province ?? ""}`;
   const [openFor, setOpenFor] = useState(null);
   const open = openFor === addressKey;
   const [point, setPoint] = useState(null);
@@ -51,7 +51,7 @@ export function LocationConfirm({
   // nếu không, mỗi lần kéo xong bản đồ lại tự nhảy về chỗ cũ.
   const [focus, setFocus] = useState(null);
   const [moved, setMoved] = useState(false);
-  const [status, setStatus] = useState(null); // null | "loading" | "found" | "notFound"
+  const [status, setStatus] = useState(null); // null | "loading" | "found" | "notFound" | "noQuery"
   const [foundLabel, setFoundLabel] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -63,7 +63,11 @@ export function LocationConfirm({
   const runRef = useRef(0);
   const boxRef = useRef(null);
 
-  const ready = Boolean(addressLine?.trim()) && Boolean(province);
+  // Tên đỡ chỗ cho địa chỉ khi không có địa chỉ (cùng cách app/StopPlaceLocation.js đang làm).
+  // Trước đây thiếu địa chỉ là KHÔNG mở được bản đồ — chặn đúng trường hợp cần kéo ghim nhất:
+  // "đỉnh dốc Bà The" làm gì có số nhà. Không có cả hai thì bản đồ vẫn mở ở giữa tỉnh để kéo.
+  const lookupLine = addressLine?.trim() || name?.trim() || "";
+  const ready = Boolean(province);
   const confirmed = value?.confirmed === true;
 
   async function openMap() {
@@ -86,12 +90,17 @@ export function LocationConfirm({
       return;
     }
 
-    setStatus("loading");
     const center = provinceCenter(province);
     setPoint(center);
     setFocus({ ...center, zoom: 12 });
     setFoundLabel(null);
-    const result = await geocodeAddress({ addressLine, wardOrDistrict, province });
+    // Không có chữ nào để tra: khỏi gọi máy chủ, mở thẳng giữa tỉnh cho người dùng kéo ghim.
+    if (!lookupLine && !wardOrDistrict?.trim()) {
+      setStatus("noQuery");
+      return;
+    }
+    setStatus("loading");
+    const result = await geocodeAddress({ addressLine: lookupLine, wardOrDistrict, province });
     if (run !== runRef.current) return;
     if (!result?.ok) {
       setStatus("notFound");
@@ -157,7 +166,7 @@ export function LocationConfirm({
   if (!ready) {
     return (
       <p className="mt-2 text-xs text-zinc-400">
-        Nhập địa chỉ và chọn tỉnh/thành để kiểm tra {label} trên bản đồ.
+        Chọn tỉnh/thành để kiểm tra {label} trên bản đồ.
       </p>
     );
   }
@@ -188,9 +197,11 @@ export function LocationConfirm({
           <p className="mt-0.5 text-xs text-zinc-500">
             {status === "loading"
               ? "Đang tìm địa chỉ này trên bản đồ…"
-              : status === "notFound"
-                ? `Không tìm thấy đúng địa chỉ này. Bản đồ đang mở ở giữa ${province} — kéo ghim tới đúng vị trí.`
-                : "Kéo bản đồ để đưa ghim tới đúng vị trí nếu cần."}
+              : status === "noQuery"
+                ? `Chỗ này chưa có tên lẫn địa chỉ để tra. Bản đồ đang mở ở giữa ${province} — kéo ghim tới đúng vị trí.`
+                : status === "notFound"
+                  ? `Không tìm thấy đúng địa chỉ này. Bản đồ đang mở ở giữa ${province} — kéo ghim tới đúng vị trí.`
+                  : "Kéo bản đồ để đưa ghim tới đúng vị trí nếu cần."}
           </p>
           {/* NOTE-15 §4: nói rõ AI tra ra chỗ này. "Tìm thấy: …" trống không khiến khách tưởng
               CDP đã xác nhận, rồi bấm xác nhận mà không nhìn kỹ — trong khi đây mới chỉ là máy

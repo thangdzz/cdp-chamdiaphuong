@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LocationConfirm } from "@/app/LocationConfirm";
-import { PLACE_TYPES } from "@/lib/placeTypes";
+import { PLACE_TYPES, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { DEFAULT_PROVINCE } from "@/lib/provinces";
 
 // Form đề xuất một địa điểm chưa có trong danh bạ (NOTE-07 §6.B).
@@ -109,6 +109,16 @@ export function ProposePlaceForm({
                 </option>
               ))}
             </select>
+            {/* Loại này lạ hơn 4 loại kia nên phải nói rõ nó là gì, không thì khách chọn nhầm
+                cho quán ăn không có biển. */}
+            {!placeTypeAsksStatus(type) && (
+              <span className="text-xs text-zinc-500">
+                Chỗ có thật, dân ở đây quen gọi bằng một cái tên mà bản đồ không có: đỉnh dốc,
+                cây đa, ngã ba, cổng làng. Không phải chỗ ăn/ngủ/chơi, nên CDP sẽ không hỏi khách
+                &quot;còn chỗ không&quot; hay &quot;giá bao nhiêu&quot;. Nhớ ghim vị trí bên dưới —
+                chỗ kiểu này không có địa chỉ, ghim là thứ duy nhất chỉ đường được.
+              </span>
+            )}
           </label>
 
           <label className="flex flex-col gap-1 text-[13px] text-zinc-500">

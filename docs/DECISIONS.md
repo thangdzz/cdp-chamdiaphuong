@@ -3,6 +3,49 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-21 — "Chỗ quen gọi": loại địa điểm thứ 5, cố tình không cho lên trang chủ
+
+Chủ dự án hỏi: "đỉnh dốc Bà The" là chỗ gọi truyền miệng từ xưa, không địa chỉ, không phải chỗ
+ăn/chơi/ngủ/đi lại — giải quyết thế nào? Kiểm code thấy đang vướng 3 chỗ thật:
+
+1. `lib/placeTypes.js` chỉ có 4 loại, không cái nào đúng.
+2. `app/LocationConfirm.js` bắt buộc có dòng địa chỉ mới mở được bản đồ → **chặn đúng trường hợp
+   cần kéo ghim nhất**. Đây là lỗi, không phải thiếu tính năng.
+3. Vào danh bạ như địa điểm thường thì khách bị hỏi "Vẫn mở?", "Gửi xe ở đâu?" — vô nghĩa với
+   một cái dốc.
+
+**Chọn: thêm loại thứ 5, nhưng ẩn khỏi trang chủ.** Ba hướng đã cân:
+- *Không vào danh bạ, để làm điểm riêng trong lộ trình* — không tốn code, nhưng ai cần cũng phải
+  tự gõ lại, tức là vứt đi đúng thứ CDP có mà Google không có (NOTE-15 §20).
+- *Làm tên gọi khác của một chỗ đã có* (`searchAliases[]`, NOTE-15 §7) — đúng khi cái tên đó là
+  cách gọi một chỗ đã có trong danh bạ, sai khi ở đó chẳng có gì ngoài cái dốc.
+- *Loại thứ 5* — giữ được dữ liệu, dùng chung được, vẫn không phá mặt trang chủ.
+
+**Cờ trên chính loại, không rải `if` khắp nơi.** `browsable` + `asksStatus` khai ngay trong
+`PLACE_TYPES`, mặc định `true` nên 4 loại cũ không đổi hành vi. Đúng lời hứa của chính file đó:
+"thêm loại mới chỉ sửa file này". Riêng phần câu hỏi chặn ở một chỗ duy nhất
+(`getQuestionsForType`) vì mọi nơi hỏi khách đều đi qua hàm ấy — kéo theo `PlaceFacts` cũng tự
+rỗng, không phải sửa.
+
+**Vì sao KHÔNG lên trang chủ.** Trang chủ sinh ra để trả lời "ăn ở đâu, ngủ ở đâu, còn chỗ không,
+giá bao nhiêu". Một cái dốc không trả lời được câu nào trong đó. Bày ra là làm loãng đúng thứ
+trang chủ giỏi. Nó vẫn tìm và chọn được khi làm lộ trình, vẫn có trang riêng, vẫn hiện trong admin.
+
+**Chốt nhãn "Chỗ quen gọi" sau khi thử ghép 6 cái vào giao diện thật.** Loại vì trùng chữ đã có
+nghĩa khác trong hệ thống: "Khu vực" (đang là tên field phường, ở 6 chỗ, mà trong form đề xuất nó
+nằm ngay dưới ô "Loại"), "Tên địa phương" (đụng ô "Tên địa điểm" ngay trên nó, lại chiếm mất đúng
+cái tên sẽ cần cho `searchAliases[]` sau này, và web đã có "Mẹo địa phương" + "Sổ địa phương").
+Loại vì hẹp: "Đoạn đường" (hợp cái dốc, sai cây đa/cổng làng). "Dân hay gọi" dùng được nhưng cụt ở
+ô "Loại" và không nói cho khách lạ biết đây **là cái gì**. Chữ "chỗ" trong "Chỗ quen gọi" trả lời
+đúng câu hỏi của ô đó.
+
+**Mã loại là `moc`** (mốc), lệch với quy ước "tên biến tiếng Anh" của dự án — nhưng 4 mã anh em
+của nó đã là `an`/`choi`/`ngu`/`dilai`, để một mình nó thành `landmark` thì đọc khó hơn.
+
+**Lỗi ghim sửa luôn cho mọi nơi, không riêng loại mới:** `LocationConfirm` lấy TÊN đỡ chỗ cho địa
+chỉ khi không có địa chỉ (đúng cách `app/StopPlaceLocation.js` vốn đã làm), không có cả hai thì mở
+bản đồ ở giữa tỉnh cho kéo ghim thay vì từ chối. Điểm riêng gõ tay không địa chỉ cũng được lợi.
+
 ## 2026-09-20 — Tìm kiếm lai: danh bạ CDP đứng trước Google, và nguồn phải hiện ra mặt
 
 Làm theo NOTE-15 (`docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`). Ca thật trong NOTE:

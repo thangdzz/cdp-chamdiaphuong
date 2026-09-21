@@ -6,7 +6,30 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-20 — TÌM KIẾM LAI CDP + GOOGLE (NOTE-15), ĐÃ DEPLOY** (`web-rduwrs5yk`).
+**Cập nhật mới nhất 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", CHƯA DEPLOY.**
+
+Từ câu hỏi của chủ dự án: "đỉnh dốc Bà The" — chỗ gọi truyền miệng, không địa chỉ, không phải
+chỗ ăn/chơi/ngủ/đi lại — thì bỏ vào đâu?
+
+- **Loại thứ 5 `moc`, khách thấy là "Chỗ quen gọi".** Vào danh bạ, tìm và chọn được khi làm lộ
+  trình, có trang riêng, hiện trong admin — nhưng **không lên danh sách + 4 tab trang chủ** và
+  **không bị hỏi** "vẫn mở / gửi xe ở đâu / còn phòng". Hai cờ `browsable` + `asksStatus` khai
+  ngay trong `lib/placeTypes.js`, mặc định `true` nên 4 loại cũ không đổi gì.
+- **Sửa lỗi: không có địa chỉ thì không ghim được vị trí.** `LocationConfirm` trước đây bắt buộc
+  có dòng địa chỉ mới mở bản đồ — chặn đúng trường hợp cần kéo ghim nhất. Giờ lấy tên đỡ chỗ, không
+  có cả hai thì mở giữa tỉnh cho kéo. Điểm riêng gõ tay không địa chỉ cũng được lợi.
+- Nhãn "Chỗ quen gọi" chốt sau khi thử ghép 6 phương án vào giao diện thật; lý do loại từng cái ở
+  [DECISIONS.md](DECISIONS.md) mục 2026-09-21.
+
+Kiểm: `npm run build` đạt; `npm run lint` vẫn đúng 1 lỗi cũ ở `app/PlaceExplorer.js:410`. Test hàm
+thuần chạy tay 10/10 đạt: trang chủ vẫn đúng 4 tab, danh bạ 5 loại, "Chỗ quen gọi" không sinh câu
+hỏi nào, 4 loại cũ vẫn hỏi y như trước.
+
+**Chưa bấm thử trên máy thật** — cần: đề xuất một "Chỗ quen gọi" không nhập địa chỉ → xem bản đồ có
+mở được để ghim không → duyệt trong admin → xem nó KHÔNG hiện ở trang chủ nhưng TÌM được trong bộ
+chọn lộ trình, và trang riêng của nó không có nút "Vẫn mở" lẫn dòng "Chưa cập nhật giá".
+
+**Trước đó 2026-09-20 — TÌM KIẾM LAI CDP + GOOGLE (NOTE-15), ĐÃ DEPLOY** (`web-rduwrs5yk`).
 
 Làm theo `docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`, phần P0 còn thiếu:
 

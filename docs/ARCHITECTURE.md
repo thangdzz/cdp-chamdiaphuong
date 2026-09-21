@@ -348,7 +348,7 @@ Google Places (tuỳ chọn): `lib/googlePlaces.js` + `app/googlePlacesActions.j
 ```js
 {
   id: "live-<uuid>",
-  name, type: "an" | "choi" | "ngu" | "dilai", // xem lib/placeTypes.js
+  name, type: "an" | "choi" | "ngu" | "dilai" | "moc", // xem lib/placeTypes.js
   address, ward, localArea, phone,
   priceMin, priceMax, priceUnit,
   priceText,                        // LUÔN tự tính, không nhận gõ tay
@@ -558,13 +558,16 @@ web/
 │   ├── postEventForm.js           Đọc + kiểm tra form lịch; gắn múi giờ Việt Nam `+07:00`
 │   ├── contentInbox.js            Nhận dạng URL/text, giới hạn đầu vào, đọc/ghi Inbox
 │   ├── contentAnalyzer.js         Đọc nguồn công khai an toàn, extract + so lịch sơ bộ
-│   ├── placeTypes.js        (39)  ⭐ Chặng 3: nguồn duy nhất cho 4 loại địa điểm
-│   │                              (an/choi/ngu/dilai) — ném lỗi rõ ràng nếu giá trị lạ,
-│   │                              không âm thầm quy về "ngu" như trước
+│   ├── placeTypes.js        (59)  ⭐ Chặng 3: nguồn duy nhất cho 5 loại địa điểm
+│   │                              (an/choi/ngu/dilai + moc "Chỗ quen gọi", 21/9) — ném lỗi
+│   │                              rõ ràng nếu giá trị lạ, không âm thầm quy về "ngu" như
+│   │                              trước. Cờ browsable/asksStatus quyết loại nào lên trang
+│   │                              chủ và loại nào bị hỏi "vẫn mở" — xem §cuối
 │   ├── checkins.js          (65)  Chặng 1: place_checkins:latest (hash) + khoá 24h +
 │   │                              trần điểm/ngày — 3 lệnh Redis nguyên tử, không đọc-
 │   │                              sửa-ghi cả mảng (xem §2)
-│   ├── questions.js        (302)  Chặng 2 + 3: định nghĩa bộ câu hỏi (19 câu, đủ 4 loại)
+│   ├── questions.js        (302)  Chặng 2 + 3: định nghĩa bộ câu hỏi (19 câu, đủ 4 loại;
+│   │                              loại asksStatus:false thì cắt ngay, không hỏi câu nào)
 │   ├── answers.js          (239)  ⭐ Chặng 2: ghi phiếu, tính đồng thuận (trọng số theo
 │   │                              tuổi), thưởng điểm hồi tố, chọn câu để hỏi. Ô gõ điều
 │   │                              kiện áp lib/textFilter.js (vá thiếu sót Chặng 2, làm ở
@@ -836,8 +839,23 @@ xem `app/admin/mergeActions.js` + `MergeDuplicatePanel.js` (mode `"suggestion"` 
 `places:live`); AI quét phát hiện thì chỗ mới (candidate) **chưa từng lên web** (gộp xong chỉ
 cập nhật chỗ đã có, không có gì để xoá). Nhầm 2 nhánh này sẽ gọi sai action hoặc xoá nhầm.
 
-**Loại địa điểm — đã có 4 giá trị (Chặng 3, xong 2026-08-17).** `lib/placeTypes.js` là nguồn
-duy nhất (`PLACE_TYPES`: `an`/`choi`/`ngu`/`dilai`). Giá trị lạ giờ **ném lỗi rõ ràng**
+**Loại địa điểm — 5 giá trị (4 từ Chặng 3 xong 2026-08-17, thêm `moc` ngày 21/9).**
+`lib/placeTypes.js` là nguồn duy nhất (`PLACE_TYPES`: `an`/`choi`/`ngu`/`dilai`/`moc`).
+
+`moc` hiện ra với khách là **"Chỗ quen gọi"** — "đỉnh dốc Bà The", "cây đa đầu làng", "ngã ba
+chợ": chỗ có thật, có tên truyền miệng, không có địa chỉ, Google không có. Nó mang 2 cờ mà 4
+loại cũ không có (mặc định của 4 loại cũ là `true`, nên hành vi của chúng không đổi):
+
+| Cờ | Tác dụng | Chỗ đọc nó |
+|---|---|---|
+| `browsable: false` | Không lên danh sách + 4 tab lọc trang chủ | `BROWSABLE_PLACE_TYPES` → `app/PlaceExplorer.js` |
+| `asksStatus: false` | Không hỏi khách "vẫn mở / gửi xe ở đâu / còn phòng"; trang địa điểm ẩn luôn khối giá + nút "Vẫn mở" | `placeTypeAsksStatus()` → `lib/questions.js` (`getQuestionsForType` trả rỗng, kéo theo `PlaceFacts` rỗng) + `app/PlaceDetail.js` |
+
+**"Chỗ quen gọi" XUẤT HIỆN ở:** bộ chọn địa điểm khi làm lộ trình (tìm và chọn được), trang
+`/dia-diem/{id}` của chính nó, form đề xuất, mọi màn admin.
+**KHÔNG xuất hiện ở:** danh sách + tab lọc trang chủ, các câu hỏi cho khách.
+
+Giá trị lạ giờ **ném lỗi rõ ràng**
 (`assertValidPlaceType`/`InvalidPlaceTypeError`), không còn âm thầm rơi về `"ngu"` như trước.
 `lib/ingestion/ingestBatch.js` bắt riêng lỗi này để **bỏ qua đúng 1 bản ghi hỏng**, không làm
 hỏng cả lô quét (đếm ở `summary.skippedInvalidType`). Thêm loại thứ 5 sau này: chỉ sửa

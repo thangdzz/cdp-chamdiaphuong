@@ -7,7 +7,7 @@ import { CheckinButton } from "./CheckinButton";
 import { QuestionPrompt } from "./QuestionPrompt";
 import { PlaceFacts } from "./PlaceFacts";
 import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
-import { PLACE_TYPES } from "@/lib/placeTypes";
+import { BROWSABLE_PLACE_TYPES } from "@/lib/placeTypes";
 import { comparePlaceReliability } from "@/lib/placeReliability";
 import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
@@ -872,7 +872,9 @@ export default function PlaceExplorer({ places }) {
     });
   }, [places, type, ward, priceBucket, search]);
 
-  const groupedByType = PLACE_TYPES.map((t) => ({
+  // Trang chủ chỉ bày loại "xem được" — "Chỗ quen gọi" có trong danh bạ nhưng không phải chỗ
+  // để đi ăn/chơi/ngủ, bày ra đây là làm loãng đúng câu hỏi trang này sinh ra để trả lời.
+  const groupedByType = BROWSABLE_PLACE_TYPES.map((t) => ({
     type: t,
     items: filtered.filter((p) => p.type === t.id).sort(comparePlaceReliability),
   }));
@@ -920,7 +922,7 @@ export default function PlaceExplorer({ places }) {
         </div>
 
         <div className="flex gap-2 overflow-x-auto">
-          {[{ id: "all", label: "Tất cả" }, ...PLACE_TYPES].map((opt) => (
+          {[{ id: "all", label: "Tất cả" }, ...BROWSABLE_PLACE_TYPES].map((opt) => (
             <button
               key={opt.id}
               type="button"

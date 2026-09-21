@@ -12,6 +12,7 @@
 //   supersededBySubtype      -> thôi hỏi ngay khi admin đã chọn subtype (admin biết chắc hơn)
 //   supersededByField: "x"   -> thôi hỏi khi admin đã điền ô `x` của địa điểm đó
 
+import { placeTypeAsksStatus } from "./placeTypes.js";
 import { familyOfSubtype } from "./transport.js";
 
 export const QUESTIONS = [
@@ -665,19 +666,24 @@ export const QUESTIONS = [
 
 /**
  * Câu hỏi áp dụng cho một địa điểm.
- * @param {string} type loại chính (an/choi/ngu/dilai)
+ * @param {string} type loại chính (an/choi/ngu/dilai/moc)
  * @param {string|null} subtype `transportSubtype` nếu có — không truyền thì hành xử y như cũ,
  *   nên mọi nơi gọi cũ vẫn chạy đúng.
  */
 /**
  * Câu hỏi áp dụng cho một địa điểm. Family là lớp NỀN, subtype override (NOTE-06 §9).
- * @param {string} type loại chính (an/choi/ngu/dilai)
+ * @param {string} type loại chính (an/choi/ngu/dilai/moc)
  * @param {string|null} subtype `transportSubtype`
  * @param {string[]} filledFields ô admin đã điền -> thôi hỏi câu tương ứng
  * @param {string|null} family `transportFamily` — không truyền thì tự suy từ subtype, nên
  *   mọi nơi gọi cũ vẫn chạy đúng.
  */
 export function getQuestionsForType(type, subtype = null, filledFields = [], family = undefined) {
+  // Loại không có gì để hỏi thì cắt ngay tại đây, không lọc tiếp. "Chỗ quen gọi" (đỉnh dốc,
+  // cây đa) không mở cũng không đóng, không có chỗ gửi xe, không có giá — mà phần lớn câu
+  // trong bảng này là `scope: "all"`, tức là mặc định sẽ hỏi hết. Chặn ở một chỗ duy nhất
+  // vì mọi nơi hỏi khách đều đi qua hàm này.
+  if (!placeTypeAsksStatus(type)) return [];
   const fam = family === undefined ? familyOfSubtype(subtype) : family;
   return QUESTIONS.filter((q) => {
     if (q.scope !== "all" && q.scope !== type) return false;
