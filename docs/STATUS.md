@@ -28,7 +28,15 @@ hỏi nào, 4 loại cũ vẫn hỏi y như trước.
 Kiểm trên web thật sau deploy: trang chủ HTTP 200, vẫn đúng 4 tab `Tất cả · Ăn · Chơi · Ngủ ·
 Đi lại`, không có chữ "Chỗ quen gọi" nào lọt ra trang chủ; 14 chỗ hiện "Chỉ đường".
 
-**Chưa bấm thử trên máy thật** — cần: đề xuất một "Chỗ quen gọi" không nhập địa chỉ → xem bản đồ có
+**Chủ dự án đã thử, báo 2 lỗi — đã sửa ngay trong phiên:**
+1. **Trang lộ trình đơ, không cuộn được** sau khi gửi đề xuất. Bộ chọn và form đề xuất đều tự khoá
+   cuộn kiểu "nhớ giá trị cũ"; hai lớp chồng nhau cùng đóng thì lớp sau trả lại `hidden`. Lỗi có
+   từ trước, nay sửa bằng `app/useScrollLock.js` (đếm lớp, chỉ lớp cuối mở khoá). Có test mô phỏng
+   tái hiện lỗi cũ ở cả hai chiều gỡ component.
+2. **Ví dụ trong ô "Còn biết gì thêm không?"** mặc định là hàng quán ("Mở buổi sáng, bán tới trưa
+   là hết") → đổi sang trung tính, dùng chung cho cả 5 loại.
+
+**Còn phải thử lại** — đề xuất một "Chỗ quen gọi" không nhập địa chỉ → xem bản đồ có
 mở được để ghim không → duyệt trong admin → xem nó KHÔNG hiện ở trang chủ nhưng TÌM được trong bộ
 chọn lộ trình, và trang riêng của nó không có nút "Vẫn mở" lẫn dòng "Chưa cập nhật giá".
 

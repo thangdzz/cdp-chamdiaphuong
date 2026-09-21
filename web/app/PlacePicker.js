@@ -8,6 +8,7 @@ import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/l
 import { DEFAULT_PROVINCE, PROVINCES, provinceFromAddress } from "@/lib/provinces";
 import { searchGooglePlaces } from "./googlePlacesActions";
 import { fetchPickerPlaces } from "./routeActions";
+import { useScrollLock } from "./useScrollLock";
 
 // Bật/tắt phần tìm trên Google. Cờ CÔNG KHAI, không phải khoá (khoá thật ở máy chủ) — tắt thì
 // bộ chọn quay về đúng như cũ: chỉ tìm trong danh bạ CDP.
@@ -96,13 +97,7 @@ export function PlacePicker({
 
   // Khoá cuộn trang phía sau khi bộ chọn đang mở. Không khoá thì trên iPhone vuốt trong bộ
   // chọn tới cuối danh sách là trang chủ phía dưới cuộn theo, đóng lại thì đứng ở chỗ khác hẳn.
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, []);
+  useScrollLock();
 
   const filtered = useMemo(() => {
     if (!places) return [];

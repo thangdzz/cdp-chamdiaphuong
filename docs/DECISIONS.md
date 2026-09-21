@@ -3,6 +3,24 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-21 (sau khi thử) — Khoá cuộn trang phải ĐẾM, không để mỗi lớp tự nhớ
+
+Chủ dự án thử luồng đề xuất, báo "lộ trình không cuộn được xuống dưới, bị đơ". Nguyên nhân: cả
+`PlacePicker` lẫn `ProposePlaceForm` đều tự khoá cuộn theo kiểu "nhớ giá trị cũ lúc mở, trả lại
+lúc đóng". Hai lớp CHỒNG NHAU thì lớp mở sau nhớ đúng cái `hidden` mà lớp mở trước vừa đặt; gửi
+đề xuất xong cả hai cùng đóng, lớp đóng sau trả lại `hidden`, trang đứng im.
+
+Lỗi này **có từ trước**, không phải do phần NOTE-15 — nhưng chỉ lộ ra khi đi trọn luồng bộ chọn →
+đề xuất → gửi, đúng luồng vừa được sửa nên mới có người đi hết.
+
+Sửa bằng `app/useScrollLock.js`: đếm số lớp đang mở, chỉ lớp CUỐI CÙNG mới mở khoá. Không phụ
+thuộc thứ tự React gỡ component — thứ tự đó là chi tiết nội bộ của React, không nên có chỗ nào
+trong dự án phải đúng nhờ nó. Đã tái hiện lỗi bằng test mô phỏng cả hai chiều gỡ trước khi sửa.
+
+**Ví dụ trong ô "Còn biết gì thêm không?" đổi sang trung tính.** "VD: Mở buổi sáng, bán tới trưa
+là hết" mặc định chỗ được đề xuất là hàng quán — đọc rất lạc khi đang khai một cái dốc. Đổi thành
+"Giờ giấc, cách tìm, chỗ gửi xe — biết gì ghi nấy", dùng chung cho cả 5 loại.
+
 ## 2026-09-21 — "Chỗ quen gọi": loại địa điểm thứ 5, cố tình không cho lên trang chủ
 
 Chủ dự án hỏi: "đỉnh dốc Bà The" là chỗ gọi truyền miệng từ xưa, không địa chỉ, không phải chỗ

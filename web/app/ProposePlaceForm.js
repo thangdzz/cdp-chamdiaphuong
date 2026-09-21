@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LocationConfirm } from "@/app/LocationConfirm";
 import { PLACE_TYPES, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { DEFAULT_PROVINCE } from "@/lib/provinces";
+import { useScrollLock } from "./useScrollLock";
 
 // Form đề xuất một địa điểm chưa có trong danh bạ (NOTE-07 §6.B).
 //
@@ -32,13 +33,7 @@ export function ProposePlaceForm({
   const replacementMode = variant === "replacement";
 
   // Cùng lý do với PlacePicker: khoá cuộn trang phía sau khi form đang mở.
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, []);
+  useScrollLock();
 
   async function handleSubmit() {
     if (!name.trim() || busy) return;
@@ -152,7 +147,9 @@ export function ProposePlaceForm({
               value={note}
               rows={2}
               maxLength={200}
-              placeholder="VD: Mở buổi sáng, bán tới trưa là hết"
+              /* Ví dụ phải TRUNG TÍNH: "Mở buổi sáng, bán tới trưa là hết" mặc định chỗ này là
+                 hàng quán, đọc rất lạc khi đang đề xuất một cái dốc hay một cây đa. */
+              placeholder="VD: Giờ giấc, cách tìm, chỗ gửi xe — biết gì ghi nấy"
               onChange={(e) => setNote(e.target.value)}
             />
           </label>
