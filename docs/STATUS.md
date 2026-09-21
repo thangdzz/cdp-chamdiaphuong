@@ -38,7 +38,8 @@ Kiểm trên web thật sau deploy: trang chủ HTTP 200, vẫn đúng 4 tab `T�
 3. **Ví dụ gợi ý bám theo loại chỗ.** Ô "Ghi chú cho chặng này" vẫn gợi "VD: Đặt bàn trước cho 6
    người" ngay dưới một cái dốc → loại `asksStatus:false` đổi thành "Nhập nội dung". Sửa luôn ô
    "Tên địa điểm" trong form đề xuất: chọn "Chỗ quen gọi" thì ví dụ là "VD: Đỉnh dốc Bà The" thay
-   vì "VD: Quán bún ốc cô Hoa". 4 loại cũ giữ nguyên ví dụ cũ.
+   vì "VD: Quán bún ốc cô Hoa". 4 loại cũ giữ nguyên ví dụ cũ. Điểm riêng (không có loại, CDP
+   không biết nó là quán hay nhà bạn) cũng dùng "Nhập nội dung".
 
 **Còn phải thử lại** — đề xuất một "Chỗ quen gọi" không nhập địa chỉ → xem bản đồ có
 mở được để ghim không → duyệt trong admin → xem nó KHÔNG hiện ở trang chủ nhưng TÌM được trong bộ

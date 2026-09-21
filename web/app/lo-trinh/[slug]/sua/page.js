@@ -726,10 +726,13 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
           className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
           value={note}
           maxLength={140}
-          /* "Đặt bàn trước cho 6 người" chỉ đúng với hàng quán. Đứng dưới một cái dốc hay cây
-             đa thì nó gợi sai hẳn việc — chỗ kiểu đó không đặt bàn được. */
+          /* "Đặt bàn trước cho 6 người" chỉ đúng với hàng quán. Đứng dưới một cái dốc, một cây
+             đa, hay "Nhà Tuấn" thì nó gợi sai hẳn việc. Điểm riêng không có `typeLabel` (chỗ
+             ngoài danh bạ, CDP không biết nó là gì) nên cũng vào nhánh trung tính. */
           placeholder={
-            placeTypeAsksStatus(stop.typeLabel) ? "VD: Đặt bàn trước cho 6 người" : "Nhập nội dung"
+            stop.typeLabel && placeTypeAsksStatus(stop.typeLabel)
+              ? "VD: Đặt bàn trước cho 6 người"
+              : "Nhập nội dung"
           }
           onChange={(e) => setNote(e.target.value)}
           onBlur={() => save()}
