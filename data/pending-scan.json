@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "name": "Đền Lâm Sơn Linh Từ",
+    "category_primary": "choi",
+    "address_text": "Tổ 2, phường Nông Tiến, TP Tuyên Quang",
+    "near_landmark": "Dưới chân núi Dùm, bên sông Lô",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Tiệm Trà Chanh HoLu",
+    "category_primary": "an",
+    "address_text": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0353707661",
+    "opening_hours_text": "06:00 - 23:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Chung Thảo - Cho thuê xe",
+    "category_primary": "dilai",
+    "address_text": "31 đường Phan Thiết, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0967696234",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Chợ đêm thành phố Tuyên Quang",
+    "category_primary": "choi",
+    "address_text": "Thôn 6, xã Lưỡng Vượng, TP Tuyên Quang",
+    "near_landmark": "Cạnh Quốc lộ 2, cách trung tâm thành phố khoảng 6km",
+    "phone": null,
+    "opening_hours_text": "Từ 18:00",
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Quán Ốc Hương",
+    "category_primary": "an",
+    "address_text": "22 đường Tân Trào, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "40.000 - 150.000đ/món",
+    "map_note": null,
+    "signature_dishes": ["ốc xào me", "ốc nướng mỡ hành"]
+  }
+]
