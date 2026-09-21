@@ -185,6 +185,11 @@
     "address": null
   },
   {
+    "name": "Chợ đêm thành phố Tuyên Quang",
+    "type": "choi",
+    "address": "Thôn 6, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
     "name": "Chợ Tam Cờ",
     "type": "choi",
     "address": "62 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
@@ -198,6 +203,11 @@
     "name": "Chùa Phú Lâm",
     "type": "choi",
     "address": null
+  },
+  {
+    "name": "Chung Thảo - Cho thuê xe",
+    "type": "dilai",
+    "address": "31 đường Phan Thiết, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Chuyện Coffee and more",
@@ -318,6 +328,11 @@
     "name": "Đền Kiếp Bạc Tuyên Quang",
     "type": "choi",
     "address": "Tổ 4, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Đền Lâm Sơn Linh Từ",
+    "type": "choi",
+    "address": "Tổ 2, phường Nông Tiến, TP Tuyên Quang"
   },
   {
     "name": "Đền Mẫu Thượng (Đền Thượng)",
@@ -1023,6 +1038,11 @@
     "name": "Quán Mỳ cay Oppa",
     "type": "an",
     "address": "Khu vực 60, phố Tam Cờ, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Quán Ốc Hương",
+    "type": "an",
+    "address": "22 đường Tân Trào, TP Tuyên Quang"
   },
   {
     "name": "Quán Thanh Thủy",
