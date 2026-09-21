@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", CHƯA DEPLOY.**
+**Cập nhật mới nhất 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", ĐÃ DEPLOY** (`web-ggefjyc44`).
 
 Từ câu hỏi của chủ dự án: "đỉnh dốc Bà The" — chỗ gọi truyền miệng, không địa chỉ, không phải
 chỗ ăn/chơi/ngủ/đi lại — thì bỏ vào đâu?
@@ -24,6 +24,9 @@ chỗ ăn/chơi/ngủ/đi lại — thì bỏ vào đâu?
 Kiểm: `npm run build` đạt; `npm run lint` vẫn đúng 1 lỗi cũ ở `app/PlaceExplorer.js:410`. Test hàm
 thuần chạy tay 10/10 đạt: trang chủ vẫn đúng 4 tab, danh bạ 5 loại, "Chỗ quen gọi" không sinh câu
 hỏi nào, 4 loại cũ vẫn hỏi y như trước.
+
+Kiểm trên web thật sau deploy: trang chủ HTTP 200, vẫn đúng 4 tab `Tất cả · Ăn · Chơi · Ngủ ·
+Đi lại`, không có chữ "Chỗ quen gọi" nào lọt ra trang chủ; 14 chỗ hiện "Chỉ đường".
 
 **Chưa bấm thử trên máy thật** — cần: đề xuất một "Chỗ quen gọi" không nhập địa chỉ → xem bản đồ có
 mở được để ghim không → duyệt trong admin → xem nó KHÔNG hiện ở trang chủ nhưng TÌM được trong bộ
