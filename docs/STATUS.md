@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", ĐÃ DEPLOY** (`web-20mp4jedl`).
+**Cập nhật mới nhất 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", ĐÃ DEPLOY** (`web-2i1d1od35`).
 
 Từ câu hỏi của chủ dự án: "đỉnh dốc Bà The" — chỗ gọi truyền miệng, không địa chỉ, không phải
 chỗ ăn/chơi/ngủ/đi lại — thì bỏ vào đâu?
