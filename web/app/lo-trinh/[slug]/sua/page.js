@@ -25,7 +25,7 @@ import { ProposePlaceForm } from "@/app/ProposePlaceForm";
 import { StopBadge } from "@/app/StopBadge";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { TRANSPORT_MODES, STOP_TYPES } from "@/lib/routes";
-import { getPlaceTypeLabel } from "@/lib/placeTypes";
+import { getPlaceTypeLabel, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { formatDurationText } from "@/lib/durationFormat";
 import { PROVINCES } from "@/lib/provinces";
 import { PICKUP_SELECTION_TYPES, pickupModeLabel, pickupPointFullAddress, pickupSelectionLabel } from "@/lib/pickupPoints";
@@ -726,7 +726,11 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
           className="w-full rounded-lg border border-zinc-300 px-2 py-1.5 text-sm text-zinc-900"
           value={note}
           maxLength={140}
-          placeholder="VD: Đặt bàn trước cho 6 người"
+          /* "Đặt bàn trước cho 6 người" chỉ đúng với hàng quán. Đứng dưới một cái dốc hay cây
+             đa thì nó gợi sai hẳn việc — chỗ kiểu đó không đặt bàn được. */
+          placeholder={
+            placeTypeAsksStatus(stop.typeLabel) ? "VD: Đặt bàn trước cho 6 người" : "Nhập nội dung"
+          }
           onChange={(e) => setNote(e.target.value)}
           onBlur={() => save()}
         />

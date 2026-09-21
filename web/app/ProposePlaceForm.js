@@ -86,7 +86,9 @@ export function ProposePlaceForm({
               className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
               value={name}
               maxLength={80}
-              placeholder="VD: Quán bún ốc cô Hoa"
+              /* Cùng lý do với ô ghi chú chặng: chọn "Chỗ quen gọi" mà ví dụ vẫn là tên quán
+                 thì người đang khai một cái dốc tưởng mình vào nhầm ô. */
+              placeholder={placeTypeAsksStatus(type) ? "VD: Quán bún ốc cô Hoa" : "VD: Đỉnh dốc Bà The"}
               onChange={(e) => setName(e.target.value)}
             />
           </label>

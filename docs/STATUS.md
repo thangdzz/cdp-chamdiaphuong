@@ -35,6 +35,10 @@ Kiểm trên web thật sau deploy: trang chủ HTTP 200, vẫn đúng 4 tab `T�
    tái hiện lỗi cũ ở cả hai chiều gỡ component.
 2. **Ví dụ trong ô "Còn biết gì thêm không?"** mặc định là hàng quán ("Mở buổi sáng, bán tới trưa
    là hết") → đổi sang trung tính, dùng chung cho cả 5 loại.
+3. **Ví dụ gợi ý bám theo loại chỗ.** Ô "Ghi chú cho chặng này" vẫn gợi "VD: Đặt bàn trước cho 6
+   người" ngay dưới một cái dốc → loại `asksStatus:false` đổi thành "Nhập nội dung". Sửa luôn ô
+   "Tên địa điểm" trong form đề xuất: chọn "Chỗ quen gọi" thì ví dụ là "VD: Đỉnh dốc Bà The" thay
+   vì "VD: Quán bún ốc cô Hoa". 4 loại cũ giữ nguyên ví dụ cũ.
 
 **Còn phải thử lại** — đề xuất một "Chỗ quen gọi" không nhập địa chỉ → xem bản đồ có
 mở được để ghim không → duyệt trong admin → xem nó KHÔNG hiện ở trang chủ nhưng TÌM được trong bộ
