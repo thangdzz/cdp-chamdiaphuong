@@ -6,7 +6,9 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-22 — TÊN DÂN HAY GỌI + CHỖ TẠM THEO DỊP + DỌN ADMIN ĐỢT 1, CHƯA DEPLOY.**
+**Cập nhật mới nhất 2026-09-22 — TÊN DÂN HAY GỌI + CHỖ TẠM THEO DỊP + DỌN ADMIN ĐỢT 1, ĐÃ DEPLOY**
+(`chamdiaphuongio-6g6ieiggm`). Kiểm sau deploy: trang chủ HTTP 200, vẫn đúng 4 tab, 15 chỗ hiện
+"Chỉ đường".
 
 Chủ dự án duyệt cả nhóm B trong danh sách việc tồn. Làm xong 3 mục:
 
