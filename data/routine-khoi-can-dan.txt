@@ -1,0 +1,8 @@
+TRANG THAI VA TOA DO (NOTE-14, moi loai dia diem):
+
+Them cac truong sau neu doc duoc tren Google Maps (khong doc duoc thi de null, KHONG doan):
+- "business_status": "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY". Google ghi "Đã đóng cửa vĩnh viễn"/"Bị đóng vĩnh viễn" -> "CLOSED_PERMANENTLY"; "Tạm thời đóng cửa" -> "CLOSED_TEMPORARILY".
+- "google_maps_url": link Google Maps DAY DU cua dia diem (dang https://www.google.com/maps/place/..., KHONG dung link rut gon maps.app.goo.gl).
+- "lat", "lng": so thap phan, chi dien khi link/trang hien ro toa do. Web tu doc toa do trong google_maps_url nen co link day du la du.
+
+Dia diem Google bao DONG VINH VIEN: VAN GUI ban ghi kem business_status = "CLOSED_PERMANENTLY" (ke ca ten da co trong known-places-snapshot.json) - web se KHONG dang cong khai, chi dua vao hang cho de admin xac minh. KHONG tu y bo qua va KHONG sua business_status thanh OPERATIONAL.

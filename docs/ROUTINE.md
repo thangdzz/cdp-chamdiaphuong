@@ -155,7 +155,7 @@ rồi gõ lại — để không phải nhập lại token.
 | 2026-08-21 | **Viết lại toàn bộ Bước 4** — bỏ đoạn `curl` đã chết (403 Forbidden), thay bằng dùng thẳng công cụ GitHub trong phiên. Giữ nguyên khối "MON DAC TRUNG" và bổ sung khối **"QUAN TRONG - KHONG DUOC GHI DE"**. Nội dung lệnh: 6.030 → **5.786 ký tự**. Đã dán và xác nhận lưu thành công |
 | 2026-08-21 | Bỏ đoạn `curl`/`base64`/`$GITHUB_TOKEN` chết ở Bước 4 (403 Forbidden mọi lần chạy) — thay bằng chỉ dẫn dùng thẳng công cụ GitHub có sẵn trong phiên, **giữ nguyên hành vi gộp vào cuối mảng cũ, không ghi đè** |
 | 2026-09-16 | NOTE-14: thêm khối **"TRANG THAI VA TOA DO"** — `business_status`, `google_maps_url`, `lat`/`lng`; chỗ Google báo đóng vĩnh viễn vẫn gửi để web chặn + đưa vào hàng chờ. **Bản sao lưu đã sửa; chủ dự án CHƯA dán lên routine thật trên claude.ai** |
-| 2026-09-22 | Đã kiểm khối "TRANG THAI VA TOA DO" chạy thật qua `normalizeRecord()`: toạ độ đọc được từ `google_maps_url` (nguồn `import`), `business_status` in hoa được nhận và tự đổi thành `operational`/`closed_permanently`, `signature_dishes` giữ nguyên. Bản dán một phát để sẵn ở **`data/routine-de-dan.txt`** — vẫn CHƯA dán (routine nằm trên claude.ai, chỉ chủ dự án vào được) |
+| 2026-09-22 | Đã kiểm khối "TRANG THAI VA TOA DO" chạy thật qua `normalizeRecord()`: toạ độ đọc được từ `google_maps_url` (nguồn `import`), `business_status` in hoa được nhận và tự đổi thành `operational`/`closed_permanently`, `signature_dishes` giữ nguyên. Khối cần chèn tách sẵn ở **`data/routine-khoi-can-dan.txt`**; chèn vào giữa dòng khuôn JSON và khối "MON DAC TRUNG". Vẫn CHƯA dán (routine nằm trên claude.ai, chỉ chủ dự án vào được) |
 
 ---
 
@@ -164,9 +164,13 @@ rồi gõ lại — để không phải nhập lại token.
 > Chép nguyên văn, **trừ dòng token đã thay bằng chỗ trống**. Viết tiếng Việt không dấu —
 > giữ nguyên phong cách này khi sửa, cho đồng bộ.
 >
-> **Dán nhanh:** cùng nội dung này đã để sẵn thành một file trần ở `data/routine-de-dan.txt`
-> — mở, Cmd+A, Cmd+C, khỏi phải lách qua dấu ``` của Markdown. Dán xong nhớ thay dòng
-> `GITHUB_TOKEN=` bằng token thật (dòng thứ 4), rồi cập nhật bảng §6.
+> **Hai file dọn sẵn (22/9):**
+> - `data/routine-khoi-can-dan.txt` — CHỈ khối "TRANG THAI VA TOA DO" (8 dòng). Dùng cho việc
+>   đang còn treo: chèn thêm vào routine đang chạy. **Đây là cách đúng** — §5 đã dặn chỉ
+>   chèn phần cần thiết, không chọn tất cả rồi gõ lại, để khỏi mất token.
+> - `data/routine-de-dan.txt` — TOÀN BỘ nội dung lệnh. **Chỉ dùng khi dựng lại routine từ đầu**
+>   (§8), vì dòng `GITHUB_TOKEN=` trong đó để trống; dán đè lên routine đang chạy là mất token
+>   thật, phải tạo PAT mới.
 
 ```text
 Ban la 1 agent chay dinh ky hang ngay cho du an "Cham Dia Phuong". Nhiem vu MOI LAN CHAY:
