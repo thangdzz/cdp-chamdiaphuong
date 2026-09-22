@@ -350,6 +350,11 @@
     "address": null
   },
   {
+    "name": "Đỉnh dốc Bà The",
+    "type": "moc",
+    "address": null
+  },
+  {
     "name": "Đô Đô Homestay",
     "type": "ngu",
     "address": "Số nhà 10A, Ngõ 136 Kim Quan, Tổ 4, Phường Ỷ La, TP Tuyên Quang"
@@ -490,6 +495,11 @@
     "address": "Tổ 2, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Karaoke X3 Tuyên Quang",
+    "type": "choi",
+    "address": "208 Lê Đại Hành, Tổ 7, phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
     "name": "Kem 81",
     "type": "an",
     "address": "154 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
@@ -615,6 +625,11 @@
     "address": "Khu đô thị Việt Mỹ Villas, đường Lê Lợi 4, tổ 12, phường Phan Thiết, TP. Tuyên Quang"
   },
   {
+    "name": "LAIKA Cafe",
+    "type": "an",
+    "address": "102 Quang Trung, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Lavender Hotel Tuyên Quang",
     "type": "ngu",
     "address": "Số 98 đường Trần Phú, phường Minh Xuân, TP Tuyên Quang"
@@ -678,6 +693,11 @@
     "name": "Na Tuệ An Homestay",
     "type": "ngu",
     "address": "81 Võ Văn Kiệt, TP Tuyên Quang"
+  },
+  {
+    "name": "Natcha Thái - Tuyên Quang",
+    "type": "an",
+    "address": "Tầng 1, tòa nhà Diamond (Quảng Lợi), số 87 đường Chiến Thắng Sông Lô, TP Tuyên Quang"
   },
   {
     "name": "Ngã 8 Quán - Ốc 1963",
