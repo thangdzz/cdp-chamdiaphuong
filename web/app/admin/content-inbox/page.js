@@ -23,6 +23,7 @@ import {
   saveDraft,
 } from "./actions";
 import ConfirmActionButton from "./ConfirmActionButton";
+import { AdminNav } from "../AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -232,7 +233,7 @@ export default async function ContentInboxPage({ searchParams }) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
-      <Link href="/admin" className="text-sm text-zinc-500">← Về trang quản trị</Link>
+      <AdminNav current="/admin/content-inbox" />
       <h1 className="mt-3 text-2xl font-bold text-zinc-900">Content Inbox</h1>
       <p className="mt-1 text-sm leading-relaxed text-zinc-500">Dán nguồn mới → xem kết quả → sửa nếu cần → lưu nháp hoặc Public. Hệ thống không tự đăng khi anh chưa xác nhận.</p>
       <form action={receiveContent} className="mt-5 rounded-xl border border-zinc-200 bg-white p-4">

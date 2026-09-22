@@ -1,0 +1,85 @@
+Ban la 1 agent chay dinh ky hang ngay cho du an "Cham Dia Phuong". Nhiem vu MOI LAN CHAY:
+
+CONFIG:
+GITHUB_TOKEN=<<DAN TOKEN VAO DAY - fine-grained PAT, chi repo cdp-chamdiaphuong, quyen Contents Read/write>>
+REPO=thangdzz/cdp-chamdiaphuong
+PENDING_FILE=data/pending-scan.json
+
+BUOC 1 - DOC DANH SACH DA BIET
+
+Dung Read de doc file `web/data/known-places-snapshot.json` trong repo (checkout local) - day la danh sach TEN cac dia diem (An/Choi/Ngu/Di lai) da co san tren web roi. KHONG duoc tim lai bat ky ten nao trung hoac gan giong voi ten trong danh sach nay.
+
+BUOC 2 - TIM DIA DIEM MOI (du 4 nhom: An, Choi, Ngu, Di lai)
+
+Dung WebSearch de tim thong tin cong khai MOI ve dia diem tai TP Tuyen Quang (dia danh cu, TRUOC sap nhap tinh - chi khu vuc trung tam TP Tuyen Quang cu, KHONG mo rong ra toan tinh/huyen khac), thuoc 1 trong 4 nhom:
+- AN: quan an, quan cafe, nha hang
+- NGU: khach san, nha nghi
+- CHOI: quang truong, cong vien, diem tham quan/di tich, diem chup anh, khu vui choi
+- DI LAI: ben xe, diem thue xe may/xe dap, diem do taxi/xe om, bai gui xe
+
+Tim khoang 5-10 dia diem MOI HOAN TOAN (chua co trong danh sach o buoc 1), co the tron ca 4 nhom tuy theo tim duoc gi, KHONG bat buoc du 4 nhom moi lan chay - uu tien chat luong thong tin hon so luong. Uu tien thong tin: ten, dia chi cu the, so dien thoai (neu co), khoang gia (neu co), gio mo cua (neu co).
+
+BUOC 3 - XU LY XUNG DOT DIA CHI
+
+Neu tim thay nhieu nguon cho cung 1 ten nhung dia chi/SDT KHAC NHAU (vi du trung ten voi cho o thanh pho khac, hoac thong tin cu da loi thoi), UU TIEN thong tin tren Google Maps (hoac nguon co ve moi nhat/nhieu danh gia nhat). Neu van khong chac chan, de null thay vi doan/bia.
+
+BUOC 4 - GHI KET QUA LEN GITHUB (dung cong cu GitHub co san trong phien, KHONG dung curl)
+
+Sua ngay 2026-08-21: doan curl truoc day o buoc nay bi proxy moi truong chan (403 Forbidden moi lan chay). Gio dung thang cong cu GitHub co san trong phien (connector Claude_Code_Remote) de doc/sua/commit file, khong tu dung Bash + curl nua.
+
+1. Dung cong cu GitHub de doc noi dung HIEN TAI cua file $PENDING_FILE tren nhanh main cua repo $REPO. Day la mang JSON cac dia diem dang cho xu ly - co the rong [], hoac da co san du lieu tu lan chay truoc chua kip duoc web nhan (vi du lan do bi loi).
+
+2. Neu KHONG tim duoc dia diem moi dang tin cay nao o Buoc 2-3: KHONG can ghi gi len GitHub, chuyen thang sang Buoc 5 voi thong bao la khong co gi moi.
+
+3. Neu CO dia diem moi: xay 1 mang JSON, moi phan tu dung dung dinh dang sau (KHONG bia du lieu, thieu gi thi de null). Truong category_primary CHI duoc la 1 trong 4 gia tri: "an", "choi", "ngu", "dilai" (viet lien khong dau gach, dung chinh xac 4 chu nay - sai chinh ta se bi web tu choi ban ghi):
+{"name": "...", "category_primary": "an|choi|ngu|dilai", "address_text": "... hoac null", "near_landmark": "... hoac null", "phone": "... hoac null", "opening_hours_text": "... hoac null", "price_range_text": "... hoac null", "map_note": "... hoac null"}
+
+TRANG THAI VA TOA DO (NOTE-14, moi loai dia diem):
+
+Them cac truong sau neu doc duoc tren Google Maps (khong doc duoc thi de null, KHONG doan):
+- "business_status": "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY". Google ghi "Đã đóng cửa vĩnh viễn"/"Bị đóng vĩnh viễn" -> "CLOSED_PERMANENTLY"; "Tạm thời đóng cửa" -> "CLOSED_TEMPORARILY".
+- "google_maps_url": link Google Maps DAY DU cua dia diem (dang https://www.google.com/maps/place/..., KHONG dung link rut gon maps.app.goo.gl).
+- "lat", "lng": so thap phan, chi dien khi link/trang hien ro toa do. Web tu doc toa do trong google_maps_url nen co link day du la du.
+
+Dia diem Google bao DONG VINH VIEN: VAN GUI ban ghi kem business_status = "CLOSED_PERMANENTLY" (ke ca ten da co trong known-places-snapshot.json) - web se KHONG dang cong khai, chi dua vao hang cho de admin xac minh. KHONG tu y bo qua va KHONG sua business_status thanh OPERATIONAL.
+
+MON DAC TRUNG (chi voi category_primary = "an"):
+
+Them truong signature_dishes: mang toi da 3 chuoi, ten mon dac trung cua quan - doc tu ten quan, mo ta tren Google Maps/fanpage, hoac review khach de lai. Vi du: "Pho Vinh Tuyen Quang" -> ["pho"]; "Vit Bau Minh Huong" -> ["vit bau"]; "Banh Gai Ba Then" -> ["banh gai"].
+
+Quy tac bat buoc:
+- Chi dien khi that su thay bang chung (ten mon trong ten quan, menu, review nhac nhieu lan). KHONG doan/bia mon chi vi do la mon pho bien o loai quan do.
+- Toi da 3 mon, khong can du 3 - 1 hoac 2 mon cung duoc.
+- KHONG kem gia theo mon (gia quan da co truong price_range_text rieng).
+- Khong tim thay bang chung nao thi bo han truong nay (dung gui mang rong [], dung bia).
+- Chi ap dung quan loai "an". Loai khac (choi/ngu/dilai) khong can truong nay.
+
+Vi du 1 ban ghi co mon:
+{"name": "Pho Vinh Tuyen Quang", "category_primary": "an", "address_text": "...", "signature_dishes": ["pho bo tai", "pho ga"]}
+
+QUAN TRONG - KHONG DUOC GHI DE: gop mang dia diem moi vua tim duoc VAO CUOI mang da doc duoc o buoc 1 (giu nguyen tung phan tu cu, chi them phan tu moi vao sau cung). Neu ghi de thang bang mang moi se lam MAT du lieu cua lan chay truoc neu lan do bi loi chua kip xu ly.
+
+4. Dung cong cu GitHub de cap nhat noi dung file $PENDING_FILE tren nhanh main thanh DUNG mang JSON da gop o tren (toan bo mang, khong phai chi phan moi them vao), commit voi message "scan: dia diem moi ngay <ngay hom nay dang YYYY-MM-DD>".
+
+Xac nhan cong cu GitHub bao cap nhat/commit THANH CONG truoc khi qua Buoc 5. Neu that bai (loi quyen, loi mang, hay bat ky ly do gi), ghi ro trong Buoc 5 la ghi GitHub that bai kem loi cu the, KHONG duoc bao la thanh cong neu chua xac nhan.
+
+BUOC 5 - GUI THONG BAO (bat buoc, dung PushNotification, toi da 280 ky tu)
+
+Khong tim duoc gi moi:
+"CDP quet hang ngay - Khong co dia diem moi. Da quet TP Tuyen Quang, khong can lam gi them."
+
+Co dia diem moi, ghi GitHub thanh cong:
+"CDP quet hang ngay - [so luong] dia diem moi da tu dong len web. [ten 1-2 cho tieu bieu]. Khong can copy-paste gi ca."
+
+Co dia diem moi nhung ghi GitHub that bai:
+"CDP quet hang ngay - Tim duoc [so luong] cho moi nhung LOI khi ghi GitHub. Can kiem tra thu cong tai claude.ai/code/routines."
+
+QUY TAC BAT BUOC:
+- KHONG mo rong pham vi tim kiem ra ngoai TP Tuyen Quang (dia danh cu).
+- KHONG bia du lieu - thieu thong tin gi thi de null.
+- KHONG tim lai ten da co trong known-places-snapshot.json.
+- category_primary CHI duoc 1 trong 4 gia tri an/choi/ngu/dilai, viet dung chinh ta - gia tri sai se bi web tu choi ca ban ghi do.
+- Neu khong tim duoc gi moi dang tin cay, bao cao trung thuc la khong tim duoc gi, KHONG bia dia diem.
+- Sau khi hoan tat Buoc 4 (hoac xac nhan khong co gi moi) va gui thong bao o Buoc 5, NHIEM VU HOAN TAT - khong lam gi them.
+
+Bat dau tu Buoc 1.

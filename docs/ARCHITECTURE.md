@@ -275,6 +275,44 @@ theo proposal → lộ trình của chính người đề xuất dẫn đúng ng
 đọc `proposal.coordinates`), duyệt xong thì theo luôn vào `places:live`, khỏi ghim lại ở
 `/admin/vi-tri`. Chế độ "chỗ mới thay chỗ cũ" KHÔNG mở ô ghim — vị trí kế thừa của chỗ cũ.
 
+### Tên dân hay gọi + chỗ tạm theo dịp (2026-09-22, NOTE-15 §7 và §13)
+
+Hai field mới trên hồ sơ địa điểm, **không cần migration** — thiếu thì suy ra như cũ:
+
+| Field | Là gì | Ai đọc |
+|---|---|---|
+| `searchAliases: string[]` | Tên dân gian của chỗ đó: `["cơm bà The", "đỉnh dốc Bà The"]`. Tối đa 8, bỏ trùng, bỏ tên trùng chính tên chỗ | `placeSearchHaystack()` (lib/placeTextSearch.js) → **cả** trang chủ và bộ chọn lộ trình cùng lúc |
+| `temporary` + `validFrom` + `validUntil` | Chỗ chỉ có trong một dịp: bãi xe lễ hội, sân khấu tạm, điểm cấm đường. Ngày dạng `YYYY-MM-DD` | `lib/placeValidity.js` |
+
+**Hết hạn thì THÔI ƯU TIÊN, KHÔNG XOÁ** (§13). Cụ thể: biến khỏi danh sách trang chủ
+(`app/page.js` lọc `isPlaceExpired`) và khỏi bộ chọn khi làm lộ trình mới (`fetchPickerPlaces`).
+Nhưng `resolveRouteStops` / `resolveNotebookItems` **không lọc gì** — lộ trình và sổ khách đã lưu
+vẫn xem lại được, trang `/dia-diem/{id}` vẫn mở, chỉ thêm nhãn "Chỗ tạm — đã hết ngày 25/9".
+
+**Múi giờ là chỗ dễ sai nhất.** Ngày admin gõ hiểu là TRỌN ngày đó theo giờ Việt Nam
+(`+07:00`), nên `validUntil: "2026-09-25"` còn hiệu lực tới 23:59:59 ngày 25 giờ Tuyên Quang. So
+thô theo giờ máy chủ (Vercel chạy UTC) thì 23h tối 25/9 đã bị coi là hết hạn. Đánh dấu `temporary`
+mà quên điền ngày → coi như **thường trực**, thà hiện thừa hơn ẩn mất một chỗ có thật.
+
+`lib/placeForm.js` đọc cả hai nhóm field qua hàm riêng có `formData.has()` guard, cùng khuôn với
+`locationFieldsFromFormData` — form hàng chờ tự động không có mấy ô này, đọc thẳng sẽ **xoá sạch**
+dữ liệu admin đã gõ.
+
+### Khu quản trị — thanh đi ngang + dải việc cần duyệt (2026-09-22, đợt 1)
+
+`app/admin/AdminNav.js` là **nguồn duy nhất** cho danh sách 6 trang admin, hiện ở cả 6 trang.
+Trước đó chỉ `/admin` có link đi trang con (5 thẻ to xếp dọc), các trang con chỉ có "← Về trang
+quản trị", nên đi ngang phải qua trung gian.
+
+Trên `/admin`: dải **"Việc cần duyệt"** ở đầu trang, 6 số đếm kèm link nhảy tới mục
+(`#review-queue`, `#proposal-queue`, `#pending-notes`, `#reported-notes`, `#suggestions`,
+`#pending-places`). Ba mục TRA CỨU dài nhất gập bằng `<details>` (Sổ chia sẻ · Địa điểm đã đóng
+cửa · Đang công khai) — HTML thuần, không thêm state. Tám mục cần xử lý vẫn mở sẵn.
+
+**Chưa đổi đường dẫn nào** (đợt 2): đổi là link chủ dự án đã lưu sẽ hỏng, phải làm chuyển hướng
+308 như lần sửa đường dẫn game. Nhãn `navigation` gọi là "Menu trang khách" cho khỏi hiểu nhầm là
+menu admin.
+
 ### Sổ chia sẻ được (Chặng 4, `lib/notebooks.js`)
 
 | Key | Kiểu | Chứa gì |
@@ -577,6 +615,8 @@ web/
 │   ├── locationVotes.js    (268)  ⭐ Cộng đồng xác nhận VỊ TRÍ (16/9): phiếu 1 người/1 chỗ,
 │   │                              gom cụm 40m, ≥2 người là dẫn đường được, hai cụm bằng nhau
 │   │                              thì không tự chọn. KHÔNG ghi đè places:live — xem §2
+│   ├── placeValidity.js     (93)  Chỗ tạm theo dịp (22/9, NOTE-15 §13): trọn ngày theo giờ
+│   │                              VN, hết hạn thì thôi bày ở trang chủ + bộ chọn, KHÔNG xoá
 │   ├── locationHistory.js   (77)  Nhật ký đổi ghim (20/9, NOTE-15 §19): giữ toạ độ cũ, ai
 │   │                              đổi, vì sao. Chỉ ghi, chưa có màn xem
 │   ├── notebooks.js        (215)  ⭐ Chặng 4: tạo/sửa sổ, sinh slug 8 ký tự (SET NX chống

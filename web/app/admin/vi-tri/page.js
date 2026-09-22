@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
@@ -13,6 +12,7 @@ import {
 } from "@/lib/locationVotes";
 import { LocationQueue } from "./LocationQueue";
 import { LocationSuggestions } from "./LocationSuggestions";
+import { AdminNav } from "../AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -76,9 +76,7 @@ export default async function PlaceLocationsPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-2xl px-4 py-6 sm:px-6">
-        <Link href="/admin" className="text-sm text-zinc-400 underline">
-          ← Trang quản trị
-        </Link>
+        <AdminNav current="/admin/vi-tri" />
         <h1 className="mt-3 text-xl font-medium tracking-tight text-zinc-900">Vị trí địa điểm</h1>
         <p className="mt-1 text-[13px] text-zinc-500">
           Ghim đúng chỗ trên bản đồ để khách bấm &quot;Chỉ đường&quot; là tới nơi, thay vì để Google

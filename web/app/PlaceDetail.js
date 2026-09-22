@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { PLACE_TYPES, placeTypeAsksStatus } from "@/lib/placeTypes";
+import { placeValidityLabel } from "@/lib/placeValidity";
 import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { PlaceFacts } from "./PlaceFacts";
@@ -56,6 +57,9 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   // trạng thái thay vì hiện "Chưa cập nhật giá" với nút "Vẫn mở" vô nghĩa. Câu hỏi cho khách
   // thì lib/questions.js đã tự cắt, PlaceFacts theo đó cũng rỗng.
   const asksStatus = placeTypeAsksStatus(place.type);
+  // NOTE-15 §13: chỗ tạm. Trang riêng VẪN mở được kể cả khi đã hết ngày (lộ trình cũ còn trỏ
+  // tới đây), nên câu chữ phải nói rõ tình trạng thay vì để khách tưởng chỗ này còn.
+  const validityLabel = placeValidityLabel(place);
   const [activeNoteContext, setActiveNoteContext] = useState(null);
   const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
   const action = primaryAction(place);
@@ -160,6 +164,11 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
       <div className="order-0 lg:col-span-2 lg:order-none">
         <h1 className="text-2xl font-semibold tracking-tight leading-snug text-zinc-900">{place.name}</h1>
         {subtitle && <p className="mt-1 text-[13px] text-zinc-500">{subtitle}</p>}
+        {validityLabel && (
+          <p className="mt-1 inline-block rounded-md bg-amber-50 px-2 py-0.5 text-[13px] text-amber-800">
+            {validityLabel}
+          </p>
+        )}
         {transportDetailLine(place) && (
           <p className="mt-1 text-sm text-zinc-700">{transportDetailLine(place)}</p>
         )}

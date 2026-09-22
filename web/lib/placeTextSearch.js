@@ -41,9 +41,18 @@ export function normalizeForSearch(text) {
   return stripDiacritics(text ?? "").toLowerCase();
 }
 
-/** Chuỗi đem đi so khớp của một địa điểm — gộp tên, địa chỉ, khu và phường. */
+/**
+ * Chuỗi đem đi so khớp của một địa điểm — gộp tên, TÊN GỌI ĐỊA PHƯƠNG, địa chỉ, khu và phường.
+ *
+ * `searchAliases` (NOTE-15 §7) là chỗ CDP hơn Google rõ nhất: gõ "nhà bà The" phải ra đúng cái
+ * quán mà trên biển ghi tên khác. Vì mọi nơi tìm kiếm đều dùng chung hàm này (trang chủ và bộ
+ * chọn lộ trình), thêm ở đây là cả hai nơi biết cùng lúc — không có chỗ nào tìm ra mà chỗ kia
+ * không thấy.
+ */
 export function placeSearchHaystack(place) {
   return normalizeForSearch(
-    [place.name, place.address, place.localArea, place.ward].filter(Boolean).join(" ")
+    [place.name, ...(place.searchAliases ?? []), place.address, place.localArea, place.ward]
+      .filter(Boolean)
+      .join(" ")
   );
 }

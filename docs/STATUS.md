@@ -6,7 +6,36 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", ĐÃ DEPLOY** (`web-2i1d1od35`).
+**Cập nhật mới nhất 2026-09-22 — TÊN DÂN HAY GỌI + CHỖ TẠM THEO DỊP + DỌN ADMIN ĐỢT 1, CHƯA DEPLOY.**
+
+Chủ dự án duyệt cả nhóm B trong danh sách việc tồn. Làm xong 3 mục:
+
+- **Tên dân hay gọi** (`searchAliases`, NOTE-15 §7). Admin gõ một dòng cách nhau bằng dấu phẩy
+  ("cơm bà The, đỉnh dốc Bà The"); gõ tên nào cũng ra đúng chỗ, **cả** ở trang chủ và bộ chọn lộ
+  trình (thêm vào `placeSearchHaystack()` — chỗ dùng chung của hai nơi).
+- **Chỗ tạm theo dịp** (`temporary` + `validFrom` + `validUntil`, NOTE-15 §13) — bãi xe lễ hội,
+  sân khấu tạm, điểm cấm đường. Hết ngày cuối thì biến khỏi trang chủ và bộ chọn, **không xoá**:
+  lộ trình/sổ khách đã lưu vẫn xem lại được, trang riêng vẫn mở kèm nhãn "Chỗ tạm — đã hết ngày
+  25/9". Ngày tính TRỌN theo giờ Việt Nam.
+- **Dọn admin đợt 1** — thanh menu dùng chung ở cả 6 trang (`app/admin/AdminNav.js`), dải "Việc
+  cần duyệt" 6 số đếm + link nhảy tới mục, gập 3 mục tra cứu dài nhất. Không đổi đường dẫn nào.
+
+Kiểm: `npm run build` đạt; `npm run lint` vẫn đúng 1 lỗi cũ ở `app/PlaceExplorer.js:410`. Test hàm
+thuần: chỗ tạm 13/13 đạt (gồm ca 23h tối ngày cuối theo giờ VN, và ca đánh dấu tạm mà quên ngày),
+tên dân hay gọi 8/8 đạt (gồm ca "form không có ô đó thì không xoá dữ liệu cũ").
+
+**Chưa bấm thử `/admin` trên máy thật** — em không đăng nhập được vào trang admin nên chưa xem
+được mặt trang sau khi dọn. Cần anh mở `/admin` xem thanh menu + dải số đếm + 3 mục gập có đúng ý.
+
+**Hai mục trong nhóm B cố ý KHÔNG làm** (lý do ở DECISIONS 22/9): đổi
+`REQUIRE_VERIFIED_LOCATION = true` (mới ghim 11/241, bật là 230 chỗ mất nút Chỉ đường) và chỉnh
+`MAX_WAYPOINTS` (phải thử trên iPhone thật mới biết số).
+
+**Mục 4 (dán khối "TRANG THAI VA TOA DO" lên routine)** — em không vào được claude.ai nên không
+dán được. Đã kiểm khối đó chạy thật qua `normalizeRecord()` và dọn sẵn bản dán một phát ở
+`data/routine-de-dan.txt`.
+
+**Trước đó 2026-09-21 — LOẠI ĐỊA ĐIỂM THỨ 5 "CHỖ QUEN GỌI", ĐÃ DEPLOY** (`web-2i1d1od35`).
 
 Từ câu hỏi của chủ dự án: "đỉnh dốc Bà The" — chỗ gọi truyền miệng, không địa chỉ, không phải
 chỗ ăn/chơi/ngủ/đi lại — thì bỏ vào đâu?

@@ -29,6 +29,7 @@ import { createProposal } from "@/lib/proposals";
 import { isValidProvince } from "@/lib/provinces";
 import { coordinatesOf } from "@/lib/coordinates";
 import { getAllLocationConsensus } from "@/lib/locationVotes";
+import { isPlaceExpired, placeValidityLabel } from "@/lib/placeValidity";
 import { googlePlaceIdOf, locationOf } from "@/lib/placeLocation";
 
 // Không cần đăng nhập, chưa có hồ sơ thì tự tạo im lặng — giống hệt Sổ (SPEC-chang-4 §5 quy
@@ -346,7 +347,13 @@ export async function fetchPickerPlaces() {
     getLivePlaces(),
     getAllLocationConsensus(),
   ]);
-  return places.map((p) => {
+  // NOTE-15 §13: chỗ tạm hết ngày thì thôi mời khách thêm vào lộ trình mới. Lộ trình CŨ đã có
+  // nó vẫn giữ nguyên — resolveRouteStops không lọc gì, đúng luật "hết hạn thì thôi ưu tiên,
+  // không xoá".
+  const now = Date.now();
+  return places
+    .filter((p) => !isPlaceExpired(p, now))
+    .map((p) => {
     const location = locationOf({ ...p, locationConsensus: allLocationConsensus[p.id] ?? null });
     return {
       id: p.id,
@@ -355,8 +362,12 @@ export async function fetchPickerPlaces() {
       ward: p.ward ?? null,
       address: p.address ?? null,
       localArea: p.localArea ?? null,
+      // Tên dân gian phải theo sang bộ chọn, không thì gõ "nhà bà The" ở trang chủ ra mà ở đây
+      // lại không ra — đúng cái lệch mà lib/placeTextSearch.js sinh ra để tránh.
+      searchAliases: p.searchAliases ?? [],
       locationStatus: location.status,
       locationVoters: location.voters,
+      validityLabel: placeValidityLabel(p, now),
     };
   });
 }

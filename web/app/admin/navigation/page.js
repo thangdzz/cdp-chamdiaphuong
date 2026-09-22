@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getNavigationConfig, NAVIGATION_LIMITS } from "@/lib/navigation";
 import { saveNavigation } from "./actions";
+import { AdminNav } from "../AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +28,7 @@ export default async function NavigationAdminPage({ searchParams }) {
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <header className="flex flex-col gap-4 border-b border-zinc-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <Link href="/admin" className="text-sm text-zinc-500 underline">
-            ← Trang duyệt dữ liệu
-          </Link>
+          <AdminNav current="/admin/navigation" />
           <h1 className="mt-2 text-2xl font-medium text-zinc-900">Nội dung hệ thống · Menu &amp; tên trang</h1>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
             Chỉnh chữ hiển thị và thứ tự. Key cùng đường dẫn được khóa trong code để không làm hỏng liên kết cũ.

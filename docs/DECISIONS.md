@@ -3,6 +3,52 @@
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
 
+## 2026-09-22 — Tên dân hay gọi, chỗ tạm theo dịp, và dọn admin đợt 1
+
+Chủ dự án duyệt cả nhóm B trong danh sách việc tồn. Làm xong 3 mục, 2 mục **cố ý không làm** —
+lý do ở cuối.
+
+**Tên dân hay gọi (`searchAliases`, NOTE-15 §7) thêm vào `placeSearchHaystack()`, không làm bộ
+tìm kiếm riêng.** Hàm đó đã là chỗ dùng chung của trang chủ và bộ chọn lộ trình (tách ra từ
+11/9 đúng để hai nơi không trôi lệch). Thêm ở đấy là cả hai nơi biết cùng lúc — không có cảnh
+gõ "nhà bà The" ở trang chủ ra mà trong bộ chọn lại không ra.
+
+**Một dòng phân cách bằng dấu phẩy, không phải nhiều ô bấm thêm.** Một chỗ nhiều lắm vài cái
+tên; thêm ô chỉ làm form admin dài ra. Chỉ admin gõ được — cho khách tự thêm tên gọi là mở một
+cửa rải rác chữ vào dữ liệu chung, cân nhắc sau.
+
+**Chỗ tạm: hết hạn thì thôi ưu tiên, KHÔNG xoá (§13).** Biến khỏi trang chủ và bộ chọn lộ trình
+mới; nhưng lộ trình + sổ khách đã lưu vẫn xem lại được và trang riêng vẫn mở, chỉ thêm nhãn
+"Chỗ tạm — đã hết ngày 25/9". Người ta còn nhớ "năm ngoái gửi xe ở đâu" — xoá là xoá mất ký ức
+của chuyến đi, mà mục đích chỉ là đừng dẫn khách tới một bãi đất trống.
+
+**Ngày hiểu theo giờ Việt Nam, tính trọn ngày cuối.** `validUntil: "2026-09-25"` còn hiệu lực
+tới 23:59:59 ngày 25 giờ Tuyên Quang. Máy chủ Vercel chạy UTC nên so thô thì 23h tối 25/9 đã bị
+coi là hết — đúng lúc lễ hội đang đông nhất. Có test riêng cho đúng ca này.
+
+**Đánh dấu tạm mà quên điền ngày → coi như thường trực.** Thà hiện thừa một chỗ hơn là ẩn mất
+một chỗ có thật chỉ vì admin bỏ trống ô ngày.
+
+**Cả hai nhóm field đều đọc qua hàm có `formData.has()` guard.** Cùng cái bẫy mà ô ghim vị trí
+đã gặp: form hàng chờ tự động không có mấy ô này, đọc thẳng là mỗi lần lưu từ đó sẽ xoá sạch
+tên dân gian và ngày admin đã gõ. Có test riêng cho ca "form không có ô đó".
+
+**Dọn admin chỉ làm ĐỢT 1, cố ý chưa đổi đường dẫn.** Đợt 1: thanh menu dùng chung ở cả 6 trang
+(`AdminNav`, một nguồn duy nhất), dải "Việc cần duyệt" có số đếm + link nhảy tới mục, gập 3 mục
+tra cứu dài nhất bằng `<details>` (HTML thuần, không thêm state). Không đụng đường dẫn và không
+đụng Server Action nào — đổi đường dẫn thì link chủ dự án đã lưu sẽ hỏng, phải làm chuyển hướng
+308 như lần sửa đường dẫn game, và đó là việc đáng đứng riêng một đợt.
+
+**Gập chứ không dời chỗ.** Mục "Sổ chia sẻ — đo lường" đang nằm đầu trang trong khi nó chỉ để
+xem số. Dời khối JSX 800 dòng đi chỗ khác thì dễ làm hỏng, mà gập lại thì nó chỉ còn một dòng —
+cùng kết quả, rủi ro gần bằng không.
+
+**CỐ Ý KHÔNG LÀM, dù đã được duyệt:**
+- **Đổi `REQUIRE_VERIFIED_LOCATION` thành `true`** — mới ghim 11/241 chỗ. Bật bây giờ là 230 chỗ
+  mất nút "Chỉ đường" ngay lập tức. Việc này phụ thuộc tiến độ ghim tay, không phụ thuộc code.
+- **Chỉnh `MAX_WAYPOINTS`** — phải biết Google Maps trên iPhone thật nhận được bao nhiêu điểm
+  giữa mới chỉnh được. Đoán số rồi sửa là làm hỏng lộ trình dài của khách.
+
 ## 2026-09-21 (sau khi thử) — Khoá cuộn trang phải ĐẾM, không để mỗi lớp tự nhớ
 
 Chủ dự án thử luồng đề xuất, báo "lộ trình không cuộn được xuống dưới, bị đơ". Nguyên nhân: cả

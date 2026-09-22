@@ -45,6 +45,22 @@ export function PlaceForm({ place, children }) {
         <Field label="Địa chỉ" name="address" defaultValue={place.address} />
         <Field label="Khu (VD: Khu 80 gian, Khu cổng lấp...)" name="localArea" defaultValue={place.localArea} />
         <Field label="Phường" name="ward" defaultValue={place.ward} />
+        {/* NOTE-15 §7: tên dân gian, cách nhau bằng dấu phẩy. Khách gõ tên nào cũng ra — đây
+            là thứ Google không có và CDP có. Một dòng thay vì nhiều ô: một chỗ nhiều lắm vài
+            cái tên, thêm ô bấm chỉ làm form dài ra. */}
+        <Field
+          label="Tên dân hay gọi (cách nhau bằng dấu phẩy)"
+          name="searchAliases"
+          defaultValue={(place.searchAliases ?? []).join(", ")}
+        />
+        {/* NOTE-15 §13: chỗ chỉ có trong một dịp. Hết ngày cuối thì thôi bày ra trang chủ và bộ
+            chọn lộ trình, nhưng KHÔNG xoá — lộ trình cũ của khách vẫn phải xem lại được. */}
+        <label className="col-span-2 flex items-center gap-2 text-[13px] text-zinc-600">
+          <input type="checkbox" name="temporary" defaultChecked={place.temporary === true} />
+          Chỗ tạm, chỉ có trong một dịp (bãi xe lễ hội, sân khấu tạm, điểm cấm đường...)
+        </label>
+        <Field label="Có từ ngày" name="validFrom" type="date" defaultValue={place.validFrom} />
+        <Field label="Đến hết ngày" name="validUntil" type="date" defaultValue={place.validUntil} />
         <Field label="Giá thấp nhất" name="priceMin" type="number" defaultValue={place.priceMin} />
         <Field label="Giá cao nhất" name="priceMax" type="number" defaultValue={place.priceMax} />
         <Field label="Đơn vị (đêm, bát, ly...)" name="priceUnit" defaultValue={place.priceUnit} />

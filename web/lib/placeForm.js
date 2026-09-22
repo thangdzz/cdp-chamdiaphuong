@@ -38,6 +38,43 @@ function locationFieldsFromFormData(formData) {
   }
 }
 
+// Tên gọi địa phương (NOTE-15 §7). Một chỗ có nhiều tên dân gian: "đỉnh dốc Bà The", "nhà bà
+// The", "đầu dốc". Admin gõ một dòng, tách bằng dấu phẩy — số tên của một chỗ đếm trên đầu ngón
+// tay, thêm ô bấm chỉ làm form dài. Bỏ trùng, bỏ tên trùng chính tên chỗ (không thêm gì cho tìm
+// kiếm), giữ tối đa 8.
+//
+// CÙNG LÝ DO với locationFieldsFromFormData: chỉ đọc khi form THẬT SỰ có ô này. Thẻ hàng chờ tự
+// động không có ô — trả `[]` từ đó sẽ xoá sạch tên admin đã gõ.
+function aliasFieldFromFormData(formData) {
+  if (!formData.has("searchAliases")) return {};
+  const ownName = (formData.get("name") ?? "").toString().trim().toLowerCase();
+  const aliases = [
+    ...new Set(
+      (formData.get("searchAliases") ?? "")
+        .toString()
+        .split(",")
+        .map((a) => a.trim().slice(0, 80))
+        .filter((a) => a && a.toLowerCase() !== ownName)
+    ),
+  ].slice(0, 8);
+  return { searchAliases: aliases };
+}
+
+// Chỗ chỉ tồn tại theo thời gian (NOTE-15 §13): bãi gửi xe lễ hội, điểm cấm đường, sân khấu
+// tạm. CÙNG LÝ DO guard như hai hàm trên — form hàng chờ tự động không có mấy ô này.
+//
+// Ngày lưu dạng "YYYY-MM-DD" đúng như <input type="date"> trả về; ý nghĩa múi giờ do
+// lib/placeValidity.js quy định, không rải ở đây.
+function temporaryFieldsFromFormData(formData) {
+  if (!formData.has("temporary")) return {};
+  const temporary = formData.get("temporary") === "on" || formData.get("temporary") === "true";
+  const date = (key) => {
+    const raw = (formData.get(key) ?? "").toString().trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
+  };
+  return { temporary, validFrom: date("validFrom"), validUntil: date("validUntil") };
+}
+
 // Đọc dữ liệu địa điểm từ 1 <form> (dùng chung cho "Đang công khai", "Chờ duyệt" thủ công,
 // và "Hàng chờ duyệt tự động" — cả 3 nơi đều sửa/nhập theo đúng field này).
 export function placeFromFormData(formData) {
@@ -73,6 +110,7 @@ export function placeFromFormData(formData) {
     // Tên khu dân cư/khu vực theo cách gọi của người địa phương (VD "Khu 80 gian", "Khu
     // cổng lấp") — khác "ward" (tên phường hành chính), hiển thị kèm nhau khi có cả 2.
     localArea: toTextOrNull(formData.get("localArea")?.toString()),
+    ...aliasFieldFromFormData(formData),
     priceMin,
     priceMax,
     priceUnit,
@@ -98,5 +136,6 @@ export function placeFromFormData(formData) {
       : {}),
     // Vị trí ghim: mọi loại hình đều cần, không riêng Đi lại.
     ...locationFieldsFromFormData(formData),
+    ...temporaryFieldsFromFormData(formData),
   };
 }

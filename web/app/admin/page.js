@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminNav } from "./AdminNav";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getLivePlaces, getPendingPlaces } from "@/lib/redis";
@@ -47,6 +48,7 @@ const NOTE_QUESTION_LABEL = { tip: "Bạn có mẹo gì cho chỗ này không?" 
 const SUGGESTION_FIELD_LABEL = {
   address: "Địa chỉ",
   localArea: "Khu vực",
+  searchAliases: "Tên dân hay gọi",
   phone: "SĐT",
   priceMin: "Giá thấp nhất",
   priceMax: "Giá cao nhất",
@@ -556,45 +558,43 @@ function AdminDashboard({
         </p>
       )}
 
-      <Link
-        href="/admin/content-inbox"
-        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
-      >
-        Content Inbox — nhận link hoặc nội dung mới →
-      </Link>
+      <AdminNav current="/admin" />
 
-      <Link
-        href="/admin/vi-tri"
-        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
-      >
-        Vị trí địa điểm — ghim trên bản đồ để khách chỉ đường đúng chỗ →
-      </Link>
-
-      <Link
-        href="/admin/gioi-thieu"
-        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
-      >
-        Nội dung hệ thống → Giới thiệu CDP →
-      </Link>
-
-      <Link
-        href="/admin/game"
-        className="mb-3 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
-      >
-        Game layer → Săn đèn Thành Tuyên: ghép bí ẩn, duyệt ảnh, sửa mô hình →
-      </Link>
-
-      <Link
-        href="/admin/navigation"
-        className="mb-6 block rounded-xl border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-900"
-      >
-        Nội dung hệ thống → Menu &amp; tên trang →
-      </Link>
+      {/* Dải "việc cần duyệt": số đếm + link nhảy thẳng tới mục. Trước đây 11 mục xếp chồng
+          nhau trên một trang 833 dòng, mở ra là phải cuộn qua cả phần tra cứu mới thấy thứ
+          đang chờ mình. Số 0 vẫn hiện, để biết là đã hết việc chứ không phải mục bị mất. */}
+      <section aria-label="Việc cần duyệt" className="mb-6">
+        <h2 className="mb-2 text-sm font-medium text-zinc-500">Việc cần duyệt</h2>
+        <div className="flex flex-wrap gap-1.5">
+          {[
+            { id: "review-queue", label: "AI quét", count: reviewQueue.length },
+            { id: "proposal-queue", label: "Khách đề xuất", count: proposalQueue.length },
+            { id: "pending-notes", label: "Ghi chú", count: pendingNotes.length },
+            { id: "reported-notes", label: "Ghi chú bị báo sai", count: reportedNotes.length },
+            { id: "suggestions", label: "Góp ý", count: suggestions.length },
+            { id: "pending-places", label: "Chờ duyệt", count: pending.length },
+          ].map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={`rounded-lg border px-3 py-1.5 text-[13px] ${
+                item.count > 0
+                  ? "border-amber-300 bg-amber-50 font-medium text-amber-900"
+                  : "border-zinc-200 bg-white text-zinc-400"
+              }`}
+            >
+              {item.label} · {item.count}
+            </a>
+          ))}
+        </div>
+      </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-lg font-bold text-zinc-900">
-          Sổ chia sẻ (Chặng 4) — đo lường, không hiện cho khách
-        </h2>
+        <details>
+          <summary className="mb-3 cursor-pointer text-lg font-bold text-zinc-900">
+            Sổ chia sẻ (Chặng 4) — đo lường, không hiện cho khách{" "}
+            <span className="text-sm font-normal text-zinc-400">— bấm để xem số</span>
+          </summary>
         <div className="grid grid-cols-3 gap-2 rounded-2xl border border-zinc-200 bg-white p-4">
           <div>
             <p className="text-2xl font-bold text-zinc-900">{notebookStats.totalNotebooks}</p>
@@ -609,16 +609,20 @@ function AdminDashboard({
             <p className="text-xs text-zinc-500">Lượt được lưu lại</p>
           </div>
         </div>
+        </details>
       </section>
 
       <section id="closed-places" className="mb-8">
-        <h2 className="mb-3 text-lg font-bold text-zinc-900">
-          Địa điểm đã đóng cửa ({closedPlaces.length})
-        </h2>
+        <details>
+          <summary className="mb-3 cursor-pointer text-lg font-bold text-zinc-900">
+            Địa điểm đã đóng cửa ({closedPlaces.length}){" "}
+            <span className="text-sm font-normal text-zinc-400">— bấm để mở</span>
+          </summary>
         <p className="mb-3 text-sm text-zinc-500">
           Giữ URL cũ và tạo đề xuất địa điểm mới cùng vị trí nếu có.
         </p>
         <ClosedPlacesManager places={closedPlaces} proposalQueue={proposalQueue} />
+        </details>
       </section>
 
       <FestivalEventsManager
@@ -651,6 +655,7 @@ function AdminDashboard({
             </label>
             <Field label="Địa chỉ" name="address" />
             <Field label="Khu (VD: Khu 80 gian, Khu cổng lấp...)" name="localArea" />
+            <Field label="Tên dân hay gọi (cách nhau bằng dấu phẩy)" name="searchAliases" />
             <Field label="Phường" name="ward" />
             <Field label="Giá thấp nhất" name="priceMin" type="number" />
             <Field label="Giá cao nhất" name="priceMax" type="number" />
@@ -695,7 +700,7 @@ function AdminDashboard({
         </div>
       </section>
 
-      <section className="mb-8">
+      <section id="proposal-queue" className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Địa điểm khách đề xuất ({proposalQueue.length})
         </h2>
@@ -709,7 +714,7 @@ function AdminDashboard({
         </div>
       </section>
 
-      <section className="mb-8">
+      <section id="pending-notes" className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Ghi chú chờ duyệt ({pendingNotes.length})
         </h2>
@@ -724,7 +729,7 @@ function AdminDashboard({
       </section>
 
       {reportedNotes.length > 0 && (
-        <section className="mb-8">
+        <section id="reported-notes" className="mb-8">
           <h2 className="mb-3 text-lg font-bold text-zinc-900">
             Ghi chú bị báo sai ({reportedNotes.length})
           </h2>
@@ -736,7 +741,7 @@ function AdminDashboard({
         </section>
       )}
 
-      <section className="mb-8">
+      <section id="suggestions" className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Góp ý từ khách ({suggestions.length})
         </h2>
@@ -750,7 +755,7 @@ function AdminDashboard({
         </div>
       </section>
 
-      <section className="mb-8">
+      <section id="pending-places" className="mb-8">
         <h2 className="mb-3 text-lg font-bold text-zinc-900">
           Chờ duyệt ({pending.length})
         </h2>
@@ -778,10 +783,13 @@ function AdminDashboard({
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-zinc-900">
-          Đang công khai ({live.length})
-        </h2>
+        <details>
+          <summary className="mb-3 cursor-pointer text-lg font-bold text-zinc-900">
+            Đang công khai ({live.length}){" "}
+            <span className="text-sm font-normal text-zinc-400">— bấm để mở danh bạ</span>
+          </summary>
         <LivePlacesManager live={live} />
+        </details>
       </section>
     </div>
   );

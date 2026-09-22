@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { ABOUT_PAGE_LIMITS, getAboutPageContent } from "@/lib/aboutPage";
 import { saveAboutPage } from "./actions";
+import { AdminNav } from "../AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -68,9 +69,7 @@ export default async function AboutAdminPage({ searchParams }) {
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <header className="flex flex-col gap-4 border-b border-zinc-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <Link href="/admin" className="text-sm text-zinc-500 underline">
-            ← Trang duyệt dữ liệu
-          </Link>
+          <AdminNav current="/admin/gioi-thieu" />
           <h1 className="mt-2 text-2xl font-medium text-zinc-900">Nội dung hệ thống · Giới thiệu CDP</h1>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
             Chỉnh các phần cố định của trang Giới thiệu. Nội dung được lưu và hiển thị dưới

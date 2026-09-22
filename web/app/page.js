@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getLivePlaces } from "@/lib/redis";
+import { isPlaceExpired } from "@/lib/placeValidity";
 import { getAllLatestCheckins } from "@/lib/checkins";
 import { getAllConsensus } from "@/lib/answers";
 import { getAllLocationConsensus } from "@/lib/locationVotes";
@@ -29,18 +30,24 @@ export default async function Home() {
       getPostEvents(POST_META.slug, FESTIVAL_EVENTS),
       getAllLocationConsensus(),
     ]);
-  const places = livePlaces.map((p) => ({
-    ...p,
-    lastCheckinAt: latestCheckins[p.id] ?? null,
-    consensus: allConsensus[p.id] ?? null,
-    // Vị trí khách đã cùng nhau xác nhận (spec Consensus §6) — để thẻ nào đủ tin thì nút là
-    // "Chỉ đường" chứ không phải "Tìm trên Google Maps".
-    locationConsensus: allLocationConsensus[p.id] ?? null,
-    notes: filterVisibleNotes(allNotes[p.id] ?? []),
-  }));
+  // "Bây giờ là mấy giờ" đọc TRƯỚC khi lọc danh sách, vì có chỗ chỉ tồn tại theo thời gian.
+  const now = await readNow();
+  // NOTE-15 §13: chỗ tạm đã hết ngày thì thôi bày ở trang chủ — hết lễ hội mà vẫn hiện "Bãi gửi
+  // xe lễ hội" kèm nút Chỉ đường là dẫn khách tới một bãi đất không còn gì. KHÔNG xoá khỏi dữ
+  // liệu: lộ trình và sổ của khách đã trỏ tới đó vẫn phải xem lại được.
+  const places = livePlaces
+    .filter((p) => !isPlaceExpired(p, now))
+    .map((p) => ({
+      ...p,
+      lastCheckinAt: latestCheckins[p.id] ?? null,
+      consensus: allConsensus[p.id] ?? null,
+      // Vị trí khách đã cùng nhau xác nhận (spec Consensus §6) — để thẻ nào đủ tin thì nút là
+      // "Chỉ đường" chứ không phải "Tìm trên Google Maps".
+      locationConsensus: allLocationConsensus[p.id] ?? null,
+      notes: filterVisibleNotes(allNotes[p.id] ?? []),
+    }));
   // Card lễ hội lấy mốc sắp tới từ ĐÚNG nguồn dữ liệu của trang lễ hội — hai nơi không bao giờ
   // nói khác nhau, và hết lễ hội thì câu chữ tự chuyển chứ không đứng đó hứa hão.
-  const now = await readNow();
   const { next: nextFestivalEvent } = groupEvents(festivalEvents, now);
   const nextFestivalStatus = nextFestivalEvent ? eventStatus(nextFestivalEvent, now) : null;
   const nextFestivalPrefix = nextFestivalStatus === EVENT_STATUS.LIVE

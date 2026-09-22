@@ -23,6 +23,7 @@ import { EVENT_SOUND_RECIPES, SOUND_SAMPLES, eventSoundRecipe, soundFamilyOf, so
 import { MediaImage } from "@/app/MediaImage";
 import { SoundPreviewList } from "./SoundPreviewList";
 import { IconPreview } from "./IconPreview";
+import { AdminNav } from "../AdminNav";
 import { badgeHtml, badgeSpec } from "@/lib/game/badge";
 import {
   deleteGameSighting,
@@ -190,9 +191,7 @@ export default async function GameAdminPage({ searchParams }) {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6">
-      <Link href="/admin" className="text-sm text-zinc-500 underline">
-        ← Trang duyệt dữ liệu
-      </Link>
+      <AdminNav current="/admin/game" />
       <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-medium text-zinc-900">Game layer · {event.name}</h1>

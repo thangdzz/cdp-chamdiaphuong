@@ -357,6 +357,11 @@ export function PlacePicker({
                   >
                     {cdpLocationLabel(p)}
                   </span>
+                  {/* §13: chỗ chỉ có trong một dịp — nói trước khi khách xếp nó vào lộ trình
+                      tuần sau. */}
+                  {p.validityLabel && (
+                    <span className="mt-0.5 block text-xs text-amber-700">{p.validityLabel}</span>
+                  )}
                   {/* Chỗ đã có trong lộ trình VẪN chọn được — sáng đi ăn rồi tối quay lại là
                       chuyện thường. Chỉ báo trước để khách biết đây là lần thứ hai, không
                       phải bấm nhầm. */}
