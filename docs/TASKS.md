@@ -14,7 +14,7 @@
 - [ ] **NOTE-14 P0 — Pickup points, toạ độ, chặn import địa điểm đã đóng (kế hoạch 3 chặng duyệt 16/9)**
   - [x] Chặng A: nguồn báo đóng vĩnh viễn → `source_closed` (không tự công khai, 3 hành động); vá 3 đường lách
         guard NOTE-13; lưu `coordinates` cho import mới + điền dần cho chỗ đang công khai — 💻 chỉ local
-  - [ ] Chủ dự án: dán khối "TRANG THAI VA TOA DO" (docs/ROUTINE.md §7) lên routine thật trên claude.ai
+  - [x] Chủ dự án: dán khối "TRANG THAI VA TOA DO" (docs/ROUTINE.md §7) lên routine thật trên claude.ai — xong 2026-09-22
   - [x] Chặng B: `pickupMode` + `pickupPoints[]` cho dịch vụ đón khách, admin sửa điểm đón (thêm/sửa/xoá/đổi thứ tự/
         bật-tắt, dán link Maps lấy toạ độ) — 💻 chỉ local
   - [ ] Chủ dự án: nhập điểm đón thật cho "Xe ghép Anh Huy" (và taxi nếu có điểm đón cố định) sau khi deploy
@@ -28,11 +28,11 @@
         Google Maps"; lộ trình kể tên điểm chưa xác minh; chia chặng khi dài; admin ghim vị trí trong form — 💻 chỉ local
   - [x] Chặng 2: bảng `/admin/vi-tri` ghim hàng loạt cho 234 địa điểm chưa có toạ độ — 💻 chỉ local
   - [x] Chặng 3: Google Places Text Search (tuỳ chọn, tắt sẵn) — chọn ứng viên có Place ID — 💻 chỉ local
-  - [ ] Chủ dự án: tạo khoá `GOOGLE_MAPS_SERVER_KEY` + đặt `NEXT_PUBLIC_GOOGLE_PLACES=1` nếu muốn bật Google Places
+  - [x] Chủ dự án: tạo khoá `GOOGLE_MAPS_SERVER_KEY` + đặt `NEXT_PUBLIC_GOOGLE_PLACES=1` nếu muốn bật Google Places — xong 2026-09-16 (đã đặt trên Vercel Production)
   - [ ] Chủ dự án: ghim dần 234 địa điểm ở `/admin/vi-tri` (ưu tiên chỗ hay dùng)
   - [ ] Sau khi ghim gần xong: đổi `REQUIRE_VERIFIED_LOCATION = true` trong `lib/mapsUrl.js`
   - [ ] Thử trên iPhone thật xem Google Maps nhận được bao nhiêu điểm giữa, rồi chỉnh `MAX_WAYPOINTS`
-  - [ ] Deploy NOTE-14 P0 khi chủ dự án bảo
+  - [x] Deploy NOTE-14 P0 khi chủ dự án bảo — xong 2026-09-16 (`web-obr2zmzdd`)
   - [ ] Chủ dự án: sau deploy, mở `/lo-trinh/ep3jjcay/sua` ghim đúng vị trí "Khu đỉnh dốc Bà The" và điểm đón
         "Quán Cháo Lòng" (test đã chạy trên lộ trình này rồi TRẢ LẠI NGUYÊN TRẠNG — chưa có ghim thật)
   - [ ] P1 còn lại (NOTE-14 §21): dropoffPoints, backfill toạ độ chỗ cũ, dùng toạ độ cho nghi trùng/thay thế,
@@ -53,10 +53,10 @@
   - [x] Phần 3: ghi nhận hoạt động ẩn danh (gom sự kiện, ít lệnh Redis) — 💻 chỉ local, cần deploy trước 18/9
   - [x] Deploy Phần 1–3 — 🚀 2026-09-15 (`web-l2j8wqis8`)
   - [x] Chốt PLAN-dem-18-9 §7: Pay-as-you-go $10 · B1–B3 · giữ kill switch · không sửa luồng báo
-  - [ ] Chủ dự án: thêm thanh toán Upstash (Pay-as-you-go) + đặt hạn mức $10 — sáng 16/9 hoặc 17/9
+  - [x] Chủ dự án: thêm thanh toán Upstash (Pay-as-you-go) + đặt hạn mức $10 — sáng 16/9 hoặc 17/9 — xong 2026-09-22
   - [x] B1 bộ đệm snapshot 20s · B2 analytics 2 phút · B3 quay lại tab ≥ 30s + sửa snapshot cũ ghi đè
-  - [ ] Theo dõi tự động đêm 18/9 — kế hoạch chờ duyệt
-  - [ ] Đêm 18/9: theo dõi theo PLAN §6, sau đó thay số giả định bằng số thật
+  - [~] Theo dõi tự động đêm 18/9 — kế hoạch chờ duyệt — ⏳ ĐÃ QUA MỐC (đêm 18/9), không còn làm được; giữ dòng cho khỏi mất dấu vết
+  - [~] Đêm 18/9: theo dõi theo PLAN §6, sau đó thay số giả định bằng số thật — ⏳ ĐÃ QUA MỐC (đêm 18/9), không còn làm được; giữ dòng cho khỏi mất dấu vết
   - [ ] Phần 4: tách menu admin, Dashboard `/admin`, duyệt dữ liệu → `/admin/duyet`, `/admin/users`
 
 - [x] **Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04) — 💻 Chỉ local, chưa deploy**
@@ -97,7 +97,7 @@
   - [ ] Điền tên thật cho 11 slot "Mô hình chưa xác định #35–45" khi có danh sách
   - [x] 15/9 tối: deploy production (`web-lqtaavabq`) — kiểm trên chamdiaphuong.io.vn: pre-game + đếm
         ngược, 0/45, 45 huy hiệu, câu đùa không ghi key nào, file âm thanh 200, nút định vị lấy được vị trí (https)
-  - [ ] Tối 18/9 19:00 kiểm tra game tự chuyển live trên production; theo dõi lượt báo đầu tiên ở `/admin/game`
+  - [~] Tối 18/9 19:00 kiểm tra game tự chuyển live trên production; theo dõi lượt báo đầu tiên ở `/admin/game` — ⏳ ĐÃ QUA MỐC (đêm 18/9), không còn làm được; giữ dòng cho khỏi mất dấu vết
 
 - [x] **Link "← Lộ trình của tôi"/"← Sổ của tôi" (chỉ chủ) + nút Chia sẻ ở thẻ danh sách +
       nút chủ sổ thành "Chia sẻ sổ" — 🚀 Đã deploy 2026-09-14** (`web-rbd3watu6`)
@@ -225,7 +225,7 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
 ## 📋 TODO
 
 ### Gấp — trước lễ hội 19–25/9
-- [ ] 🔴 **Chủ dự án bật Pay-as-you-go cho Upstash + đặt hạn mức $25.** Đo được: mỗi lượt báo đèn
+- [x] 🔴 **Chủ dự án bật Pay-as-you-go cho Upstash + đặt hạn mức $25.** Đo được: mỗi lượt báo đèn *(xong 2026-09-22)*
       tốn 28 lệnh, một đêm 2.000 người ≈ 250.000 lệnh → gói miễn phí (500K/tháng) hết sau ~2 đêm,
       Redis bị bóp là game đứng. Cả mùa ước 3–6 USD. Việc duy nhất không ai làm thay được
 - [ ] 🟠 **Thử luồng báo đèn trên iPhone thật** (bản đồ, nút vị trí, gửi lượt báo) — code đã deploy.
@@ -291,11 +291,42 @@ Quy ước: `✅ Local xong` → `👀 Chờ anh check` → `🚀 Đã deploy`.
       Đã deploy (`web-5oqws6bid`)
 - [ ] Nhân tiện soát luôn đường dẫn các trang admin cho thống nhất một kiểu đặt tên
 
+### NOTE-15 — Tìm kiếm lai + lớp vị trí riêng của CDP (20–22/9)
+
+Nguồn: `docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`.
+
+- [x] §2/§14/§17 Tìm kiếm lai: danh bạ CDP + Google, ghi rõ nguồn, chọn Google là có sẵn toạ độ — 🚀 20/9
+- [x] §4 Chữ nói rõ ai tìm ra vị trí ("Bản đồ tra được" / "Google tìm thấy") — 🚀 20/9
+- [x] §5 Đề xuất địa điểm mới ghim được vị trí — 🚀 20/9
+- [x] §19 Ghi nhật ký đổi ghim (`place_location:history`) — 🚀 20/9
+- [x] Loại thứ 5 "Chỗ quen gọi" cho chỗ gọi truyền miệng, ẩn khỏi trang chủ — 🚀 21/9
+- [x] Sửa lỗi: không có địa chỉ thì không mở được bản đồ để ghim — 🚀 21/9
+- [x] Sửa lỗi: hai lớp phủ chồng nhau đóng cùng lúc làm trang đơ — 🚀 21/9
+- [x] §7 Tên dân hay gọi (`searchAliases`) — 🚀 22/9
+- [x] §13 Chỗ tạm theo dịp (`temporary`/`validFrom`/`validUntil`) — 🚀 22/9
+- [x] §19 Màn XEM nhật ký đổi ghim ở `/admin/vi-tri` — 22/9
+- [x] §16 Nút tìm Google trong form thêm địa điểm của admin — 22/9
+- [ ] §6 Bản đồ hiện toàn bộ địa điểm CDP — **chưa làm**, dựng màn mới, việc lớn
+- [ ] §11–12 Micro-location (cửa chính/bãi xe/điểm đón riêng) — **chưa làm**, NOTE xếp P1/P2
+
+### Dọn khu quản trị — đợt 1 xong 22/9
+
+- [x] Thanh menu dùng chung ở cả 6 trang admin (`app/admin/AdminNav.js`)
+- [x] Dải "Việc cần duyệt" 6 số đếm + link nhảy tới mục trên `/admin`
+- [x] Gập 3 mục tra cứu dài nhất (Sổ chia sẻ · Đã đóng cửa · Đang công khai)
+- [ ] ~~Đợt 2: đổi đường dẫn cho thống nhất + tách `/admin/duyet`~~ — **khuyến nghị BỎ** (22/9):
+      đợt 1 đã giải quyết cái đau thật; phần còn lại chỉ là đổi tên cho đẹp, mà đổi là hỏng link
+      đã lưu và phải làm chuyển hướng 308. Chủ dự án chưa chốt.
+
 ### Nợ kỹ thuật & việc nhỏ
-- [ ] Sửa lỗi lint cũ ở `web/app/PlaceExplorer.js` (`react-hooks/set-state-in-effect`)
-- [ ] Đưa test Playwright vào repo (hiện là script rời, chạy tay, không commit) — đã có sẵn 22 test
-      định vị/bố cục bản đồ viết 17/9, đáng giữ lại
-- [ ] **MapLibre không khởi tạo xong ở `next dev`** (StrictMode chạy effect hai lần) — bản đồ đứng ở
+- [x] Sửa lỗi lint cũ ở `web/app/PlaceExplorer.js` (`react-hooks/set-state-in-effect`) — xong 2026-09-22, thay bằng `useSyncExternalStore`; `npm run lint` giờ sạch hoàn toàn
+- [~] Đưa test Playwright vào repo — **22 script cũ đã MẤT** (chạy tay, chưa từng commit, không
+      còn trong máy). Thay bằng: bộ test hàm thuần `web/tests/` chạy bằng `npm test`, 36 test,
+      không thêm phụ thuộc nào (dùng `node --test` có sẵn). Xong 22/9. Test giao diện bằng trình
+      duyệt vẫn còn thiếu — viết lại từ đầu khi nào cần
+- [ ] **MapLibre không khởi tạo xong ở `next dev`** (StrictMode chạy effect hai lần) — ⏸ HOÃN
+      tới sau 30/9: `GameMap` đang phục vụ game chạy thật (`gameLiveAt` 18/9 19:00 → `endAt`
+      30/9), không sửa giữa mùa — bản đồ đứng ở
       "Đang tải bản đồ…". Chỉ ở dev, bản build bình thường; nhưng làm mọi test giao diện bản đồ phải
       chạy trên `next build` + `next start`. Đáng sửa cho đỡ vướng về sau
 - [ ] **Gộp bộ đệm đọc**: `lib/game/store.js` giữ bản sao riêng của `createSharedRead`

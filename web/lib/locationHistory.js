@@ -70,6 +70,22 @@ export async function getLocationHistory(placeId) {
   return Array.isArray(raw) ? raw : [];
 }
 
+/**
+ * Các lần đổi ghim GẦN ĐÂY NHẤT của mọi địa điểm, mới nhất trước — cho màn xem ở /admin/vi-tri.
+ * Đúng 1 lệnh HGETALL, không tăng theo số địa điểm.
+ *
+ * @returns {{placeId: string, at: string, actor: string, reason: string|null, from: object|null, to: object|null}[]}
+ */
+export async function getRecentLocationChanges(limit = 20) {
+  const raw = (await redis.hgetall(HISTORY_KEY)) ?? {};
+  return Object.entries(raw)
+    .flatMap(([placeId, entries]) =>
+      (Array.isArray(entries) ? entries : []).map((entry) => ({ ...entry, placeId }))
+    )
+    .sort((a, b) => String(b.at).localeCompare(String(a.at)))
+    .slice(0, limit);
+}
+
 /** Xoá địa điểm thì xoá luôn nhật ký của nó — cùng lúc với phiếu và câu trả lời. */
 export async function removeLocationHistory(placeId) {
   if (!placeId) return;

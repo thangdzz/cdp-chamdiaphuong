@@ -313,6 +313,21 @@ cửa · Đang công khai) — HTML thuần, không thêm state. Tám mục cầ
 308 như lần sửa đường dẫn game. Nhãn `navigation` gọi là "Menu trang khách" cho khỏi hiểu nhầm là
 menu admin.
 
+### Test — `web/tests/`, chạy bằng `npm test` (2026-09-22)
+
+Dùng **bộ chạy test có sẵn trong Node** (`node --test`), KHÔNG thêm phụ thuộc nào. Chỉ test hàm
+thuần: không đụng Redis, không mở trình duyệt, không gọi mạng — nên chạy hết trong ~70ms và không
+bao giờ làm hỏng dữ liệu thật. 36 test, 7 file.
+
+`npm test` đặt sẵn `KV_REST_API_URL`/`KV_REST_API_TOKEN` giả vì `lib/redis.js` dựng client ngay
+lúc nạp file; không có lệnh Redis nào chạy thật.
+
+Mỗi file giữ cho một luật đã trả giá để rút ra không bị phá lại — `scrollLock.test.js` còn giữ
+luôn cách làm CŨ bên cạnh để chứng minh vì sao phải đổi. Danh sách đầy đủ: `web/tests/README.md`.
+
+**Chưa có test giao diện.** 22 script Playwright viết 17/9 chạy tay, chưa từng commit và đã mất.
+`playwright` vẫn nằm trong devDependencies — viết lại khi nào cần.
+
 ### Sổ chia sẻ được (Chặng 4, `lib/notebooks.js`)
 
 | Key | Kiểu | Chứa gì |

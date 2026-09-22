@@ -10,6 +10,8 @@ import {
   distanceMeters,
   LOCATION_CONSENSUS_RADIUS_METERS,
 } from "@/lib/locationVotes";
+import { getRecentLocationChanges } from "@/lib/locationHistory";
+import { LocationHistory } from "./LocationHistory";
 import { LocationQueue } from "./LocationQueue";
 import { LocationSuggestions } from "./LocationSuggestions";
 import { AdminNav } from "../AdminNav";
@@ -24,7 +26,12 @@ export default async function PlaceLocationsPage() {
   const cookieStore = await cookies();
   if (!verifySessionToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value)) redirect("/admin");
 
-  const [rawPlaces, locationConsensus] = await Promise.all([getLivePlaces(), getAllLocationConsensus()]);
+  const [rawPlaces, locationConsensus, recentChanges] = await Promise.all([
+    getLivePlaces(),
+    getAllLocationConsensus(),
+    // §19 — nhật ký đổi ghim. 1 lệnh HGETALL, đọc cùng lượt với hai cái kia.
+    getRecentLocationChanges(),
+  ]);
   const live = rawPlaces.map((place) => ({ ...place, locationConsensus: locationConsensus[place.id] ?? null }));
   const verified = live.filter(isLocationVerified);
 
@@ -85,6 +92,10 @@ export default async function PlaceLocationsPage() {
 
         <div className="mt-4">
           <LocationSuggestions items={suggestions} />
+          <LocationHistory
+            changes={recentChanges}
+            nameOf={(id) => live.find((p) => p.id === id)?.name ?? "(chỗ đã bị xoá)"}
+          />
           <LocationQueue places={pending} verifiedCount={verified.length} />
         </div>
       </main>

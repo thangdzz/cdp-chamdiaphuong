@@ -6,7 +6,31 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-22 — TÊN DÂN HAY GỌI + CHỖ TẠM THEO DỊP + DỌN ADMIN ĐỢT 1, ĐÃ DEPLOY**
+**Cập nhật mới nhất 2026-09-22 (phiên sau) — DỌN NỢ: TEST VÀO REPO, LINT SẠCH, NHẬT KÝ GHIM XEM ĐƯỢC.**
+
+Chủ dự án duyệt mục 10–15 "nếu không ảnh hưởng". Kết quả:
+
+- **10 · Màn xem nhật ký đổi ghim** — `/admin/vi-tri` có thêm mục gập "Lịch sử đổi ghim": toạ độ
+  cũ → mới, ai đổi, vì sao, lúc nào. Dữ liệu đã ghi từ 20/9, giờ đọc được.
+- **11 · Tìm trên Google trong form thêm địa điểm của admin** (NOTE-15 §16) — chọn một phát là có
+  sẵn tên, địa chỉ, toạ độ, Place ID. Vẫn vào hàng chờ duyệt như thường.
+- **12 · Dọn `docs/TASKS.md`** — tick 6 mục đã xong mà còn để trống, đánh dấu 3 mục "đêm 18/9" đã
+  qua mốc, thêm 2 mục mới cho NOTE-15 và đợt dọn admin.
+- **13 · Lỗi lint cũ** `PlaceExplorer.js:410` — thay `useEffect` + `setState` bằng
+  `useSyncExternalStore` (API React dành riêng cho giá trị chỉ máy khách biết; nhãn "còn chỗ" đọc
+  giờ máy khách nên không tính được ở máy chủ). **`npm run lint` giờ sạch hoàn toàn, 0 lỗi.**
+- **14 · Test vào repo** — 22 script Playwright cũ đã mất (chạy tay, chưa từng commit). Thay bằng
+  `web/tests/`: **36 test hàm thuần, chạy `npm test`, ~70ms, không thêm phụ thuộc nào**. Giữ đúng
+  các luật đã trả giá để rút ra: gom cụm phiếu vị trí, chỗ tạm tính trọn ngày giờ VN, 4 tab trang
+  chủ, form thiếu ô không xoá dữ liệu, ghim thắng chuỗi chữ, hai lớp phủ không làm đơ trang.
+- **15 · MapLibre ở `next dev`** — **HOÃN tới sau 30/9.** `GameMap` đang phục vụ game chạy thật
+  (`gameLiveAt` 18/9 19:00 → `endAt` 30/9), sửa giữa mùa là có ảnh hưởng.
+
+Hai mục chủ dự án hỏi "chưa hiểu là gì": **`REQUIRE_VERIFIED_LOCATION`** = công tắc chặt/lỏng cho
+nút Chỉ đường, giữ `false` cho tới khi ghim được ~80% (nay 11/241). **Dọn admin đợt 2** = đổi tên
+đường dẫn cho thống nhất — em khuyến nghị **bỏ hẳn**, vì đợt 1 đã giải quyết cái đau thật.
+
+**Trước đó 2026-09-22 — TÊN DÂN HAY GỌI + CHỖ TẠM THEO DỊP + DỌN ADMIN ĐỢT 1, ĐÃ DEPLOY**
 (`chamdiaphuongio-6g6ieiggm`). Kiểm sau deploy: trang chủ HTTP 200, vẫn đúng 4 tab, 15 chỗ hiện
 "Chỉ đường".
 

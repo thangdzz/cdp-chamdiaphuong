@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminNav } from "./AdminNav";
+import { GooglePlaceFinder } from "./GooglePlaceFinder";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getLivePlaces, getPendingPlaces } from "@/lib/redis";
@@ -637,6 +638,8 @@ function AdminDashboard({
           Thêm địa điểm mới (vào hàng chờ duyệt)
         </h2>
         <form action={addPending} className="rounded-2xl border border-zinc-200 bg-white p-4">
+          {/* NOTE-15 §16: chỗ Google đã có thì chọn một phát, khỏi gõ tay rồi ghim lại. */}
+          <GooglePlaceFinder />
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <Field label="Tên" name="name" />
             <label className="flex flex-col gap-1 text-xs text-zinc-500">
