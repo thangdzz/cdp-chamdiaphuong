@@ -6,7 +6,7 @@
 
 ## Đang ở giai đoạn nào
 
-**Cập nhật mới nhất 2026-09-22 (phiên sau) — DỌN NỢ: TEST VÀO REPO, LINT SẠCH, NHẬT KÝ GHIM XEM ĐƯỢC.**
+**Cập nhật mới nhất 2026-09-22 (phiên sau) — DỌN NỢ: TEST VÀO REPO, LINT SẠCH, NHẬT KÝ GHIM XEM ĐƯỢC. ĐÃ DEPLOY** (`chamdiaphuongio-eex4ejxif`).
 
 Chủ dự án duyệt mục 10–15 "nếu không ảnh hưởng". Kết quả:
 
