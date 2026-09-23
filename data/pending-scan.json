@@ -1,1 +1,45 @@
-[]
+[
+  {
+    "name": "Saturday - Trà Chanh Phố",
+    "category_primary": "an",
+    "address_text": "Số 02 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0332625625",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null,
+    "signature_dishes": ["tra chanh"]
+  },
+  {
+    "name": "Nhà hàng Bến Sông Xưa",
+    "category_primary": "an",
+    "address_text": "68 Chiến Thắng Sông Lô, Tổ 6, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Nhà hàng nổi trên sông, quy mô du thuyền lớn nhất Tuyên Quang, phục vụ ẩm thực miền núi",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Pen House - Photobooth",
+    "category_primary": "choi",
+    "address_text": "252 Lý Nam Đế, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0989600747",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Photobooth phong cách pastel, có khu trang điểm và phụ kiện chụp ảnh",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
