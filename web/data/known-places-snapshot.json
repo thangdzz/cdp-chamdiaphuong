@@ -705,6 +705,11 @@
     "address": "232 Lý Nam Đế, TP Tuyên Quang"
   },
   {
+    "name": "Ngã tư giao thông (ngã 3 cũ)",
+    "type": "moc",
+    "address": null
+  },
+  {
     "name": "Nghé Quán - Lẩu & Nướng",
     "type": "an",
     "address": "2, Tổ 26, Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang"
@@ -733,6 +738,11 @@
     "name": "Nhà hàng Ba Chữ Lồng",
     "type": "an",
     "address": "18 Ngô Gia Khảm, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà hàng Bến Sông Xưa",
+    "type": "an",
+    "address": "68 Chiến Thắng Sông Lô, Tổ 6, TP Tuyên Quang"
   },
   {
     "name": "Nhà hàng Biển Rừng",
@@ -978,6 +988,11 @@
     "name": "Panorama Glamping",
     "type": "choi",
     "address": "Thôn Bình Ca, xã An Khang, TP Tuyên Quang"
+  },
+  {
+    "name": "Pen House - Photobooth",
+    "type": "choi",
+    "address": "252 Lý Nam Đế, TP Tuyên Quang"
   },
   {
     "name": "Phở 10",
