@@ -810,6 +810,11 @@
     "address": "180 Xuân Hòa, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng N.New",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Nhà hàng Ngói Cuisine",
     "type": "an",
     "address": "Đường Nguyễn Hữu Thọ, phường Minh Xuân, TP. Tuyên Quang"
@@ -973,6 +978,11 @@
     "name": "Nướng Than Hoa Tuyên Quang",
     "type": "an",
     "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Ốc Chị Hà",
+    "type": "an",
+    "address": "Số 15, đường Lý Thường Kiệt, TP Tuyên Quang"
   },
   {
     "name": "Ốc Đảo Restaurant",
