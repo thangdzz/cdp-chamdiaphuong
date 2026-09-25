@@ -400,6 +400,11 @@
     "address": "419 Trường Chinh, Phường Ỷ La, TP Tuyên Quang"
   },
   {
+    "name": "Hải Sản 3 Miền",
+    "type": "an",
+    "address": "55 phố Hà Tuyên, phường Ỷ La, TP Tuyên Quang"
+  },
+  {
     "name": "Hải Sản Thúy Nga",
     "type": "an",
     "address": "Số 55, Tổ 25, Phường Phan Thiết, TP Tuyên Quang"
@@ -950,6 +955,11 @@
     "address": "Đường Trường Chinh, phường Tân Hà, TP Tuyên Quang"
   },
   {
+    "name": "Nhà nghỉ Thành Long",
+    "type": "ngu",
+    "address": "Đường Phạm Văn Đồng, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà nghỉ Thu Hiền",
     "type": "ngu",
     "address": "Tổ 14, phường Tân Hà, TP Tuyên Quang"
@@ -1202,7 +1212,7 @@
   {
     "name": "Taxi Trang Vinh",
     "type": "dilai",
-    "address": null
+    "address": "Số nhà 66, tổ 10, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Tân Việt Wonderland",
