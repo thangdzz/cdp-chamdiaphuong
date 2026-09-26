@@ -430,6 +430,16 @@
     "address": "64 Tổ 16, Đường 17 tháng 8, TP. Tuyên Quang, Tuyên Quang"
   },
   {
+    "name": "Highlands Coffee Bình Thuận",
+    "type": "an",
+    "address": "174 đường Bình Thuận, Tổ dân phố Tân Quang 10, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Highlands Coffee Vincom Plaza Tuyên Quang",
+    "type": "an",
+    "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Hiro Cafe",
     "type": "an",
     "address": "131 Trần Phú, TP. Tuyên Quang"
@@ -672,7 +682,12 @@
   {
     "name": "Mắm Trà Chanh",
     "type": "an",
-    "address": "Đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
+    "address": "đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Min 268",
+    "type": "an",
+    "address": "268 đường Lê Duẩn, phường Tân Hà, TP Tuyên Quang"
   },
   {
     "name": "Min Garden Coffee",
@@ -683,6 +698,16 @@
     "name": "Min-Max BBQ",
     "type": "an",
     "address": "135 đường 17/8, phường Minh Xuân, thành phố Tuyên Quang"
+  },
+  {
+    "name": "Mixue Bình Thuận Tuyên Quang",
+    "type": "an",
+    "address": "19 đường Bình Thuận, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Mixue Quang Trung Tuyên Quang",
+    "type": "an",
+    "address": "515 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Mộc Restaurant",
