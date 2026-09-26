@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "name": "Highlands Coffee Bình Thuận",
+    "category_primary": "an",
+    "address_text": "174 đường Bình Thuận, Tổ dân phố Tân Quang 10, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Highlands Coffee Vincom Plaza Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": "TTTM Vincom Plaza Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Lotteria Vincom Plaza Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": "TTTM Vincom Plaza Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Mixue Bình Thuận Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "19 đường Bình Thuận, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Mixue Quang Trung Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "515 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Saturday - Trà Chanh Phố (Tuyên Quang)",
+    "category_primary": "an",
+    "address_text": "Số 02 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0332 625 625",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Min 268",
+    "category_primary": "an",
+    "address_text": "268 đường Lê Duẩn, phường Tân Hà, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0329 869 899",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  },
+  {
+    "name": "Trà chanh HoLu",
+    "category_primary": "an",
+    "address_text": "đường Lê Đại Hành, phường An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0353 707 661",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null
+  }
+]
