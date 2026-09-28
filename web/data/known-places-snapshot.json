@@ -5,9 +5,19 @@
     "address": "110 đường Xã Tắc, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "589 Billiards Club & Ps5 Coffee",
+    "type": "choi",
+    "address": "415 đường Quang Trung, TP Tuyên Quang"
+  },
+  {
     "name": "68 Thành Tuyên - Buffet lẩu nướng",
     "type": "an",
     "address": "Số nhà 68, đường Lê Lợi 4, Tổ 16, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "ACB Billiards & Coffee",
+    "type": "choi",
+    "address": "229 đường Trần Phú, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Alala Homestay",
@@ -113,6 +123,11 @@
     "name": "Bia Hưng Móm",
     "type": "an",
     "address": "50 Bình Than"
+  },
+  {
+    "name": "Billiards Street & Coffee Hải Yến 3",
+    "type": "choi",
+    "address": "223 đường Trần Phú, TP Tuyên Quang"
   },
   {
     "name": "Buffet Lẩu Nướng - Cò Thận",
@@ -1033,6 +1048,11 @@
     "name": "Nhà vườn Thủy Viên 2",
     "type": "ngu",
     "address": "Trung Việt 2, phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà xe Cường An",
+    "type": "dilai",
+    "address": "Bến xe khách Tuyên Quang, số 95 đường Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Nhà xe Hồng Thịnh",
