@@ -95,3 +95,23 @@ test("bản gọn giữ đủ trường để lọc và không mang ảnh/câu t
   assert.deepEqual(filterPlaces([item], { search: "cụ vinh" }).length, 1);
   assert.ok(item.mapHref.startsWith("https://www.google.com/maps/"));
 });
+
+// --- Dòng trạng thái thay cho "Độ tin cậy" (owner test 30/9) --------------------------------
+import { placeStatus } from "../lib/placeDisplay.js";
+
+test("trạng thái: nói thật theo lần xác nhận, không dùng chữ 'độ tin cậy'", () => {
+  const now = Date.parse("2026-09-30T12:00:00+07:00");
+  const ago = (d) => new Date(now - d * 86400000).toISOString();
+  assert.deepEqual(placeStatus({ lastCheckinAt: ago(2), lastUpdatedAt: ago(200) }, now), {
+    text: "Còn mở · xác nhận 2 ngày trước", tone: "green", note: null,
+  });
+  assert.deepEqual(placeStatus({ lastCheckinAt: ago(45), lastUpdatedAt: ago(10) }, now), {
+    text: "Xác nhận gần nhất hơn 1 tháng trước", tone: "muted", note: null,
+  });
+  assert.deepEqual(placeStatus({ lastUpdatedAt: ago(20) }, now), {
+    text: "Chưa có xác nhận gần đây", tone: "muted", note: null,
+  });
+  assert.equal(placeStatus({ lastUpdatedAt: ago(120) }, now).note, "Thông tin có thể đã thay đổi");
+  assert.equal(placeStatus({}, now).note, "Thông tin có thể đã thay đổi"); // không rõ ngày cập nhật
+  for (const p of [{}, { lastCheckinAt: ago(1) }]) assert.ok(!/tin cậy/i.test(JSON.stringify(placeStatus(p, now))));
+});

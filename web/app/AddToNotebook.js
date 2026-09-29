@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getMyNotebooks, addPlaceToNotebook, createNotebookAndAddPlace } from "./notebookActions";
 import { getMyRoutes, addPlaceToRoute, createRouteAndAddPlace } from "./routeActions";
@@ -23,6 +23,10 @@ import { track } from "./analytics";
 //   "both"     — như cũ, một nút "+ Sổ / Lộ trình" (thẻ trang chủ cũ)
 const MODE_LABEL = { notebook: "Lưu vào Sổ", route: "+ Lộ trình", both: "+ Sổ / Lộ trình" };
 
+// Trang địa điểm có HAI nút "Lưu vào Sổ" (đầu trang + thanh bám đáy khi đã cuộn qua). Lưu ở nút
+// này thì nút kia cũng phải hiện "đã lưu" — báo cho nhau qua một sự kiện trong trang.
+const SAVED_EVENT = "cdp-place-saved";
+
 export function AddToNotebook({ place, mode = "both", className = "" }) {
   const showNotebooks = mode !== "route";
   const showRoutes = mode !== "notebook";
@@ -34,6 +38,18 @@ export function AddToNotebook({ place, mode = "both", className = "" }) {
   const [added, setAdded] = useState(null); // null | { kind: "so" | "lo-trinh", slug }
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
+
+  useEffect(() => {
+    function onSaved(event) {
+      const { placeId, kind, slug, title } = event.detail ?? {};
+      if (placeId === place.id && (kind === "so" ? showNotebooks : showRoutes)) {
+        setAdded({ kind, slug, title });
+        setOpen(false);
+      }
+    }
+    window.addEventListener(SAVED_EVENT, onSaved);
+    return () => window.removeEventListener(SAVED_EVENT, onSaved);
+  }, [place.id, showNotebooks, showRoutes]);
 
   function saveProfileIfNew(newProfile, local) {
     if (!newProfile) return;
@@ -95,6 +111,7 @@ export function AddToNotebook({ place, mode = "both", className = "" }) {
     // Đo luồng vNext: bước "Save" — chỉ tính lưu vào SỔ, không tính thêm vào lộ trình.
     if (kind === "so") track("notebook_save");
     setAdded({ kind, slug, title });
+    window.dispatchEvent(new CustomEvent(SAVED_EVENT, { detail: { placeId: place.id, kind, slug, title } }));
     setOpen(false);
   }
 

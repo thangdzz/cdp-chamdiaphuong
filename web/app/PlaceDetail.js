@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PLACE_TYPES, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { placeValidityLabel } from "@/lib/placeValidity";
 import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
-import { PlaceFacts } from "./PlaceFacts";
+import { PlaceFacts, placeFactRows } from "./PlaceFacts";
 import { PhoneBlock } from "./PhoneBlock";
 import { AddToNotebook } from "./AddToNotebook";
 import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
@@ -15,13 +15,8 @@ import { PlaceLocationVote } from "./PlaceLocationVote";
 import { ContributionPanel } from "./ContributionPanel";
 import { NoteInput } from "./NoteInput";
 import { QuestionPrompt } from "./QuestionPrompt";
-import {
-  PhotoGallery,
-  confidenceLabel,
-  formatDate,
-  formatRelativeAge,
-  staleMenuAgeMonths,
-} from "./PlaceExplorer";
+import { PhotoGallery, formatDate, formatRelativeAge, staleMenuAgeMonths } from "./PlaceExplorer";
+import { PlaceStatusLine } from "./PlaceStatusLine";
 import { noteContextLabel } from "@/lib/notes";
 import { placeShareUrl } from "@/lib/siteUrl";
 import { MediaImage } from "./MediaImage";
@@ -35,12 +30,38 @@ import {
   findPhoneOnGoogleUrl,
   adminFilledFields,
 } from "@/lib/transport";
-import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
+import { PinIcon, ClockIcon, DocumentIcon } from "./Icon";
 import { track } from "./analytics";
 
-// Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
-// bản thân trang này đã là trang địa điểm, bọc thêm card sẽ thành "trang → sổ → card → nội
-// dung" (NOTE-02 §10). Thứ tự khối theo NOTE-02 §5.
+// Trang một địa điểm (NOTE-02). Bố cục làm lại theo owner test 30/9: không bày các trường phẳng
+// ngang hàng nữa. Đầu trang theo đúng thứ tự khách cần để quyết định:
+//   tên → loại/khu vực → trạng thái hoạt động + lần xác nhận → giá → Lưu vào Sổ / Chỉ đường
+// Phần còn lại gom thành từng mục có tiêu đề để lướt nhanh: Thông tin thực tế · Mẹo địa phương ·
+// Liên hệ & vị trí · Nguồn thông tin · Thao tác khác · Đóng góp.
+
+// Một mục có tiêu đề. Nền trắng + bóng nhẹ, không viền (DESIGN.md §3).
+function Section({ title, children, className = "" }) {
+  return (
+    <section aria-label={title} className={`rounded-xl bg-white px-[18px] py-5 shadow-sm ${className}`}>
+      <h2 className="text-base font-medium tracking-tight text-zinc-900">{title}</h2>
+      <div className="mt-3 flex flex-col gap-4">{children}</div>
+    </section>
+  );
+}
+
+// Thanh bám đáy (mobile) chỉ hiện khi hàng nút ở đầu trang đã cuộn khuất — không để hai nút
+// "Lưu vào Sổ" cùng lúc trên màn hình.
+function useOffscreen(ref) {
+  const [offscreen, setOffscreen] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setOffscreen(!entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return offscreen;
+}
 
 function typeLabel(type) {
   return PLACE_TYPES.find((t) => t.id === type)?.label ?? null;
@@ -61,6 +82,8 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   const [activeNoteContext, setActiveNoteContext] = useState(null);
   const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
   const action = primaryAction(place);
+  const ctaRowRef = useRef(null);
+  const ctaOffscreen = useOffscreen(ctaRowRef);
 
   // Đo luồng vNext: bước "Place". Chỗ đã đóng cửa không tính — khách không xem để đi.
   useEffect(() => {
@@ -174,239 +197,231 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
     }
   }
 
-  const metaRows = [];
-  if (place.address) metaRows.push({ icon: PinIcon, text: place.address });
+  // "Nguồn thông tin": ngày cập nhật + số nguồn đối chiếu. KHÔNG hiện "Độ tin cậy Thấp/Cao" nữa
+  // (owner test 30/9) — trạng thái thật đã nói ở đầu trang (PlaceStatusLine). confidenceScore vẫn
+  // dùng nội bộ để xếp hạng.
+  const sourceRows = [];
   const updated = formatDate(place.lastUpdatedAt);
-  if (updated) metaRows.push({ icon: ClockIcon, text: `Cập nhật ${updated}` });
-  const confidence = confidenceLabel(place.confidenceScore);
-  if (confidence) metaRows.push({ icon: CheckCircleIcon, text: `Độ tin cậy ${confidence}` });
-  if (place.sourceCount) metaRows.push({ icon: DocumentIcon, text: `Đối chiếu ${place.sourceCount} nguồn` });
+  if (updated) sourceRows.push({ icon: ClockIcon, text: `Cập nhật ${updated}` });
+  if (place.sourceCount) sourceRows.push({ icon: DocumentIcon, text: `Đối chiếu ${place.sourceCount} nguồn` });
+
+  const factProps = {
+    type: place.type,
+    subtype: place.transportSubtype,
+    family: transportFamilyOf(place),
+    filledFields: adminFilledFields(place),
+    consensus: place.consensus,
+  };
+  const facts = <PlaceFacts {...factProps} />;
+  // Biết trước có dòng nào không để không vẽ một mục chỉ có tiêu đề.
+  const hasFacts = placeFactRows(factProps).length > 0;
+  const hasPracticalInfo = hasFacts || signatureDishes.length > 0 || menuPhotos.length > 0;
 
   return (
-    <div className="flex flex-col gap-5 text-sm text-zinc-700 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)] lg:items-start lg:gap-8">
-      <div className="order-0 lg:col-span-2 lg:order-none">
-        <h1 className="text-2xl font-semibold tracking-tight leading-snug text-zinc-900">{place.name}</h1>
-        {subtitle && <p className="mt-1 text-[13px] text-zinc-500">{subtitle}</p>}
+    <div className="flex flex-col gap-5 text-[15px] leading-relaxed text-zinc-700 lg:text-sm">
+      {/* ĐẦU TRANG — thứ khách cần để quyết định, đúng thứ tự owner test 30/9. */}
+      <header>
+        <h1 className="text-2xl font-medium leading-snug tracking-tight text-zinc-900 lg:text-3xl">{place.name}</h1>
+        {subtitle && <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>}
+        {transportDetailLine(place) && <p className="mt-0.5 text-sm text-zinc-700">{transportDetailLine(place)}</p>}
         {validityLabel && (
-          <p className="mt-1 inline-block rounded-md bg-amber-50 px-2 py-0.5 text-[13px] text-amber-800">
-            {validityLabel}
+          <p className="mt-2 inline-block rounded-md bg-amber-50 px-2 py-0.5 text-[13px] text-amber-800">{validityLabel}</p>
+        )}
+        {asksStatus && <PlaceStatusLine place={{ ...place, lastCheckinAt }} className="mt-3 text-sm" />}
+        {asksStatus && (
+          <p className="mt-3 flex items-baseline gap-1">
+            {compactPrice ? (
+              <>
+                <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>
+                <span className="text-sm text-zinc-400">{compactPrice.unitText}</span>
+              </>
+            ) : (
+              <span className="text-base text-zinc-400">Chưa cập nhật giá</span>
+            )}
           </p>
         )}
-        {transportDetailLine(place) && (
-          <p className="mt-1 text-sm text-zinc-700">{transportDetailLine(place)}</p>
-        )}
-      </div>
+        <div ref={ctaRowRef} className="mt-4 flex flex-wrap items-start gap-2 [&>a]:flex-1 [&>button]:flex-1 sm:max-w-md">
+          <AddToNotebook place={place} mode="notebook" />
+          {mainAction}
+        </div>
+      </header>
 
-      {/* Hai wrapper thành `contents` trên mobile để các khối vẫn theo đúng thứ tự NOTE-02;
-          lên desktop chúng trở thành hai cột độc lập, tránh khoảng trắng do grid row kéo cao. */}
-      <div className="contents lg:col-start-1 lg:flex lg:flex-col lg:gap-8">
-        {photos.length > 0 && (
-          <div className="order-1 lg:order-none">
-            <button
-              type="button"
-              onClick={() => setGalleryIndex(0)}
-              className="block w-full cursor-pointer overflow-hidden rounded-xl bg-zinc-100"
-            >
-              <MediaImage
-                media={coverPhoto}
-                className="h-56 w-full lg:h-[420px]"
-                sizes="(max-width: 1023px) 100vw, 720px"
-                loading="eager"
-              />
-            </button>
-            {photos.length > 1 && (
-              <div className="mt-1.5 flex gap-1.5">
-                {photos.slice(1, 3).map((media, i) => (
-                  <button
-                    key={media.id}
-                    type="button"
-                    onClick={() => setGalleryIndex(i + 1)}
-                    className="h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
-                  >
-                    <MediaImage media={media} className="h-full w-full" sizes="56px" />
-                  </button>
-                ))}
-                {photos.length > 3 && (
-                  <button
-                    type="button"
-                    onClick={() => setGalleryIndex(3)}
-                    className="h-14 shrink-0 cursor-pointer rounded-lg bg-zinc-100 px-3 text-[13px] font-medium text-zinc-600"
-                  >
-                    Xem tất cả {photos.length} ảnh
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {signatureDishes.length > 0 && (
-          <div className="order-3 lg:order-none">
-            <p className="mb-1.5 text-[13px] text-zinc-500">Món đặc trưng</p>
-            <div className="flex flex-wrap gap-1.5">
-              {signatureDishes.map((dish) => (
-                <span key={dish} className="rounded-full bg-zinc-100 px-2.5 py-1 text-[13px] text-zinc-700">
-                  {dish}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {menuPhotos.length > 0 && (
-          <div className="order-4 lg:order-none">
-            <p className="mb-1.5 text-[13px] text-zinc-500">{priceListPhotoTitle(priceListPhotoContext(place).name ?? "Bảng giá")} · khách gửi {newestMenuPhotoAge}</p>
-            <div className="flex gap-2">
-              {menuPhotos.slice(0, 3).map((m, i) => (
-                <button
-                  key={m.url}
-                  type="button"
-                  onClick={() => setMenuGalleryIndex(i)}
-                  className="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
-                >
-                  <MediaImage media={m} className="h-full w-full" sizes="80px" />
-                </button>
-              ))}
-            </div>
-            {menuPhotos.length > 3 && (
+      <div className="flex flex-col gap-5 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)] lg:items-start lg:gap-6">
+        <div className="flex flex-col gap-5">
+          {photos.length > 0 && (
+            <div>
               <button
                 type="button"
-                onClick={() => setMenuGalleryIndex(3)}
-                className="mt-1.5 cursor-pointer text-[13px] text-zinc-500 underline"
+                onClick={() => setGalleryIndex(0)}
+                className="block w-full cursor-pointer overflow-hidden rounded-xl bg-zinc-100"
               >
-                Xem thêm {menuPhotos.length - 3} ảnh →
+                <MediaImage
+                  media={coverPhoto}
+                  className="h-56 w-full lg:h-[420px]"
+                  sizes="(max-width: 1023px) 100vw, 720px"
+                  loading="eager"
+                />
               </button>
-            )}
-            {/* !== null chứ không phải `staleMenuMonths &&` — xem chú thích ở PlaceExplorer.js */}
-            {staleMenuMonths !== null && (
-              <p className="mt-1.5 text-[13px] text-zinc-400">
-                {priceListPhotoContext(place).name ?? "Bảng giá"} này đã {staleMenuMonths} tháng. Bạn có ảnh mới hơn?
-              </p>
-            )}
-          </div>
-        )}
+              {photos.length > 1 && (
+                <div className="mt-1.5 flex gap-1.5">
+                  {photos.slice(1, 3).map((media, i) => (
+                    <button
+                      key={media.id}
+                      type="button"
+                      onClick={() => setGalleryIndex(i + 1)}
+                      className="h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
+                    >
+                      <MediaImage media={media} className="h-full w-full" sizes="56px" />
+                    </button>
+                  ))}
+                  {photos.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setGalleryIndex(3)}
+                      className="h-14 shrink-0 cursor-pointer rounded-lg bg-zinc-100 px-3 text-[13px] font-medium text-zinc-600"
+                    >
+                      Xem tất cả {photos.length} ảnh
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* Mẹo địa phương hiện như FIELD, không phải bình luận — không avatar, không tên người
-            viết (NOTE-02 §7). Chỉ nội dung admin đã duyệt mới tới được đây. */}
-        {place.notes?.length > 0 && (
-          <div className="order-6 lg:order-none">
-            <p className="mb-1.5 text-[13px] text-zinc-500">Mẹo địa phương</p>
-            <div className="flex flex-col gap-2">
+          {hasPracticalInfo && (
+            <Section title="Thông tin thực tế">
+              {facts}
+              {signatureDishes.length > 0 && (
+                <div>
+                  <p className="mb-1.5 text-[13px] text-zinc-500">Món đặc trưng</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {signatureDishes.map((dish) => (
+                      <span key={dish} className="rounded-full bg-zinc-100 px-2.5 py-1 text-[13px] text-zinc-700">
+                        {dish}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {menuPhotos.length > 0 && (
+                <div>
+                  <p className="mb-1.5 text-[13px] text-zinc-500">
+                    {priceListPhotoTitle(priceListPhotoContext(place).name ?? "Bảng giá")} · khách gửi {newestMenuPhotoAge}
+                  </p>
+                  <div className="flex gap-2">
+                    {menuPhotos.slice(0, 3).map((m, i) => (
+                      <button
+                        key={m.url}
+                        type="button"
+                        onClick={() => setMenuGalleryIndex(i)}
+                        className="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-zinc-100"
+                      >
+                        <MediaImage media={m} className="h-full w-full" sizes="80px" />
+                      </button>
+                    ))}
+                  </div>
+                  {menuPhotos.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setMenuGalleryIndex(3)}
+                      className="mt-1.5 cursor-pointer text-[13px] text-zinc-500 underline"
+                    >
+                      Xem thêm {menuPhotos.length - 3} ảnh →
+                    </button>
+                  )}
+                  {/* !== null chứ không phải `staleMenuMonths &&` — xem chú thích ở PlaceExplorer.js */}
+                  {staleMenuMonths !== null && (
+                    <p className="mt-1.5 text-[13px] text-zinc-400">
+                      {priceListPhotoContext(place).name ?? "Bảng giá"} này đã {staleMenuMonths} tháng. Bạn có ảnh mới hơn?
+                    </p>
+                  )}
+                </div>
+              )}
+            </Section>
+          )}
+
+          {/* Mẹo địa phương hiện như FIELD, không phải bình luận — không avatar, không tên người
+              viết (NOTE-02 §7). Chỉ nội dung admin đã duyệt mới tới được đây. */}
+          {place.notes?.length > 0 && (
+            <Section title="Mẹo địa phương">
               {place.notes.map((n) => (
-                <p key={n.id} className="text-sm leading-relaxed text-zinc-700">
+                <p key={n.id} className="text-zinc-700">
                   {noteContextLabel(n.context) && (
                     <span className="mr-1.5 font-medium text-zinc-900">{noteContextLabel(n.context)}</span>
                   )}
                   {n.text}
                 </p>
               ))}
-            </div>
-          </div>
-        )}
-      </div>
+            </Section>
+          )}
+        </div>
 
-      <div className="contents lg:col-start-2 lg:flex lg:flex-col lg:gap-5">
-        <aside aria-label="Thông tin nhanh" className="order-2 flex flex-col gap-5 lg:order-none lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-6 lg:shadow-sm">
-          {/* Desktop: Lưu vào Sổ + bản đồ ở đầu cột phải, thấy ngay không cần cuộn. Mobile dùng thanh
-              bám đáy bên dưới thay cho khối này. */}
-          <div className="hidden flex-col gap-2 lg:flex">
-            <AddToNotebook place={place} mode="notebook" className="w-full" />
-            {mainAction}
-          </div>
-          <div className={asksStatus ? "" : "hidden"}>
-            <p className="flex items-baseline gap-1">
-              {compactPrice ? (
-                <>
-                  <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>
-                  <span className="text-xs text-zinc-400">{compactPrice.unitText}</span>
-                </>
-              ) : (
-                <span className="text-base font-normal text-zinc-400">Chưa cập nhật giá</span>
-              )}
-            </p>
-            {lastCheckinAt && (
-              <p className="mt-1 text-[13px] text-zinc-500">
-                Có người xác nhận còn mở {formatRelativeAge(lastCheckinAt)}
+        <div className="flex flex-col gap-5">
+          <Section title="Liên hệ & vị trí">
+            {place.address && (
+              <p className="flex items-start gap-1.5 text-zinc-700">
+                <PinIcon size={16} className="mt-1 shrink-0 text-zinc-400" />
+                <span>{place.address}</span>
               </p>
             )}
-          </div>
+            <div id={`lien-he-${place.id}`}>
+              <PhoneBlock place={place} />
+            </div>
+            {/* Giải thích vì sao nút bản đồ là "Chỉ đường" hay "Tìm trên Google Maps" (spec
+                Consensus §16) — thuộc về vị trí nên đứng trong mục này. */}
+            <PlaceLocationVote place={place} />
+          </Section>
 
-          <PlaceFacts
-            type={place.type}
-            subtype={place.transportSubtype}
-            family={transportFamilyOf(place)}
-            filledFields={adminFilledFields(place)}
-            consensus={place.consensus}
-          />
-        </aside>
-
-        <aside aria-label="Liên hệ và nguồn dữ liệu" className="order-5 flex flex-col gap-5 lg:order-none lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-6 lg:shadow-sm">
-          <div id={`lien-he-${place.id}`}>
-            <PhoneBlock place={place} />
-          </div>
-
-          {metaRows.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              {metaRows.map(({ icon: RowIcon, text }, i) => (
-                <div key={i} className="flex items-start gap-1.5 text-[13px] text-zinc-500">
+          {sourceRows.length > 0 && (
+            <Section title="Nguồn thông tin">
+              {sourceRows.map(({ icon: RowIcon, text }, i) => (
+                <p key={i} className="flex items-start gap-1.5 text-sm text-zinc-500">
                   <RowIcon size={15} className="mt-0.5 shrink-0 text-zinc-400" />
                   <span>{text}</span>
-                </div>
+                </p>
               ))}
-            </div>
+            </Section>
           )}
-        </aside>
 
-        <section aria-label="Thao tác địa điểm" className="order-7 flex flex-wrap items-center gap-2 lg:order-none lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-6 lg:shadow-sm">
-          {/* Lưu vào Sổ + bản đồ/liên hệ đã lên thanh đáy (mobile) và đầu cột phải (desktop).
-              Ở đây còn các thao tác phụ; lộ trình tách riêng để không lẫn với Sổ (vNext). */}
-          <AddToNotebook place={place} mode="route" />
-          <CreateRouteFromPlace place={place} />
-          {asksStatus && <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />}
-          <button
-            type="button"
-            onClick={handleShare}
-            className="cdp-pressable inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
-          >
-            {copyLabel}
-          </button>
-          {/* Vị trí đứng ngay dưới nút bản đồ vì nó giải thích đúng cái nút đó: chỗ đã xác nhận
-              mới được "Chỉ đường" (spec Consensus §16). `w-full` để khối này xuống hàng riêng
-              thay vì chen vào hàng nút. */}
-          <div className="w-full pt-1">
-            <PlaceLocationVote place={place} />
-          </div>
-        </section>
+          <Section title="Thao tác khác">
+            {/* Lưu vào Sổ + bản đồ/liên hệ đã ở đầu trang. Lộ trình tách riêng để không lẫn với Sổ. */}
+            <div className="flex flex-wrap items-center gap-2">
+              <AddToNotebook place={place} mode="route" />
+              <CreateRouteFromPlace place={place} />
+              {asksStatus && <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />}
+              <button
+                type="button"
+                onClick={handleShare}
+                className="cdp-pressable inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
+              >
+                {copyLabel}
+              </button>
+            </div>
+          </Section>
+        </div>
       </div>
 
-      <section
-        aria-label="Đóng góp thông tin địa điểm"
-        className="order-8 border-t border-zinc-200 pt-5 lg:col-span-2 lg:order-none lg:rounded-2xl lg:border lg:bg-white lg:p-6 lg:shadow-sm"
-      >
+      <Section title="Đóng góp thông tin">
         {!correctionPanelOpen && (
-          <NoteInput
-            place={place}
-            showPublishedNotes={false}
-            onActiveContext={setActiveNoteContext}
-          />
+          <NoteInput place={place} showPublishedNotes={false} onActiveContext={setActiveNoteContext} />
         )}
-        <div className={correctionPanelOpen ? "" : "mt-3"}>
-          <ContributionPanel
-            place={place}
-            onOpenChange={handleCorrectionPanelChange}
-            onDone={() => setCorrectionPanelOpen(false)}
-          />
-        </div>
-        <QuestionPrompt
+        <ContributionPanel
           place={place}
-          suspended={activeNoteContext !== null || correctionPanelOpen}
+          onOpenChange={handleCorrectionPanelChange}
+          onDone={() => setCorrectionPanelOpen(false)}
         />
-      </section>
+        <QuestionPrompt place={place} suspended={activeNoteContext !== null || correctionPanelOpen} />
+      </Section>
 
-      {/* Mobile: Lưu vào Sổ luôn trong tầm tay, không phải cuộn tìm (SCOPE-vNext "Place → Sổ").
-          Khoảng trống h-24 giữ cho khối cuối trang không bị thanh này che. */}
-      <div className="order-9 h-24 lg:hidden" aria-hidden="true" />
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+      {/* Mobile: khi đã cuộn qua hàng nút ở đầu trang, Lưu vào Sổ + bản đồ bám đáy màn hình để
+          không phải cuộn ngược lên. Khoảng trống h-24 giữ khối cuối trang không bị thanh che. */}
+      <div className="h-24 lg:hidden" aria-hidden="true" />
+      <div
+        className={`fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur transition-transform duration-200 lg:hidden ${
+          ctaOffscreen ? "translate-y-0" : "pointer-events-none translate-y-full"
+        }`}
+        inert={!ctaOffscreen}
+      >
         <div className="mx-auto flex max-w-xl flex-wrap items-start gap-2 [&>a]:flex-1 [&>button]:flex-1">
           <AddToNotebook place={place} mode="notebook" />
           {mainAction}

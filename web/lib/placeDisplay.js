@@ -35,3 +35,27 @@ export function formatCheckinAge(lastCheckinAtIso, now = Date.now()) {
   const ago = diffDays === 0 ? "hôm nay" : diffDays === 1 ? "hôm qua" : `${diffDays} ngày trước`;
   return { text: `Còn mở · xác nhận ${ago}`, tone: "green" };
 }
+
+// Dữ liệu chưa ai kiểm lại quá chừng này ngày thì nói thẳng "có thể đã thay đổi".
+export const STALE_AFTER_DAYS = 90;
+
+/**
+ * Dòng TRẠNG THÁI dùng chung cho trang địa điểm, thẻ /tim và thẻ trong Sổ (owner test 30/9).
+ * Thay hẳn cho chữ "Độ tin cậy Thấp/Trung bình/Cao" ngoài giao diện khách: khách không biết làm
+ * gì với một con số tin cậy, còn "xác nhận 3 ngày trước" thì biết. `confidenceScore` vẫn dùng
+ * nội bộ để xếp hạng (lib/placeReliability.js), chỉ thôi hiện ra.
+ * @returns {{ text: string, tone: "green" | "muted", note: string | null }}
+ */
+export function placeStatus(place, now = Date.now()) {
+  const checkin = formatCheckinAge(place?.lastCheckinAt, now);
+  const recent = checkin?.tone === "green"; // ≤ 30 ngày
+  const updatedAt = place?.lastUpdatedAt ? new Date(place.lastUpdatedAt).getTime() : NaN;
+  const updatedDays = Number.isFinite(updatedAt) ? Math.floor((now - updatedAt) / 86400000) : null;
+  const stale = !recent && (updatedDays === null || updatedDays > STALE_AFTER_DAYS);
+
+  let text;
+  if (recent) text = checkin.text;
+  else if (checkin) text = "Xác nhận gần nhất hơn 1 tháng trước";
+  else text = "Chưa có xác nhận gần đây";
+  return { text, tone: recent ? "green" : "muted", note: stale ? "Thông tin có thể đã thay đổi" : null };
+}

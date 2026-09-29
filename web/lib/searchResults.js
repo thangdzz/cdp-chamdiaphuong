@@ -74,6 +74,7 @@ export function toResultItem(place) {
     priceCompact: price?.compact ?? null,
     priceUnitText: price?.unitText ?? null,
     lastCheckinAt: place.lastCheckinAt ?? null,
+    lastUpdatedAt: place.lastUpdatedAt ?? null, // cho "Thông tin có thể đã thay đổi" 
     mapHref: mapAction?.href ?? null,
     mapLabel: mapAction?.label ?? null,
   };

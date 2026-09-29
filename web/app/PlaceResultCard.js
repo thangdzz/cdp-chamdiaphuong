@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatCheckinAge } from "@/lib/placeDisplay";
+import { PlaceStatusLine } from "@/app/PlaceStatusLine";
 
 // Thẻ gọn của trang kết quả /tim (vNext). Thứ tự theo SCOPE-vNext "Kết quả ưu tiên hiển thị":
 // trạng thái hoạt động + lần xác nhận gần nhất → giá (khi có) → địa chỉ → Xem chi tiết / Chỉ đường.
@@ -7,7 +7,6 @@ import { formatCheckinAge } from "@/lib/placeDisplay";
 //
 // `item` là bản gọn từ lib/searchResults.js — không có ảnh, câu trả lời, mẹo.
 export function PlaceResultCard({ item, now, onOpen }) {
-  const checkin = formatCheckinAge(item.lastCheckinAt, now);
   const href = `/dia-diem/${item.id}`;
 
   return (
@@ -17,12 +16,7 @@ export function PlaceResultCard({ item, now, onOpen }) {
         <h2 className="mt-0.5 text-lg font-medium leading-snug tracking-tight text-zinc-900">{item.name}</h2>
         {/* Trạng thái nói thật: chỉ "Còn mở" khi có người xác nhận; không có thì nói chưa có ai,
             không đoán (DECISIONS 2026-09-29: đã bỏ nhãn "còn chỗ" suy theo lịch). */}
-        <p
-          className={`mt-1 text-[13px] ${checkin?.tone === "green" ? "font-medium text-emerald-700" : "text-zinc-400"}`}
-          suppressHydrationWarning
-        >
-          {checkin ? checkin.text : "Chưa ai xác nhận gần đây"}
-        </p>
+        <PlaceStatusLine place={item} now={now} className="mt-1" />
         {item.priceCompact && (
           <p className="mt-2 flex items-baseline gap-1">
             <span className="text-xl font-medium tracking-tight text-zinc-900">{item.priceCompact}</span>
