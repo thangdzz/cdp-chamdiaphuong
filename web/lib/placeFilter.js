@@ -2,7 +2,7 @@
 // kết quả `/tim` (vNext bước 1–2). Hàm thuần, không React, để hai nơi không bao giờ lọc lệch nhau
 // và test được bằng `node --test`. Tìm theo chữ vẫn đi qua lib/placeTextSearch.js như PlacePicker.
 
-import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "./placeTextSearch.js";
+import { rankBySearch } from "./placeRank.js";
 import { BROWSABLE_PLACE_TYPES } from "./placeTypes.js";
 import { comparePlaceReliability } from "./placeReliability.js";
 
@@ -33,18 +33,20 @@ export function wardsOf(places) {
  * Lọc theo nhóm / khu vực / mức giá / chữ gõ. Giá trị rỗng hoặc "all" = không lọc theo tiêu chí đó.
  * Chỉ giữ loại "xem được" (BROWSABLE_PLACE_TYPES): "Chỗ quen gọi" có trong danh bạ nhưng không
  * phải chỗ để đi ăn/chơi/ngủ.
+ *
+ * Có chữ gõ thì kết quả XẾP THEO MỨC LIÊN QUAN (lib/placeRank.js: tên > nhóm > địa chỉ), cùng
+ * mức thì giữ thứ tự đầu vào. Không có chữ gõ thì giữ nguyên thứ tự đầu vào.
  */
 export function filterPlaces(places, { type = ALL, ward = ALL, priceBucket = ALL, search = "" } = {}) {
   const browsable = new Set(BROWSABLE_PLACE_TYPES.map((t) => t.id));
-  const query = normalizeForSearch(search).trim();
-  return places.filter((p) => {
+  const filtered = places.filter((p) => {
     if (!browsable.has(p.type)) return false;
     if (type && type !== ALL && p.type !== type) return false;
     if (ward && ward !== ALL && p.ward !== ward) return false;
     if (!matchesPriceBucket(p, priceBucket)) return false;
-    if (query && !matchesSearchQuery(placeSearchHaystack(p), query)) return false;
     return true;
   });
+  return rankBySearch(filtered, search);
 }
 
 /** Chia theo 4 nhóm, mỗi nhóm xếp chỗ đáng tin lên trước — cách trang chủ cũ bày danh sách. */

@@ -17,7 +17,8 @@ const SEARCH_SYNONYM_GROUPS = [
   ["an toi", "dinner"],
 ];
 
-function expandSearchWord(word) {
+/** Một từ (đã bỏ dấu) + các từ đồng nghĩa của nó — dùng cả ở lib/placeRank.js. */
+export function expandSearchWord(word) {
   const group = SEARCH_SYNONYM_GROUPS.find((g) =>
     g.some((term) => term.startsWith(word) || word.startsWith(term))
   );

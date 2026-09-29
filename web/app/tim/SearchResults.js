@@ -27,7 +27,12 @@ export function SearchResults({ items, now }) {
   const [filters, setFilters] = useState(() => filtersOf(searchParams));
   const [syncedQuery, setSyncedQuery] = useState(urlQuery);
   const [visible, setVisible] = useState(RESULTS_PAGE_SIZE);
-  // Gõ tìm chỉ đếm 1 lần mỗi lượt mở trang — không đếm từng phím.
+  // Chữ đang gõ trong ô tìm — CHƯA áp vào kết quả cho tới khi gửi (owner test 30/9: cần nút Tìm
+  // rõ ràng; danh sách không nhảy theo từng phím). `draftFor` = câu tìm mà bản nháp này ứng với.
+  const [draft, setDraft] = useState(filters.search);
+  const [draftFor, setDraftFor] = useState(filters.search);
+  const inputRef = useRef(null);
+  // Tìm chỉ đếm 1 lần mỗi lượt mở trang.
   const searchTracked = useRef(false);
 
   // URL đổi từ bên ngoài (Back/Forward giữa các lượt lọc) → theo URL. Đổi do chính mình gõ thì
@@ -37,9 +42,23 @@ export function SearchResults({ items, now }) {
     if (urlQuery !== paramsFromFilters(filters)) setFilters(filtersOf(searchParams));
   }
 
+  // Câu tìm đổi từ bên ngoài (Back/Forward, "Xoá bộ lọc") → ô tìm hiện đúng câu đó.
+  if (filters.search !== draftFor) {
+    setDraftFor(filters.search);
+    setDraft(filters.search);
+  }
+
   const wards = useMemo(() => wardsOf(items), [items]);
   const results = useMemo(() => filterPlaces(items, filters), [items, filters]);
   const hasActiveFilter = paramsFromFilters(filters) !== "";
+
+  // MỘT hàm cho mọi cách gửi: Enter, nút "Tìm"/"Search" trên bàn phím điện thoại, nút Tìm.
+  // Tất cả đều là sự kiện submit của cùng một form.
+  function submitSearch(event) {
+    event?.preventDefault();
+    update({ search: draft.trim() });
+    inputRef.current?.blur(); // đóng bàn phím điện thoại để thấy kết quả
+  }
 
   function update(patch) {
     if (patch.search && !searchTracked.current) {
@@ -59,40 +78,53 @@ export function SearchResults({ items, now }) {
       {/* SiteHeader cao cố định 57px trên mobile — hàng tìm + tab bám ngay dưới khi cuộn, giống
           trang chủ cũ. Lọc khu vực/giá đi theo nội dung để không che quá nhiều màn hình. */}
       <div className="sticky top-[57px] z-10 -mx-4 flex flex-col gap-2 border-b border-zinc-200 bg-zinc-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:mx-0 lg:rounded-b-xl lg:border-x lg:px-4">
-        <div className="relative">
-          <svg
-            viewBox="0 0 24 24"
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-          >
-            <circle cx="10.5" cy="10.5" r="6.5" />
-            <path d="M20 20l-4.35-4.35" />
-          </svg>
-          <input
-            type="search"
-            enterKeyHint="search"
-            value={filters.search}
-            onChange={(e) => update({ search: e.target.value })}
-            placeholder="Tìm theo tên, địa chỉ..."
-            aria-label="Tìm theo tên, địa chỉ"
-            className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-700"
-          />
-          {filters.search && (
-            <button
-              type="button"
-              onClick={() => update({ search: "" })}
-              aria-label="Xoá tìm kiếm"
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-zinc-400"
+        <form role="search" onSubmit={submitSearch} className="flex gap-2">
+          <div className="relative min-w-0 flex-1">
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
             >
-              ✕
-            </button>
-          )}
-        </div>
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="M20 20l-4.35-4.35" />
+            </svg>
+            <input
+              ref={inputRef}
+              type="search"
+              name="q"
+              enterKeyHint="search"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Tìm theo tên, địa chỉ..."
+              aria-label="Tìm theo tên, địa chỉ"
+              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-700"
+            />
+            {draft && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft("");
+                  update({ search: "" });
+                }}
+                aria-label="Xoá tìm kiếm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-zinc-400"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="cdp-pressable min-h-11 shrink-0 cursor-pointer rounded-lg bg-[#c8553d] px-4 text-sm font-medium text-white active:bg-[#ad4832]"
+          >
+            Tìm
+          </button>
+        </form>
 
         <div className="flex gap-2 overflow-x-auto">
           {[{ id: ALL, label: "Tất cả" }, ...BROWSABLE_PLACE_TYPES].map((opt) => (

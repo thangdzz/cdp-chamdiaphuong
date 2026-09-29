@@ -63,6 +63,9 @@ export function toResultItem(place) {
     address: place.address ?? null,
     localArea: place.localArea ?? null,
     searchAliases: place.searchAliases ?? [],
+    // Cho xếp hạng tìm kiếm (lib/placeRank.js, hạng "nhóm/thẻ"): "Xe ghép · 7 chỗ", món đặc trưng.
+    categoryText: transportSummary(place),
+    signatureDishes: place.type === "an" ? (place.signatureDishes ?? []) : [],
     priceMin: place.priceMin ?? null,
     priceMax: place.priceMax ?? null,
     // Dòng phụ: chỗ Đi lại đã chọn loại thì "Xe ghép · 7 chỗ" có ích hơn địa chỉ (NOTE-04 §2).
