@@ -42,7 +42,8 @@ export function GameEntryCard({ event, href, teaser, phase, now }) {
         <span className="text-4xl leading-none" aria-hidden="true">{event.copy.reportIcon}</span>
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-medium tracking-tight text-zinc-900">{event.shortName}</h2>
-          <p className="text-sm text-zinc-600">{event.copy.tagline}</p>
+          {/* Câu mời "Tối nay bạn gặp được…" chỉ đúng khi mùa còn chạy. */}
+          {!ended && <p className="text-sm text-zinc-600">{event.copy.tagline}</p>}
           {ended && (
             <p className="mt-1 text-[13px] font-medium text-zinc-500">Mùa {event.year} đã kết thúc</p>
           )}

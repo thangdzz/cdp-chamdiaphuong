@@ -402,7 +402,10 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
                     <>
                       {/* Cột phải desktop hẹp như điện thoại nên cũng dùng nhãn ngắn. */}
                       <span className="sm:hidden lg:inline">{item.short}</span>
-                      <span className="hidden sm:inline lg:hidden">{item.label}</span>
+                      {/* Hết mùa thì không còn "tối nay" — bản đồ chỉ là kỷ niệm của mùa đó. */}
+                      <span className="hidden sm:inline lg:hidden">
+                        {item.id === "map" && phase === EVENT_PHASE.ENDED ? `Bản đồ mùa ${event.year}` : item.label}
+                      </span>
                     </>
                   ) : (
                     item.label
