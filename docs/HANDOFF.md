@@ -8,15 +8,16 @@
 
 ## 1. Task hiện tại
 
-**Hotfix 29/9 đã deploy** (`chamdiaphuongio-87p9xw2vr`, commit `de8e1bc`) và kiểm production
-34/34 đạt. **Đang trình kế hoạch vNext cho Product Owner duyệt — chưa code vNext.**
+**vNext MUST build xong ở máy, chờ Product Owner test — CHƯA deploy.** 6 commit `6f351cc` →
+`b3423e4` (xem TASKS). Hotfix 29/9 đã deploy (`87p9xw2vr`). Lựa chọn khi build: DECISIONS
+"2026-09-29 (tối)".
 
 Nguồn chuẩn: [PRODUCT.md](PRODUCT.md) (cao nhất) → [SCOPE-vNext.md](SCOPE-vNext.md) (FROZEN).
 
 ## 2. Đã làm tới đâu
 
-- Production: `chamdiaphuongio-87p9xw2vr` (29/9), alias `chamdiaphuong.io.vn`. Không có code
-  nào chưa deploy.
+- Production: `chamdiaphuongio-87p9xw2vr` (29/9), alias `chamdiaphuong.io.vn`. **Code vNext trên
+  `main` CHƯA deploy** — đừng deploy khi Product Owner chưa duyệt.
 - 29/9: tạo PRODUCT / SCOPE-vNext / INBOX / BACKLOG; rút gọn STATUS, TASKS, HANDOFF; chuyển tài
   liệu cũ vào `docs/archive/`; đổi `SPEC-giao-dien.md` → `DESIGN.md`; sửa CLAUDE.md, AGENTS.md.
   Chỉ sửa 3 dòng comment trong code (đường dẫn tài liệu), không đổi logic.
@@ -37,7 +38,9 @@ Nguồn chuẩn: [PRODUCT.md](PRODUCT.md) (cao nhất) → [SCOPE-vNext.md](SCOP
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ Product Owner duyệt kế hoạch vNext → mới code.
+1. Chờ Product Owner test vNext → sửa theo phản hồi → MAY (nếu duyệt) → deploy.
+2. Kiểm bằng trình duyệt: chặn `/api/track` (máy thử dùng chung Redis thật) và KHÔNG bấm "Lưu vào
+   Sổ" bằng trình duyệt mới — bấm là tạo sổ + hồ sơ ẩn danh thật.
 
 **Bẫy cho người sau (vẫn đúng):** test giao diện bản đồ phải chạy `next build` + `next start`
 (ở `next dev` MapLibre đứng "Đang tải bản đồ…"). Deploy: `npx vercel --prod --yes --scope thangdz1`

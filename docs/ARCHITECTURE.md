@@ -169,6 +169,11 @@ namespace thì route bỏ qua không ghi. Tắt khẩn cấp: `CDP_ANALYTICS_DIS
 
 Tên sự kiện định nghĩa ở MỘT chỗ `lib/analytics/events.js`. Phiên mới khi im lặng > 30 phút.
 
+**Luồng vNext Home → Search → Place → Save** (29–30/9): 4 sự kiện chỉ đếm theo ngày trong
+`day:{d}` (`event:search_use`, `event:category_pick`, `event:place_open`, `event:notebook_save`) +
+`path:/`, `path:/tim` có sẵn. Không kèm chữ gõ hay mã chỗ, không đổi script Lua, **chưa có màn xem**
+— đọc bằng script (`HGETALL analytics:day:<ngày>`). Trước 30/9 `place_open` = bung thẻ ở trang chủ cũ.
+
 ### Người góp ý
 
 | Key | File | Chứa gì |
@@ -482,8 +487,17 @@ DECISIONS 2026-07-15.
 ```
 web/
 ├── app/
-│   ├── page.js              (64)  Trang chủ — đọc places:live + place_checkins:latest +
-│   │                              place_answers:consensus, render PlaceExplorer
+│   ├── page.js                     Trang chủ (vNext 30/9): ô tìm → /tim, 4 ô nhóm (đếm số
+│   │                              chỗ), 3 hành động, thẻ theo mùa (banner lớn chỉ khi lễ hội
+│   │                              còn mốc sắp tới/đang diễn ra). Chỉ đọc places:live + lịch lễ hội
+│   ├── HomeLinks.js                Ô tìm (next/form → /tim?q=) + ô nhóm, có đếm event vNext
+│   ├── LegacyHashRedirect.js       Link cũ "/#<mã chỗ>" → /dia-diem/<mã>, "/#dia-diem" → /tim
+│   ├── tim/page.js                 ⭐ Trang kết quả /tim (vNext): đọc places + xác nhận + phiếu vị
+│   │                              trí, lọc chỗ hết hạn, xếp độ tin cậy, gửi BẢN GỌN xuống client
+│   ├── tim/SearchResults.js        Client: bộ lọc nằm trên URL (?q= &loai= &khu= &gia=), đọc lại
+│   │                              bằng useSearchParams để Back giữ bộ lọc; 20 chỗ/lượt
+│   ├── PlaceResultCard.js          Thẻ gọn của /tim: trạng thái xác nhận · giá · địa chỉ ·
+│   │                              [Xem chi tiết] → /dia-diem/[id] · [Chỉ đường]
 │   ├── gioi-thieu/page.js          Trang “CDP là gì?” đọc content an toàn từ Redis/fallback;
 │   │                              mobile 1 cột, tablet 2 cột, desktop tối đa 6xl
 │   ├── FirstVisitIntroCard.js      Card onboarding lần đầu; chỉ lưu trạng thái đóng ở
@@ -492,7 +506,10 @@ web/
 │   │                              active state và PageTitle dùng chung navigation config
 │   ├── SiteHeader.js               Header/menu mobile; desktop ẩn để dùng sidebar AppShell
 │   ├── SiteFooter.js               Footer toàn site: link giới thiệu + cách cập nhật dữ liệu
-│   ├── PlaceExplorer.js    (632)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
+│   ├── PlaceExplorer.js           ⚠️ Từ vNext KHÔNG còn trang nào render danh sách này (trang chủ
+│   │                              cũ). Vẫn giữ vì PlaceDetail/NotebookPlaceCard import
+│   │                              PhotoGallery + hàm định dạng từ đây; dọn sau khi PO duyệt vNext.
+│   │                              Client component: bộ lọc, tìm kiếm, card 2 lớp,
 │   │                              gallery ảnh, dòng "còn mở" (Chặng 1), khối hỏi + khối
 │   │                              kết quả (Chặng 2), 4 nhóm loại
 │   │                              (Chặng 3). Nơi nặng nhất của giao diện khách
@@ -693,6 +710,10 @@ web/
 │   │                              `place_proposals:index` (bảng tra lúc hiển thị). Duyệt/từ
 │   │                              chối chỉ đổi bảng tra — KHÔNG ghi lại route nào. Proposal
 │   │                              thay thế có `replacesPlaceId`; duyệt mới nối tombstone
+│   ├── placeFilter.js             vNext: lọc nhóm/khu vực/giá/chữ + xếp độ tin cậy — DÙNG CHUNG
+│   │                              trang chủ cũ và /tim; bỏ "Chỗ quen gọi" (test: placeFilter)
+│   ├── placeDisplay.js            vNext: địa chỉ rút gọn + dòng "Còn mở · xác nhận N ngày trước"
+│   ├── searchResults.js           vNext: URL ↔ bộ lọc /tim, bản gọn một chỗ cho thẻ kết quả
 │   ├── placeTextSearch.js   (50)  Tìm theo tên/địa chỉ + nhóm từ đồng nghĩa — DÙNG CHUNG cho
 │   ├── placeReliability.js        Xếp theo xác nhận mới → độ đầy đủ → xác nhận cũ;
 │   │                              confidence/số nguồn chỉ là tín hiệu phá hoà cuối

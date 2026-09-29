@@ -10,6 +10,11 @@ Cập nhật: **2026-09-29**
 
 ## Đang ở đâu
 
+- **vNext — Core Discovery Flow: MUST đã build xong ở máy (29/9), CHỜ Product Owner test.**
+  Chưa deploy production. Chi tiết từng bước + commit: [TASKS.md](TASKS.md); lựa chọn khi làm:
+  DECISIONS "2026-09-29 (tối)". Thử ở `http://localhost:3100` (hoặc `http://MAdz.local:3100` trên
+  điện thoại cùng wifi). MAY chưa làm.
+
 - **Định hướng mới đã chốt:** [PRODUCT.md](PRODUCT.md) là nguồn chuẩn cao nhất (người địa
   phương là nền móng dữ liệu). Việc sắp build: [SCOPE-vNext.md](SCOPE-vNext.md) — Core
   Discovery Flow *Home → Search → Place → Lưu vào Sổ*. **Chưa bắt đầu build.**
@@ -55,6 +60,6 @@ thì có sẵn); trên mobile nút nổi xám đè mép phải ô tìm kiếm tr
 
 ## Bước tiếp theo hợp lý nhất
 
-1. Product Owner duyệt kế hoạch vNext (đã trình 29/9)
-2. Sau khi duyệt: viết spec chi tiết cho vNext (đối chiếu code hiện tại: `app/page.js`,
+1. Product Owner test luồng Home → Tìm → Chi tiết → Lưu vào Sổ trên điện thoại thật
+2. Duyệt → làm MAY (nếu muốn) → deploy production → dọn `PlaceExplorer.js` (đối chiếu code hiện tại: `app/page.js`,
    `app/PlaceExplorer.js`, trang địa điểm, `lib/notebooks.js`) → trình duyệt → mới code.

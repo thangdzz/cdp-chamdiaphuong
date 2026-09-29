@@ -28,19 +28,19 @@ Product Owner test xong toàn bộ MUST. Mặc định đã duyệt: trang kết
 trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi event, không làm màn admin.
 
 **MUST**
-- ⬜ **1. Tách logic lọc** — `lib/placeFilter.js` (+ test) dùng chung cho Home cũ và `/tim`; giao diện không đổi
-- ⬜ **2. Trang kết quả `/tim`** — `?q=&loai=`, 4 tab + lọc khu vực/giá như cũ, giữ bộ lọc khi Back,
+- ✅ **1. Tách logic lọc** (`6f351cc`) — `lib/placeFilter.js` (+ test) dùng chung cho Home cũ và `/tim`; giao diện không đổi
+- ✅ **2. Trang kết quả `/tim`** (`c2af4a1`) — `?q=&loai=`, 4 tab + lọc khu vực/giá như cũ, giữ bộ lọc khi Back,
   20 chỗ/lượt + "Xem thêm"; thẻ gọn: tên · nhóm · trạng thái xác nhận · giá (khi có) · địa chỉ ·
   [Xem chi tiết] → `/dia-diem/[id]` · [Chỉ đường]
-- ⬜ **3. Đo luồng (baseline trước khi đổi Home)** — event ẩn danh: dùng tìm kiếm · chọn nhóm · mở
+- ✅ **3. Đo luồng (baseline trước khi đổi Home)** (`8881361`) — event ẩn danh: dùng tìm kiếm · chọn nhóm · mở
   trang địa điểm · lưu vào sổ. Chỉ đếm theo ngày, không đổi script ghi, không dashboard
-- ⬜ **4. Place Detail → Lưu vào Sổ** — nút chính "Lưu vào Sổ" ngay dưới tên/giá, thanh bám đáy
+- ✅ **4. Place Detail → Lưu vào Sổ** (`1494dd5`) — nút chính "Lưu vào Sổ" ngay dưới tên/giá, thanh bám đáy
   mobile [Lưu vào Sổ] [Chỉ đường], "Thêm vào lộ trình" thành nút phụ
-- ⬜ **5. Home mới** — ô tìm → `/tim`, 4 ô nhóm, 3 hành động Tìm / Lưu vào Sổ / Lên Lộ trình, thẻ
+- ✅ **5. Home mới** (`9818e82`) — ô tìm → `/tim`, 4 ô nhóm, 3 hành động Tìm / Lưu vào Sổ / Lên Lộ trình, thẻ
   theo mùa nhỏ, bỏ danh sách dài; `/#mã-chỗ` tự chuyển `/dia-diem/[id]`
-- ⬜ **Sửa 3 chỗ sót sau hotfix** — câu "Tối nay bạn gặp được bao nhiêu mô hình?" · tab "Bản đồ tối
+- ✅ **Sửa 3 chỗ sót sau hotfix** (`b3423e4`; nút nổi hết cùng danh sách cũ ở bước 5) — câu "Tối nay bạn gặp được bao nhiêu mô hình?" · tab "Bản đồ tối
   nay" · nút nổi mobile đè ô tìm kiếm
-- ⬜ **Kiểm toàn luồng** mobile + desktop, build sạch → **báo Product Owner test**
+- 👀 **Kiểm toàn luồng** mobile + desktop, build sạch (71/71 kiểm tự động đạt, 29/9) → **chờ Product Owner test**
 
 **MAY** — chỉ làm khi MUST xong, test sạch, không làm tăng scope
 - ⬜ Khối "Mới được xác nhận" · chỗ trống của Sổ ghi đúng hướng dẫn · shortcut "Cafe"

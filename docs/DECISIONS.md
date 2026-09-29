@@ -7,6 +7,37 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-09-29 (tối) — vNext Core Discovery Flow: các lựa chọn khi build MUST
+
+Kế hoạch Product Owner duyệt 29/9 (ghi ở [TASKS.md](TASKS.md)); đây là các lựa chọn nhỏ trong lúc
+làm, để người sau khỏi đoán.
+
+- **Trang kết quả `/tim`, bộ lọc nằm trên URL** (`q`, `loai`, `khu`, `gia`) và đọc lại bằng
+  `useSearchParams`. **Vì sao:** Back từ trang chi tiết phải về đúng danh sách đang lọc; nhận bộ lọc
+  từ máy chủ thì Next dựng lại bằng bản lưu của lượt mở đầu tiên → giao diện về "Tất cả" (đã gặp
+  khi thử). Giá trị lạ trên URL bị bỏ qua, không làm rỗng trang.
+- **Chỉ gửi bản gọn mỗi chỗ xuống trình duyệt** (`lib/searchResults.js`, ~15 trường), 20 chỗ/lượt
+  + "Xem thêm". **Vì sao:** trang chủ cũ gửi nguyên 280+ bản ghi (ảnh, câu trả lời, mẹo) chỉ để bày
+  danh sách; phần nặng thuộc về trang chi tiết.
+- **Thẻ kết quả nói thật trạng thái:** "Còn mở · xác nhận …" (xanh) khi có người xác nhận trong 90
+  ngày, còn lại "Chưa ai xác nhận gần đây" (xám). Không dùng giờ mở cửa (0/283 chỗ có) hay "còn chỗ".
+- **"Lưu vào Sổ" là nút đậm duy nhất ở trang địa điểm**; nút bản đồ/liên hệ thành nút viền. Mobile:
+  thanh bám đáy [Lưu vào Sổ][Chỉ đường]; desktop: đầu cột phải. `AddToNotebook` có `mode`:
+  `notebook` (vẫn tự tạo sổ đầu tiên) · `route` ("+ Lộ trình", **không** tự tạo sổ) · `both` (cũ).
+  **Vì sao:** SCOPE "phải thấy rõ Lưu vào Sổ"; một nút gộp "+ Sổ / Lộ trình" ở khối thứ 7 là khó thấy
+  và lẫn hai việc.
+- **Trang chủ bỏ thẻ "Lần đầu dùng CDP?"** (component giữ nguyên, không xoá). **Vì sao:** khối
+  "CDP giúp bạn" 3 hành động luôn hiện đã nói cùng điều đó; hai khối giải thích liền nhau là thừa.
+  Link "CDP hoạt động thế nào →" giữ lại. Hai dòng chữ đầu trang do anh viết (08/9) giữ nguyên.
+- **Thẻ theo mùa:** banner lớn chỉ khi lễ hội còn mốc sắp tới/đang diễn ra; hết thì thẻ nhỏ
+  "Theo mùa · đã diễn ra" (PO duyệt 29/9).
+- **Link cũ `/#<mã chỗ>` và `/#dia-diem` tự chuyển** sang `/dia-diem/<mã>` và `/tim`
+  (`LegacyHashRedirect`) — link đã gửi đi và trang /ghi-chu không gãy.
+- **Đo luồng = 4 event đếm theo ngày**, gắn cả vào trang chủ cũ trước khi đổi (baseline). Không kèm
+  chữ gõ/mã chỗ, không màn admin.
+- **`PlaceExplorer.js` chưa xoá** dù không còn trang nào bày danh sách của nó: PlaceDetail và
+  NotebookPlaceCard vẫn import gallery + hàm định dạng từ đây. Dọn sau khi PO duyệt vNext.
+
 ## 2026-09-29 (sau) — Hotfix: game kết thúc 27/9, bỏ nhãn "còn chỗ", không coi vùng cũ là ranh giới
 
 **Quyết định:** `endAt` của mùa Săn đèn Thành Tuyên 2026 sửa từ 30/9 thành **23:59 27/09/2026**.
