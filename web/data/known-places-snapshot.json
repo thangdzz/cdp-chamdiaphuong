@@ -175,6 +175,11 @@
     "address": "134 đường Bình Thuận, phường Minh Xuân, TP. Tuyên Quang"
   },
   {
+    "name": "Canh cá rô đồng Thái Thịnh",
+    "type": "an",
+    "address": "19 Đinh Tiên Hoàng"
+  },
+  {
     "name": "CGV Cinemas Vincom Plaza Tuyên Quang",
     "type": "choi",
     "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -748,6 +753,11 @@
     "name": "Na Tuệ An Homestay",
     "type": "ngu",
     "address": "81 Võ Văn Kiệt, TP Tuyên Quang"
+  },
+  {
+    "name": "Nam Kinh Quán - Trùm Chè Hà Tuyên",
+    "type": "an",
+    "address": null
   },
   {
     "name": "Natcha Thái - Tuyên Quang",
@@ -1368,6 +1378,11 @@
     "name": "Trà Sữa Hăo Chá",
     "type": "an",
     "address": "149 Tổ 13 Bình Thuận, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Trung tâm Thể Thao FMC Thành Tuyên",
+    "type": "choi",
+    "address": "Km 5, đường Tuyên Quang - Hà Nội, xã Lưỡng Vượng, TP Tuyên Quang"
   },
   {
     "name": "Vking Coffee - Tea",
