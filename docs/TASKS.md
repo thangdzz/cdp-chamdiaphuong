@@ -18,19 +18,34 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy
   `87p9xw2vr`, kiểm production 34/34 đạt. DECISIONS "2026-09-29 (sau)".
-- 👀 **Kế hoạch vNext** — đã trình 29/9, chờ duyệt.
+- ✅ **Kế hoạch vNext** — Product Owner duyệt 29/9 (kèm chỉnh sửa). Scope vẫn ở [SCOPE-vNext.md](SCOPE-vNext.md);
+  kế hoạch triển khai ghi ngay dưới đây, không có file spec riêng.
 
-## ⬜ vNext — Core Discovery Flow (chưa bắt đầu, chờ duyệt kế hoạch)
+## 🚧 vNext — Core Discovery Flow: kế hoạch triển khai (duyệt 29/9)
 
-- ⬜ Viết kế hoạch/spec chi tiết vNext, đối chiếu code hiện tại → trình duyệt
-- ⬜ Home: Search nổi bật, 4 nhóm, bỏ danh sách dài, làm rõ Tìm / Lưu vào Sổ / Lên Lộ trình,
-  khu nội dung theo mùa không chiếm vai trò lõi
-- ⬜ Trang kết quả tìm kiếm riêng: tìm theo tên + địa chỉ, lọc 4 nhóm, thẻ kết quả ưu tiên
-  trạng thái hoạt động · lần xác nhận gần nhất · giá · địa chỉ · xem chi tiết/chỉ đường
-- ⬜ Place Detail → **Lưu vào Sổ** rõ ràng; chưa có Sổ thì tạo nhanh
-- ⬜ Kiểm trên điện thoại thật toàn bộ luồng
-- ⬜ Theo dõi luồng Home → Search → Place → Save (OUTCOME)
-- ⬜ Build/deploy + Product Owner test & approve
+Mỗi bước một commit, chạy test phù hợp sau mỗi bước. **Không deploy production** cho tới khi
+Product Owner test xong toàn bộ MUST. Mặc định đã duyệt: trang kết quả `/tim` · nội dung theo mùa
+trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi event, không làm màn admin.
+
+**MUST**
+- ⬜ **1. Tách logic lọc** — `lib/placeFilter.js` (+ test) dùng chung cho Home cũ và `/tim`; giao diện không đổi
+- ⬜ **2. Trang kết quả `/tim`** — `?q=&loai=`, 4 tab + lọc khu vực/giá như cũ, giữ bộ lọc khi Back,
+  20 chỗ/lượt + "Xem thêm"; thẻ gọn: tên · nhóm · trạng thái xác nhận · giá (khi có) · địa chỉ ·
+  [Xem chi tiết] → `/dia-diem/[id]` · [Chỉ đường]
+- ⬜ **3. Đo luồng (baseline trước khi đổi Home)** — event ẩn danh: dùng tìm kiếm · chọn nhóm · mở
+  trang địa điểm · lưu vào sổ. Chỉ đếm theo ngày, không đổi script ghi, không dashboard
+- ⬜ **4. Place Detail → Lưu vào Sổ** — nút chính "Lưu vào Sổ" ngay dưới tên/giá, thanh bám đáy
+  mobile [Lưu vào Sổ] [Chỉ đường], "Thêm vào lộ trình" thành nút phụ
+- ⬜ **5. Home mới** — ô tìm → `/tim`, 4 ô nhóm, 3 hành động Tìm / Lưu vào Sổ / Lên Lộ trình, thẻ
+  theo mùa nhỏ, bỏ danh sách dài; `/#mã-chỗ` tự chuyển `/dia-diem/[id]`
+- ⬜ **Sửa 3 chỗ sót sau hotfix** — câu "Tối nay bạn gặp được bao nhiêu mô hình?" · tab "Bản đồ tối
+  nay" · nút nổi mobile đè ô tìm kiếm
+- ⬜ **Kiểm toàn luồng** mobile + desktop, build sạch → **báo Product Owner test**
+
+**MAY** — chỉ làm khi MUST xong, test sạch, không làm tăng scope
+- ⬜ Khối "Mới được xác nhận" · chỗ trống của Sổ ghi đúng hướng dẫn · shortcut "Cafe"
+
+**Sau khi Product Owner duyệt:** deploy production · dọn `PlaceExplorer.js` nếu không còn dùng.
 
 ---
 
