@@ -4,7 +4,7 @@ import { getShareSnapshot, withLegacyNavigationMedia } from "@/lib/routeShare";
 import { routeMapsUrl } from "@/lib/mapsUrl";
 import { pickupSelectionLabel } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
-import { STOP_TYPES, TRANSPORT_MODES, stopFullAddress, transportModeLabel } from "@/lib/routes";
+import { STOP_TYPES, stopFullAddress, transportMapsMode, transportModeLabel } from "@/lib/routes";
 import { FALLBACK_COVER } from "@/lib/cover";
 import { StopBadge } from "@/app/StopBadge";
 import { MediaImage } from "@/app/MediaImage";
@@ -43,7 +43,7 @@ export default async function SharedRoutePage({ params }) {
   if (!shared) notFound();
 
   const snapshot = await withLegacyNavigationMedia(shared.snapshot);
-  const mapsMode = TRANSPORT_MODES.find((m) => m.id === snapshot.transportMode)?.mapsMode ?? "driving";
+  const mapsMode = transportMapsMode(snapshot.transportMode);
   // Bản chụp đã đóng băng chuỗi `mapsQuery` của từng điểm (có thể là "lat,lng" hoặc chữ). Link đã
   // gửi đi phải mở ra y như lúc chia sẻ, nên ở đây KHÔNG tính lại vị trí — chỉ bọc chuỗi đã lưu
   // thành điểm cho hàm ghép link dùng chung.

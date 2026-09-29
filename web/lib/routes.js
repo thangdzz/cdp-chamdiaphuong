@@ -34,13 +34,31 @@ const MAX_CUSTOM_TITLE_LENGTH = 60;
 const MAX_CUSTOM_ADDRESS_LENGTH = 120;
 
 // Phương tiện của cả lộ trình (§P4). Chưa làm phương tiện riêng từng chặng — đó là P7, mà P7
-// còn cần toạ độ địa điểm (hiện 0/210 chỗ có toạ độ).
+// còn cần toạ độ địa điểm.
+//
+// `mapsMode` = giá trị `travelmode` của Google Maps URLs (driving | walking | bicycling |
+// two-wheeler | transit). Owner test 30/9: trước đây Xe máy và "Kết hợp" đều gửi `driving`, tức
+// chọn gì cũng ra đường ô tô — nút chọn có mà không có tác dụng. Nay Xe máy → `two-wheeler`,
+// "Kết hợp" bỏ hẳn (Google không có chế độ "kết hợp"; `transit` không cho nhiều điểm dừng).
 export const TRANSPORT_MODES = [
-  { id: "xe-may", label: "Xe máy", mapsMode: "driving" },
+  { id: "xe-may", label: "Xe máy", mapsMode: "two-wheeler" },
   { id: "o-to", label: "Ô tô", mapsMode: "driving" },
   { id: "di-bo", label: "Đi bộ", mapsMode: "walking" },
-  { id: "hon-hop", label: "Kết hợp", mapsMode: "driving" },
 ];
+export const DEFAULT_TRANSPORT_MODE = "xe-may";
+
+/**
+ * Mã phương tiện đã lưu → mã còn dùng được. Lộ trình cũ (và bản chụp chia sẻ cũ) có thể còn
+ * "hon-hop" hoặc thiếu hẳn → coi là Xe máy, đọc-thì-suy-ra, KHÔNG sửa dữ liệu đã lưu.
+ */
+export function normalizeTransportMode(id) {
+  return TRANSPORT_MODES.some((m) => m.id === id) ? id : DEFAULT_TRANSPORT_MODE;
+}
+
+/** Giá trị `travelmode` gửi sang Google Maps cho một mã phương tiện đã lưu. */
+export function transportMapsMode(id) {
+  return TRANSPORT_MODES.find((m) => m.id === normalizeTransportMode(id)).mapsMode;
+}
 
 // Ba loại điểm dừng (NOTE-07 §7). Route CŨ chỉ có `placeId`/`customTitle`, không có `type` —
 // normalizeStop() suy ra, KHÔNG cần chạy migration cả Redis (§14).
@@ -52,7 +70,7 @@ export function normalizeStop(stop) {
 }
 
 export function transportModeLabel(id) {
-  return TRANSPORT_MODES.find((m) => m.id === id)?.label ?? null;
+  return TRANSPORT_MODES.find((m) => m.id === normalizeTransportMode(id)).label;
 }
 
 function routeKey(slug) {
@@ -112,7 +130,7 @@ export async function createRoute({
   ownerAnonId,
   title,
   stops = [],
-  transportMode = "xe-may",
+  transportMode = DEFAULT_TRANSPORT_MODE,
   copiedFrom = null,
 }) {
   const owned = await getOwnedRouteSlugs(ownerAnonId);
@@ -128,9 +146,7 @@ export async function createRoute({
       slug,
       title: cleanTitle,
       ownerAnonId,
-      transportMode: TRANSPORT_MODES.some((mode) => mode.id === transportMode)
-        ? transportMode
-        : "xe-may",
+      transportMode: normalizeTransportMode(transportMode),
       stops: stops.slice(0, MAX_STOPS_PER_ROUTE),
       copiedFrom,
       createdAt: now,

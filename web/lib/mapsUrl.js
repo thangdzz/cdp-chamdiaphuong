@@ -276,7 +276,7 @@ export function splitRouteLegs(count, maxWaypoints = MAX_WAYPOINTS) {
  * lọc ra và nói rõ với người dùng TRƯỚC (spec §10: không im lặng bỏ điểm).
  *
  * @param {({placeId,lat,lng,label}|null)[]} targets điểm đã resolve, theo đúng thứ tự lộ trình
- * @param {string} mapsMode driving | walking (xem TRANSPORT_MODES ở lib/routes.js)
+ * @param {string} mapsMode driving | walking | two-wheeler (xem TRANSPORT_MODES ở lib/routes.js)
  * @returns {{url: string, legs: {url: string, from: number, to: number}[]}|null} null khi chưa đủ 2 điểm
  */
 export function routeMapsUrl(targets, mapsMode = "driving") {

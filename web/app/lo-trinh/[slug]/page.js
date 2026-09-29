@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getRoute, resolveRouteStops, stopFullAddress, stopTitle, transportModeLabel, STOP_TYPES, TRANSPORT_MODES } from "@/lib/routes";
+import { getRoute, resolveRouteStops, stopFullAddress, stopTitle, transportMapsMode, transportModeLabel, STOP_TYPES } from "@/lib/routes";
 import { REQUIRE_VERIFIED_LOCATION, routeMapsUrl, stopRouteTarget, stopTextTarget } from "@/lib/mapsUrl";
 import { isPickupService, pickupSelectionLabel, stopNeedsPickupSelection } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
@@ -27,7 +27,7 @@ export default async function RouteViewPage({ params }) {
   if (!route) notFound();
 
   const stops = await resolveRouteStops(route.stops);
-  const mapsMode = TRANSPORT_MODES.find((m) => m.id === route.transportMode)?.mapsMode ?? "driving";
+  const mapsMode = transportMapsMode(route.transportMode);
   // Spec Location-Routing §3, §10: chỉ điểm ĐÃ XÁC MINH vị trí mới là định danh dẫn đường. Điểm chưa
   // xác minh tạm vào link bằng chữ (REQUIRE_VERIFIED_LOCATION) nhưng phải được kể tên bên dưới —
   // không bao giờ im lặng bỏ điểm.

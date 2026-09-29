@@ -24,7 +24,7 @@ import { PlacePicker } from "@/app/PlacePicker";
 import { ProposePlaceForm } from "@/app/ProposePlaceForm";
 import { StopBadge } from "@/app/StopBadge";
 import { loadLocalContributor } from "@/app/ContributionPanel";
-import { TRANSPORT_MODES, STOP_TYPES } from "@/lib/routes";
+import { TRANSPORT_MODES, STOP_TYPES, normalizeTransportMode } from "@/lib/routes";
 import { getPlaceTypeLabel, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { formatDurationText } from "@/lib/durationFormat";
 import { PROVINCES } from "@/lib/provinces";
@@ -232,7 +232,7 @@ export default function EditRoutePage({ params }) {
                 disabled={busy}
                 onClick={() => changeMode(m.id)}
                 className={`cdp-pressable cursor-pointer rounded-full border px-3 py-1.5 text-sm disabled:opacity-50 ${
-                  route.transportMode === m.id
+                  normalizeTransportMode(route.transportMode) === m.id
                     ? "border-zinc-400 bg-zinc-100 font-medium text-zinc-900"
                     : "border-zinc-200 text-zinc-600"
                 }`}
