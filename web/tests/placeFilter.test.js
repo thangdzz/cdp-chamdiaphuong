@@ -65,3 +65,33 @@ test("dòng xác nhận còn mở theo tuổi", () => {
   assert.equal(formatCheckinAge(daysAgo(120), now), null);
   assert.equal(formatCheckinAge(null, now), null);
 });
+
+// --- Trang kết quả /tim: URL <-> bộ lọc, bản gọn của địa điểm -------------------------------
+import { filtersFromParams, paramsFromFilters, toResultItem } from "../lib/searchResults.js";
+
+test("URL /tim đọc đúng bộ lọc, giá trị lạ bị bỏ qua", () => {
+  assert.deepEqual(filtersFromParams({ q: "phở", loai: "an", gia: "duoi-100k", khu: "Minh Xuân" }), {
+    search: "phở", type: "an", priceBucket: "duoi-100k", ward: "Minh Xuân",
+  });
+  assert.deepEqual(filtersFromParams({ loai: "moc", gia: "re" }), { search: "", type: "all", priceBucket: "all", ward: "all" });
+  assert.equal(filtersFromParams({ q: ["a", "b"] }).search, "a");
+});
+
+test("bộ lọc ghi ngược ra URL, bỏ tiêu chí 'tất cả', đi hai chiều không mất gì", () => {
+  assert.equal(paramsFromFilters({ search: " cafe ", type: "an" }), "q=cafe&loai=an");
+  assert.equal(paramsFromFilters({}), "");
+  const f = { search: "phở bò", type: "ngu", ward: "Phan Thiết", priceBucket: "tren-1tr" };
+  assert.deepEqual(filtersFromParams(Object.fromEntries(new URLSearchParams(paramsFromFilters(f)))), f);
+});
+
+test("bản gọn giữ đủ trường để lọc và không mang ảnh/câu trả lời xuống trình duyệt", () => {
+  const item = toResultItem({
+    ...places[0], localArea: "Chợ Tam Cờ", searchAliases: ["phở cụ Vinh"], photos: [{ url: "x" }], consensus: { a: 1 },
+  });
+  assert.equal(item.typeLabel, "Ăn");
+  assert.equal(item.priceCompact, "40–60k");
+  assert.equal(item.photos, undefined);
+  assert.equal(item.consensus, undefined);
+  assert.deepEqual(filterPlaces([item], { search: "cụ vinh" }).length, 1);
+  assert.ok(item.mapHref.startsWith("https://www.google.com/maps/"));
+});
