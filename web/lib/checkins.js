@@ -1,7 +1,7 @@
 // Xác nhận "hôm nay vẫn mở" (Chặng 1) — thao tác của KHÁCH, nhiều người có thể bấm cùng
 // lúc. Khác với phần lớn dự án (đọc-cả-mảng -> sửa -> ghi-cả-mảng, chỉ an toàn khi admin
 // duyệt từng cái một), ở đây dùng lệnh Redis nguyên tử cho từng bước — xem ARCHITECTURE §6
-// và docs/SPEC-chang-1.md §3.3.
+// và docs/archive/2026-07-08-nen-mong/SPEC-chang-1.md §3.3.
 
 import { redis } from "./redis.js";
 

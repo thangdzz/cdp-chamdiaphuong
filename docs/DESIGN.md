@@ -1,4 +1,8 @@
-# SPEC — Rà soát giao diện
+# DESIGN — Quy ước giao diện CDP (gốc: "SPEC — Rà soát giao diện")
+
+> Đổi tên từ `SPEC-giao-dien.md` ngày 2026-09-29 (DECISIONS 2026-09-29). Đọc trước khi dựng UI.
+> Lượt rà soát 7 mục bên dưới đã code xong 08/2026; các nguyên tắc (bỏ bớt chứ không thêm, font,
+> màu, khoảng cách) vẫn là chuẩn giao diện hiện tại. Mục tiêu sản phẩm: [PRODUCT.md](PRODUCT.md).
 
 > Không phải một chặng mới. Đây là **một lượt rà soát tổng thể** sau 6 chặng, làm trước khi
 > tới Chặng 7. Code làm bên Antigravity, trình kế hoạch trước.

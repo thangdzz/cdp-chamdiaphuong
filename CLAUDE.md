@@ -1,11 +1,14 @@
 # CLAUDE.md — Dự án: chamdiaphuong (Chạm Địa Phương)
 
 ## Dự án này là gì
-Công cụ giúp khách du lịch và người dân Tuyên Quang tìm nhanh chỗ ăn/ngủ đáng tin, biết
-được ước lượng còn chỗ hay không, giá tầm nào, để quyết định nhanh — đặc biệt lúc đông
-khách (ví dụ dịp Trung Thu Tuyên Quang).
+Web mobile-first **gom, tổ chức và duy trì thông tin địa phương** (Ăn · Chơi · Ngủ · Đi lại)
+để người dùng ra quyết định thực tế, thay vì tự ghép dữ liệu rời rạc. **Người địa phương là
+nền móng dữ liệu**; khách đến địa phương dùng nền dữ liệu đó. Người dùng lưu địa điểm vào
+**Sổ**, ghép thành **Lộ trình**, và chia sẻ — chức năng cơ bản không bắt buộc đăng nhập.
 
-Chi tiết đầy đủ nằm ở [docs/PRD.md](docs/PRD.md). File này chỉ nói **cách làm việc**.
+**Nguồn chuẩn cao nhất: [docs/PRODUCT.md](docs/PRODUCT.md).** Phạm vi đang build:
+[docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) (FROZEN). Tài liệu nào nói khác PRODUCT thì PRODUCT
+thắng. File này chỉ nói **cách làm việc**.
 
 ## Người chủ dự án
 Anh là solo creator, **không rành kỹ thuật (non-tech)**. Mọi giải thích phải bằng tiếng Việt
@@ -28,9 +31,10 @@ Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub �
 2. **Làm từng việc nhỏ.** Không gộp nhiều thay đổi lớn vào một lần. Mỗi bước xong phải có
    thứ xem/bấm thử được, hoặc ít nhất kiểm tra được là đúng.
 3. **Không tự ý mở rộng phạm vi.** Nếu thấy có thể làm thêm gì hay ho, đề xuất riêng —
-   không tự làm luôn.
-4. **Cuối mỗi phiên làm việc: cập nhật [docs/STATUS.md](docs/STATUS.md).**
-   Ghi: đã làm gì trong phiên này, còn gì dang dở, bước tiếp theo hợp lý nhất.
+   không tự làm luôn. Ý tưởng phát sinh → ghi vào [docs/INBOX.md](docs/INBOX.md).
+4. **Cuối mỗi phiên làm việc: cập nhật [docs/STATUS.md](docs/STATUS.md)** (và
+   [docs/TASKS.md](docs/TASKS.md)). STATUS chỉ giữ **trạng thái hiện tại** — ghi đè, không cộng
+   dồn thành nhật ký: đang ở đâu, còn gì dang dở, bước tiếp theo hợp lý nhất.
 5. **Quyết định quan trọng (đổi hướng, đổi công nghệ, đổi phạm vi) phải ghi vào
    [docs/DECISIONS.md](docs/DECISIONS.md)** kèm lý do — để sau này không quên vì sao đã
    chọn vậy.
@@ -48,17 +52,24 @@ Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub �
 - Nội dung hiển thị cho người dùng cuối (khách xem web): tiếng Việt là chính.
 
 ## Tài liệu liên quan
+- [docs/PRODUCT.md](docs/PRODUCT.md) — **nguồn chuẩn cao nhất**: vì sao CDP tồn tại, phục vụ ai,
+  làm gì, không làm gì, nguyên tắc chọn feature
+- [docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) — phạm vi đang build (FROZEN): MUST / MAY / NOT NOW
+- [docs/TASKS.md](docs/TASKS.md) — việc đang thực sự active
+- [docs/BACKLOG.md](docs/BACKLOG.md) — đã review, có giá trị, chờ phase phù hợp. **Không tự làm**
+- [docs/INBOX.md](docs/INBOX.md) — ý tưởng chưa review / thuộc NOT NOW. **Không tự làm**
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — **đọc trước khi code**: dữ liệu nằm đâu,
   file nào làm gì, chỗ nào cần cẩn thận
-- [docs/PRD.md](docs/PRD.md) — sản phẩm này làm gì, cho ai, phạm vi bản đầu
-- [docs/NOTEBOOK-DESIGN.md](docs/NOTEBOOK-DESIGN.md) — thiết kế hướng "cuốn sổ địa phương"
-  (chốt 2026-08-11, hướng đi hiện tại — đọc cùng PRD)
-- [docs/ROADMAP.md](docs/ROADMAP.md) — chia giai đoạn nhỏ
-- `docs/SPEC-chang-N.md` — mô tả chi tiết từng chặng, viết ngay trước khi code chặng đó
+- [docs/DESIGN.md](docs/DESIGN.md) — **đọc trước khi dựng UI** (tên cũ `SPEC-giao-dien.md`)
 - [docs/ROUTINE.md](docs/ROUTINE.md) — lịch quét dữ liệu hằng ngày: nằm ở đâu, làm gì, bản
   sao lưu nội dung lệnh, cách dựng lại nếu mất. **Cập nhật mỗi khi sửa nội dung routine.**
+- [docs/STATUS.md](docs/STATUS.md) — tình trạng hiện tại, cập nhật mỗi phiên
+- [docs/DECISIONS.md](docs/DECISIONS.md) — nhật ký các quyết định quan trọng
+- [docs/HANDOFF.md](docs/HANDOFF.md) — bàn giao Claude Code ↔ Codex
+- `docs/SPEC-*.md` — spec chi tiết, viết ngay trước khi code một mảng
 - `docs/reference/` — **tài liệu tham khảo, KHÔNG phải yêu cầu tính năng.** Nghiên cứu, tư
   liệu bối cảnh. Đọc để đối chiếu và tìm khoảng trống; **không tự biến thành việc phải làm.**
   Muốn đề xuất gì từ đây thì trình anh duyệt như mọi việc khác.
-- [docs/STATUS.md](docs/STATUS.md) — tình trạng hiện tại, cập nhật mỗi phiên
-- [docs/DECISIONS.md](docs/DECISIONS.md) — nhật ký các quyết định quan trọng
+- `docs/archive/` — tài liệu đã hết vai trò (PRD, ROADMAP, NOTE, SPEC chặng cũ, game Thành
+  Tuyên, nhật ký cũ). **Không phải nguồn chuẩn** — chỉ tra khi cần biết vì sao code như vậy.
+  Mục lục: [docs/archive/README.md](docs/archive/README.md)

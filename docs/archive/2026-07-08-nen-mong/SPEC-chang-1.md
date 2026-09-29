@@ -1,11 +1,11 @@
 # SPEC — Chặng 1: Nút "Hôm nay vẫn mở"
 
 > Bản mô tả đủ chi tiết để code thẳng, không phải đoán. Đọc kèm
-> [ARCHITECTURE.md](ARCHITECTURE.md) (hệ thống hiện tại) và
+> [ARCHITECTURE.md](../../ARCHITECTURE.md) (hệ thống hiện tại) và
 > [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) (vì sao làm).
 >
 > **Code làm bên Antigravity, không làm ở Cowork.** Trước khi code phải trình kế hoạch cho
-> anh duyệt ([CLAUDE.md](../CLAUDE.md) quy tắc 1).
+> anh duyệt ([CLAUDE.md](../../../CLAUDE.md) quy tắc 1).
 
 ---
 
@@ -95,7 +95,7 @@ chỗ, `place_checkins` là hành vi của khách.
 ### 3.2 Cắt bớt
 
 Mỗi lần ghi, xoá các bản ghi **cũ hơn 180 ngày**. Không cần dữ liệu xa hơn thế, và tránh
-mảng phình vô hạn (vấn đề đã ghi ở [ARCHITECTURE §6](ARCHITECTURE.md)).
+mảng phình vô hạn (vấn đề đã ghi ở [ARCHITECTURE §6](../../ARCHITECTURE.md)).
 
 ### 3.3 ⚠️ Vấn đề ghi đồng thời — phải xử lý
 

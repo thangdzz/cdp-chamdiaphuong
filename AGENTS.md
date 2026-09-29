@@ -9,10 +9,14 @@
 
 ## 1. Dự án này là gì
 
-**CDP — Chạm Địa Phương** (`chamdiaphuong.io.vn`): web mobile-first giúp khách du lịch và
-người dân **Tuyên Quang** tìm nhanh chỗ **Ăn · Chơi · Ngủ · Đi lại** đáng tin — biết giá tầm
-nào, còn mở hay không, ai đã kiểm lại gần đây — rồi **gom thành Sổ** hoặc **xếp thành Lộ
-trình** và chia sẻ cho người khác.
+**CDP — Chạm Địa Phương** (`chamdiaphuong.io.vn`): web mobile-first **gom, tổ chức và duy trì
+thông tin địa phương** (**Ăn · Chơi · Ngủ · Đi lại**) — còn hoạt động không, giá tầm nào, ai đã
+kiểm lại gần đây — để người dùng **lưu vào Sổ**, **xếp thành Lộ trình** và chia sẻ.
+**Người địa phương là nền móng dữ liệu**; khách đến địa phương dùng nền dữ liệu đó.
+
+**Nguồn chuẩn cao nhất: [docs/PRODUCT.md](docs/PRODUCT.md).** Phạm vi đang build:
+[docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) (FROZEN). Tài liệu hay quyết định cũ nói khác PRODUCT
+thì PRODUCT thắng.
 
 - **Không có tài khoản đăng nhập.** Người dùng được định danh bằng mã ẩn danh trong
   localStorage, hồ sơ tạo im lặng lúc họ thực sự đóng góp lần đầu.
@@ -21,7 +25,8 @@ trình** và chia sẻ cho người khác.
 - Chủ dự án là **solo creator không rành kỹ thuật**. Mọi giải thích cho anh ấy phải bằng
   **tiếng Việt đơn giản**, thuật ngữ phải giải thích ngay.
 
-Bối cảnh gần: **Lễ hội Thành Tuyên 19–25/9/2026** là đợt cao điểm đang nhắm tới.
+Bối cảnh gần: game **Săn đèn Thành Tuyên 2026 đã kết thúc** (27/09/2026). Việc tiếp theo là
+vNext — Core Discovery Flow *Home → Search → Place → Lưu vào Sổ*.
 
 ---
 
@@ -32,15 +37,15 @@ Bối cảnh gần: **Lễ hội Thành Tuyên 19–25/9/2026** là đợt cao �
 | File | Khi nào cần |
 |---|---|
 | [docs/HANDOFF.md](docs/HANDOFF.md) | **Đọc đầu tiên** — đang làm gì, dở ở đâu, làm gì tiếp |
+| [docs/PRODUCT.md](docs/PRODUCT.md) · [docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) | **Trước khi làm bất cứ tính năng nào** — sản phẩm làm gì, cho ai; scope đang build (MUST / MAY / NOT NOW) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **Trước khi code** — dữ liệu nằm đâu, file nào làm gì, chỗ nào dễ vỡ |
 | [web/AGENTS.md](web/AGENTS.md) | **Trước khi code Next.js** — bản Next.js này khác dữ liệu huấn luyện |
+| [docs/DESIGN.md](docs/DESIGN.md) | **Trước khi dựng UI** (tên cũ `SPEC-giao-dien.md`) |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Trước khi đổi hướng thứ gì — vì sao đã chọn cách hiện tại |
-| [docs/TASKS.md](docs/TASKS.md) | DONE / IN PROGRESS / TODO |
-| [docs/STATUS.md](docs/STATUS.md) | Nhật ký từng phiên (dài, tra theo ngày) |
-| [docs/PRD.md](docs/PRD.md) · [docs/NOTEBOOK-DESIGN.md](docs/NOTEBOOK-DESIGN.md) | Sản phẩm làm gì, cho ai |
-| [docs/SPEC-giao-dien.md](docs/SPEC-giao-dien.md) | **Trước khi dựng UI** (dự án không có `docs/DESIGN.md`; đây là file thay thế) |
-| `docs/SPEC-chang-N.md` · `docs/10..16-NOTE-*.md` · `docs/CDP_P1-P8_*.md` | Spec chi tiết của từng mảng — tra khi động vào mảng đó |
+| [docs/TASKS.md](docs/TASKS.md) · [docs/STATUS.md](docs/STATUS.md) | Việc đang active · trạng thái hiện tại (ngắn) |
+| [docs/BACKLOG.md](docs/BACKLOG.md) · [docs/INBOX.md](docs/INBOX.md) | Việc chờ phase sau · ý tưởng chưa review. **Không tự làm** khi chưa được duyệt |
 | [docs/ROUTINE.md](docs/ROUTINE.md) | Lịch quét dữ liệu hằng ngày |
+| [docs/archive/](docs/archive/README.md) | NOTE, SPEC chặng cũ, PRD, game, nhật ký cũ — **không phải nguồn chuẩn**, chỉ tra khi code dẫn chiếu (`NOTE-07 §13`, `SPEC-chang-4`…) |
 
 ⚠️ **`docs/reference/` là TƯ LIỆU THAM KHẢO, không phải yêu cầu tính năng.** Đừng tự biến nội
 dung trong đó thành việc phải làm.
@@ -60,7 +65,8 @@ dung trong đó thành việc phải làm.
    `normalizeProvince`).
 7. Yêu cầu mơ hồ → **hỏi lại một câu một**.
 8. **Cuối phiên: cập nhật `docs/STATUS.md` + `docs/TASKS.md`; quyết định quan trọng ghi
-   `docs/DECISIONS.md`** kèm lý do. Không đợi được nhắc.
+   `docs/DECISIONS.md`** kèm lý do. Không đợi được nhắc. STATUS/HANDOFF chỉ giữ **trạng thái
+   hiện tại** (ghi đè, không cộng dồn nhật ký). Ý tưởng phát sinh → `docs/INBOX.md`.
 
 ---
 
@@ -104,19 +110,18 @@ npm run lint     # eslint
   **không lấy được GPS** (trình duyệt chỉ cho trên https) — kéo ghim trên bản đồ. Đăng nhập `/admin`
   qua LAN dùng được từ 15/9 (cookie phiên chỉ bật `secure` khi request thật sự là https, xem
   `isHttpsRequest` trong `lib/adminAuth.js`). Trang admin game là `/admin/game`.
-- Đường dẫn game là **`/san-den-thanh-tuyen-2026`** (tầng gốc, đổi 2026-09-16). `slug` trong file mùa
+- (Mùa game 2026 đã hết — giữ để tra.) Đường dẫn game là **`/san-den-thanh-tuyen-2026`** (tầng gốc, đổi 2026-09-16). `slug` trong file mùa
   khác `id`: khoá Redis dựng từ `id`, đổi slug không đụng dữ liệu. Hai trang ghim slug cứng phải sửa
   cùng lúc: `app/page.js` (`HOME_GAME_SLUG`) và `app/le-hoi-thanh-tuyen/page.js` (`FESTIVAL_GAME_SLUG`).
 - ⚠️ Localhost **ghi vào Redis/Blob thật** (namespace test chỉ phủ một phần key). Hành động
   không hoàn tác được (duyệt đóng cửa, crawler) chỉ test bằng namespace riêng, không bấm tay.
 
-- **`npm run lint` hiện còn ĐÚNG 1 lỗi cũ đã biết** ở `app/PlaceExplorer.js`
-  (`react-hooks/set-state-in-effect`). Lỗi này có từ trước, chưa sửa. **Thêm lỗi mới là
-  không đạt** — mốc so sánh là "vẫn đúng 1 lỗi đó".
-- **Repo KHÔNG có bộ test tự động.** Playwright nằm trong `devDependencies`, cách kiểm thử
-  hiện tại là viết script `.mjs` rời rồi chạy bằng `node`, khổ máy `devices["iPhone 13"]`.
-  Script test không được commit vào repo.
-- Deploy: `npx vercel --prod --yes` rồi `npx vercel ls --prod` để xác nhận.
+- **`npm run lint` sạch 0 lỗi** (từ 2026-09-22). Thêm lỗi mới là không đạt.
+- **`npm test`**: bộ test hàm thuần ở `web/tests/` (`node --test`, không thêm phụ thuộc) — xem
+  `web/tests/README.md`. Chưa có test giao diện trong repo; thử giao diện vẫn bằng script
+  Playwright rời, khổ máy `devices["iPhone 13"]`. Test bản đồ phải chạy `next build` + `next start`.
+- Deploy: `npx vercel --prod --yes --scope thangdz1` (thiếu `--scope` là báo "Not authorized")
+  rồi `npx vercel ls --prod --scope thangdz1` để xác nhận.
   **Chỉ deploy khi được yêu cầu.**
 - Đọc/ghi Redis bằng script rời: `node --env-file=.env.local <script>.mjs`.
 

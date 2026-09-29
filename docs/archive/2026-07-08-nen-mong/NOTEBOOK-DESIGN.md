@@ -1,8 +1,8 @@
 # NOTEBOOK-DESIGN — Thiết kế "Cuốn sổ địa phương"
 
 > Tài liệu thiết kế cho hướng đi mới (chốt 2026-08-11). Ghi lại **thiết kế và lý do**, chưa
-> phải kế hoạch code. Các quyết định đổi hướng tóm tắt ở [DECISIONS.md](DECISIONS.md);
-> tình trạng thực tế ở [STATUS.md](STATUS.md).
+> phải kế hoạch code. Các quyết định đổi hướng tóm tắt ở [DECISIONS.md](../../DECISIONS.md);
+> tình trạng thực tế ở [STATUS.md](../../STATUS.md).
 
 ---
 

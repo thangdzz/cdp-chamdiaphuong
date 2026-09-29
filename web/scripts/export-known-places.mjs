@@ -15,7 +15,7 @@ const OUT_PATH = path.join(process.cwd(), "data", "known-places-snapshot.json");
 const live = await getLivePlaces();
 // Kèm address để routine lọc thêm 1 lớp theo địa chỉ, không chỉ so tên — "Nhà nghỉ Hương
 // Giang" và "Nha Nghi Huong Giang Tuyen Quang" trông như 2 chỗ khác nhau nếu chỉ nhìn tên
-// (docs/STATUS.md mục "Sửa routine quét dữ liệu" 2b).
+// (docs/archive/logs/STATUS-log-2026-07-15-den-09-22.md mục "Sửa routine quét dữ liệu" 2b).
 const snapshot = live
   .map((p) => ({ name: p.name, type: p.type, address: p.address || null }))
   .sort((a, b) => a.name.localeCompare(b.name, "vi"));

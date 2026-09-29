@@ -1,6 +1,6 @@
 # SPEC — Chặng 3: Thêm "Chơi" và "Đi lại"
 
-> Đọc kèm [ARCHITECTURE.md §6](ARCHITECTURE.md) — mục "Loại địa điểm hiện chỉ có 2 giá trị"
+> Đọc kèm [ARCHITECTURE.md §6](../../ARCHITECTURE.md) — mục "Loại địa điểm hiện chỉ có 2 giá trị"
 > liệt kê đủ 6 file kèm số dòng. Code làm bên Antigravity, trình kế hoạch trước.
 
 ---
@@ -121,7 +121,7 @@ Lệnh routine hằng ngày hiện chỉ tìm chỗ ăn và ngủ. Cần:
 
 **Chú ý về địa danh:** Tuyên Quang đã sáp nhập đơn vị hành chính (bỏ cấp huyện, hợp nhất với
 Hà Giang). Dự án chủ ý dùng **vùng địa lý TP Tuyên Quang cũ** và lấy địa chỉ theo Google Maps
-([DECISIONS 2026-07-14](DECISIONS.md)). Giữ nguyên nguyên tắc đó, đừng tự ý "sửa" tên hành
+([DECISIONS 2026-07-14](../../DECISIONS.md)). Giữ nguyên nguyên tắc đó, đừng tự ý "sửa" tên hành
 chính.
 
 **Số lượng mục tiêu:** không đặt KPI cứng. Có đủ để mỗi nhóm mới hiện được vài chỗ thật là

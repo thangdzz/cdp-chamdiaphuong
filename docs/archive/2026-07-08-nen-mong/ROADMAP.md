@@ -1,7 +1,7 @@
 # ROADMAP — chamdiaphuong (Chạm Địa Phương)
 
 > Chia nhỏ để mỗi giai đoạn xong đều có thứ **bấm thử được**, không có giai đoạn nào chỉ
-> code mà không xem được kết quả. Xem tiến độ thật ở [STATUS.md](STATUS.md).
+> code mà không xem được kết quả. Xem tiến độ thật ở [STATUS.md](../../STATUS.md).
 
 > ⚠️ **Đọc phần "HƯỚNG MỚI — Cuốn sổ địa phương" ở cuối file trước.** Đó là kế hoạch đang
 > chạy (chốt 2026-08-11). Phần "Giai đoạn 0–6" bên dưới là **lịch sử đã làm xong**, giữ lại
@@ -108,7 +108,7 @@
 # HƯỚNG MỚI — Cuốn sổ địa phương (chốt 2026-08-11)
 
 > Kế hoạch đang chạy. Thiết kế đầy đủ ở [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md), lý do đổi
-> hướng ở [DECISIONS.md](DECISIONS.md).
+> hướng ở [DECISIONS.md](../../DECISIONS.md).
 >
 > Gọi là **"Chặng"** để khỏi lẫn với "Giai đoạn 0–6" cũ đã xong.
 

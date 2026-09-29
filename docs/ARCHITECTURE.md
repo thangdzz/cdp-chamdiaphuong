@@ -4,8 +4,11 @@
 > file nào làm gì, luồng chạy ra sao — không phải mò cả repo.
 >
 > Cập nhật khi đổi hạ tầng, thêm/bớt key Redis, hoặc thêm module lớn.
-> Hướng đi sản phẩm xem [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) · việc sắp làm xem
-> [ROADMAP.md](ROADMAP.md) · lý do các lựa chọn xem [DECISIONS.md](DECISIONS.md).
+> Sản phẩm làm gì, cho ai: [PRODUCT.md](PRODUCT.md) (nguồn chuẩn cao nhất) · việc đang làm:
+> [SCOPE-vNext.md](SCOPE-vNext.md), [TASKS.md](TASKS.md) · lý do các lựa chọn: [DECISIONS.md](DECISIONS.md).
+>
+> Chỗ nào dưới đây dẫn "NOTE-xx", "SPEC-chang-N", "CDP_P1-P8" là tài liệu đã archive — tìm
+> theo tên trong [archive/](archive/README.md).
 
 ---
 
@@ -22,7 +25,7 @@
   sau này đổi R2/S3/GCS không phải đổi schema địa điểm.
 - Không có tài khoản người dùng. Người góp ý được định danh bằng **mã ẩn danh lưu trong
   localStorage**. `/admin` dùng **một mật khẩu chung** + cookie ký HMAC.
-- Toàn bộ code web nằm trong thư mục `web/` (~3.900 dòng).
+- Toàn bộ code web nằm trong thư mục `web/` (~35.000 dòng JS trong `app/` + `lib/`, đo 2026-09-29).
 
 ⚠️ **Cảnh báo về phiên bản Next.js:** `web/AGENTS.md` ghi rõ bản Next.js này có breaking
 changes so với dữ liệu huấn luyện của model. **Đọc `node_modules/next/dist/docs/` trước khi
@@ -86,6 +89,10 @@ bốn item từ definition và bỏ qua mọi key/href do request gửi. Test d�
 `CDP_SITE_CONTENT_NAMESPACE` với content Giới thiệu.
 
 ### Game layer (`lib/game/store.js` — hằng số `GAME_KEYS`, NOTE-03/NOTE-04)
+
+> **Mùa Săn đèn Thành Tuyên 2026 đã kết thúc** (Product Owner chốt 23:59 27/09/2026; code còn
+> để `endAt` 30/9 — xem STATUS). Key `game:thanh-tuyen-2026:*` **giữ nguyên làm lịch sử**,
+> không xoá. Engine giữ để dùng lại cho mùa sau.
 
 Mọi key có dạng `game:{eventId}:…` (VD `game:thanh-tuyen-2026:sightings`). Thao tác của khách
 nên dùng hash/zset/list + lệnh nguyên tử, **không** phải mảng JSON. Test đặt
@@ -947,10 +954,10 @@ sách này không chuẩn hoá được về `ward`, và chỗ không có `ward`
 
 | Thứ | Ở đâu |
 |---|---|
-| Web đang chạy | https://web-five-xi-28.vercel.app |
-| Trang duyệt | https://web-five-xi-28.vercel.app/admin |
+| Web đang chạy | https://chamdiaphuong.io.vn (địa chỉ cũ web-five-xi-28.vercel.app vẫn chạy song song) |
+| Trang duyệt | https://chamdiaphuong.io.vn/admin |
 | Mã nguồn | github.com/thangdzz/cdp-chamdiaphuong (Public) |
-| Cơ sở dữ liệu | Upstash Redis qua Vercel Marketplace (gói miễn phí) |
+| Cơ sở dữ liệu | Upstash Redis qua Vercel Marketplace (Pay-as-you-go, hạn mức $25 — chuyển 2026-09-22) |
 | Ảnh | Vercel Blob, store `cdp-photos` (public) |
 | Lịch quét | claude.ai routine, 8h sáng hằng ngày |
 | Cron dự phòng | Vercel Cron → `/api/cron/daily-ingest`, 1:30 UTC (gần như không dùng) |

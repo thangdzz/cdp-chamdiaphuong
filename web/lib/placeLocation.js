@@ -1,5 +1,5 @@
 // VỊ TRÍ ĐỊA LÝ của một địa điểm / điểm dừng — một chỗ duy nhất trả lời: chỗ này đã đủ chính xác
-// để DẪN ĐƯỜNG chưa? (spec docs/CDP-Google-Maps-Location-Routing-v1.md §2, §3, §12)
+// để DẪN ĐƯỜNG chưa? (spec docs/archive/2026-09-notes/CDP-Google-Maps-Location-Routing-v1.md §2, §3, §12)
 //
 // Nguyên tắc: **CDP xác định điểm, Google chỉ tính đường.** Chuỗi chữ "tên + phường + tỉnh" chỉ
 // dùng để TÌM KIẾM, không bao giờ là định danh cuối cùng của nút Chỉ đường — cùng một cái tên có ở

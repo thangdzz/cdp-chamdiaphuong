@@ -1,7 +1,7 @@
 # PRD — chamdiaphuong (Chạm Địa Phương)
 
 > Tài liệu mô tả sản phẩm. Cập nhật khi có thay đổi quan trọng về phạm vi — nhớ ghi lý do
-> vào [DECISIONS.md](DECISIONS.md).
+> vào [DECISIONS.md](../../DECISIONS.md).
 
 > ⚠️ **Đọc cùng [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)** — hướng đi hiện tại (chốt
 > 2026-08-11) là **"cuốn sổ địa phương"**, rộng hơn PRD gốc. File này đã được cập nhật theo

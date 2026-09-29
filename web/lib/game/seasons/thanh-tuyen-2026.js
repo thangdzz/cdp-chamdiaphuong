@@ -335,7 +335,7 @@ export const THANH_TUYEN_2026 = {
     { count: "complete", title: "Trọn bộ Thành Tuyên 2026!", body: "Bạn đã gặp đủ cả mùa đèn 🎊" },
   ],
 
-  // 34 mô hình từ danh sách chủ dự án cung cấp (data/MoHinhTrungThuTuyenQuang.md, 15/9/2026).
+  // 34 mô hình từ danh sách chủ dự án cung cấp (docs/archive/2026-thanh-tuyen-game/MoHinhTrungThuTuyenQuang.md, 15/9/2026).
   // Chưa đối chiếu nguồn chính thức nên để `unverified`; phường/tổ chưa có. Admin sửa ở /admin/game.
   objects: [
     ["mang-long-tu-hoi", "Mãng long tụ hội", "linh-vat", ["animal", "dragon", "traditional"], "dragon-gather", "animal", "dragon-gather",

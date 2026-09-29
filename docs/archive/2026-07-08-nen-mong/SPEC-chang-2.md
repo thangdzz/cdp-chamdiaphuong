@@ -1,6 +1,6 @@
 # SPEC — Chặng 2: Câu hỏi bấm chọn + đồng thuận
 
-> Đọc kèm [ARCHITECTURE.md](ARCHITECTURE.md) và [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)
+> Đọc kèm [ARCHITECTURE.md](../../ARCHITECTURE.md) và [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md)
 > §4–6 (nguyên tắc) và §10 (cách tính điểm). Code làm bên Antigravity, trình kế hoạch trước.
 >
 > **Đây là chặng nặng nhất và quan trọng nhất về mặt kỹ thuật.** Nó tạo ra cỗ máy gom dữ

@@ -2,6 +2,59 @@
 
 > Mỗi khi đổi hướng, đổi công nghệ, hoặc đổi phạm vi — ghi lại ở đây kèm lý do, để sau này
 > không quên vì sao đã chọn vậy.
+>
+> ⚠️ Từ 2026-09-29, [PRODUCT.md](PRODUCT.md) là **nguồn chuẩn cao nhất**. Quyết định cũ bên
+> dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
+> hiệu lực.
+
+## 2026-09-29 — PRODUCT.md thành nguồn chuẩn cao nhất; dọn lại toàn bộ tài liệu
+
+**Quyết định:** [PRODUCT.md](PRODUCT.md) (Product Owner duyệt 29/9) là nguồn chuẩn cao nhất;
+[SCOPE-vNext.md](SCOPE-vNext.md) (Core Discovery Flow) là phạm vi đang build, **FROZEN**.
+PRD, NOTEBOOK-DESIGN, ROADMAP chuyển vào `archive/2026-07-08-nen-mong/` và **không còn là
+chuẩn**. Nội dung cũ trái PRODUCT **không** được gộp vào tài liệu active.
+**Vì sao:** Sau lễ hội, Product Owner viết lại định hướng; tài liệu cũ nhiều chỗ nói ngược
+(ai là người dùng ưu tiên, vai trò của Sổ), agent đọc nhầm là làm sai.
+
+**Đổi so với trước:**
+- **Người dùng ưu tiên:** trước (PRD §2) là *khách du lịch ngoại tỉnh*. Nay: **người địa phương
+  là nền móng** — tạo giá trị đủ tốt để họ dùng thường xuyên; khách dùng nền dữ liệu đó.
+- **Vai trò của Sổ:** nhận định 2026-08-11 "sổ có giá trị vì *gửi được*, không vì *lưu được*"
+  **hết là cơ sở ra quyết định**. Nay cả *lưu* và *chia sẻ* đều là giá trị; vNext lấy
+  **"Lưu vào Sổ"** làm đích của luồng chính.
+- **Tài khoản:** "chủ tài khoản" ở PRODUCT §3.2 = **người tạo dữ liệu riêng tư**. Hệ thống chưa
+  có tài khoản, vẫn nhận diện ẩn danh bằng localStorage. Đăng nhập SĐT (Chặng 7), chủ quán nhận
+  địa điểm (Chặng 8) → INBOX, không còn "có làm" như PRD §6 cũ.
+- **Gamification:** thuộc NOT NOW. Bảng điểm/huy hiệu đang chạy giữ nguyên trong code, không mở
+  rộng. Ý tưởng game → INBOX §2.
+- **Lễ hội:** nội dung theo mùa không được chiếm vai trò lõi của Home (vNext).
+
+**Vẫn còn hiệu lực** (không trái PRODUCT, giữ nguyên): dữ liệu AI quét tự công khai kèm độ tin
+cậy, chỉ giữ chờ duyệt khi nghi trùng/mâu thuẫn, gỡ công khai luôn qua duyệt (07-17) · chữ tự do
+công khai luôn qua duyệt (08-11, 09-13) · **không bao giờ** chấm sao / bình luận công khai / diễn
+đàn — khớp PRODUCT §5 (08-11) · "chọn là mặc định, gõ là ngoại lệ", luôn có "Không rõ", đồng
+thuận + phiếu cũ nhẹ dần (08-11) · claim phải xác minh (08-11) · không chắc thì nói "chưa đủ dữ
+liệu", không bịa giờ (07-14, 09-12) · CDP xác định điểm, Google chỉ tính đường (09-16) · link
+chia sẻ là bản chụp đóng băng.
+
+**Game Săn đèn Thành Tuyên 2026 kết thúc 23:59 ngày 27/09/2026** (chốt của Product Owner).
+Tài liệu game → `archive/2026-thanh-tuyen-game/`; việc game còn mở trong TASKS đóng lại, không
+làm. Dữ liệu game trong Redis **giữ nguyên**. ⚠️ Code vẫn để `endAt` 30/9 — chưa sửa, chờ chốt.
+
+**Cấu trúc tài liệu mới:**
+- `docs/` chỉ giữ file active: PRODUCT · SCOPE-vNext · INBOX · BACKLOG · TASKS · STATUS · HANDOFF
+  · DECISIONS · ARCHITECTURE · DESIGN · ROUTINE · SPEC-kiem-lai-du-lieu · `reference/`.
+- **INBOX** = ý tưởng chưa review hoặc thuộc NOT NOW. **BACKLOG** = đã review, khớp PRODUCT,
+  chờ phase phù hợp. Không tự làm việc trong hai file này khi chưa được duyệt.
+- **STATUS / HANDOFF chỉ giữ trạng thái hiện tại** (ghi đè, không cộng dồn); nhật ký cũ →
+  `archive/logs/`. TASKS chỉ giữ việc thực sự active.
+- `SPEC-giao-dien.md` đổi tên → **`DESIGN.md`** (quy tắc chung của chủ dự án yêu cầu tên này).
+- Trước khi archive NOTE/SPEC, mọi việc P1/P2 chưa làm đã trích sang INBOX/BACKLOG kèm nguồn.
+- **Chưa xoá file nào.** 3 DELETE CANDIDATE giữ nguyên chờ review: bản `CDP_P1-P8` không có
+  `-tiep` (trùng y hệt phần đầu bản `-tiep`), `data/dia-diem-mau-giai-doan-1.md`, `web/README.md`.
+
+**Chưa chốt** (ghi ở [STATUS.md](STATUS.md) "Câu hỏi mở"): giữ nhãn "còn chỗ" theo lịch không ·
+phạm vi địa lý · ngày tắt game trong code.
 
 ## 2026-09-22 — Tên dân hay gọi, chỗ tạm theo dịp, và dọn admin đợt 1
 
@@ -112,7 +165,7 @@ bản đồ ở giữa tỉnh cho kéo ghim thay vì từ chối. Điểm riêng
 
 ## 2026-09-20 — Tìm kiếm lai: danh bạ CDP đứng trước Google, và nguồn phải hiện ra mặt
 
-Làm theo NOTE-15 (`docs/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`). Ca thật trong NOTE:
+Làm theo NOTE-15 (`docs/archive/2026-09-notes/24-NOTE-15-Hybrid-Place-Search-CDP-Locations.md`). Ca thật trong NOTE:
 khách gõ "1 ngõ 63 Lê Duẩn", Google trả "Ngõ 9 Lê Duẩn" — sai; khách kéo ghim tới 21.82796,
 105.20024 thì đúng. Kết luận: **Google Places chỉ là một nguồn tìm kiếm, CDP phải có lớp dữ liệu
 vị trí riêng.**
@@ -900,7 +953,7 @@ huống bằng TouchEvent (Chromium iPhone — WebKit desktop không có hàm t�
 ## 2026-09-15 — Ngân sách Redis đêm hội: Pay-as-you-go $10 + giảm lệnh B1–B3
 
 Chủ dự án xác nhận Upstash tính TỪNG lệnh. Ước tính code cũ ~950 lệnh/người chơi/giờ → 300 người × 3 giờ
-vượt gói miễn phí cả tháng (chi tiết `docs/PLAN-dem-18-9-redis.md`). Chủ dự án chốt: Pay-as-you-go,
+vượt gói miễn phí cả tháng (chi tiết `docs/archive/2026-thanh-tuyen-game/PLAN-dem-18-9-redis.md`). Chủ dự án chốt: Pay-as-you-go,
 hạn mức **$10**; làm B1–B3; giữ kill switch analytics; **không sửa luồng ghi lượt báo trước 18/9**; theo
 dõi đêm 18/9 phải tự động.
 
@@ -919,7 +972,7 @@ dõi đêm 18/9 phải tự động.
 
 ## 2026-09-15 — NOTE-08: banner game, tên ẩn danh, theo dõi người dùng — chia 4 phần
 
-Chủ dự án duyệt kế hoạch chia `docs/17-NOTE-08-Game-Banner-Anonymous-Name-Admin-Tracking.md` thành
+Chủ dự án duyệt kế hoạch chia `docs/archive/2026-thanh-tuyen-game/17-NOTE-08-Game-Banner-Anonymous-Name-Admin-Tracking.md` thành
 4 phần, mỗi phần một commit: (1) banner cổng vào game → (2) tên ngẫu nhiên + đổi tên → (3) ghi nhận
 hoạt động ẩn danh → (4) tách menu admin + Dashboard + Người dùng. Phần 1–3 nên lên production trước
 18/9 vì số liệu chỉ có từ lúc Phần 3 chạy; Phần 4 (màn xem) làm sau không mất dữ liệu.
@@ -964,7 +1017,7 @@ chưa tên/bí ẩn. Nền tím đêm + vầng trăng vàng thở chậm là ngo
 - **Đơn vị "khách" là mã `v-…` riêng**, không tạo hồ sơ đóng góp cho người chỉ xem (giữ NOTE-04 §21).
 - **Ngân sách lệnh Redis:** lúc code chưa xác minh được Upstash tính script Lua là 1 hay nhiều lệnh.
   **Cập nhật cùng đêm:** chủ dự án xác nhận Upstash tính theo TỪNG lệnh thực thi (pipeline không gộp
-  lượt tính) → coi như mỗi lệnh trong script đều tính; kế hoạch xử lý ở `docs/PLAN-dem-18-9-redis.md`. Nên thiết kế rẻ cả hai trường hợp: gom theo đợt (đợt đầu phiên sau 4 giây,
+  lượt tính) → coi như mỗi lệnh trong script đều tính; kế hoạch xử lý ở `docs/archive/2026-thanh-tuyen-game/PLAN-dem-18-9-redis.md`. Nên thiết kế rẻ cả hai trường hợp: gom theo đợt (đợt đầu phiên sau 4 giây,
   sau đó ≤ 30 giây/lần, gửi nốt bằng sendBeacon khi ẩn trang); trong script đọc-ghi gộp (HMGET/HSET)
   thay vì HINCRBY từng trường → khoảng 7–10 thao tác/đợt; `sound_play` chỉ đếm tiếng mô hình, không
   đếm tiếng bấm. Không TTL cho số liệu ngày (nhỏ). Có công tắc `CDP_ANALYTICS_DISABLED`. **Việc cần
@@ -978,7 +1031,7 @@ chưa tên/bí ẩn. Nền tím đêm + vầng trăng vàng thở chậm là ngo
 
 ## 2026-09-15 — NOTE-07: làm lại tiếng họ rồng/hổ/cá + hệ huy hiệu sưu tập một biểu tượng
 
-Chủ dự án yêu cầu "đọc `docs/16-NOTE-07-Sound-Rework-and-Gaming-Icon-System.md` và làm phù hợp".
+Chủ dự án yêu cầu "đọc `docs/archive/2026-thanh-tuyen-game/16-NOTE-07-Sound-Rework-and-Gaming-Icon-System.md` và làm phù hợp".
 (Có 2 file cùng số 16-NOTE-07; file này là `…-Sound-Rework-and-Gaming-Icon-System.md`.)
 
 **Tiếng.** Đo phổ cho thấy tiếng hổ cũ rất "mỏng" (tần số trung bình ~930 Hz) — nguyên nhân nghe
@@ -1020,7 +1073,7 @@ có nút "Tải lại trang". Giữ class CSS của MapLibre cho icon.
 
 ## 2026-09-15 — NOTE-06: tổng 45 slot, âm thanh thật CC0 ghép lớp theo công thức
 
-Chủ dự án yêu cầu "đọc `docs/15-NOTE-06-Thanh-Tuyen-45-Models-Sound-System.md` và tiến hành phù
+Chủ dự án yêu cầu "đọc `docs/archive/2026-thanh-tuyen-game/15-NOTE-06-Thanh-Tuyen-45-Models-Sound-System.md` và tiến hành phù
 hợp với dự án". Các lựa chọn:
 
 **1. 45 = 34 mô hình có tên + 11 slot model chưa có tên (`tt26-slot-35`…`45`) trong file mùa.**
@@ -1087,7 +1140,7 @@ Chromium + WebKit: tab mở lúc live → admin về pre-game → ra câu đùa;
 
 ## 2026-09-15 — NOTE-05: pre-game, 34 mô hình, bộ sưu tập nhiều lớp, icon & âm thanh theo nhóm
 
-Chủ dự án yêu cầu "đọc `docs/14-NOTE-05-MVP1-PreGame-Collection-Icon-Sound.md` và làm phù hợp
+Chủ dự án yêu cầu "đọc `docs/archive/2026-thanh-tuyen-game/14-NOTE-05-MVP1-PreGame-Collection-Icon-Sound.md` và làm phù hợp
 với dự án". Các lựa chọn:
 
 **1. Pre-game = một pha của Event, không phải code riêng.** `registry.eventPhase()` thêm pha
@@ -1103,7 +1156,7 @@ câu đùa — tệ về trải nghiệm và riêng tư. Nên: chọn mô hình 
 đùa luôn. Đếm lần thử trong **localStorage** (spec cho phép), không ghi vào hồ sơ ẩn danh: CDP chỉ tạo
 hồ sơ khi có đóng góp thật; tạo hồ sơ cho câu đùa là rác dữ liệu. Lần 4+ lặp câu 3.
 
-**3. Danh sách 34 mô hình** từ `data/MoHinhTrungThuTuyenQuang.md` (chủ dự án cung cấp) thay 10 tên
+**3. Danh sách 34 mô hình** từ `docs/archive/2026-thanh-tuyen-game/MoHinhTrungThuTuyenQuang.md` (chủ dự án cung cấp) thay 10 tên
 tạm; để `unverified` vì chưa đối chiếu nguồn chính thức. Nhãn "Chưa xác minh" không hiện trên UI nữa
 (34 thẻ cùng một nhãn là nhiễu) — chỉ hiện khi đã xác minh. Mẫu số bộ chính = 34 mô hình CDP đang biết.
 
@@ -1193,8 +1246,8 @@ oklab/color-mix → gradient sRGB viết tay).
 
 ## 2026-09-14 — Game layer MVP1 "Săn đèn Thành Tuyên 2026" (NOTE-03 + NOTE-04)
 
-Chủ dự án yêu cầu đọc 2 spec (`docs/12-NOTE-03-Game-Layer-MVP1-Thanh-Tuyen.md`,
-`docs/13-NOTE-04-MVP1-San-Den-Thanh-Tuyen-Claude-Spec.md`) rồi **tự xác định cách tích hợp và
+Chủ dự án yêu cầu đọc 2 spec (`docs/archive/2026-thanh-tuyen-game/12-NOTE-03-Game-Layer-MVP1-Thanh-Tuyen.md`,
+`docs/archive/2026-thanh-tuyen-game/13-NOTE-04-MVP1-San-Den-Thanh-Tuyen-Claude-Spec.md`) rồi **tự xác định cách tích hợp và
 triển khai trực tiếp** (không qua bước duyệt kế hoạch). Các lựa chọn chính:
 
 **1. Primitive dùng lại, mùa game là dữ liệu.** `web/lib/game/`: `registry.js` (Event),
@@ -1711,7 +1764,7 @@ hiệu quả tìm kiếm, không ảnh hưởng việc chống đăng trùng.
 
 ## 2026-08-11 — Đổi hướng lớn: CDP là "cuốn sổ địa phương", không còn là công cụ tra cứu
 
-> Thiết kế đầy đủ ở [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md). Dưới đây chỉ ghi các quyết
+> Thiết kế đầy đủ ở [NOTEBOOK-DESIGN.md](archive/2026-07-08-nen-mong/NOTEBOOK-DESIGN.md). Dưới đây chỉ ghi các quyết
 > định và lý do.
 
 **Quyết định:** CDP chuyển từ "công cụ quyết định nhanh lúc đông khách" sang **cuốn sổ địa
@@ -1866,7 +1919,7 @@ càng không dùng được. Tìm kiếm không dấu vì admin gõ nhanh trên 
 
 ## 2026-08-24 — Món đặc trưng: chia nhỏ, làm 2 nguồn trước, hoãn nguồn "khách gõ"
 
-**Quyết định:** Trong 3 nguồn của [SPEC-chang-5.md §2.2](SPEC-chang-5.md), lượt này chỉ làm
+**Quyết định:** Trong 3 nguồn của [SPEC-chang-5.md §2.2](archive/2026-07-08-nen-mong/SPEC-chang-5.md), lượt này chỉ làm
 **nguồn 1** (hiện món AI quét sẵn, dạng nhãn tĩnh) và **nguồn 2** (ảnh menu). Hoãn **nguồn 3**
 (ô gõ món cho khách + bấm chọn theo luật đồng thuận Chặng 2) sang lượt sau, bàn thiết kế
 riêng.
@@ -1882,7 +1935,7 @@ song thì không ảnh hưởng gì.
 
 **Quyết định:** Hiện **tuổi ảnh menu** ngay cạnh khối ảnh ("Ảnh menu · khách gửi 3 tháng
 trước").
-**Vì sao:** [SPEC-chang-5.md §2.3](SPEC-chang-5.md) đã chốt **không ghi giá từng món** vì giá
+**Vì sao:** [SPEC-chang-5.md §2.3](archive/2026-07-08-nen-mong/SPEC-chang-5.md) đã chốt **không ghi giá từng món** vì giá
 là thứ cũ nhanh nhất — nhưng ảnh menu lại chụp **nguyên bảng giá**, mà ảnh 6 tháng trước trông
 y hệt ảnh hôm qua. Không sửa được chuyện ảnh cũ, nhưng phải nói thật tuổi của nó.
 
@@ -1962,7 +2015,7 @@ dung, chia nhỏ điểm tìm kiếm. Vercel CLI không có lệnh này, phải 
 
 ## 2026-09-08 — Copy đầu trang: câu do anh tự viết, không dùng phương án nào trong NOTE-01
 
-**Bối cảnh:** [10-NOTE-01-Product-UX.md](10-NOTE-01-Product-UX.md) §2.1 đưa 5 phương án
+**Bối cảnh:** [10-NOTE-01-Product-UX.md](archive/2026-09-notes/10-NOTE-01-Product-UX.md) §2.1 đưa 5 phương án
 headline (A–E, khuyến nghị A) để thay dòng cũ *"Chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang —
 bản thử nghiệm"*.
 
@@ -2039,7 +2092,7 @@ liệu test riêng", lần này bổ sung vế còn thiếu: **cách XOÁ cũng 
 **Bối cảnh:** anh bấm thử và không tìm thấy chỗ báo quán đã đóng cửa. Kiểm chứng: chức năng có
 nhưng là 1 ô tích nằm **cuối** form "Thêm thông tin", phải cuộn qua 6 ô nhập mới thấy; menu
 "Bổ sung" không có lựa chọn nào về đóng cửa. Kiểm tra tiếp thì điểm cũng sai: code cộng
-`POINTS.correction` = 5đ, trong khi [NOTEBOOK-DESIGN.md](NOTEBOOK-DESIGN.md) dòng 265 chốt
+`POINTS.correction` = 5đ, trong khi [NOTEBOOK-DESIGN.md](archive/2026-07-08-nen-mong/NOTEBOOK-DESIGN.md) dòng 265 chốt
 **+15** và dòng 271 gọi đây là *"dữ liệu quý nhất của cả sản phẩm"*.
 
 **Quyết định:** Thêm lựa chọn **"Báo chỗ này đã đóng cửa"** ngay ở menu Bổ sung, dẫn vào màn

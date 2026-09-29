@@ -16,7 +16,7 @@ Mỗi sáng routine đi tìm chỗ **mới**. Chỗ đã có trên web thì từ
 39+ địa điểm đang nằm đó với dữ liệu của đúng ngày chúng được thêm vào. Có chỗ đã hơn một
 tháng. Mình bỏ công tìm chỗ thứ 40 trong khi chỗ số 3 có thể đã đóng cửa.
 
-Đây là **đúng lỗi mà CDP đang chê Google Maps** ([NOTEBOOK-DESIGN §2](NOTEBOOK-DESIGN.md)):
+Đây là **đúng lỗi mà CDP đang chê Google Maps** ([NOTEBOOK-DESIGN §2](archive/2026-07-08-nen-mong/NOTEBOOK-DESIGN.md)):
 giữ thông tin chết mà vẫn hiển thị như thật.
 
 ---
