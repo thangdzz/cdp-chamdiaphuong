@@ -73,7 +73,7 @@ export async function createNotebook(ownerAnonId, title) {
     if (created === "OK") {
       await redis.sadd(ownerListKey(ownerAnonId), slug);
       await redis.incr(TOTAL_COUNT_KEY);
-      return { ok: true, slug };
+      return { ok: true, slug, title: cleanTitle };
     }
   }
   return { ok: false, error: "Không tạo được sổ, thử lại sau." };

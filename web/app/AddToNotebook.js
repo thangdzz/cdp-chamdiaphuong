@@ -15,7 +15,17 @@ import { track } from "./analytics";
 //
 // Từ 2026-09-10 nhận cả LỘ TRÌNH, không chỉ Sổ (CDP_P1-P8 §P4 tách 2 thực thể). Nhãn nút đổi
 // theo: gọi là "+ Vào sổ" trong khi menu có cả lộ trình là nói thiếu.
-export function AddToNotebook({ place }) {
+//
+// vNext (SCOPE "Place → Sổ"): trang địa điểm cần hành động **Lưu vào Sổ** thấy rõ, không lẫn với
+// lộ trình. `mode`:
+//   "notebook" — nút chính "Lưu vào Sổ", chỉ hiện Sổ
+//   "route"    — nút phụ "+ Lộ trình", chỉ hiện lộ trình (không tự tạo gì)
+//   "both"     — như cũ, một nút "+ Sổ / Lộ trình" (thẻ trang chủ cũ)
+const MODE_LABEL = { notebook: "Lưu vào Sổ", route: "+ Lộ trình", both: "+ Sổ / Lộ trình" };
+
+export function AddToNotebook({ place, mode = "both", className = "" }) {
+  const showNotebooks = mode !== "route";
+  const showRoutes = mode !== "notebook";
   const [open, setOpen] = useState(false);
   const [notebooks, setNotebooks] = useState(null);
   const [routes, setRoutes] = useState(null);
@@ -58,10 +68,11 @@ export function AddToNotebook({ place }) {
     }
     await run(async (local) => {
       const [notebookList, routeList] = await Promise.all([
-        getMyNotebooks(local?.anonId),
-        getMyRoutes(local?.anonId),
+        showNotebooks ? getMyNotebooks(local?.anonId) : [],
+        showRoutes ? getMyRoutes(local?.anonId) : [],
       ]);
-      if (notebookList.length === 0 && routeList.length === 0) {
+      // Chế độ "route" không bao giờ tự tạo sổ — khách bấm "+ Lộ trình" mà lại ra một sổ là sai ý.
+      if (showNotebooks && notebookList.length === 0 && routeList.length === 0) {
         // Chưa có gì -> tạo luôn sổ đầu tiên, không hỏi gì (§3.1). Lộ trình cần thứ tự và giờ
         // giấc nên không hợp làm thứ tạo tự động cho người mới.
         const result = await createNotebookAndAddPlace({
@@ -70,7 +81,7 @@ export function AddToNotebook({ place }) {
           placeId: place.id,
           nameSnapshot: place.name,
         });
-        if (result.ok) done("so", result.slug);
+        if (result.ok) done("so", result.slug, result.title);
         return result;
       }
       setNotebooks(notebookList);
@@ -80,10 +91,10 @@ export function AddToNotebook({ place }) {
     });
   }
 
-  function done(kind, slug) {
+  function done(kind, slug, title = null) {
     // Đo luồng vNext: bước "Save" — chỉ tính lưu vào SỔ, không tính thêm vào lộ trình.
     if (kind === "so") track("notebook_save");
-    setAdded({ kind, slug });
+    setAdded({ kind, slug, title });
     setOpen(false);
   }
 
@@ -111,7 +122,7 @@ export function AddToNotebook({ place }) {
       })
     );
     if (result?.ok) {
-      done("so", result.slug);
+      done("so", result.slug, result.title);
       setNewNotebookTitle("");
     }
   }
@@ -133,9 +144,11 @@ export function AddToNotebook({ place }) {
 
   if (added) {
     const isRoute = added.kind === "lo-trinh";
+    const title = added.title ?? (isRoute ? routes : notebooks)?.find((item) => item.slug === added.slug)?.title;
     return (
-      <p className="cdp-fade-in w-full text-[13px] text-zinc-500">
-        ✓ Đã thêm vào {isRoute ? "lộ trình" : "sổ"} (lưu trên máy này, không cần đăng nhập) ·{" "}
+      <p className={`cdp-fade-in w-full text-[13px] text-zinc-500 ${className}`}>
+        ✓ Đã lưu vào {isRoute ? "lộ trình" : "sổ"}
+        {title ? <> <b className="font-medium text-zinc-700">{title}</b></> : null} (lưu trên máy này, không cần đăng nhập) ·{" "}
         <Link href={`/${added.kind}/${added.slug}`} className="font-medium text-zinc-700 underline">
           {isRoute ? "Xem lộ trình" : "Xem sổ"}
         </Link>
@@ -143,20 +156,22 @@ export function AddToNotebook({ place }) {
     );
   }
 
+  // Nút chính (Lưu vào Sổ) dùng màu nhấn duy nhất của web (DESIGN.md §4); hai kiểu còn lại là nút viền.
+  const buttonClass =
+    mode === "notebook"
+      ? "cdp-pressable inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#c8553d] px-4 text-sm font-medium text-white active:bg-[#ad4832] disabled:cursor-default disabled:opacity-60"
+      : "cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600 disabled:cursor-default disabled:opacity-50";
+
   return (
     <>
-      <button
-        type="button"
-        onClick={openMenu}
-        disabled={busy}
-        className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600 disabled:cursor-default disabled:opacity-50"
-      >
+      <button type="button" onClick={openMenu} disabled={busy} aria-expanded={open} className={`${buttonClass} ${className}`}>
         <BookmarkIcon size={15} />
-        + Sổ / Lộ trình
+        {MODE_LABEL[mode] ?? MODE_LABEL.both}
       </button>
 
       {open && (
-        <div className="cdp-fade-in mt-2 w-full rounded-lg bg-zinc-50 p-3">
+        <div className="cdp-fade-in mt-2 max-h-[60vh] w-full overflow-y-auto rounded-lg bg-zinc-50 p-3">
+          {showNotebooks && (
           <PickerSection
             label="Sổ"
             hint="Tập hợp chỗ hay, không cần thứ tự"
@@ -173,8 +188,10 @@ export function AddToNotebook({ place }) {
             placeholder="Tên sổ mới"
             createLabel="Tạo sổ"
           />
+          )}
 
-          <div className="mt-3 border-t border-zinc-200 pt-3">
+          {showRoutes && (
+          <div className={showNotebooks ? "mt-3 border-t border-zinc-200 pt-3" : ""}>
             <PickerSection
               label="Lộ trình"
               hint="Đi theo thứ tự, có giờ dự kiến"
@@ -192,6 +209,7 @@ export function AddToNotebook({ place }) {
               createLabel="Tạo lộ trình"
             />
           </div>
+          )}
         </div>
       )}
     </>

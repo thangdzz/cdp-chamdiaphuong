@@ -42,9 +42,6 @@ import { track } from "./analytics";
 // bản thân trang này đã là trang địa điểm, bọc thêm card sẽ thành "trang → sổ → card → nội
 // dung" (NOTE-02 §10). Thứ tự khối theo NOTE-02 §5.
 
-const ctaClass =
-  "cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]";
-
 function typeLabel(type) {
   return PLACE_TYPES.find((t) => t.id === type)?.label ?? null;
 }
@@ -135,6 +132,26 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
       : null;
   const newestMenuPhotoAge = formatRelativeAge(newestMenuPhotoAt);
   const staleMenuMonths = staleMenuAgeMonths(newestMenuPhotoAt);
+
+  // Hành động chính thứ hai cạnh "Lưu vào Sổ": liên hệ (Đi lại, NOTE-05 §6) hoặc bản đồ.
+  // Là nút viền để "Lưu vào Sổ" là nút đậm duy nhất (SCOPE-vNext "Place → Sổ", DESIGN.md §4).
+  const secondaryCtaClass =
+    "cdp-pressable inline-flex min-h-11 items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 text-sm font-medium text-zinc-800";
+  const mainAction =
+    action.kind === "contact" ? (
+      <button type="button" onClick={showContact} className={`${secondaryCtaClass} cursor-pointer`}>
+        {action.label}
+      </button>
+    ) : action.kind === "google" || mapAction ? (
+      <a
+        href={action.kind === "google" ? findPhoneOnGoogleUrl(place) : mapAction.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={secondaryCtaClass}
+      >
+        {action.kind === "google" ? action.label : mapAction.label}
+      </a>
+    ) : null;
 
   async function handleShare() {
     const url = placeShareUrl(place.id);
@@ -290,6 +307,12 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
 
       <div className="contents lg:col-start-2 lg:flex lg:flex-col lg:gap-5">
         <aside aria-label="Thông tin nhanh" className="order-2 flex flex-col gap-5 lg:order-none lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-6 lg:shadow-sm">
+          {/* Desktop: Lưu vào Sổ + bản đồ ở đầu cột phải, thấy ngay không cần cuộn. Mobile dùng thanh
+              bám đáy bên dưới thay cho khối này. */}
+          <div className="hidden flex-col gap-2 lg:flex">
+            <AddToNotebook place={place} mode="notebook" className="w-full" />
+            {mainAction}
+          </div>
           <div className={asksStatus ? "" : "hidden"}>
             <p className="flex items-baseline gap-1">
               {compactPrice ? (
@@ -335,22 +358,9 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
         </aside>
 
         <section aria-label="Thao tác địa điểm" className="order-7 flex flex-wrap items-center gap-2 lg:order-none lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-6 lg:shadow-sm">
-          {/* CTA chính theo loại hình Đi lại (NOTE-05 §6) — xem chú thích ở PlaceExplorer.js */}
-          {action.kind === "contact" ? (
-            <button type="button" onClick={showContact} className={`${ctaClass} cursor-pointer`}>
-              {action.label}
-            </button>
-          ) : (
-            <a
-              href={action.kind === "google" ? findPhoneOnGoogleUrl(place) : mapAction?.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={ctaClass}
-            >
-              {action.kind === "google" ? action.label : mapAction?.label ?? action.label}
-            </a>
-          )}
-          <AddToNotebook place={place} />
+          {/* Lưu vào Sổ + bản đồ/liên hệ đã lên thanh đáy (mobile) và đầu cột phải (desktop).
+              Ở đây còn các thao tác phụ; lộ trình tách riêng để không lẫn với Sổ (vNext). */}
+          <AddToNotebook place={place} mode="route" />
           <CreateRouteFromPlace place={place} />
           {asksStatus && <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />}
           <button
@@ -392,6 +402,16 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
           suspended={activeNoteContext !== null || correctionPanelOpen}
         />
       </section>
+
+      {/* Mobile: Lưu vào Sổ luôn trong tầm tay, không phải cuộn tìm (SCOPE-vNext "Place → Sổ").
+          Khoảng trống h-24 giữ cho khối cuối trang không bị thanh này che. */}
+      <div className="order-9 h-24 lg:hidden" aria-hidden="true" />
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-xl flex-wrap items-start gap-2 [&>a]:flex-1 [&>button]:flex-1">
+          <AddToNotebook place={place} mode="notebook" />
+          {mainAction}
+        </div>
+      </div>
 
       {galleryIndex !== null && (
         <PhotoGallery photos={photos} startIndex={galleryIndex} onClose={() => setGalleryIndex(null)} />

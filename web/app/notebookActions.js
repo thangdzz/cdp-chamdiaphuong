@@ -53,7 +53,7 @@ export async function createNotebookAndAddPlace({ anonId, title, placeId, nameSn
     placeId,
     nameSnapshot,
   });
-  return { ...result, slug: created.slug, anonId: currentAnonId, newProfile };
+  return { ...result, slug: created.slug, title: created.title, anonId: currentAnonId, newProfile };
 }
 
 export async function removePlaceFromNotebook({ anonId, slug, placeId }) {
