@@ -114,7 +114,7 @@ export default async function AboutPage() {
             {content.ctas.primaryLabel}
           </Link>
           <Link
-            href="/#dia-diem"
+            href="/tim"
             className="cdp-pressable rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-zinc-700"
           >
             {content.ctas.secondaryLabel}

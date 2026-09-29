@@ -43,7 +43,7 @@ export default async function SearchPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-2xl px-4 py-6 sm:px-6">
-        <h1 className="mb-3 text-2xl font-semibold tracking-tight text-zinc-900">Tìm chỗ</h1>
+        <h1 className="mb-3 text-2xl font-medium tracking-tight text-zinc-900">Tìm chỗ</h1>
         {/* SearchResults đọc bộ lọc từ URL bằng useSearchParams — Next yêu cầu bọc Suspense. */}
         <Suspense>
           <SearchResults items={browsable} now={now} />

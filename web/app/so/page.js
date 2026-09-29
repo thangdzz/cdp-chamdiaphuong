@@ -32,12 +32,13 @@ export default function MyNotebooksPage() {
         {notebooks?.length === 0 && (
           <div className="rounded-xl bg-white p-4 text-sm text-zinc-600 shadow-sm">
             <p>Bạn chưa có sổ nào.</p>
+            {/* Chỉ sửa cho đúng nút hiện tại (vNext bước 4 đổi tên nút). Làm lại trạng thái rỗng
+                cho đẹp hơn thuộc mục MAY — chưa làm. */}
             <p className="mt-1 text-zinc-500">
-              Mở 1 chỗ bất kỳ trên trang chủ, bấm &quot;Xem thêm&quot; rồi bấm &quot;+ Thêm vào
-              sổ&quot; để tạo sổ đầu tiên.
+              Tìm một chỗ, mở trang chi tiết rồi bấm &quot;Lưu vào Sổ&quot; — sổ đầu tiên sẽ tự được tạo.
             </p>
-            <Link href="/" className="mt-3 inline-block text-sm font-medium text-zinc-900 underline">
-              Về trang chủ
+            <Link href="/tim" className="mt-3 inline-block text-sm font-medium text-zinc-900 underline">
+              Tìm chỗ
             </Link>
           </div>
         )}

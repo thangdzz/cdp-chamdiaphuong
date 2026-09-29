@@ -63,7 +63,7 @@ function NoteListItem({ note }) {
   return (
     <li className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
       {note.place ? (
-        <Link href={`/#${note.placeId}`} className="text-lg font-medium tracking-tight text-zinc-900 underline">
+        <Link href={`/dia-diem/${note.placeId}`} className="text-lg font-medium tracking-tight text-zinc-900 underline">
           {note.place.name}
         </Link>
       ) : (

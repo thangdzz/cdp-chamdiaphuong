@@ -98,7 +98,7 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             </p>
           )}
         </section>
-        <Link href="/" className="mt-5 inline-block text-sm text-zinc-600 underline">
+        <Link href="/tim" className="mt-5 inline-block text-sm text-zinc-600 underline">
           Xem các địa điểm đang hoạt động
         </Link>
       </div>
