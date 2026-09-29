@@ -15,11 +15,12 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 
 ## 🚧 Đang làm
 
-- 👀 **Dọn tài liệu theo PRODUCT mới** (29/9) — chờ Product Owner duyệt. Chi tiết: DECISIONS 2026-09-29.
+- ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
+- 👀 **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Commit riêng,
+  **chưa deploy** (chờ lệnh). DECISIONS "2026-09-29 (sau)".
 
 ## ⬜ vNext — Core Discovery Flow (chưa bắt đầu, chờ duyệt kế hoạch)
 
-- ⬜ Chốt câu hỏi mở 1–3 trong [STATUS.md](STATUS.md) (còn chỗ · phạm vi vùng · ngày tắt game)
 - ⬜ Viết kế hoạch/spec chi tiết vNext, đối chiếu code hiện tại → trình duyệt
 - ⬜ Home: Search nổi bật, 4 nhóm, bỏ danh sách dài, làm rõ Tìm / Lưu vào Sổ / Lên Lộ trình,
   khu nội dung theo mùa không chiếm vai trò lõi

@@ -15,8 +15,9 @@ export const THANH_TUYEN_2026 = {
   startAt: "2026-09-10T00:00:00+07:00",
   // Tối thứ Sáu 18/9 bắt đầu rước đèn (NOTE-05 §1, §4). Admin đổi được ở /admin/game, không cần deploy.
   gameLiveAt: "2026-09-18T19:00:00+07:00",
-  // Hết mùa thì game chỉ còn xem lại, dữ liệu giữ nguyên (NOTE-03 §2.8).
-  endAt: "2026-09-30T23:59:59+07:00",
+  // Hết mùa thì game chỉ còn xem lại, dữ liệu giữ nguyên (NOTE-03 §2.8). Product Owner chốt kết thúc
+  // 23:59 27/9 (DECISIONS 2026-09-29) — trước đó để 30/9.
+  endAt: "2026-09-27T23:59:59+07:00",
   postHref: "/le-hoi-thanh-tuyen",
   postTitle: "Lễ hội Thành Tuyên 2026",
 

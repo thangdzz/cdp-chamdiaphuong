@@ -90,8 +90,8 @@ bốn item từ definition và bỏ qua mọi key/href do request gửi. Test d�
 
 ### Game layer (`lib/game/store.js` — hằng số `GAME_KEYS`, NOTE-03/NOTE-04)
 
-> **Mùa Săn đèn Thành Tuyên 2026 đã kết thúc** (Product Owner chốt 23:59 27/09/2026; code còn
-> để `endAt` 30/9 — xem STATUS). Key `game:thanh-tuyen-2026:*` **giữ nguyên làm lịch sử**,
+> **Mùa Săn đèn Thành Tuyên 2026 đã kết thúc** 23:59 27/09/2026 (`endAt` trong file mùa đã sửa
+> 29/9). Pha `ended`: trang chủ ẩn cổng vào game, khối game trong bài lễ hội ghi "đã kết thúc". Key `game:thanh-tuyen-2026:*` **giữ nguyên làm lịch sử**,
 > không xoá. Engine giữ để dùng lại cho mùa sau.
 
 Mọi key có dạng `game:{eventId}:…` (VD `game:thanh-tuyen-2026:sightings`). Thao tác của khách
@@ -494,7 +494,7 @@ web/
 │   ├── SiteFooter.js               Footer toàn site: link giới thiệu + cách cập nhật dữ liệu
 │   ├── PlaceExplorer.js    (632)  ⭐ Client component: bộ lọc, tìm kiếm, card 2 lớp,
 │   │                              gallery ảnh, dòng "còn mở" (Chặng 1), khối hỏi + khối
-│   │                              kết quả (Chặng 2), 4 nhóm loại + gate nhãn còn chỗ
+│   │                              kết quả (Chặng 2), 4 nhóm loại
 │   │                              (Chặng 3). Nơi nặng nhất của giao diện khách
 │   ├── MediaImage.js              Wrapper `next/image` dùng chung: responsive `srcset`,
 │   │                              `sizes` theo vị trí và lazy load mặc định
@@ -527,7 +527,6 @@ web/
 │   ├── PlaceFacts.js        (41)  Chặng 2: khối hiển thị kết quả đã đồng thuận (thuần
 │   │                              server, không "use client")
 │   ├── answerActions.js     (54)  Server Action cho QuestionPrompt — gọi lib/answers.js
-│   ├── occupancy.js         (29)  Nhãn "còn chỗ" 3 mức — suy theo LỊCH, không theo dữ liệu
 │   ├── BadgeIcon.js        (136)  SVG huy hiệu theo bậc
 │   ├── layout.js            (29)
 │   ├── le-hoi-thanh-tuyen/page.js (173)  Bài viết lễ hội (nội dung tĩnh) + MỘT khối game
@@ -922,14 +921,12 @@ Giá trị lạ giờ **ném lỗi rõ ràng**
 `lib/ingestion/ingestBatch.js` bắt riêng lỗi này để **bỏ qua đúng 1 bản ghi hỏng**, không làm
 hỏng cả lô quét (đếm ở `summary.skippedInvalidType`). Thêm loại thứ 5 sau này: chỉ sửa
 `lib/placeTypes.js` + thêm bộ câu hỏi tương ứng trong `lib/questions.js` — 6 file kia (form
-nhập, bộ lọc, nhãn còn chỗ...) đều đọc từ `PLACE_TYPES`, không cần sửa thêm.
+nhập, bộ lọc, luồng quét...) đều đọc từ `PLACE_TYPES`, không cần sửa thêm.
 
-**Nhãn "còn chỗ" chỉ áp dụng cho Ăn/Ngủ (Chặng 3 §5).** `app/occupancy.js` bản thân không
-đổi (vẫn suy theo **ngày giờ máy khách** so với mốc lễ hội viết cứng, không liên quan dữ liệu
-thật) — chỗ đổi là `PlaceExplorer.js` giờ chỉ GỌI nó cho `type` trong `OCCUPANCY_LABEL_TYPES`
-(`an`, `ngu`). Chơi/Đi lại không hiện nhãn này, nhưng vẫn có nút "Hôm nay vẫn mở" (Chặng 1,
-áp dụng cho cả 4 loại). Việc "sang năm nhãn còn chỗ sai vì mốc lễ hội viết cứng" vẫn còn treo
-— chưa giải quyết, xem SPEC-chang-1.md §5 và SPEC-chang-3.md §5.
+**Nhãn "còn chỗ" đã BỎ 2026-09-29** (DECISIONS cùng ngày). Nó chỉ suy theo ngày giờ so với mốc
+lễ hội 2026 viết cứng (`app/occupancy.js`, đã xoá — xem lịch sử git), không dựa trên dữ liệu
+thật. **Chỉ làm lại khi có dữ liệu còn chỗ thực tế.** Nút "Hôm nay vẫn mở" (Chặng 1) vẫn giữ
+cho cả 4 loại.
 
 **Ghi Redis không có khoá.** Mọi thao tác đều là đọc-cả-mảng → sửa → ghi-cả-mảng. Hai thao
 tác cùng lúc thì thao tác sau đè thao tác trước. Đã biết và chấp nhận ở quy mô hiện tại
@@ -945,8 +942,8 @@ việc đó nằm ở `ingestBatch()`.
 
 **`AREA_PRESETS` trong `schema.js` — đã sửa 2026-08-17, giờ có 11 phường** (10 phường TP
 Tuyên Quang cũ + "Bình Thuận" tên mới sau sáp nhập — xem DECISIONS.md). Địa chỉ ngoài danh
-sách này không chuẩn hoá được về `ward`, và chỗ không có `ward` thì nhãn còn chỗ luôn về
-"Chưa đủ dữ liệu". Chỉ dò theo **phường**, chưa mở rộng theo tên xã.
+sách này không chuẩn hoá được về `ward`. Chỉ dò theo **phường**, chưa mở rộng theo tên xã.
+Đây là giới hạn của **dữ liệu hiện có**, không phải ranh giới sản phẩm (DECISIONS 2026-09-29).
 
 ---
 

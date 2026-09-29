@@ -75,6 +75,6 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
 
 ## 7. Mở rộng địa lý
 
-- **Ra ngoài TP Tuyên Quang (cũ)**. PRD cũ giới hạn vùng; PRODUCT lấy ví dụ Tam Đảo nhưng chưa
-  nói rõ phạm vi → **chờ Product Owner chốt** (xem [STATUS.md](STATUS.md) "Câu hỏi mở").
-  Nguồn: PRD §3, NOTE-01 P2.
+- **Mở rộng dữ liệu ra vùng mới** (ngoài vùng Tuyên Quang đang quét). Đã chốt 29/9: vNext **không**
+  mở rộng; "TP Tuyên Quang cũ" không còn là ranh giới sản phẩm cố định (DECISIONS "2026-09-29
+  (sau)"). Khi nào mở vùng mới thì review lại ở đây. Nguồn: PRD §3, NOTE-01 P2.

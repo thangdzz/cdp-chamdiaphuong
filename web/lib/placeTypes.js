@@ -1,5 +1,5 @@
 // Nguồn duy nhất cho danh sách loại địa điểm (SPEC-chang-3.md §2) — thêm loại mới chỉ sửa
-// file này, 6 nơi khác (form nhập, bộ lọc, câu hỏi, nhãn còn chỗ...) đọc từ đây.
+// file này, các nơi khác (form nhập, bộ lọc, câu hỏi, luồng quét dữ liệu...) đọc từ đây.
 // Thứ tự hiển thị: Ăn · Chơi · Ngủ · Đi lại (đúng thứ tự tên dự án hay nói).
 
 // `browsable` / `asksStatus` mặc định TRUE — 4 loại cũ không khai gì nên không đổi hành vi.

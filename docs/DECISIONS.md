@@ -7,6 +7,29 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-09-29 (sau) — Hotfix: game kết thúc 27/9, bỏ nhãn "còn chỗ", không coi vùng cũ là ranh giới
+
+**Quyết định:** `endAt` của mùa Săn đèn Thành Tuyên 2026 sửa từ 30/9 thành **23:59 27/09/2026**.
+Hết mùa thì trang chủ không còn cổng vào game (đã có sẵn: pha `ended` → ẩn); khối game trong bài
+lễ hội ghi "Mùa 2026 đã kết thúc" và nút thành "Xem lại bản đồ mùa 2026" thay cho "tối nay".
+**Vì sao:** Product Owner chốt game kết thúc 27/9; game đã hết không được xuất hiện như nội dung
+đang diễn ra.
+
+**Quyết định:** **Bỏ nhãn "còn chỗ"** ("Có tín hiệu còn chỗ/phòng", "Tín hiệu ít chỗ trống",
+"Chưa đủ dữ liệu") trên thẻ Ăn/Ngủ. Xoá `app/occupancy.js`. **Chỉ làm lại khi có dữ liệu còn chỗ
+thực tế** (vd. chủ chỗ tự cập nhật — INBOX §1).
+**Vì sao:** Nhãn không đọc dữ liệu nào, chỉ so ngày giờ với mốc lễ hội 2026 viết cứng — ngoài mùa
+lễ luôn báo "còn chỗ" cho mọi nơi. Đó là nói chắc khi không biết, trái nguyên tắc "không chắc thì
+nói chưa đủ dữ liệu" và trái PRODUCT §4 (thông tin cập nhật theo thực tế). Thay quyết định
+2026-07-14 "Chốt cách tính còn chỗ".
+
+**Quyết định:** vNext **không mở rộng** phạm vi địa lý — tiếp tục dùng vùng dữ liệu Tuyên Quang
+hiện có (routine quét, danh sách phường giữ nguyên). Nhưng **"TP Tuyên Quang cũ" không còn là
+ranh giới sản phẩm cố định** (PRD §3 cũ): đó là giới hạn của dữ liệu hiện có, không phải lời hứa
+sản phẩm.
+**Vì sao:** PRODUCT không khoanh vùng (lấy cả ví dụ Tam Đảo) nhưng vNext là về luồng tìm → lưu,
+không phải về mở rộng dữ liệu.
+
 ## 2026-09-29 — PRODUCT.md thành nguồn chuẩn cao nhất; dọn lại toàn bộ tài liệu
 
 **Quyết định:** [PRODUCT.md](PRODUCT.md) (Product Owner duyệt 29/9) là nguồn chuẩn cao nhất;
@@ -39,7 +62,7 @@ chia sẻ là bản chụp đóng băng.
 
 **Game Săn đèn Thành Tuyên 2026 kết thúc 23:59 ngày 27/09/2026** (chốt của Product Owner).
 Tài liệu game → `archive/2026-thanh-tuyen-game/`; việc game còn mở trong TASKS đóng lại, không
-làm. Dữ liệu game trong Redis **giữ nguyên**. ⚠️ Code vẫn để `endAt` 30/9 — chưa sửa, chờ chốt.
+làm. Dữ liệu game trong Redis **giữ nguyên**. (`endAt` trong code sửa cùng ngày — mục "(sau)".)
 
 **Cấu trúc tài liệu mới:**
 - `docs/` chỉ giữ file active: PRODUCT · SCOPE-vNext · INBOX · BACKLOG · TASKS · STATUS · HANDOFF
@@ -53,8 +76,8 @@ làm. Dữ liệu game trong Redis **giữ nguyên**. ⚠️ Code vẫn để `e
 - **Chưa xoá file nào.** 3 DELETE CANDIDATE giữ nguyên chờ review: bản `CDP_P1-P8` không có
   `-tiep` (trùng y hệt phần đầu bản `-tiep`), `data/dia-diem-mau-giai-doan-1.md`, `web/README.md`.
 
-**Chưa chốt** (ghi ở [STATUS.md](STATUS.md) "Câu hỏi mở"): giữ nhãn "còn chỗ" theo lịch không ·
-phạm vi địa lý · ngày tắt game trong code.
+**Chưa chốt** lúc viết mục này: nhãn "còn chỗ" · phạm vi địa lý · ngày tắt game trong code —
+**đã chốt cùng ngày**, xem mục "2026-09-29 (sau)" ở trên.
 
 ## 2026-09-22 — Tên dân hay gọi, chỗ tạm theo dịp, và dọn admin đợt 1
 

@@ -2,7 +2,10 @@
 
 Thư mục "nguồn công khai" cho luồng quét dữ liệu hằng ngày. File `.json` ở **thư mục gốc
 này** (không phải trong `examples/`) sẽ được quét thật mỗi lần chạy — mảng các bản ghi thô,
-tối thiểu có `name` và `category_primary` (`"an"` hoặc `"ngu"`).
+tối thiểu có `name` và `category_primary` — một trong **4 nhóm**: `"an"` (Ăn), `"choi"` (Chơi),
+`"ngu"` (Ngủ), `"dilai"` (Đi lại). Danh sách chuẩn nằm ở `lib/placeTypes.js`; giá trị ngoài danh
+sách bị từ chối (`assertValidPlaceType`). Loại thứ 5 `"moc"` (Chỗ quen gọi) cũng hợp lệ nhưng
+không lên trang chủ, thường do admin/khách tạo chứ không do routine quét.
 
 ## Nguồn dữ liệu thật hiện tại: phiên AI đặt lịch trên claude.ai
 Mỗi ngày (8h sáng), 1 routine trên claude.ai tự tìm kiếm web, ghi kết quả vào

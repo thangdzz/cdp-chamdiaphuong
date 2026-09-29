@@ -82,13 +82,11 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
 - **Soát lượt đọc Redis mỗi lần mở trang** còn lại (`lib/aboutPage.js` trên `/gioi-thieu`).
 - **Test giao diện bằng trình duyệt** — 22 script Playwright cũ đã mất; hiện chỉ có 36 test hàm
   thuần (`npm test`). Viết lại khi cần.
-- **Nhãn "còn chỗ" viết cứng ngày lễ hội 2026** trong `app/occupancy.js` — gắn với câu hỏi mở
-  "còn giữ nhãn còn chỗ không" ([STATUS.md](STATUS.md)).
 
 ## 9. Dọn sau game Thành Tuyên (cần duyệt vì đụng dữ liệu/cấu hình)
 
 - Xoá khoá thử `cdp-thu-choi:*` trong Redis và 3 biến `CDP_*_NAMESPACE` ở môi trường Preview
   của Vercel. Nguồn: TASKS cũ "Gấp".
-- Quyết định số phận khối game trên trang chủ (`HOME_GAME_SLUG`) và trang lễ hội sau khi game
-  hết — xem xung đột ngày kết thúc ở [STATUS.md](STATUS.md). Dữ liệu game trong Redis **giữ
-  nguyên** (NOTE-03 game §2.8: game theo mùa lưu thành lịch sử, không xoá).
+- Khối game đã tự ẩn khỏi trang chủ khi hết mùa (hotfix 29/9). Còn lại: có gỡ hẳn khối game +
+  banner lễ hội khỏi trang chủ/bài lễ hội không — xử lý trong kế hoạch vNext. Dữ liệu game trong
+  Redis **giữ nguyên** (NOTE-03 game §2.8: game theo mùa lưu thành lịch sử, không xoá).

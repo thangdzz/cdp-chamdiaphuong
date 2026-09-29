@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { getOccupancyLabel, getOccupancyStatus } from "./occupancy";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ContributionPanel } from "./ContributionPanel";
 import { CheckinButton } from "./CheckinButton";
 import { QuestionPrompt } from "./QuestionPrompt";
@@ -30,13 +29,8 @@ import { SharePlaceButton } from "./SharePlaceButton";
 import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
-// Nhãn "còn chỗ" chỉ có nghĩa với Ăn/Ngủ (quảng trường, bến xe không "hết chỗ") —
-// SPEC-chang-3.md §5.
-// Nhãn "còn chỗ" không theo dõi nguồn nào cả, chỉ đọc đồng hồ lúc vẽ — nên không có gì để đăng
-// ký nghe. Hàm này phải nằm ngoài component: đổi hàm mỗi lượt vẽ là React đăng ký lại vô tận.
-const subscribeToNothing = () => () => {};
-
-const OCCUPANCY_LABEL_TYPES = new Set(["an", "ngu"]);
+// Nhãn "còn chỗ" đã bỏ 2026-09-29 (DECISIONS cùng ngày): nó chỉ suy theo lịch lễ hội 2026, không
+// dựa trên dữ liệu thật. Chỉ làm lại khi có dữ liệu còn chỗ thực tế.
 
 // Nút CTA chính của thẻ — 1 kiểu duy nhất, chỉ đổi chữ và hành vi theo loại hình (NOTE-05 §6).
 const ctaClass =
@@ -408,22 +402,6 @@ function PlaceCard({ place }) {
   const [activeNoteContext, setActiveNoteContext] = useState(null);
   const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
 
-  const showOccupancy = OCCUPANCY_LABEL_TYPES.has(place.type);
-
-  // Nhãn "còn chỗ" đọc GIỜ CỦA MÁY KHÁCH (`now.getDay()` trong app/occupancy.js), nên không
-  // tính được lúc máy chủ dựng trang — máy chủ chạy giờ UTC, mà khách có thể ngồi múi giờ khác.
-  //
-  // Trước đây làm bằng useEffect + setState: máy chủ ra null, máy khách vẽ xong rồi mới cập
-  // nhật. Chạy đúng nhưng React cảnh báo (`react-hooks/set-state-in-effect`), vì đặt state
-  // ngay trong effect làm vẽ hai lượt liền nhau. `useSyncExternalStore` là chỗ React dành riêng
-  // cho thứ chỉ máy khách mới biết: `getServerSnapshot` trả null nên lượt dựng ở máy chủ và
-  // lượt gắn ở máy khách khớp nhau y như cũ, không còn state lẫn effect.
-  const status = useSyncExternalStore(
-    subscribeToNothing,
-    () => (showOccupancy ? getOccupancyStatus(place) : null),
-    () => null
-  );
-
   useEffect(() => () => clearTimeout(unmountTimer.current), []);
 
   function toggleExpanded() {
@@ -445,7 +423,6 @@ function PlaceCard({ place }) {
     if (open) setActiveNoteContext(null);
   }
 
-  const statusLabel = showOccupancy && status ? getOccupancyLabel(status, place.type) : null;
   const checkinLabel = formatCheckinAge(lastCheckinAt);
   const generalMedia = placeGeneralMedia(place);
   const coverPhoto = placeCoverMedia(place);
@@ -512,14 +489,11 @@ function PlaceCard({ place }) {
         )}
       </p>
 
-      {(checkinLabel || statusLabel) && (
+      {checkinLabel && (
         <div className="mt-3 flex flex-col items-start gap-0.5">
-          {checkinLabel && (
-            <span className={`text-[13px] font-medium ${checkinLabel.tone === "green" ? "text-emerald-700" : "text-zinc-400"}`}>
-              {checkinLabel.text}
-            </span>
-          )}
-          {statusLabel && <span className="text-[13px] text-zinc-400">{statusLabel.text}</span>}
+          <span className={`text-[13px] font-medium ${checkinLabel.tone === "green" ? "text-emerald-700" : "text-zinc-400"}`}>
+            {checkinLabel.text}
+          </span>
         </div>
       )}
 

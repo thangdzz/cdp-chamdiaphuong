@@ -15,6 +15,8 @@ export function GameEntryCard({ event, href, teaser, phase, now }) {
   const preGame = phase === EVENT_PHASE.PRE_GAME;
   // Pre-game vẫn cho bấm "vừa thấy" để gặp câu đùa (NOTE-05 §20); hết mùa thì thôi.
   const canReport = preGame || phase === EVENT_PHASE.LIVE;
+  // Hết mùa thì khối này chỉ còn là kỷ niệm: nói rõ đã kết thúc, không mời "tối nay" nữa.
+  const ended = phase === EVENT_PHASE.ENDED;
   // `now` lấy từ server lúc render — client hydrate ra đúng cùng chữ, không lệch phút. Khối giới
   // thiệu không cần tự đếm; trang game mới tự cập nhật.
   const countdown = preGame ? formatCountdownTo(event.gameLiveAt, now) : null;
@@ -41,6 +43,9 @@ export function GameEntryCard({ event, href, teaser, phase, now }) {
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-medium tracking-tight text-zinc-900">{event.shortName}</h2>
           <p className="text-sm text-zinc-600">{event.copy.tagline}</p>
+          {ended && (
+            <p className="mt-1 text-[13px] font-medium text-zinc-500">Mùa {event.year} đã kết thúc</p>
+          )}
           {preGame && (
             <p className="mt-1 text-[13px] font-medium text-[#8a5a10]">
               {event.copy.preGameBanner}
@@ -78,7 +83,7 @@ export function GameEntryCard({ event, href, teaser, phase, now }) {
           href={href}
           className="cdp-pressable flex min-h-12 items-center justify-center rounded-xl bg-white text-[15px] font-medium text-zinc-800 shadow-sm"
         >
-          Xem bản đồ tối nay
+          {ended ? `Xem lại bản đồ mùa ${event.year}` : "Xem bản đồ tối nay"}
         </Link>
         {canReport && (
           <Link
