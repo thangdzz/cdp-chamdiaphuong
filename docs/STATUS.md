@@ -23,13 +23,13 @@ Cập nhật: **2026-09-29**
 ## Web đang chạy
 
 - Link: **https://chamdiaphuong.io.vn** · trang duyệt `/admin` (một mật khẩu chung).
-- Bản deploy mới nhất: `chamdiaphuongio-eex4ejxif` (2026-09-22) — nhật ký ghim xem được,
-  tìm Google trong form admin, lint sạch, 36 test hàm thuần.
-- Dữ liệu: ~241 địa điểm công khai (22/9), **11 chỗ đã ghim toạ độ**. Routine quét tự chạy mỗi
+- Bản deploy mới nhất: **`chamdiaphuongio-87p9xw2vr` (2026-09-29)** = hotfix `de8e1bc`. Bản trước:
+  `eex4ejxif` (22/9).
+- Dữ liệu: 281 địa điểm trên trang chủ (29/9: Ăn 159 · Chơi 37 · Ngủ 65 · Đi lại 20), **11 chỗ đã ghim toạ độ**. Routine quét tự chạy mỗi
   sáng và tự đăng (xem [ROUTINE.md](ROUTINE.md)); chỉ giữ chờ duyệt khi nghi trùng/mâu thuẫn.
 - Kiểm tra: `npm run lint` sạch 0 lỗi · `npm test` 36 test đạt (22/9).
 
-## Hotfix 29/9 (commit riêng, **chưa deploy**)
+## Hotfix 29/9 — ĐÃ DEPLOY (`87p9xw2vr`)
 
 - Game kết thúc 23:59 27/9 → trang chủ không còn cổng vào game; khối game trong bài lễ hội ghi
   "Mùa 2026 đã kết thúc".
@@ -37,8 +37,14 @@ Cập nhật: **2026-09-29**
 - vNext giữ vùng dữ liệu Tuyên Quang hiện có; "TP Tuyên Quang cũ" không còn là ranh giới cố định.
 - Lint sạch · `npm test` 36/36 · `npm run build` đạt. Lý do: DECISIONS "2026-09-29 (sau)".
 
-⚠️ Production vẫn là bản 22/9 — hotfix chỉ lên web khi deploy (**chờ Product Owner cho lệnh**).
-Trong lúc chưa deploy, web thật vẫn hiện cổng vào game tới hết 30/9 và vẫn còn nhãn "còn chỗ".
+Kiểm production sau deploy (Playwright, iPhone 13 + desktop 1366, chỉ đọc): 34/34 đạt — trang
+chủ không còn cổng game, không còn nhãn "còn chỗ" (cả khi bung thẻ và ở trang địa điểm), 4 tab
+lọc + tìm kiếm chạy, `/so` `/lo-trinh` `/gioi-thieu` 200, trang lễ hội hiện "Mùa 2026 đã kết thúc"
++ "Xem lại bản đồ mùa 2026", không có lỗi JS.
+
+Còn sót nhỏ, **để kế hoạch vNext** (không sửa trong hotfix): câu giới thiệu thẻ game vẫn là "Tối
+nay bạn gặp được bao nhiêu mô hình?"; trang game vẫn có tab "Bản đồ tối nay" (thông báo hết mùa
+thì có sẵn); trên mobile nút nổi xám đè mép phải ô tìm kiếm trang chủ.
 
 ## Câu hỏi mở — chờ Product Owner chốt
 
@@ -49,6 +55,6 @@ Trong lúc chưa deploy, web thật vẫn hiện cổng vào game tới hết 30
 
 ## Bước tiếp theo hợp lý nhất
 
-1. Product Owner cho lệnh deploy hotfix 29/9 (hoặc gộp deploy cùng vNext).
-2. Viết kế hoạch/spec chi tiết cho vNext (đối chiếu code hiện tại: `app/page.js`,
+1. Product Owner duyệt kế hoạch vNext (đã trình 29/9)
+2. Sau khi duyệt: viết spec chi tiết cho vNext (đối chiếu code hiện tại: `app/page.js`,
    `app/PlaceExplorer.js`, trang địa điểm, `lib/notebooks.js`) → trình duyệt → mới code.

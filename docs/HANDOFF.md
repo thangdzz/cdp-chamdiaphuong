@@ -8,15 +8,15 @@
 
 ## 1. Task hiện tại
 
-**Hotfix 29/9 xong, đã commit, CHƯA deploy** (game hết 27/9 · bỏ nhãn "còn chỗ" · README 4 nhóm ·
-vùng dữ liệu). Dọn tài liệu `1191e43` đã duyệt và push. Tiếp theo: kế hoạch BUILD vNext.
+**Hotfix 29/9 đã deploy** (`chamdiaphuongio-87p9xw2vr`, commit `de8e1bc`) và kiểm production
+34/34 đạt. **Đang trình kế hoạch vNext cho Product Owner duyệt — chưa code vNext.**
 
 Nguồn chuẩn: [PRODUCT.md](PRODUCT.md) (cao nhất) → [SCOPE-vNext.md](SCOPE-vNext.md) (FROZEN).
 
 ## 2. Đã làm tới đâu
 
-- Production: `chamdiaphuongio-eex4ejxif` (22/9), alias `chamdiaphuong.io.vn`. **Hotfix 29/9
-  chưa deploy.**
+- Production: `chamdiaphuongio-87p9xw2vr` (29/9), alias `chamdiaphuong.io.vn`. Không có code
+  nào chưa deploy.
 - 29/9: tạo PRODUCT / SCOPE-vNext / INBOX / BACKLOG; rút gọn STATUS, TASKS, HANDOFF; chuyển tài
   liệu cũ vào `docs/archive/`; đổi `SPEC-giao-dien.md` → `DESIGN.md`; sửa CLAUDE.md, AGENTS.md.
   Chỉ sửa 3 dòng comment trong code (đường dẫn tài liệu), không đổi logic.
@@ -31,14 +31,13 @@ Nguồn chuẩn: [PRODUCT.md](PRODUCT.md) (cao nhất) → [SCOPE-vNext.md](SCOP
 
 | Mức | Việc |
 |---|---|
-| 🟠 | Hotfix 29/9 chưa deploy — production vẫn hiện nhãn "còn chỗ" |
+| 🟢 | Còn sót nhỏ sau hotfix (để vNext): câu "Tối nay…" trên thẻ game, tab "Bản đồ tối nay", nút nổi đè ô tìm kiếm trên mobile |
 | 🟢 | Link markdown trong toàn bộ `docs/` đã kiểm: 0 link gãy. Dẫn chiếu dạng chữ (`NOTE-08 §3`…) tra theo [archive/README.md](archive/README.md) — NOTE trùng số 12–17 |
 | 🟡 | DELETE CANDIDATE giữ nguyên chờ review: `docs/CDP_P1-P8_PostDong_LoTrinh_Prompt.md` (trùng y hệt phần đầu bản `-tiep` đã archive) · `data/dia-diem-mau-giai-doan-1.md` · `web/README.md` |
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ lệnh deploy hotfix.
-2. Viết kế hoạch BUILD vNext → trình duyệt → mới code.
+1. Chờ Product Owner duyệt kế hoạch vNext → mới code.
 
 **Bẫy cho người sau (vẫn đúng):** test giao diện bản đồ phải chạy `next build` + `next start`
 (ở `next dev` MapLibre đứng "Đang tải bản đồ…"). Deploy: `npx vercel --prod --yes --scope thangdz1`

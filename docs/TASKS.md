@@ -16,8 +16,9 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 ## 🚧 Đang làm
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
-- 👀 **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Commit riêng,
-  **chưa deploy** (chờ lệnh). DECISIONS "2026-09-29 (sau)".
+- ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy
+  `87p9xw2vr`, kiểm production 34/34 đạt. DECISIONS "2026-09-29 (sau)".
+- 👀 **Kế hoạch vNext** — đã trình 29/9, chờ duyệt.
 
 ## ⬜ vNext — Core Discovery Flow (chưa bắt đầu, chờ duyệt kế hoạch)
 
