@@ -42,6 +42,14 @@ trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi even
   nay" · nút nổi mobile đè ô tìm kiếm
 - 👀 **Kiểm toàn luồng** mobile + desktop, build sạch (71/71 kiểm tự động đạt, 29/9) → **chờ Product Owner test**
 
+**Sửa theo owner test (30/9)** — chưa deploy
+- ✅ **Tìm kiếm `/tim`**: nút Tìm + một handler cho Enter/bàn phím; xếp hạng theo mức liên quan (`e2144c1`)
+- ✅ **Trang địa điểm** làm lại thứ bậc thông tin, bỏ "Độ tin cậy" (`74dd284`)
+- ✅ **Thẻ trong Sổ** đủ để nhận ra/so sánh + Xem chi tiết/Chỉ đường (`146885f`)
+- ✅ **"Đi bằng gì"**: Xe máy → two-wheeler, bỏ Kết hợp (`a071b7a`)
+- 👀 Product Owner thử link `two-wheeler` trên điện thoại thật ở Việt Nam (xem STATUS)
+- 👀 Product Owner chọn font có tiếng Việt (xem STATUS)
+
 **MAY** — chỉ làm khi MUST xong, test sạch, không làm tăng scope
 - ⬜ Khối "Mới được xác nhận" · chỗ trống của Sổ ghi đúng hướng dẫn · shortcut "Cafe"
 

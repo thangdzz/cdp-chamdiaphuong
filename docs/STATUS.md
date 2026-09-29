@@ -10,6 +10,10 @@ Cập nhật: **2026-09-29**
 
 ## Đang ở đâu
 
+- **30/9 — đã sửa 4 mục theo owner test** (tìm kiếm, trang địa điểm, thẻ Sổ, "Đi bằng gì"), kiểm
+  tự động 107/107 trên iPhone 13 + desktop. **Chưa deploy.** Còn chờ Product Owner: (1) thử link
+  `two-wheeler` trên điện thoại thật, (2) chọn font có tiếng Việt. Lý do: DECISIONS 2026-09-30.
+
 - **vNext — Core Discovery Flow: MUST đã build xong ở máy (29/9), CHỜ Product Owner test.**
   Chưa deploy production. Chi tiết từng bước + commit: [TASKS.md](TASKS.md); lựa chọn khi làm:
   DECISIONS "2026-09-29 (tối)". Thử ở `http://localhost:3100` (hoặc `http://MAdz.local:3100` trên

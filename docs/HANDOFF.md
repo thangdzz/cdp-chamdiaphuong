@@ -8,7 +8,8 @@
 
 ## 1. Task hiện tại
 
-**vNext MUST build xong ở máy, chờ Product Owner test — CHƯA deploy.** 6 commit `6f351cc` →
+**30/9: đã sửa theo owner test (4 commit `e2144c1` → `a071b7a`), chờ PO thử `two-wheeler` trên
+điện thoại + chọn font — CHƯA deploy.** Trước đó: **vNext MUST build xong ở máy.** 6 commit `6f351cc` →
 `b3423e4` (xem TASKS). Hotfix 29/9 đã deploy (`87p9xw2vr`). Lựa chọn khi build: DECISIONS
 "2026-09-29 (tối)".
 

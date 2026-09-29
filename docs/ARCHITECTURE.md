@@ -496,6 +496,8 @@ web/
 │   │                              trí, lọc chỗ hết hạn, xếp độ tin cậy, gửi BẢN GỌN xuống client
 │   ├── tim/SearchResults.js        Client: bộ lọc nằm trên URL (?q= &loai= &khu= &gia=), đọc lại
 │   │                              bằng useSearchParams để Back giữ bộ lọc; 20 chỗ/lượt
+│   ├── PlaceStatusLine.js          Dòng trạng thái chung (placeStatus) — thay "Độ tin cậy" ở mọi
+│   │                              trang khách: trang địa điểm, thẻ /tim, thẻ trong Sổ
 │   ├── PlaceResultCard.js          Thẻ gọn của /tim: trạng thái xác nhận · giá · địa chỉ ·
 │   │                              [Xem chi tiết] → /dia-diem/[id] · [Chỉ đường]
 │   ├── gioi-thieu/page.js          Trang “CDP là gì?” đọc content an toàn từ Redis/fallback;
@@ -714,6 +716,8 @@ web/
 │   │                              trang chủ cũ và /tim; bỏ "Chỗ quen gọi" (test: placeFilter)
 │   ├── placeDisplay.js            vNext: địa chỉ rút gọn + dòng "Còn mở · xác nhận N ngày trước"
 │   ├── searchResults.js           vNext: URL ↔ bộ lọc /tim, bản gọn một chỗ cho thẻ kết quả
+│   ├── placeRank.js               Xếp hạng tìm kiếm: tên > nhóm/thẻ > địa chỉ > phụ, so theo đầu từ,
+│   │                              gõ có dấu mà chỉ khớp bỏ dấu thì xuống cuối (test: placeRank)
 │   ├── placeTextSearch.js   (50)  Tìm theo tên/địa chỉ + nhóm từ đồng nghĩa — DÙNG CHUNG cho
 │   ├── placeReliability.js        Xếp theo xác nhận mới → độ đầy đủ → xác nhận cũ;
 │   │                              confidence/số nguồn chỉ là tín hiệu phá hoà cuối

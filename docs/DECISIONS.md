@@ -7,6 +7,31 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-09-30 — Sửa theo owner test vNext (tìm kiếm, trang địa điểm, Sổ, "Đi bằng gì")
+
+- **Xếp hạng tìm kiếm `/tim`** (`lib/placeRank.js`): tên trùng khớp > tên bắt đầu bằng > tên chứa >
+  nhóm/thẻ (loại, loại xe, món đặc trưng) > địa chỉ > phần phụ; cùng hạng thì theo độ tin cậy. So
+  theo **đầu từ**. Gõ có dấu mà chỉ khớp khi bỏ dấu thì xuống cuối. **Vì sao:** "Phở" từng ra "Xe
+  ghép Anh Huy" đầu tiên — "phở" bỏ dấu = "pho" khớp "…nội thành phố" trong địa chỉ, rồi kết quả chỉ
+  xếp theo độ tin cậy. Ô tìm `/tim` áp dụng khi GỬI (Enter / nút Search bàn phím / nút Tìm = một
+  handler), không lọc theo từng phím.
+- **Bỏ "Độ tin cậy Thấp/Trung bình/Cao" khỏi mọi trang khách.** Thay bằng dòng trạng thái chung
+  (`placeStatus`): "Còn mở · xác nhận …" / "Xác nhận gần nhất hơn 1 tháng trước" / "Chưa có xác
+  nhận gần đây" + "Thông tin có thể đã thay đổi" khi quá 90 ngày không ai kiểm. `confidenceScore`
+  vẫn dùng nội bộ để xếp hạng. **Vì sao:** khách không biết làm gì với một mức tin cậy; lần xác
+  nhận thì biết.
+- **Trang địa điểm:** đầu trang tên → loại/khu vực → trạng thái → giá → Lưu vào Sổ/Chỉ đường; phần
+  còn lại thành mục có tiêu đề. Chữ nội dung 15px trên điện thoại. Thanh bám đáy chỉ hiện khi hàng
+  nút đầu trang đã cuộn khuất.
+- **Thẻ trong Sổ** bỏ phần "Xem thêm" bung cả chi tiết; chỉ giữ thứ để nhận ra và so sánh + Xem chi
+  tiết / Chỉ đường. Trang Sổ đọc thêm lần xác nhận và phiếu vị trí.
+- **"Đi bằng gì":** Xe máy → `two-wheeler`, Ô tô → `driving`, Đi bộ → `walking`; **bỏ "Kết hợp"**.
+  Lộ trình/bản chụp cũ còn "hon-hop" đọc thành Xe máy (không sửa dữ liệu). **Vì sao:** trước đó Xe
+  máy và Kết hợp đều gửi `driving` — chọn gì cũng ra đường ô tô. ⚠️ `two-wheeler` **chưa thử trên
+  điện thoại thật ở Việt Nam**; không ổn thì không giữ UX giả — chọn fallback cùng Product Owner.
+- **Chưa chốt — font:** Geist (font hiện tại) **không có bộ ký tự tiếng Việt**; chữ có dấu như "ạ ở ự
+  ề" đang lấy từ font hệ thống, lẫn hai font trong một từ. Đổi font là đổi toàn web → chờ PO chọn.
+
 ## 2026-09-29 (tối) — vNext Core Discovery Flow: các lựa chọn khi build MUST
 
 Kế hoạch Product Owner duyệt 29/9 (ghi ở [TASKS.md](TASKS.md)); đây là các lựa chọn nhỏ trong lúc
