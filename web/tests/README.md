@@ -30,3 +30,4 @@ nạp file), nên `npm test` đặt sẵn giá trị giả. **Không có lệnh 
 | `mapsUrl.test.js` | Ghim đã xác nhận thắng chuỗi chữ khi dẫn đường |
 | `provinces.test.js` | Đoán tỉnh từ địa chỉ Google, đoán không ra thì để trống |
 | `scrollLock.test.js` | Hai lớp phủ chồng nhau đóng cùng lúc không làm trang đơ |
+| `placeFilter.test.js` | Trang chủ và `/tim` lọc/tìm giống hệt nhau; "Chỗ quen gọi" không lên danh sách; mã lạ trên URL không làm rỗng kết quả |

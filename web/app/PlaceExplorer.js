@@ -5,9 +5,9 @@ import { ContributionPanel } from "./ContributionPanel";
 import { CheckinButton } from "./CheckinButton";
 import { QuestionPrompt } from "./QuestionPrompt";
 import { PlaceFacts } from "./PlaceFacts";
-import { matchesSearchQuery, normalizeForSearch, placeSearchHaystack } from "@/lib/placeTextSearch";
 import { BROWSABLE_PLACE_TYPES } from "@/lib/placeTypes";
-import { comparePlaceReliability } from "@/lib/placeReliability";
+import { PRICE_BUCKETS, filterPlaces, groupByBrowsableType, wardsOf } from "@/lib/placeFilter";
+import { formatCheckinAge, formatShortAddress } from "@/lib/placeDisplay";
 import { placeMapAction } from "@/lib/mapsUrl";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { AddToNotebook } from "./AddToNotebook";
@@ -35,36 +35,6 @@ import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 // Nút CTA chính của thẻ — 1 kiểu duy nhất, chỉ đổi chữ và hành vi theo loại hình (NOTE-05 §6).
 const ctaClass =
   "cdp-pressable inline-flex items-center rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white active:bg-[#ad4832]";
-
-const PRICE_BUCKETS = [
-  { id: "all", label: "Tất cả mức giá" },
-  { id: "duoi-100k", label: "Dưới 100.000đ", min: 0, max: 100000 },
-  { id: "100k-500k", label: "100.000 – 500.000đ", min: 100000, max: 500000 },
-  { id: "500k-1tr", label: "500.000 – 1.000.000đ", min: 500000, max: 1000000 },
-  { id: "tren-1tr", label: "Trên 1.000.000đ", min: 1000000, max: Infinity },
-];
-
-// Rút gọn địa chỉ về "số nhà + tên đường" cho thẻ gọn — bỏ phần phường/thành phố (đã có
-// mục "Khu vực" riêng). "Địa chỉ đầy đủ" lúc bung thẻ vẫn giữ nguyên chuỗi gốc.
-const ADDRESS_DROP_PREFIXES = ["phường", "tp", "thành phố", "tổ", "xã", "huyện", "thị trấn"];
-function formatShortAddress(address) {
-  if (!address) return address;
-  const parts = address.split(",").map((s) => s.trim());
-  const kept = [];
-  for (const part of parts) {
-    const lower = part.toLowerCase();
-    if (ADDRESS_DROP_PREFIXES.some((prefix) => lower.startsWith(prefix))) break;
-    kept.push(part);
-  }
-  return kept.length > 0 ? kept.join(", ") : address;
-}
-
-function matchesPriceBucket(place, bucketId) {
-  if (bucketId === "all") return true;
-  if (place.priceMin == null || place.priceMax == null) return false;
-  const bucket = PRICE_BUCKETS.find((b) => b.id === bucketId);
-  return place.priceMin <= bucket.max && place.priceMax >= bucket.min;
-}
 
 export function confidenceLabel(score) {
   if (score == null) return null;
@@ -110,32 +80,6 @@ export function staleMenuAgeMonths(iso) {
   if (!iso) return null;
   const months = Math.floor((Date.now() - new Date(iso).getTime()) / (30 * 86400000));
   return months >= STALE_MENU_MONTHS ? months : null;
-}
-
-// Dòng "Còn mở · xác nhận N ngày trước" trên thẻ — SPEC-chang-1.md §2.1. Trên 90 ngày (hoặc
-// chưa ai xác nhận bao giờ) trả về null để component không hiện gì (bỏ hẳn khỏi DOM, không
-// giữ chỗ như nhãn "còn chỗ" cũ).
-function formatCheckinAge(lastCheckinAtIso) {
-  if (!lastCheckinAtIso) return null;
-  let diffDays;
-  try {
-    diffDays = Math.floor((Date.now() - new Date(lastCheckinAtIso).getTime()) / 86400000);
-  } catch {
-    return null;
-  }
-  if (!(diffDays >= 0) || diffDays > 90) return null;
-
-  // Xanh lá dành riêng cho đúng 1 việc: "Còn mở" (SPEC-giao-dien.md §4). Cảnh báo lâu chưa
-  // xác nhận không còn tô nền hổ phách — chỉ còn chữ xám nhạt.
-  if (diffDays > 30) {
-    return { text: "Lâu chưa ai xác nhận (hơn 1 tháng)", tone: "muted" };
-  }
-  if (diffDays >= 7) {
-    const weeks = Math.min(4, Math.ceil(diffDays / 7));
-    return { text: `Còn mở · xác nhận ${weeks} tuần trước`, tone: "green" };
-  }
-  const ago = diffDays === 0 ? "hôm nay" : diffDays === 1 ? "hôm qua" : `${diffDays} ngày trước`;
-  return { text: `Còn mở · xác nhận ${ago}`, tone: "green" };
 }
 
 // Suy ra loại hình chỗ ngủ từ tên (không có trường riêng) — chỉ đọc lại thông tin đã có,
@@ -844,28 +788,15 @@ export default function PlaceExplorer({ places }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const wards = useMemo(() => {
-    const set = new Set(places.map((p) => p.ward).filter(Boolean));
-    return Array.from(set).sort();
-  }, [places]);
+  const wards = useMemo(() => wardsOf(places), [places]);
 
-  const filtered = useMemo(() => {
-    const query = normalizeForSearch(search).trim();
-    return places.filter((p) => {
-      if (type !== "all" && p.type !== type) return false;
-      if (ward !== "all" && p.ward !== ward) return false;
-      if (!matchesPriceBucket(p, priceBucket)) return false;
-      if (query && !matchesSearchQuery(placeSearchHaystack(p), query)) return false;
-      return true;
-    });
-  }, [places, type, ward, priceBucket, search]);
-
-  // Trang chủ chỉ bày loại "xem được" — "Chỗ quen gọi" có trong danh bạ nhưng không phải chỗ
-  // để đi ăn/chơi/ngủ, bày ra đây là làm loãng đúng câu hỏi trang này sinh ra để trả lời.
-  const groupedByType = BROWSABLE_PLACE_TYPES.map((t) => ({
-    type: t,
-    items: filtered.filter((p) => p.type === t.id).sort(comparePlaceReliability),
-  }));
+  // Lọc/tìm/sắp xếp ở lib/placeFilter.js — dùng chung với trang kết quả /tim. "Chỗ quen gọi" bị
+  // loại ở đó: có trong danh bạ nhưng không phải chỗ để đi ăn/chơi/ngủ.
+  const filtered = useMemo(
+    () => filterPlaces(places, { type, ward, priceBucket, search }),
+    [places, type, ward, priceBucket, search]
+  );
+  const groupedByType = groupByBrowsableType(filtered);
 
   const hasActiveFilter = type !== "all" || ward !== "all" || priceBucket !== "all" || search !== "";
 
