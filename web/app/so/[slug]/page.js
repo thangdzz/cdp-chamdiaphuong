@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { getNotebook, resolveNotebookItems } from "@/lib/notebooks";
 import { getAllPublishedNotes, filterVisibleNotes } from "@/lib/notes";
+import { getAllLatestCheckins } from "@/lib/checkins";
+import { getAllLocationConsensus } from "@/lib/locationVotes";
+import { readNow } from "@/lib/events";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
 import { OwnerBackLink } from "@/app/OwnerBackLink";
@@ -75,12 +78,27 @@ export default async function NotebookViewPage({ params }) {
   const notebook = await getNotebook(slug);
   if (!notebook) notFound();
 
-  const [items, allNotes] = await Promise.all([
+  // Owner test 30/9: thẻ trong sổ hiện trạng thái + lần xác nhận (checkins) và nút đúng loại
+  // "Chỉ đường"/"Tìm trên Google Maps" (phiếu vị trí khách đã xác nhận) — cùng cách trang /tim đọc.
+  const [items, allNotes, latestCheckins, allLocationConsensus, now] = await Promise.all([
     resolveNotebookItems(notebook.items),
     getAllPublishedNotes(),
+    getAllLatestCheckins(),
+    getAllLocationConsensus(),
+    readNow(),
   ]);
   const itemsWithNotes = items.map((item) =>
-    item.deleted ? item : { ...item, place: { ...item.place, notes: filterVisibleNotes(allNotes[item.placeId] ?? []) } }
+    item.deleted
+      ? item
+      : {
+          ...item,
+          place: {
+            ...item.place,
+            notes: filterVisibleNotes(allNotes[item.placeId] ?? []),
+            lastCheckinAt: latestCheckins[item.placeId] ?? null,
+            locationConsensus: allLocationConsensus[item.placeId] ?? null,
+          },
+        }
   );
 
   const cover = notebookCover(notebook, itemsWithNotes);
@@ -138,7 +156,7 @@ export default async function NotebookViewPage({ params }) {
                   {item.note && <p className="mt-2 text-sm text-zinc-500">💬 {item.note}</p>}
                 </li>
               ) : (
-                <NotebookPlaceCard key={item.placeId} item={item} />
+                <NotebookPlaceCard key={item.placeId} item={item} now={now} />
               )
             )}
           </ul>
