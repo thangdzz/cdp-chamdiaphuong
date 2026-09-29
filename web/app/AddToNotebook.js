@@ -6,6 +6,7 @@ import { getMyNotebooks, addPlaceToNotebook, createNotebookAndAddPlace } from ".
 import { getMyRoutes, addPlaceToRoute, createRouteAndAddPlace } from "./routeActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { BookmarkIcon } from "./Icon";
+import { track } from "./analytics";
 
 // Nút lưu một chỗ trên thẻ (SPEC-chang-4.md §3.1). Chưa có gì -> tạo luôn sổ đầu tiên tên
 // mặc định, không hỏi gì. Có sẵn -> hiện danh sách để chọn.
@@ -69,7 +70,7 @@ export function AddToNotebook({ place }) {
           placeId: place.id,
           nameSnapshot: place.name,
         });
-        if (result.ok) setAdded({ kind: "so", slug: result.slug });
+        if (result.ok) done("so", result.slug);
         return result;
       }
       setNotebooks(notebookList);
@@ -80,6 +81,8 @@ export function AddToNotebook({ place }) {
   }
 
   function done(kind, slug) {
+    // Đo luồng vNext: bước "Save" — chỉ tính lưu vào SỔ, không tính thêm vào lộ trình.
+    if (kind === "so") track("notebook_save");
     setAdded({ kind, slug });
     setOpen(false);
   }

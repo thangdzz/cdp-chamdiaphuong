@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BROWSABLE_PLACE_TYPES } from "@/lib/placeTypes";
 import { ALL, PRICE_BUCKETS, filterPlaces, wardsOf } from "@/lib/placeFilter";
 import { RESULTS_PAGE_SIZE, filtersFromParams, paramsFromFilters } from "@/lib/searchResults";
 import { PlaceResultCard } from "@/app/PlaceResultCard";
+import { track } from "@/app/analytics";
 
 const EMPTY_FILTERS = { search: "", type: ALL, ward: ALL, priceBucket: ALL };
 
@@ -26,6 +27,8 @@ export function SearchResults({ items, now }) {
   const [filters, setFilters] = useState(() => filtersOf(searchParams));
   const [syncedQuery, setSyncedQuery] = useState(urlQuery);
   const [visible, setVisible] = useState(RESULTS_PAGE_SIZE);
+  // Gõ tìm chỉ đếm 1 lần mỗi lượt mở trang — không đếm từng phím.
+  const searchTracked = useRef(false);
 
   // URL đổi từ bên ngoài (Back/Forward giữa các lượt lọc) → theo URL. Đổi do chính mình gõ thì
   // hai bên đã khớp, không làm gì. Điều chỉnh ngay lúc vẽ (không dùng effect) như React khuyên.
@@ -39,6 +42,11 @@ export function SearchResults({ items, now }) {
   const hasActiveFilter = paramsFromFilters(filters) !== "";
 
   function update(patch) {
+    if (patch.search && !searchTracked.current) {
+      searchTracked.current = true;
+      track("search_use");
+    }
+    if (patch.type && patch.type !== ALL && patch.type !== filters.type) track("category_pick");
     const next = { ...filters, ...patch };
     setFilters(next);
     setVisible(RESULTS_PAGE_SIZE); // đổi bộ lọc thì bắt đầu lại từ đầu danh sách

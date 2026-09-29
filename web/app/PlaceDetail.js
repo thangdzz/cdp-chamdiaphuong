@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PLACE_TYPES, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { placeValidityLabel } from "@/lib/placeValidity";
@@ -36,6 +36,7 @@ import {
   adminFilledFields,
 } from "@/lib/transport";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
+import { track } from "./analytics";
 
 // Trang một địa điểm (NOTE-02). Cố ý KHÔNG bọc nội dung trong một card lớn như ở trang chủ —
 // bản thân trang này đã là trang địa điểm, bọc thêm card sẽ thành "trang → sổ → card → nội
@@ -63,6 +64,11 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   const [activeNoteContext, setActiveNoteContext] = useState(null);
   const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
   const action = primaryAction(place);
+
+  // Đo luồng vNext: bước "Place". Chỗ đã đóng cửa không tính — khách không xem để đi.
+  useEffect(() => {
+    if (!closed) track("place_open");
+  }, [place.id, closed]);
   // Spec Location-Routing §6: chưa xác nhận vị trí thì nút bản đồ là "Tìm trên Google Maps", không phải "Chỉ đường".
   const mapAction = placeMapAction(place);
 

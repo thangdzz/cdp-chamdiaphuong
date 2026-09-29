@@ -27,6 +27,7 @@ import {
 } from "@/lib/transport";
 import { SharePlaceButton } from "./SharePlaceButton";
 import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
+import { track } from "./analytics";
 import { PinIcon, ClockIcon, CheckCircleIcon, DocumentIcon } from "./Icon";
 
 // Nhãn "còn chỗ" đã bỏ 2026-09-29 (DECISIONS cùng ngày): nó chỉ suy theo lịch lễ hội 2026, không
@@ -356,6 +357,8 @@ function PlaceCard({ place }) {
       clearTimeout(unmountTimer.current);
       unmountTimer.current = setTimeout(() => setMounted(false), 250);
     } else {
+      // Đo luồng vNext (baseline trước khi đổi trang chủ): bung thẻ = xem chi tiết một chỗ.
+      track("place_open");
       clearTimeout(unmountTimer.current);
       setMounted(true);
       requestAnimationFrame(() => requestAnimationFrame(() => setExpanded(true)));
@@ -774,6 +777,21 @@ export default function PlaceExplorer({ places }) {
   const [ward, setWard] = useState("all");
   const [priceBucket, setPriceBucket] = useState("all");
   const [search, setSearch] = useState("");
+  // Đo luồng vNext (baseline): gõ tìm chỉ đếm 1 lần mỗi lượt mở trang, không đếm từng phím.
+  const searchTracked = useRef(false);
+
+  function changeSearch(value) {
+    if (value && !searchTracked.current) {
+      searchTracked.current = true;
+      track("search_use");
+    }
+    setSearch(value);
+  }
+
+  function changeType(id) {
+    if (id !== "all" && id !== type) track("category_pick");
+    setType(id);
+  }
 
   // Nhảy tới từ /ghi-chu dùng link "/#placeId" — trình duyệt tự cuộn tới đúng thẻ nhờ id
   // trùng hash, nhưng giữa danh sách dài khách khó nhận ra đúng thẻ nào -> nhấp nháy nhẹ 1
@@ -824,7 +842,7 @@ export default function PlaceExplorer({ places }) {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => changeSearch(e.target.value)}
             placeholder="Tìm theo tên, địa chỉ..."
             className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-700"
           />
@@ -845,7 +863,7 @@ export default function PlaceExplorer({ places }) {
             <button
               key={opt.id}
               type="button"
-              onClick={() => setType(opt.id)}
+              onClick={() => changeType(opt.id)}
               className={`cdp-pressable min-h-11 shrink-0 cursor-pointer rounded-lg px-4 text-sm font-medium ${
                 type === opt.id
                   ? "bg-zinc-900 text-white"

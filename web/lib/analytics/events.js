@@ -14,6 +14,12 @@ export const ANALYTICS_EVENTS = [
   "display_name_change",
   "collection_unlock",
   "sound_play",
+  // vNext — luồng Home → Search → Place → Save (SCOPE-vNext "OUTCOME"). Chỉ đếm số lần theo ngày,
+  // không kèm nội dung gõ hay địa điểm nào: đủ để thấy khách rơi ở bước nào.
+  "search_use", // gõ tìm (tối đa 1 lần mỗi lượt mở trang) hoặc gửi ô tìm ở trang chủ
+  "category_pick", // chọn một nhóm Ăn/Chơi/Ngủ/Đi lại
+  "place_open", // xem chi tiết một chỗ (trang /dia-diem, hoặc bung thẻ ở trang chủ cũ)
+  "notebook_save", // lưu một chỗ vào Sổ thành công
 ];
 
 // Không hoạt động quá chừng này thì lần quay lại tính là phiên (session) mới — cùng mốc phổ biến
