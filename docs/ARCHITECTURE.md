@@ -498,6 +498,8 @@ web/
 │   │                              trí, lọc chỗ hết hạn, xếp độ tin cậy, gửi BẢN GỌN xuống client
 │   ├── tim/SearchResults.js        Client: bộ lọc nằm trên URL (?q= &loai= &khu= &gia=), đọc lại
 │   │                              bằng useSearchParams để Back giữ bộ lọc; 20 chỗ/lượt
+│   ├── VisitConfirm.js             "Bạn vừa ghé chỗ này?" → "Chỗ này vẫn mở chứ?" — chỉ ghi ở bước 2
+│   │                              (lượt xác nhận sẵn có / form báo đóng cửa sẵn có)
 │   ├── PlaceStatusLine.js          Dòng trạng thái chung (placeStatus) — thay "Độ tin cậy" ở mọi
 │   │                              trang khách: trang địa điểm, thẻ /tim, thẻ trong Sổ
 │   ├── PlaceResultCard.js          Thẻ gọn của /tim: trạng thái xác nhận · giá · địa chỉ ·

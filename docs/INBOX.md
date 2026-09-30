@@ -73,7 +73,21 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
   **bỏ**, vì đổi đường dẫn làm hỏng link đã lưu; chủ dự án chưa chốt. Nguồn: TASKS cũ.
 - **Trang Giới thiệu:** mục lục dính trên desktop, xem trước từ Admin. Nguồn: `18-NOTE-09` P1.
 
-## 7. Mở rộng địa lý
+## 7. Tín hiệu "đang ở gần" (presence) — PO đưa vào INBOX 30/9, KHÔNG làm trong vNext
+
+Ba loại tín hiệu phải tách rõ, không bao giờ gộp:
+- **Presence** — thiết bị ở gần địa điểm. Chỉ là tín hiệu nội bộ ("likely visited"), không công khai.
+- **Visit confirmation** — khách xác nhận thật sự đã ghé ("Bạn đang ở đây? [Đúng] [Không phải chỗ này]").
+- **Place confirmation** — khách xác nhận một thông tin cụ thể (vẫn mở, đã đóng, giá, gửi xe…).
+  Chỉ loại này mới được ghi dữ liệu.
+
+Luật khi làm: định vị chỉ để **gợi ý hiện câu hỏi**, không bao giờ là bằng chứng cuối cùng; khách
+không xác nhận thì không ghi gì công khai; chỉ dùng khi đang mở web và đã cho phép vị trí — không
+theo dõi nền, không geofencing. vNext đã có sẵn phần thủ công: "Bạn vừa ghé chỗ này?" → "Chỗ này vẫn
+mở chứ?" (`app/VisitConfirm.js`). **Điều kiện trước khi làm:** phần lớn địa điểm phải có toạ độ đã
+xác nhận (30/9 mới 18/283 chỗ có toạ độ). Nguồn: owner/PM update 30/9.
+
+## 8. Mở rộng địa lý
 
 - **Mở rộng dữ liệu ra vùng mới** (ngoài vùng Tuyên Quang đang quét). Đã chốt 29/9: vNext **không**
   mở rộng; "TP Tuyên Quang cũ" không còn là ranh giới sản phẩm cố định (DECISIONS "2026-09-29

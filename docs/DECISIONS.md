@@ -7,6 +7,26 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-09-30 (tối) — Trang địa điểm làm lại để đọc lướt trong 5–10 giây
+
+PO/PM duyệt bố cục trước khi code. **Khối tóm tắt** (đầu trang mobile, thẻ bám theo cột phải
+desktop) chỉ gồm: tên·loại/khu vực · trạng thái · giá (có mới hiện) · địa chỉ rút gọn · một dòng
+đáng chú ý (món đặc trưng / tuyến xe / thông tin đã đủ đồng thuận — chỉ dữ liệu sẵn có) · 2 nút.
+Không có đóng góp/mẹo/nguồn trong thẻ tóm tắt desktop. Chi tiết và mọi lối sửa nằm trong phần gập.
+
+- **Xác nhận trạng thái hai bước** (`VisitConfirm`): "Bạn vừa ghé chỗ này?" [Đúng, mình vừa ghé]
+  [Không] → "Chỗ này vẫn mở chứ?" [Vẫn mở] [Đã đóng cửa] [Không rõ]. Chỉ ghi ở bước 2: "Vẫn mở" =
+  lượt xác nhận sẵn có; "Đã đóng cửa" = form báo đóng cửa sẵn có (ghi khi gửi, qua duyệt). **Vì
+  sao:** nút "Vẫn mở" một chạm / "Bạn vừa đến? Xác nhận" dễ hiểu là mặc định xác nhận còn mở.
+- **Presence / likely visited → INBOX §7**, không làm trong vNext (không theo dõi nền, định vị chỉ
+  để gợi ý hỏi, không phải bằng chứng; cần toạ độ — 18/283).
+- **Nút bản đồ:** "Tìm trên Maps" khi vị trí chưa xác nhận, "Chỉ đường" khi đã xác nhận (không dùng
+  "Xem bản đồ"). Đổi ở `lib/mapsUrl.js` nên `/tim` và Sổ theo luôn.
+- "Tạo lộ trình từ đây" vào trong "+ Thêm vào lộ trình"; "Số đúng/Số sai" vào "Thông tin chưa đúng?".
+- Địa chỉ rút gọn giữ "Tổ 15" (trước đây cắt mất rồi trả nguyên chuỗi dài).
+- **Còn biết:** trang ngắn (không ảnh) thì đầu mục "Cần biết" lọt vào màn hình đầu, thêm 2 link phụ
+  nhỏ ("N thông tin mới 1 người cho biết", "+ Thêm mẹo"); khối tóm tắt vẫn đúng 3 thứ bấm được.
+
 ## 2026-09-30 (sau) — Nút Quay lại dùng chung + đóng góp theo ngữ cảnh
 
 - **Một nút "Quay lại" cho mọi trang con** (`app/BackButton.js`), góc trên trái cột nội dung. Có trang
