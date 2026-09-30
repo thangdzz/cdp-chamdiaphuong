@@ -33,3 +33,4 @@ nạp file), nên `npm test` đặt sẵn giá trị giả. **Không có lệnh 
 | `placeFilter.test.js` | Trang chủ và `/tim` lọc/tìm giống hệt nhau; "Chỗ quen gọi" không lên danh sách; mã lạ trên URL không làm rỗng kết quả |
 | `placeRank.test.js` | Tìm "Phở" ra quán phở trước, không để "phố" trong địa chỉ đẩy chỗ khác lên đầu; tên > nhóm > địa chỉ |
 | `transportMode.test.js` | Mỗi "Đi bằng gì" một `travelmode` thật; lộ trình cũ "Kết hợp" vẫn đọc được; nhiều điểm dừng vẫn đủ waypoints |
+| `phone.test.js` | Ô SĐT nhiều số tách thành từng số gọi được (" - ", " / ", 3 số, dấu chấm, +84, số tổng đài) — không bao giờ nối liền |

@@ -52,6 +52,8 @@ trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi even
 - ✅ **Trang địa điểm đọc lướt 5–10 giây** + xác nhận hai bước (PO duyệt bố cục trước khi code)
 - ✅ **Trang địa điểm gom còn 2 vùng** (vòng dọn cuối PO/PM 30/9)
 - ✅ **Thẻ trong Sổ đi cùng thứ tự tóm tắt trang chi tiết** + thông báo "Đã lưu vào sổ" nổi hơn (màu CDP cho tên sổ và "Xem sổ")
+- ✅ **Trang sửa Sổ + sửa Lộ trình có nút "Lưu thay đổi"** (vẫn tự lưu khi rời ô) — component chung `SaveChanges.js`
+- ✅ **Ô nhiều SĐT tách từng số**, mỗi số một link gọi riêng (`lib/phone.js`, `CallPhone.js`)
 - 👀 Product Owner thử link `two-wheeler` trên điện thoại thật ở Việt Nam (xem STATUS)
 - 👀 Product Owner chọn font có tiếng Việt (xem STATUS)
 

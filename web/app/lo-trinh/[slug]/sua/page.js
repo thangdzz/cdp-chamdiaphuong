@@ -30,6 +30,7 @@ import { formatDurationText } from "@/lib/durationFormat";
 import { PROVINCES } from "@/lib/provinces";
 import { PICKUP_SELECTION_TYPES, pickupModeLabel, pickupPointFullAddress, pickupSelectionLabel } from "@/lib/pickupPoints";
 import { BackButton } from "@/app/BackButton";
+import { SaveChangesBar, SaveChangesProvider, TitleField, useSaveField } from "@/app/SaveChanges";
 
 // Chỉ chủ lộ trình vào được — getRouteForEdit tự kiểm tra ở server, trang này chỉ điều hướng
 // về trang xem khi không phải chủ, không tự chặn (cùng cách trang sửa Sổ làm).
@@ -109,10 +110,10 @@ export default function EditRoutePage({ params }) {
     }
   }
 
-  async function saveTitle() {
-    if (!titleInput.trim() || titleInput === route.title) return;
-    const result = await run((anonId) => renameRoute({ anonId, slug, title: titleInput }));
-    if (result?.ok) setRoute((r) => ({ ...r, title: titleInput }));
+  async function saveTitle(title) {
+    const result = await run((anonId) => renameRoute({ anonId, slug, title }));
+    if (result?.ok) setRoute((r) => ({ ...r, title }));
+    return result;
   }
 
   async function changeMode(transportMode) {
@@ -209,128 +210,128 @@ export default function EditRoutePage({ params }) {
   if (status === "forbidden") return null; // đang điều hướng về trang xem
 
   return (
-    <div className="flex flex-1 justify-center">
-      <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <BackButton fallback={`/lo-trinh/${slug}`} />
+    <SaveChangesProvider>
+      <div className="flex flex-1 justify-center">
+        <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+          <BackButton fallback={`/lo-trinh/${slug}`} />
 
-        <input
-          className="mt-3 w-full rounded-lg border border-zinc-300 px-3 py-2 text-base font-medium text-zinc-900"
-          value={titleInput}
-          maxLength={60}
-          onChange={(e) => setTitleInput(e.target.value)}
-          onBlur={saveTitle}
-        />
-
-        <div className="mt-4">
-          <p className="mb-1.5 text-[13px] text-zinc-500">Đi bằng gì?</p>
-          <div className="flex flex-wrap gap-1.5">
-            {TRANSPORT_MODES.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                disabled={busy}
-                onClick={() => changeMode(m.id)}
-                className={`cdp-pressable cursor-pointer rounded-full border px-3 py-1.5 text-sm disabled:opacity-50 ${
-                  normalizeTransportMode(route.transportMode) === m.id
-                    ? "border-zinc-400 bg-zinc-100 font-medium text-zinc-900"
-                    : "border-zinc-200 text-zinc-600"
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
+          <div className="mt-3">
+            <TitleField value={titleInput} savedValue={route.title} onChange={setTitleInput} onSave={saveTitle} />
           </div>
-        </div>
 
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          <div className="mt-4">
+            <p className="mb-1.5 text-[13px] text-zinc-500">Đi bằng gì?</p>
+            <div className="flex flex-wrap gap-1.5">
+              {TRANSPORT_MODES.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => changeMode(m.id)}
+                  className={`cdp-pressable cursor-pointer rounded-full border px-3 py-1.5 text-sm disabled:opacity-50 ${
+                    normalizeTransportMode(route.transportMode) === m.id
+                      ? "border-zinc-400 bg-zinc-100 font-medium text-zinc-900"
+                      : "border-zinc-200 text-zinc-600"
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => setPickerOpen(true)}
-          className="cdp-pressable mt-4 w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 disabled:opacity-50"
-        >
-          + Thêm địa điểm
-        </button>
+          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
-        {route.stops.length === 0 ? (
-          <p className="mt-5 text-sm text-zinc-500">
-            Lộ trình chưa có điểm nào. Về trang chủ bấm &quot;+ Vào sổ&quot; trên một chỗ để thêm
-            vào lộ trình, hoặc tự thêm một điểm ở dưới.
-          </p>
-        ) : (
-          <ol className="mt-5 flex flex-col gap-3">
-            {route.stops.map((stop, index) => (
-              <StopEditor
-                key={`${index}-${stop.placeId ?? stop.customTitle}`}
-                stop={stop}
-                index={index}
-                total={route.stops.length}
-                busy={busy}
-                slug={slug}
-                onMove={move}
-                onRemove={handleRemove}
-                onReplace={() => setReplacingIndex(index)}
-                justReplaced={justReplaced === index}
-                onPickupChosen={reload}
-              />
-            ))}
-          </ol>
-        )}
-
-        <button
-          type="button"
-          disabled={busy}
-          onClick={handleDeleteRoute}
-          className="mt-6 text-xs text-red-500 underline disabled:opacity-50"
-        >
-          Xoá lộ trình này
-        </button>
-
-        {/* Trang sửa dài hơn một màn hình rất nhanh (mỗi điểm một thẻ). Ghim đường quay lại trang
-            xem ở đáy màn để lúc nào cũng bấm được, khỏi phải vuốt ngược lên đầu tìm link. Mọi thay
-            đổi đã tự lưu lúc rời ô nên đây chỉ là điều hướng, không phải nút "lưu". */}
-        <div className="sticky bottom-0 z-20 -mx-4 mt-4 border-t border-zinc-200 bg-zinc-50/95 px-4 pb-[calc(0.625rem+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur sm:-mx-6 sm:px-6">
-          <Link
-            href={`/lo-trinh/${slug}`}
-            transitionTypes={["nav-back"]}
-            className="cdp-pressable block w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-center text-sm font-medium text-white"
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setPickerOpen(true)}
+            className="cdp-pressable mt-4 w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 disabled:opacity-50"
           >
-            Xem lộ trình
-          </Link>
-        </div>
+            + Thêm địa điểm
+          </button>
 
-        {pickerOpen && (
-          <PlacePicker
-            title="Thêm địa điểm"
-            confirmLabel="Thêm"
-            // Để bộ chọn báo "đã có trong lộ trình" — vẫn cho chọn, chỉ là nói trước.
-            existingPlaceIds={route.stops.map((s) => s.placeId).filter(Boolean)}
-            onConfirm={handleAddPlaces}
-            onClose={() => setPickerOpen(false)}
-            onAddCustomStop={handleAddCustom}
-            onProposePlace={(name) => setProposeName(name)}
-          />
-        )}
-        {replacingIndex !== null && (
-          <PlacePicker
-            title="Đổi chỗ"
-            confirmLabel="Đổi"
-            singlePick
-            existingPlaceIds={route.stops.map((s) => s.placeId).filter(Boolean)}
-            onConfirm={handleReplace}
-            onClose={() => setReplacingIndex(null)}
-          />
-        )}
-        {proposeName !== null && (
-          <ProposePlaceForm
-            initialName={proposeName}
-            onSubmit={handlePropose}
-            onClose={() => setProposeName(null)}
-          />
-        )}
-      </main>
-    </div>
+          {route.stops.length === 0 ? (
+            <p className="mt-5 text-sm text-zinc-500">
+              Lộ trình chưa có điểm nào. Về trang chủ bấm &quot;+ Vào sổ&quot; trên một chỗ để thêm
+              vào lộ trình, hoặc tự thêm một điểm ở dưới.
+            </p>
+          ) : (
+            <ol className="mt-5 flex flex-col gap-3">
+              {route.stops.map((stop, index) => (
+                <StopEditor
+                  key={`${index}-${stop.placeId ?? stop.customTitle}`}
+                  stop={stop}
+                  index={index}
+                  total={route.stops.length}
+                  busy={busy}
+                  slug={slug}
+                  onMove={move}
+                  onRemove={handleRemove}
+                  onReplace={() => setReplacingIndex(index)}
+                  justReplaced={justReplaced === index}
+                  onPickupChosen={reload}
+                />
+              ))}
+            </ol>
+          )}
+
+          <button
+            type="button"
+            disabled={busy}
+            onClick={handleDeleteRoute}
+            className="mt-6 text-xs text-red-500 underline disabled:opacity-50"
+          >
+            Xoá lộ trình này
+          </button>
+
+          {/* Trang sửa dài hơn một màn hình rất nhanh (mỗi điểm một thẻ). Ghim đường quay lại trang
+              xem ở đáy màn để lúc nào cũng bấm được, khỏi phải vuốt ngược lên đầu tìm link. Mọi thay
+              đổi đã tự lưu lúc rời ô nên đây chỉ là điều hướng, không phải nút "lưu". */}
+          <div className="sticky bottom-0 z-20 -mx-4 mt-4 border-t border-zinc-200 bg-zinc-50/95 px-4 pb-[calc(0.625rem+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur sm:-mx-6 sm:px-6">
+            <Link
+              href={`/lo-trinh/${slug}`}
+              transitionTypes={["nav-back"]}
+              className="cdp-pressable block w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-center text-sm font-medium text-white"
+            >
+              Xem lộ trình
+            </Link>
+          </div>
+
+          {pickerOpen && (
+            <PlacePicker
+              title="Thêm địa điểm"
+              confirmLabel="Thêm"
+              // Để bộ chọn báo "đã có trong lộ trình" — vẫn cho chọn, chỉ là nói trước.
+              existingPlaceIds={route.stops.map((s) => s.placeId).filter(Boolean)}
+              onConfirm={handleAddPlaces}
+              onClose={() => setPickerOpen(false)}
+              onAddCustomStop={handleAddCustom}
+              onProposePlace={(name) => setProposeName(name)}
+            />
+          )}
+          {replacingIndex !== null && (
+            <PlacePicker
+              title="Đổi chỗ"
+              confirmLabel="Đổi"
+              singlePick
+              existingPlaceIds={route.stops.map((s) => s.placeId).filter(Boolean)}
+              onConfirm={handleReplace}
+              onClose={() => setReplacingIndex(null)}
+            />
+          )}
+          {proposeName !== null && (
+            <ProposePlaceForm
+              initialName={proposeName}
+              onSubmit={handlePropose}
+              onClose={() => setProposeName(null)}
+            />
+          )}
+
+          <SaveChangesBar />
+        </main>
+      </div>
+    </SaveChangesProvider>
   );
 }
 
@@ -349,7 +350,7 @@ function PickupChooser({ stop, index, slug, onChosen }) {
   });
   const [state, setState] = useState(null); // null | "saving" | lỗi
   // Bản đã gửi đi lần gần nhất: rời khối mà không sửa gì thì khỏi tốn thêm một lượt ghi Redis.
-  const savedCustomRef = useRef(isCustomSelection ? { ...custom } : null);
+  const [savedCustom, setSavedCustom] = useState(() => (isCustomSelection ? { ...custom } : null));
 
   async function choose(nextSelection) {
     setState("saving");
@@ -363,14 +364,16 @@ function PickupChooser({ stop, index, slug, onChosen }) {
     return result;
   }
 
-  async function saveCustom() {
-    if (state === "saving") return;
-    if (!custom.addressLine.trim() || !custom.province) return; // thiếu địa chỉ/tỉnh: chưa lưu được, dòng nhắc đã nói rõ
-    const saved = savedCustomRef.current;
-    if (saved && JSON.stringify(saved) === JSON.stringify(custom)) return;
+  // Có thay đổi chưa lưu = đủ địa chỉ + tỉnh và khác bản đã gửi — nối vào thanh "Lưu thay đổi".
+  const customDirty =
+    customOpen &&
+    Boolean(custom.addressLine.trim() && custom.province) &&
+    JSON.stringify(savedCustom) !== JSON.stringify(custom);
+  const saveCustom = useSaveField(`pickup-${index}`, customDirty, async () => {
     const result = await choose({ type: PICKUP_SELECTION_TYPES.CUSTOM, ...custom });
-    if (result?.ok) savedCustomRef.current = { ...custom };
-  }
+    if (result?.ok) setSavedCustom({ ...custom });
+    return result;
+  });
 
   // Bấm/chạm ra ngoài khối là tự lưu. `relatedTarget` nằm trong khối (nhảy sang ô khác, bấm nút
   // Lưu) thì bỏ qua — chưa rời khối. Trên iOS chạm vào vùng trống trả về null, tức là đã ra ngoài.
@@ -481,7 +484,7 @@ function PickupChooser({ stop, index, slug, onChosen }) {
                 locationConfirmed: true,
                 googlePlaceId: next.googlePlaceId,
               });
-              if (result?.ok) savedCustomRef.current = { ...custom };
+              if (result?.ok) setSavedCustom({ ...custom });
               return result;
             }}
           />
@@ -505,14 +508,16 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
   const [province, setProvince] = useState(stop.customProvince ?? "");
   const [coordinates, setCoordinates] = useState(stop.coordinates ?? null);
   const [saved, setSaved] = useState(null); // null | "ok" | lỗi
-  const savedRef = useRef({
+  // Bản đã lưu: state để tính "có thay đổi chưa lưu" lúc vẽ, ref để so sánh tức thời khi lưu.
+  const [savedSnapshot, setSavedSnapshot] = useState(() => ({
     plannedAt: stop.plannedAt ?? "",
     duration: stop.durationMinutes ?? "",
     note: stop.note ?? "",
     customName: stop.customTitle ?? "",
     address: stop.customAddress ?? "",
     province: stop.customProvince ?? "",
-  });
+  }));
+  const savedRef = useRef(savedSnapshot);
   const isCustom = stop.type === STOP_TYPES.CUSTOM;
 
   // Lưu lúc rời ô, không lưu từng ký tự — mỗi lượt lưu là một lệnh Redis.
@@ -520,7 +525,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
   // đó chưa kịp cập nhật nên giá trị mới phải truyền thẳng vào.
   async function save(overrides = {}) {
     const current = { plannedAt, duration, note, customName, address, province, ...overrides };
-    if (JSON.stringify(current) === JSON.stringify(savedRef.current)) return;
+    if (JSON.stringify(current) === JSON.stringify(savedRef.current)) return { ok: true };
     const result = await saveStopDetails({
       anonId: loadLocalContributor()?.anonId,
       slug,
@@ -545,12 +550,18 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
         setCoordinates((current) => (current?.confirmed ? { ...current, confirmed: false } : current));
       }
       savedRef.current = current;
+      setSavedSnapshot(current);
       setSaved("ok");
       setTimeout(() => setSaved(null), 1800);
     } else {
       setSaved(result.error ?? "Chưa lưu được.");
     }
+    return result;
   }
+  const dirty =
+    JSON.stringify({ plannedAt, duration, note, customName, address, province }) !== JSON.stringify(savedSnapshot);
+  // Rời ô là tự lưu như cũ; cùng hàm này chạy khi bấm "Lưu thay đổi" cuối trang.
+  const saveNow = useSaveField(`stop-${index}`, dirty, () => save());
 
   // Điểm riêng lấy tên từ ô đang gõ để tiêu đề đổi theo ngay, khỏi phải đợi lưu xong mới thấy.
   const title = isCustom
@@ -609,7 +620,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             placeholder="17:30"
             maxLength={5}
             onChange={(e) => setPlannedAt(e.target.value)}
-            onBlur={() => save()}
+            onBlur={saveNow}
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-zinc-500">
@@ -620,7 +631,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             value={duration}
             placeholder="60"
             onChange={(e) => setDuration(e.target.value)}
-            onBlur={() => save()}
+            onBlur={saveNow}
           />
           {/* Nhập bằng phút cho gọn, nhưng nhắc lại ngay bằng tiếng để khỏi phải nhẩm:
               gõ 240 mà không thấy "4 tiếng" thì rất dễ nhầm sang 24 tiếng. */}
@@ -641,7 +652,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             maxLength={60}
             placeholder="VD: Nhà Tuấn"
             onChange={(e) => setCustomName(e.target.value)}
-            onBlur={() => save()}
+            onBlur={saveNow}
           />
         </label>
       )}
@@ -654,7 +665,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
             maxLength={120}
             placeholder="VD: 12 Trần Phú, Phan Thiết"
             onChange={(e) => setAddress(e.target.value)}
-            onBlur={() => save()}
+            onBlur={saveNow}
           />
           {!address.trim() && (
             <span className="text-xs text-zinc-400">
@@ -734,7 +745,7 @@ function StopEditor({ stop, index, total, busy, slug, onMove, onRemove, onReplac
               : "Nhập nội dung"
           }
           onChange={(e) => setNote(e.target.value)}
-          onBlur={() => save()}
+          onBlur={saveNow}
         />
       </label>
 

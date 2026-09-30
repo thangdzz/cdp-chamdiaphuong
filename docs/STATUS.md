@@ -10,6 +10,8 @@ Cập nhật: **2026-09-30**
 
 ## Đang ở đâu
 
+- **30/9 (cuối) — trước Release Check**: trang sửa Sổ/Lộ trình có nút "Lưu thay đổi"; ô nhiều SĐT
+  (7/127 ô trong dữ liệu thật) tách từng số để gọi. Kiểm 259/259. **Chưa deploy.**
 - **30/9 (sau compact) — thẻ Sổ khớp tóm tắt trang chi tiết** (tên → loại · khu → trạng thái →
   giá → địa chỉ 📍 → 1 dòng nổi bật → Xem chi tiết + Maps) và thông báo "Đã lưu" dùng màu CDP.
   Kiểm 221/221. **Chưa deploy.**

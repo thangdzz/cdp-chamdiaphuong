@@ -13,6 +13,7 @@ import { loadLocalContributor } from "@/app/ContributionPanel";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { notebookShareUrl } from "@/lib/siteUrl";
 import { BackButton } from "@/app/BackButton";
+import { SaveChangesBar, SaveChangesProvider, TitleField, useSaveField } from "@/app/SaveChanges";
 
 // Chỉ chủ sổ mới vào được (SPEC-chang-4.md §3.3) — getNotebookForEdit tự kiểm tra ownership
 // ở server, trang này chỉ điều hướng về trang xem khi không phải chủ sổ, không tự chặn.
@@ -40,21 +41,14 @@ export default function EditNotebookPage({ params }) {
     });
   }, [slug, router]);
 
-  async function saveTitle() {
-    if (busyRef.current || !titleInput.trim()) return;
-    busyRef.current = true;
-    setBusy(true);
-    try {
-      const result = await renameNotebook({
-        anonId: loadLocalContributor()?.anonId,
-        slug,
-        title: titleInput,
-      });
-      if (result.ok) setNotebook((nb) => ({ ...nb, title: titleInput.trim() }));
-    } finally {
-      setBusy(false);
-      busyRef.current = false;
-    }
+  async function saveTitle(title) {
+    const result = await renameNotebook({
+      anonId: loadLocalContributor()?.anonId,
+      slug,
+      title,
+    });
+    if (result.ok) setNotebook((nb) => ({ ...nb, title }));
+    return result;
   }
 
   async function saveNote(placeId, note) {
@@ -130,89 +124,87 @@ export default function EditNotebookPage({ params }) {
   if (status === "forbidden") return null; // đang điều hướng về trang xem
 
   return (
-    <div className="flex flex-1 justify-center">
-      <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <BackButton fallback={`/so/${slug}`} />
+    <SaveChangesProvider>
+      <div className="flex flex-1 justify-center">
+        <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+          <BackButton fallback={`/so/${slug}`} />
 
-        <div className="mt-3 flex gap-2">
-          <input
-            className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-base font-medium text-zinc-900"
-            value={titleInput}
-            maxLength={60}
-            onChange={(e) => setTitleInput(e.target.value)}
-            onBlur={saveTitle}
-          />
-        </div>
+          <div className="mt-3">
+            <TitleField value={titleInput} savedValue={notebook.title} onChange={setTitleInput} onSave={saveTitle} />
+          </div>
 
-        {notebook.items.length === 0 ? (
-          <p className="mt-6 text-sm text-zinc-500">
-            Sổ chưa có chỗ nào. Về trang chủ, bấm &quot;+ Thêm vào sổ&quot; trên 1 chỗ bất kỳ.
-          </p>
-        ) : (
-          <ul className="mt-4 flex flex-col gap-3">
-            {notebook.items.map((item, index) => (
-              <li key={item.placeId} className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className={`text-lg font-medium tracking-tight ${item.deleted ? "text-zinc-400" : "text-zinc-900"}`}>
-                      {item.deleted ? item.nameSnapshot : item.place?.name}
-                    </p>
-                    {item.deleted ? (
-                      <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
-                    ) : (
-                      <p className="text-[13px] text-zinc-500">{getPlaceTypeLabel(item.place?.type)}</p>
-                    )}
+          {notebook.items.length === 0 ? (
+            <p className="mt-6 text-sm text-zinc-500">
+              Sổ chưa có chỗ nào. Về trang chủ, bấm &quot;+ Thêm vào sổ&quot; trên 1 chỗ bất kỳ.
+            </p>
+          ) : (
+            <ul className="mt-4 flex flex-col gap-3">
+              {notebook.items.map((item, index) => (
+                <li key={item.placeId} className="rounded-xl bg-white px-[18px] py-5 shadow-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className={`text-lg font-medium tracking-tight ${item.deleted ? "text-zinc-400" : "text-zinc-900"}`}>
+                        {item.deleted ? item.nameSnapshot : item.place?.name}
+                      </p>
+                      {item.deleted ? (
+                        <p className="text-xs text-zinc-400">Chỗ này không còn trong danh bạ</p>
+                      ) : (
+                        <p className="text-[13px] text-zinc-500">{getPlaceTypeLabel(item.place?.type)}</p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <button
+                        type="button"
+                        disabled={busy || index === 0}
+                        onClick={() => move(index, -1)}
+                        className="cdp-pressable rounded-lg px-2 py-1 text-xs text-zinc-500 disabled:opacity-30"
+                        aria-label="Lên"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy || index === notebook.items.length - 1}
+                        onClick={() => move(index, 1)}
+                        className="cdp-pressable rounded-lg px-2 py-1 text-xs text-zinc-500 disabled:opacity-30"
+                        aria-label="Xuống"
+                      >
+                        ↓
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex shrink-0 gap-1">
-                    <button
-                      type="button"
-                      disabled={busy || index === 0}
-                      onClick={() => move(index, -1)}
-                      className="cdp-pressable rounded-lg px-2 py-1 text-xs text-zinc-500 disabled:opacity-30"
-                      aria-label="Lên"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy || index === notebook.items.length - 1}
-                      onClick={() => move(index, 1)}
-                      className="cdp-pressable rounded-lg px-2 py-1 text-xs text-zinc-500 disabled:opacity-30"
-                      aria-label="Xuống"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </div>
 
-                <NoteEditor placeId={item.placeId} initialNote={item.note} onSave={saveNote} />
+                  <NoteEditor placeId={item.placeId} initialNote={item.note} onSave={saveNote} />
 
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => removeItem(item.placeId)}
-                  className="mt-2 text-xs text-red-500 underline disabled:opacity-50"
-                >
-                  Bỏ khỏi sổ
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => removeItem(item.placeId)}
+                    className="mt-2 text-xs text-red-500 underline disabled:opacity-50"
+                  >
+                    Bỏ khỏi sổ
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
 
-        <button
-          type="button"
-          disabled={notebook.items.length === 0}
-          onClick={copyLink}
-          className="cdp-pressable mt-6 w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
-        >
-          {copyLabel}
-        </button>
-        {notebook.items.length === 0 && (
-          <p className="mt-2 text-center text-xs text-zinc-400">Thêm ít nhất 1 chỗ trước khi chia sẻ</p>
-        )}
-      </main>
-    </div>
+          <button
+            type="button"
+            disabled={notebook.items.length === 0}
+            onClick={copyLink}
+            className="cdp-pressable mt-6 w-full rounded-lg bg-[#c8553d] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
+          >
+            {copyLabel}
+          </button>
+          {notebook.items.length === 0 && (
+            <p className="mt-2 text-center text-xs text-zinc-400">Thêm ít nhất 1 chỗ trước khi chia sẻ</p>
+          )}
+
+          <SaveChangesBar />
+        </main>
+      </div>
+    </SaveChangesProvider>
   );
 }
 
@@ -225,8 +217,8 @@ function NoteEditor({ placeId, initialNote, onSave }) {
   const [busy, setBusy] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
-  async function handleBlur() {
-    if (value === savedValue) return;
+  // Tự lưu khi rời ô như cũ; cùng hàm đó chạy khi bấm "Lưu thay đổi" ở cuối trang.
+  const save = useSaveField(`note-${placeId}`, value !== savedValue, async () => {
     setBusy(true);
     setError(null);
     setJustSaved(false);
@@ -239,10 +231,11 @@ function NoteEditor({ placeId, initialNote, onSave }) {
         setJustSaved(true);
         setTimeout(() => setJustSaved(false), 2000);
       }
+      return result;
     } finally {
       setBusy(false);
     }
-  }
+  });
 
   return (
     <div className="mt-2">
@@ -259,7 +252,7 @@ function NoteEditor({ placeId, initialNote, onSave }) {
         value={value}
         disabled={busy}
         onChange={(e) => setValue(e.target.value)}
-        onBlur={handleBlur}
+        onBlur={save}
       />
       {/* HTML maxLength chỉ lặng lẽ chặn gõ tiếp, không tự báo gì — thêm dòng đỏ để khách
           biết vì sao gõ không thêm được, thay vì tưởng máy bị đứng. */}

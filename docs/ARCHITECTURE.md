@@ -573,6 +573,10 @@ web/
 │   ├── PhoneBlock.js      (139)  Khối "Liên hệ": số dạng chữ + nhãn xác nhận + nút Gọi /
 │   │                              Tìm số trên Google / Số đúng / Số sai (NOTE-01 §6)
 │   ├── phoneActions.js     (44)  Server Action cho PhoneBlock — gọi lib/phoneConfirmations.js
+│   ├── CallPhone.js              MỌI link gọi đi qua đây: PhoneLinks (mỗi số một tel:) · CallButton
+│   │                              (nhiều số → "Chọn số để gọi"). Không bao giờ tel: nguyên chuỗi ô SĐT
+│   ├── SaveChanges.js            Thanh "Lưu thay đổi" dùng chung cho trang sửa Sổ / Lộ trình:
+│   │                              SaveChangesProvider + useSaveField(id, dirty, save) + SaveChangesBar
 │   ├── SharePlaceButton.js (38)  Nút "Chia sẻ" trên thẻ — luôn trỏ /dia-diem/{id}, KHÔNG
 │   │                              mượn link sổ (NOTE-02 §1)
 │   ├── PlaceDetail.js     (218)  ⭐ Nội dung trang một địa điểm (client) — bố cục phẳng,
@@ -694,6 +698,8 @@ web/
 │   │                              chuyển WebP bằng Sharp và tính hash nội dung
 │   ├── clientImageCompression.js   Nén trước ở trình duyệt để giảm request; khách tối đa
 │   │                              5 ảnh/lần, Admin tối đa 10 ảnh/lần
+│   ├── phone.js                  splitPhoneNumbers: tách ô SĐT nhiều số (" - ", " / ", ",", ";"…)
+│   │                              thành từng số {display, tel}
 │   ├── phoneConfirmations.js(106) Xác nhận số điện thoại: place_phone_confirmations:{placeId},
 │   │                              field "{số đã chuẩn hoá}:{anonId}" — đổi số thì phiếu cũ
 │   │                              tự hết hiệu lực (NOTE-01 §6.4)

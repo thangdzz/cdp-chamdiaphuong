@@ -2803,3 +2803,22 @@ quyết định nhanh, chi tiết vẫn ở trang địa điểm.
 
 **Thông báo "Đã lưu vào sổ":** giữ câu cũ, tên sổ và link "Xem sổ →" dùng màu nhấn CDP
 (`#c8553d`, màu logo), link xuống dòng riêng, cao 44px để dễ bấm. Không đổi thành banner.
+
+---
+
+## 2026-09-30 (cuối) — Nút "Lưu thay đổi" cho trang sửa · tách ô nhiều số điện thoại
+
+**Lưu thay đổi (owner test):** trang sửa Sổ và sửa Lộ trình trước đây chỉ tự lưu khi rời ô, khách
+không biết đã lưu chưa. Giữ tự lưu, thêm một thanh bám đáy màn hình dùng chung (`app/SaveChanges.js`):
+chưa đổi → nút xám không bấm được; có thay đổi → nút màu CDP "Lưu thay đổi" (lưu hết các ô đang đổi
+dở, mỗi ô đúng một lượt); lưu xong → "✓ Đã lưu". Chọn MỘT thanh cho cả trang thay vì nút cạnh từng ô
+để trang không rối. Đã rà các chỗ tự lưu khác: khối điểm đón tự nhập trong Lộ trình đã có nút "Lưu
+điểm đón" (nối thêm vào thanh chung); `PersonalNote.js` đã có nút Lưu và chỉ còn nằm trong
+`PlaceExplorer.js` không dùng — không sửa. Không đổi dữ liệu hay Server Action.
+
+**Nhiều số điện thoại:** dữ liệu thật có 7/127 ô SĐT chứa 2–3 số, ngăn bằng " - " hoặc " / ". Trước đây
+link gọi dùng nguyên chuỗi, iPhone ghép thành một số không tồn tại. Từ nay `lib/phone.js` tách từng số
+(đỡ sẵn cả "," ";" xuống dòng "hoặc" và hai số dính liền dù chưa gặp), `app/CallPhone.js` là chỗ duy
+nhất tạo `tel:`. Trang địa điểm hiện từng số là một link gọi riêng (không thêm bước chọn vì số đã bày
+ra); nút "Gọi" dạng nút (PhoneBlock `all`/`contact`) mở "Chọn số để gọi" khi có nhiều số. Không tách ô
+SĐT trong dữ liệu — phiếu Số đúng/Số sai vẫn tính cho cả ô như cũ.

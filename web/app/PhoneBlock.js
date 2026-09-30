@@ -5,6 +5,7 @@ import { confirmPhone, fetchPhoneStatus } from "./phoneActions";
 import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel";
 import { PhoneIcon } from "./Icon";
 import { findPhoneOnGoogleUrl } from "@/lib/transport";
+import { CallButton, PhoneLinks, phoneDisplayText } from "./CallPhone";
 
 // Khối "Liên hệ" trong thẻ đã bung (NOTE-01 §6.2). Trước đây số điện thoại KHÔNG hề hiện dạng
 // chữ ở đâu — khách chỉ có đúng 1 nút gọi, không đọc/copy được số, và không có cách nào biết
@@ -89,9 +90,10 @@ export function PhoneBlock({ place, part = "all" }) {
         <PhoneIcon size={16} className="mt-1 shrink-0 text-zinc-400" />
         <div className="min-w-0">
           <p className="flex flex-wrap items-baseline gap-x-2">
-            <a href={`tel:${place.phone}`} className="text-zinc-800 underline decoration-zinc-300 underline-offset-2">
-              {place.phone}
-            </a>
+            {/* Ô nhiều số: mỗi số một link gọi riêng (CallPhone.js), không nối cả chuỗi vào tel:. */}
+            <span>
+              <PhoneLinks phone={place.phone} linkClassName="text-zinc-800 underline decoration-zinc-300 underline-offset-2" />
+            </span>
             <span className="text-[13px] text-zinc-500">
               số tham khảo · {line.text.charAt(0).toLowerCase() + line.text.slice(1)}
               {justAwarded && " · +1 điểm"}
@@ -118,7 +120,7 @@ export function PhoneBlock({ place, part = "all" }) {
   if (!showContact) {
     return (
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[13px] text-zinc-500">Số {place.phone} còn đúng không?</span>
+        <span className="text-[13px] text-zinc-500">Số {phoneDisplayText(place.phone)} còn đúng không?</span>
         <button type="button" disabled={busy} onClick={() => vote("correct")} className={btnClass}>
           {state?.myVote === "correct" ? "✓ Bạn đã xác nhận đúng" : "Số đúng"}
         </button>
@@ -135,7 +137,7 @@ export function PhoneBlock({ place, part = "all" }) {
       {part === "all" && <p className="mb-1.5 text-[13px] text-zinc-500">Liên hệ</p>}
 
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="text-base tracking-tight text-zinc-900">{place.phone}</span>
+        <span className="text-base tracking-tight text-zinc-900">{phoneDisplayText(place.phone)}</span>
         <span className="text-xs text-zinc-400">số tham khảo</span>
       </div>
 
@@ -153,10 +155,10 @@ export function PhoneBlock({ place, part = "all" }) {
       </p>
 
       <div className="mt-2 flex flex-wrap gap-1.5">
-        <a href={`tel:${place.phone}`} className={btnClass}>
+        <CallButton phone={place.phone} className={btnClass}>
           <PhoneIcon size={15} className="mr-1.5" />
           Gọi
-        </a>
+        </CallButton>
 
         {showGoogle && (
           <a
