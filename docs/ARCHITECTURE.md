@@ -492,6 +492,8 @@ web/
 │   │                              còn mốc sắp tới/đang diễn ra). Chỉ đọc places:live + lịch lễ hội
 │   ├── HomeLinks.js                Ô tìm (next/form → /tim?q=) + ô nhóm, có đếm event vNext
 │   ├── LegacyHashRedirect.js       Link cũ "/#<mã chỗ>" → /dia-diem/<mã>, "/#dia-diem" → /tim
+│   ├── BackButton.js               Nút "Quay lại" chung + NavHistoryTracker (layout): có trang trước
+│   │                              trong CDP thì router.back(), mở thẳng link thì về `fallback`
 │   ├── tim/page.js                 ⭐ Trang kết quả /tim (vNext): đọc places + xác nhận + phiếu vị
 │   │                              trí, lọc chỗ hết hạn, xếp độ tin cậy, gửi BẢN GỌN xuống client
 │   ├── tim/SearchResults.js        Client: bộ lọc nằm trên URL (?q= &loai= &khu= &gia=), đọc lại

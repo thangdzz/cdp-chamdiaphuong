@@ -7,6 +7,22 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-09-30 (sau) — Nút Quay lại dùng chung + đóng góp theo ngữ cảnh
+
+- **Một nút "Quay lại" cho mọi trang con** (`app/BackButton.js`), góc trên trái cột nội dung. Có trang
+  trước TRONG CDP (web tự ghi các trang đã đi trong lần mở này) → lùi như nút Back trình duyệt; mở
+  thẳng link → về trang cha (địa điểm → `/tim`, lộ trình → `/lo-trinh`, game → bài lễ hội, sửa sổ/lộ
+  trình → trang xem, còn lại → Home) và THAY mục lịch sử để bấm lần nữa không vòng lại. Là link thật
+  nên bấm trước khi JS tải xong vẫn đi được. **Vì sao không dùng `history.length`:** nó đếm cả trang
+  web khác trước khi vào CDP → có thể đẩy khách ra khỏi web. Bỏ `OwnerBackLink` (chỉ chủ mới thấy).
+- **Bỏ khối "Đóng góp thông tin" cuối trang địa điểm.** Mỗi câu hỏi đứng cạnh thông tin nó hỏi:
+  "Chỗ này còn mở không? [Vẫn mở][Đã đóng cửa]" dưới trạng thái · "Giá này còn đúng không? [Báo giá
+  khác]" dưới giá · "Thông tin này còn đúng không? [Sửa địa chỉ / SĐT]" trong Liên hệ · câu bấm chọn
+  trong Thông tin thực tế · mời thêm mẹo trong Mẹo địa phương · form đầy đủ ở "Sửa thêm hoặc gửi ảnh".
+  **Dùng lại `ContributionPanel`** (thêm `entry` mở thẳng đúng form, chỉ đúng các ô) — cùng hàng chờ
+  duyệt, không luồng mới. **Chưa có** nút một chạm "Giá đúng" vì chưa có chỗ lưu kiểu xác nhận đó;
+  làm là thêm tính năng mới ngoài scope.
+
 ## 2026-09-30 — Sửa theo owner test vNext (tìm kiếm, trang địa điểm, Sổ, "Đi bằng gì")
 
 - **Xếp hạng tìm kiếm `/tim`** (`lib/placeRank.js`): tên trùng khớp > tên bắt đầu bằng > tên chứa >

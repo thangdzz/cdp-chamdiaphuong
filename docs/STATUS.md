@@ -10,6 +10,8 @@ Cập nhật: **2026-09-29**
 
 ## Đang ở đâu
 
+- **30/9 (sau) — thêm nút Quay lại dùng chung + đóng góp theo ngữ cảnh**; kiểm tự động 160/160.
+  **Chưa deploy.**
 - **30/9 — đã sửa 4 mục theo owner test** (tìm kiếm, trang địa điểm, thẻ Sổ, "Đi bằng gì"), kiểm
   tự động 107/107 trên iPhone 13 + desktop. **Chưa deploy.** Còn chờ Product Owner: (1) thử link
   `two-wheeler` trên điện thoại thật, (2) chọn font có tiếng Việt. Lý do: DECISIONS 2026-09-30.
