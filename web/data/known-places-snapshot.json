@@ -530,9 +530,19 @@
     "address": "158 Quang Trung, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "K Billiards",
+    "type": "choi",
+    "address": "Ngã tư khu đô thị Việt Mỹ, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Karaoke NEW89",
     "type": "choi",
     "address": "Tổ 2, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Karaoke No.92",
+    "type": "choi",
+    "address": "Số 11, đường Đinh Tiên Hoàng, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Karaoke X3 Tuyên Quang",
@@ -690,6 +700,11 @@
     "address": "Số 3, Tổ 16, Phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "LH Passion Billiards Club",
+    "type": "choi",
+    "address": "168 Lê Lợi 3, TP Tuyên Quang"
+  },
+  {
     "name": "Lotteria Vincom Plaza Tuyên Quang",
     "type": "an",
     "address": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -713,6 +728,11 @@
     "name": "Mắm Trà Chanh",
     "type": "an",
     "address": "đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
+  },
+  {
+    "name": "Min 22 Billiard Club",
+    "type": "choi",
+    "address": "599 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Min 268",
@@ -1075,6 +1095,11 @@
     "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Ốc Biển Xanh",
+    "type": "an",
+    "address": "Số 8, đường Nguyễn Trãi, TP Tuyên Quang"
+  },
+  {
     "name": "Ốc Chị Hà",
     "type": "an",
     "address": "Số 15, đường Lý Thường Kiệt, TP Tuyên Quang"
@@ -1388,6 +1413,11 @@
     "name": "Vking Coffee - Tea",
     "type": "an",
     "address": "70 đường Quang Trung, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Winner Club Billiard",
+    "type": "choi",
+    "address": "262 đường Lý Nam Đế, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Xanh SM Tuyên Quang (taxi điện)",
