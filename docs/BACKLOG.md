@@ -68,7 +68,14 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
   tham chiếu + chạy thử trước khi xoá) · UX chú thích/vai trò ảnh · ảnh nhận diện cho điểm dừng
   lộ trình. Nguồn: `20-NOTE-11` P1.
 
-## 7. Bảo mật admin
+## 7. Admin
+
+- **Admin place editor sửa được ĐỦ field** (số điện thoại, …) — hiện form sửa địa điểm trong admin
+  thiếu nhiều field, muốn sửa SĐT phải qua đường khác. Ghi 30/9 lúc Release Check vNext (scope FROZEN,
+  không đụng admin). Liên quan: ô SĐT nhiều số giờ đã tách khi hiển thị (`lib/phone.js`), nhưng dữ
+  liệu vẫn là một chuỗi — khi làm editor cân nhắc nhập từng số riêng.
+
+### Bảo mật admin
 
 - **Mỗi người duyệt một tài khoản**, khoá tạm sau nhiều lần sai, 2FA — làm khi có thêm người
   duyệt. Hiện là một mật khẩu chung + cookie ký HMAC. Nguồn: PRD §7, ROADMAP 5b.
@@ -80,8 +87,11 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
 - **Gộp bộ đệm đọc**: `lib/game/store.js` giữ bản sao riêng của `createSharedRead`
   (`lib/sharedRead.js`).
 - **Soát lượt đọc Redis mỗi lần mở trang** còn lại (`lib/aboutPage.js` trên `/gioi-thieu`).
-- **Test giao diện bằng trình duyệt** — 22 script Playwright cũ đã mất; hiện chỉ có 36 test hàm
-  thuần (`npm test`). Viết lại khi cần.
+- **Test giao diện bằng trình duyệt** — 22 script Playwright cũ đã mất; hiện có 70 test hàm thuần
+  (`npm test`). Bộ kiểm Playwright của vNext (310 mục) chỉ nằm ở scratchpad phiên 30/9 — nên đưa vào
+  repo (vd `web/tests/e2e/`) khi có phase dọn.
+- **Bật `no-undef` trong ESLint** — cấu hình hiện tại không bắt biến chưa khai báo (30/9 suýt lọt
+  một lỗi như vậy; đã quét tay: sạch). Bật rồi khai báo globals trình duyệt/Node cho đúng.
 
 ## 9. Dọn sau game Thành Tuyên (cần duyệt vì đụng dữ liệu/cấu hình)
 

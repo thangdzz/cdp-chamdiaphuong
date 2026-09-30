@@ -7,7 +7,7 @@
 > Danh sách cũ (DONE chi tiết từ 07/2026, TODO trước lễ hội, việc game):
 > [archive/logs/TASKS-2026-09-22.md](archive/logs/TASKS-2026-09-22.md).
 
-Cập nhật: **2026-09-29**
+Cập nhật: **2026-09-30**
 
 Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check · ✅ xong
 
@@ -56,6 +56,15 @@ trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi even
 - ✅ **Ô nhiều SĐT tách từng số**, mỗi số một link gọi riêng (`lib/phone.js`, `CallPhone.js`)
 - 👀 Product Owner thử link `two-wheeler` trên điện thoại thật ở Việt Nam (xem STATUS)
 - 👀 Product Owner chọn font có tiếng Việt (xem STATUS)
+
+**Release Check (30/9)** — **READY WITH KNOWN NON-BLOCKERS**, chưa deploy
+- ✅ Scope: đủ MUST; MAY chưa làm · không migration · analytics chỉ 4 event của Scope
+- ✅ Kiểm tự động 310/310 (iPhone 13 + desktop): luồng lõi Home → Tìm → Place → Lưu → Xem Sổ, Quay lại,
+  sửa Sổ/Lộ trình + Lưu thay đổi, ô 2 SĐT, thẻ tóm tắt desktop · lint sạch · `npm test` 70/70 · build đạt
+- 👀 **`two-wheeler` — BLOCKED BY OWNER TEST** (thử trên điện thoại thật trước khi deploy)
+- 👀 Product Owner làm checklist tay — [HANDOFF.md](HANDOFF.md) §5
+- ⬜ Deploy production — chỉ khi Product Owner duyệt
+- Follow-up sau release (không chặn): font có tiếng Việt (Be Vietnam Pro / Inter) · dọn `PlaceExplorer.js`
 
 **MAY** — chỉ làm khi MUST xong, test sạch, không làm tăng scope
 - ⬜ Khối "Mới được xác nhận" · chỗ trống của Sổ ghi đúng hướng dẫn · shortcut "Cafe"
