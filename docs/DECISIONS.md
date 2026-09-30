@@ -19,8 +19,14 @@ PO/PM (vòng dọn cuối trước release): trang vẫn bị chia quá nhiều 
   biết, mẹo thứ 2+, "+ Thêm mẹo") trong một "Xem thêm". Tối đa 1 câu hỏi bấm chọn.
 - **"Thông tin chưa đúng? Sửa giúp"** thành một dòng nhẹ cuối trang; bung ra mới thấy mọi lối sửa,
   Số đúng/Số sai, ghim vị trí, khôi phục hồ sơ. **Nguồn** một dòng nhỏ cuối trang. Ảnh giữ nguyên.
-- **Đánh đổi:** nút "Tìm số trên Google" và dòng "N người đã xác nhận số này" không còn hiện (khối
-  chính chỉ giữ số bấm gọi; xác nhận số nằm trong "Sửa giúp").
+- ~~Đánh đổi: bỏ "Tìm số trên Google" và "N người đã xác nhận"~~ → **khôi phục cùng ngày** (owner
+  test): cạnh số có "số tham khảo · N người đã xác nhận" + link nhỏ Tìm số này trên Google / Số đúng /
+  Số sai (`PhoneBlock part="inline"`), không nút lớn.
+- **"Cần biết" chỉ để đọc**: không còn câu hỏi bấm chọn trong khối; đóng góp ở "Bạn biết gì thêm về
+  chỗ này?" (NoteInput) ngay dưới — chọn ngữ cảnh rồi mới hỏi. "Xem thêm N thông tin" bung ngay trong
+  khối (cùng kiểu dòng, có "(1 người cho biết)").
+- **"Sửa giúp" 3 nhóm:** Thông tin cơ bản (giá · địa chỉ/SĐT · ghim lại vị trí) · Tình trạng địa điểm
+  (đã đóng cửa) · Khác (sửa thêm/gửi ảnh · khôi phục).
 
 ## 2026-09-30 (tối) — Trang địa điểm làm lại để đọc lướt trong 5–10 giây
 
