@@ -47,8 +47,8 @@ trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi even
 - ✅ **Trang địa điểm** làm lại thứ bậc thông tin, bỏ "Độ tin cậy" (`74dd284`)
 - ✅ **Thẻ trong Sổ** đủ để nhận ra/so sánh + Xem chi tiết/Chỉ đường (`146885f`)
 - ✅ **"Đi bằng gì"**: Xe máy → two-wheeler, bỏ Kết hợp (`a071b7a`)
-- ✅ **Nút Quay lại dùng chung** mọi trang con, có trang cha khi mở thẳng link (`fdc2137`)
-- ✅ **Đóng góp theo ngữ cảnh** thay khối "Đóng góp thông tin" (`5aa3440`)
+- ✅ **Nút Quay lại dùng chung** mọi trang con, có trang cha khi mở thẳng link (`283b124`)
+- ✅ **Đóng góp theo ngữ cảnh** thay khối "Đóng góp thông tin" (`76864df`)
 - 👀 Product Owner thử link `two-wheeler` trên điện thoại thật ở Việt Nam (xem STATUS)
 - 👀 Product Owner chọn font có tiếng Việt (xem STATUS)
 

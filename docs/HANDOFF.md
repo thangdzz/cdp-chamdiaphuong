@@ -8,7 +8,7 @@
 
 ## 1. Task hiện tại
 
-**30/9 (sau): thêm nút Quay lại (`fdc2137`) + đóng góp theo ngữ cảnh (`5aa3440`) — CHƯA deploy.**
+**30/9 (sau): thêm nút Quay lại (`283b124`) + đóng góp theo ngữ cảnh (`76864df`) — CHƯA deploy.**
 **30/9: đã sửa theo owner test (4 commit `e2144c1` → `a071b7a`), chờ PO thử `two-wheeler` trên
 điện thoại + chọn font — CHƯA deploy.** Trước đó: **vNext MUST build xong ở máy.** 6 commit `6f351cc` →
 `b3423e4` (xem TASKS). Hotfix 29/9 đã deploy (`87p9xw2vr`). Lựa chọn khi build: DECISIONS
