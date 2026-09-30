@@ -41,7 +41,26 @@ const inputClass = "rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zin
 const btnPrimary = "cdp-pressable cursor-pointer rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50";
 const btnGhost = "cdp-pressable cursor-pointer rounded-lg bg-zinc-100 px-4 py-1.5 text-sm font-medium text-zinc-700";
 
-export function ContributionPanel({ place, onDone, onOpenChange }) {
+// Lối vào theo ngữ cảnh (owner test 30/9): trang địa điểm không còn một khối "Đóng góp" chung —
+// mỗi câu hỏi đứng cạnh đúng thông tin nó hỏi và mở thẳng đúng form. Cùng một component, cùng
+// submitCorrection/submitPhotos, cùng hàng chờ duyệt — KHÔNG phải luồng đóng góp mới.
+//   entry "menu"    — menu đầy đủ (sửa · trùng · đóng cửa · ảnh) + link khôi phục hồ sơ  [mặc định]
+//   entry "closed"  — mở thẳng form báo đã đóng cửa
+//   entry "price"   — form sửa chỉ gồm 3 ô giá
+//   entry "contact" — form sửa chỉ gồm địa chỉ, khu vực, số điện thoại
+const ENTRY_FIELDS = {
+  menu: ["address", "localArea", "phone", "priceMin", "priceMax", "priceUnit", "closed"],
+  price: ["priceMin", "priceMax", "priceUnit"],
+  contact: ["address", "localArea", "phone"],
+};
+const ENTRY_TITLE = {
+  price: (name) => `Giá đúng của "${name}"`,
+  contact: (name) => `Địa chỉ / số điện thoại đúng của "${name}"`,
+};
+
+export function ContributionPanel({ place, onDone, onOpenChange, entry = "menu", triggerLabel = null, triggerClassName = null }) {
+  const visibleFields = new Set(ENTRY_FIELDS[entry] ?? ENTRY_FIELDS.menu);
+  const show = (field) => visibleFields.has(field);
   // NOTE-01 §7.4: lời mời gửi ảnh nói rõ khách đang giúp việc gì, khác nhau tuỳ chỗ đã có
   // ảnh hay chưa — "Thêm ảnh" chung chung không cho khách lý do nào để bấm.
   const hasPhotos = placeGeneralMedia(place).length > 0;
@@ -92,7 +111,7 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
   }
 
   function openChoiceMenu() {
-    setMode("choiceMenu");
+    setMode(entry === "closed" ? "closedForm" : entry === "menu" ? "choiceMenu" : "correctionForm");
     onOpenChange?.(true);
   }
 
@@ -348,18 +367,23 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
         <button
           type="button"
           onClick={openChoiceMenu}
-          className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
+          className={
+            triggerClassName ??
+            "cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
+          }
         >
-          <PencilIcon size={15} />
-          Sửa thông tin hoặc gửi ảnh
+          {entry === "menu" && <PencilIcon size={15} />}
+          {triggerLabel ?? "Sửa thông tin hoặc gửi ảnh"}
         </button>
-        <button
-          type="button"
-          onClick={() => setMode("recoverForm")}
-          className="w-full cursor-pointer text-left text-xs text-zinc-400 underline"
-        >
-          Đã góp ý trước đây? Khôi phục
-        </button>
+        {entry === "menu" && (
+          <button
+            type="button"
+            onClick={() => setMode("recoverForm")}
+            className="w-full cursor-pointer text-left text-xs text-zinc-400 underline"
+          >
+            Đã góp ý trước đây? Khôi phục
+          </button>
+        )}
         {errorMessage && <p className="w-full text-xs text-red-600">{errorMessage}</p>}
       </>
     );
@@ -460,46 +484,63 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
 
       {mode === "correctionForm" && (
         <form onSubmit={handleCorrectionSubmit} className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-zinc-600">Sửa thông tin cho &quot;{place.name}&quot;</p>
+          <p className="text-xs font-medium text-zinc-600">
+            {ENTRY_TITLE[entry]?.(place.name) ?? <>Sửa thông tin cho &quot;{place.name}&quot;</>}
+          </p>
           <div className="grid grid-cols-2 gap-2">
-            <input
-              className={inputClass}
-              placeholder="Địa chỉ đúng"
-              value={fields.address}
-              onChange={(e) => setFields((f) => ({ ...f, address: e.target.value }))}
-            />
-            <input
-              className={inputClass}
-              placeholder="Khu vực (VD: Khu 80 gian...)"
-              value={fields.localArea}
-              onChange={(e) => setFields((f) => ({ ...f, localArea: e.target.value }))}
-            />
-            <input
-              className={inputClass}
-              placeholder="SĐT đúng"
-              value={fields.phone}
-              onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
-            />
-            <input
-              className={inputClass}
-              type="number"
-              placeholder="Giá thấp nhất"
-              value={fields.priceMin}
-              onChange={(e) => setFields((f) => ({ ...f, priceMin: e.target.value }))}
-            />
-            <input
-              className={inputClass}
-              type="number"
-              placeholder="Giá cao nhất"
-              value={fields.priceMax}
-              onChange={(e) => setFields((f) => ({ ...f, priceMax: e.target.value }))}
-            />
-            <input
-              className={inputClass}
-              placeholder="Đơn vị (đêm, bát...)"
-              value={fields.priceUnit}
-              onChange={(e) => setFields((f) => ({ ...f, priceUnit: e.target.value }))}
-            />
+            {show("address") && (
+              <input
+                className={inputClass}
+                placeholder="Địa chỉ đúng"
+                value={fields.address}
+                onChange={(e) => setFields((f) => ({ ...f, address: e.target.value }))}
+              />
+            )}
+            {show("localArea") && (
+              <input
+                className={inputClass}
+                placeholder="Khu vực (VD: Khu 80 gian...)"
+                value={fields.localArea}
+                onChange={(e) => setFields((f) => ({ ...f, localArea: e.target.value }))}
+              />
+            )}
+            {show("phone") && (
+              <input
+                className={inputClass}
+                inputMode="tel"
+                placeholder="SĐT đúng"
+                value={fields.phone}
+                onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+              />
+            )}
+            {show("priceMin") && (
+              <input
+                className={inputClass}
+                type="number"
+                inputMode="numeric"
+                placeholder="Giá thấp nhất"
+                value={fields.priceMin}
+                onChange={(e) => setFields((f) => ({ ...f, priceMin: e.target.value }))}
+              />
+            )}
+            {show("priceMax") && (
+              <input
+                className={inputClass}
+                type="number"
+                inputMode="numeric"
+                placeholder="Giá cao nhất"
+                value={fields.priceMax}
+                onChange={(e) => setFields((f) => ({ ...f, priceMax: e.target.value }))}
+              />
+            )}
+            {show("priceUnit") && (
+              <input
+                className={inputClass}
+                placeholder="Đơn vị (đêm, bát...)"
+                value={fields.priceUnit}
+                onChange={(e) => setFields((f) => ({ ...f, priceUnit: e.target.value }))}
+              />
+            )}
           </div>
           <textarea
             className={inputClass}
@@ -508,14 +549,16 @@ export function ContributionPanel({ place, onDone, onOpenChange }) {
             onChange={(e) => setNote(e.target.value)}
             rows={2}
           />
-          <label className="flex items-center gap-2 text-sm text-zinc-600">
-            <input
-              type="checkbox"
-              checked={fields.closed}
-              onChange={(e) => setFields((f) => ({ ...f, closed: e.target.checked }))}
-            />
-            Chỗ này đã đóng cửa / không còn hoạt động
-          </label>
+          {show("closed") && (
+            <label className="flex items-center gap-2 text-sm text-zinc-600">
+              <input
+                type="checkbox"
+                checked={fields.closed}
+                onChange={(e) => setFields((f) => ({ ...f, closed: e.target.checked }))}
+              />
+              Chỗ này đã đóng cửa / không còn hoạt động
+            </label>
+          )}
           {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
           <div className="flex gap-2">
             <button type="submit" disabled={busy} className={btnPrimary}>

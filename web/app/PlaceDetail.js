@@ -37,7 +37,27 @@ import { track } from "./analytics";
 // ngang hàng nữa. Đầu trang theo đúng thứ tự khách cần để quyết định:
 //   tên → loại/khu vực → trạng thái hoạt động + lần xác nhận → giá → Lưu vào Sổ / Chỉ đường
 // Phần còn lại gom thành từng mục có tiêu đề để lướt nhanh: Thông tin thực tế · Mẹo địa phương ·
-// Liên hệ & vị trí · Nguồn thông tin · Thao tác khác · Đóng góp.
+// Liên hệ & vị trí · Nguồn thông tin · Thao tác khác.
+//
+// Đóng góp KHÔNG còn là một khối riêng cuối trang (owner test 30/9): mỗi câu hỏi đứng ngay cạnh
+// thông tin nó hỏi — "Chỗ này còn mở không?" cạnh trạng thái, "Giá này còn đúng không?" cạnh giá,
+// "Thông tin này còn đúng không?" trong Liên hệ, câu bấm chọn trong Thông tin thực tế, mẹo trong
+// Mẹo địa phương. Ưu tiên một chạm; form chi tiết chỉ mở khi khách bấm "sửa". Tất cả vẫn là các
+// component đóng góp sẵn có (CheckinButton, ContributionPanel, QuestionPrompt, NoteInput).
+
+// Nút nhỏ cho các câu hỏi theo ngữ cảnh — cùng kiểu với nút "Vẫn mở".
+const askButtonClass =
+  "cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600";
+
+// Một câu hỏi ngữ cảnh: câu hỏi nhỏ + các nút trả lời, xuống dòng khi hẹp.
+function Ask({ question, children }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span className="text-[13px] text-zinc-500">{question}</span>
+      {children}
+    </div>
+  );
+}
 
 // Một mục có tiêu đề. Nền trắng + bóng nhẹ, không viền (DESIGN.md §3).
 function Section({ title, children, className = "" }) {
@@ -80,7 +100,6 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   // tới đây), nên câu chữ phải nói rõ tình trạng thay vì để khách tưởng chỗ này còn.
   const validityLabel = placeValidityLabel(place);
   const [activeNoteContext, setActiveNoteContext] = useState(null);
-  const [correctionPanelOpen, setCorrectionPanelOpen] = useState(false);
   const action = primaryAction(place);
   const ctaRowRef = useRef(null);
   const ctaOffscreen = useOffscreen(ctaRowRef);
@@ -91,11 +110,6 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   }, [place.id, closed]);
   // Spec Location-Routing §6: chưa xác nhận vị trí thì nút bản đồ là "Tìm trên Google Maps", không phải "Chỉ đường".
   const mapAction = placeMapAction(place);
-
-  function handleCorrectionPanelChange(open) {
-    setCorrectionPanelOpen(open);
-    if (open) setActiveNoteContext(null);
-  }
 
   if (closed) {
     return (
@@ -229,16 +243,37 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
         )}
         {asksStatus && <PlaceStatusLine place={{ ...place, lastCheckinAt }} className="mt-3 text-sm" />}
         {asksStatus && (
-          <p className="mt-3 flex items-baseline gap-1">
-            {compactPrice ? (
-              <>
-                <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>
-                <span className="text-sm text-zinc-400">{compactPrice.unitText}</span>
-              </>
-            ) : (
-              <span className="text-base text-zinc-400">Chưa cập nhật giá</span>
-            )}
-          </p>
+          <div className="mt-2">
+            {/* Một chạm: "Vẫn mở" ghi xác nhận ngay; "Đã đóng cửa" mở thẳng form báo đóng cửa. */}
+            <Ask question="Chỗ này còn mở không?">
+              <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />
+              <ContributionPanel place={place} entry="closed" triggerLabel="Đã đóng cửa" triggerClassName={askButtonClass} />
+            </Ask>
+          </div>
+        )}
+        {asksStatus && (
+          <>
+            <p className="mt-3 flex items-baseline gap-1">
+              {compactPrice ? (
+                <>
+                  <span className="text-2xl font-medium tracking-tight text-zinc-900">{compactPrice.compact}</span>
+                  <span className="text-sm text-zinc-400">{compactPrice.unitText}</span>
+                </>
+              ) : (
+                <span className="text-base text-zinc-400">Chưa cập nhật giá</span>
+              )}
+            </p>
+            <div className="mt-1">
+              <Ask question={compactPrice ? "Giá này còn đúng không?" : "Bạn biết giá ở đây?"}>
+                <ContributionPanel
+                  place={place}
+                  entry="price"
+                  triggerLabel={compactPrice ? "Báo giá khác" : "Thêm giá"}
+                  triggerClassName={askButtonClass}
+                />
+              </Ask>
+            </div>
+          </>
         )}
         <div ref={ctaRowRef} className="mt-4 flex flex-wrap items-start gap-2 [&>a]:flex-1 [&>button]:flex-1 sm:max-w-md">
           <AddToNotebook place={place} mode="notebook" />
@@ -288,9 +323,12 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             </div>
           )}
 
-          {hasPracticalInfo && (
+          {(hasPracticalInfo || asksStatus) && (
             <Section title="Thông tin thực tế">
               {facts}
+              {/* Câu hỏi bấm chọn một chạm (gửi xe, lối vào…) đứng ngay trong mục nó bổ sung. Tạm ẩn khi
+                  khách đang gõ mẹo để không hiện hai câu hỏi cùng lúc (NOTE-12). */}
+              <QuestionPrompt place={place} suspended={activeNoteContext !== null} />
               {signatureDishes.length > 0 && (
                 <div>
                   <p className="mb-1.5 text-[13px] text-zinc-500">Món đặc trưng</p>
@@ -342,18 +380,19 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
 
           {/* Mẹo địa phương hiện như FIELD, không phải bình luận — không avatar, không tên người
               viết (NOTE-02 §7). Chỉ nội dung admin đã duyệt mới tới được đây. */}
-          {place.notes?.length > 0 && (
-            <Section title="Mẹo địa phương">
-              {place.notes.map((n) => (
-                <p key={n.id} className="text-zinc-700">
-                  {noteContextLabel(n.context) && (
-                    <span className="mr-1.5 font-medium text-zinc-900">{noteContextLabel(n.context)}</span>
-                  )}
-                  {n.text}
-                </p>
-              ))}
-            </Section>
-          )}
+          <Section title="Mẹo địa phương">
+            {place.notes?.map((n) => (
+              <p key={n.id} className="text-zinc-700">
+                {noteContextLabel(n.context) && (
+                  <span className="mr-1.5 font-medium text-zinc-900">{noteContextLabel(n.context)}</span>
+                )}
+                {n.text}
+              </p>
+            ))}
+            {/* Lời mời thêm mẹo nằm ngay dưới các mẹo đã có — chọn ngữ cảnh là một chạm, gõ chữ
+                chỉ khi cần và luôn qua duyệt. */}
+            <NoteInput place={place} showPublishedNotes={false} onActiveContext={setActiveNoteContext} />
+          </Section>
         </div>
 
         <div className="flex flex-col gap-5">
@@ -367,6 +406,9 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             <div id={`lien-he-${place.id}`}>
               <PhoneBlock place={place} />
             </div>
+            <Ask question="Thông tin này còn đúng không?">
+              <ContributionPanel place={place} entry="contact" triggerLabel="Sửa địa chỉ / SĐT" triggerClassName={askButtonClass} />
+            </Ask>
             {/* Giải thích vì sao nút bản đồ là "Chỉ đường" hay "Tìm trên Google Maps" (spec
                 Consensus §16) — thuộc về vị trí nên đứng trong mục này. */}
             <PlaceLocationVote place={place} />
@@ -388,7 +430,6 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             <div className="flex flex-wrap items-center gap-2">
               <AddToNotebook place={place} mode="route" />
               <CreateRouteFromPlace place={place} />
-              {asksStatus && <CheckinButton place={place} onCheckedIn={setLastCheckinAt} />}
               <button
                 type="button"
                 onClick={handleShare}
@@ -397,21 +438,14 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
                 {copyLabel}
               </button>
             </div>
+            {/* Form đầy đủ (mọi trường, báo trùng, gửi ảnh) — cho ai muốn sửa thêm ngoài các câu hỏi trên. */}
+            <div className="flex flex-col gap-2">
+              <ContributionPanel place={place} triggerLabel="Sửa thêm hoặc gửi ảnh" />
+            </div>
           </Section>
         </div>
       </div>
 
-      <Section title="Đóng góp thông tin">
-        {!correctionPanelOpen && (
-          <NoteInput place={place} showPublishedNotes={false} onActiveContext={setActiveNoteContext} />
-        )}
-        <ContributionPanel
-          place={place}
-          onOpenChange={handleCorrectionPanelChange}
-          onDone={() => setCorrectionPanelOpen(false)}
-        />
-        <QuestionPrompt place={place} suspended={activeNoteContext !== null || correctionPanelOpen} />
-      </Section>
 
       {/* Mobile: khi đã cuộn qua hàng nút ở đầu trang, Lưu vào Sổ + bản đồ bám đáy màn hình để
           không phải cuộn ngược lên. Khoảng trống h-24 giữ khối cuối trang không bị thanh che. */}
