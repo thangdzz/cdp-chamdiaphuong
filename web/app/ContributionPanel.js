@@ -58,7 +58,13 @@ const ENTRY_TITLE = {
   contact: (name) => `Địa chỉ / số điện thoại đúng của "${name}"`,
 };
 
-export function ContributionPanel({ place, onDone, onOpenChange, entry = "menu", triggerLabel = null, triggerClassName = null }) {
+function entryMode(entry) {
+  return entry === "closed" ? "closedForm" : entry === "menu" ? "choiceMenu" : "correctionForm";
+}
+
+// `startOpen`: vẽ luôn form của `entry`, không cần bấm nút trước (khách đã chọn "Đã đóng cửa" ở
+// câu hỏi khác). Huỷ thì gọi `onDone` để nơi gọi tự đóng lại.
+export function ContributionPanel({ place, onDone, onOpenChange, entry = "menu", triggerLabel = null, triggerClassName = null, startOpen = false }) {
   const visibleFields = new Set(ENTRY_FIELDS[entry] ?? ENTRY_FIELDS.menu);
   const show = (field) => visibleFields.has(field);
   // NOTE-01 §7.4: lời mời gửi ảnh nói rõ khách đang giúp việc gì, khác nhau tuỳ chỗ đã có
@@ -68,7 +74,7 @@ export function ContributionPanel({ place, onDone, onOpenChange, entry = "menu",
   const photoInvite = hasPhotos
     ? "Gửi ảnh mới — giúp người sau dễ nhận ra chỗ"
     : "Gửi ảnh đầu tiên cho chỗ này";
-  const [mode, setMode] = useState("idle");
+  const [mode, setMode] = useState(startOpen ? entryMode(entry) : "idle");
   const [fields, setFields] = useState({
     address: "",
     localArea: "",
@@ -111,7 +117,7 @@ export function ContributionPanel({ place, onDone, onOpenChange, entry = "menu",
   }
 
   function openChoiceMenu() {
-    setMode(entry === "closed" ? "closedForm" : entry === "menu" ? "choiceMenu" : "correctionForm");
+    setMode(entryMode(entry));
     onOpenChange?.(true);
   }
 

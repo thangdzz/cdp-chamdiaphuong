@@ -54,6 +54,8 @@ test("sắp xếp không đổi mảng gốc; chia nhóm đúng thứ tự Ăn �
 test("địa chỉ rút gọn bỏ phần phường/thành phố", () => {
   assert.equal(formatShortAddress("12 Trần Phú, Phường Minh Xuân, TP Tuyên Quang"), "12 Trần Phú");
   assert.equal(formatShortAddress("Phường Minh Xuân"), "Phường Minh Xuân");
+  assert.equal(formatShortAddress("Tổ 15, Phường Phan Thiết, TP Tuyên Quang"), "Tổ 15");
+  assert.equal(formatShortAddress("12 Trần Phú, Tổ 5, Phường Minh Xuân"), "12 Trần Phú, Tổ 5");
 });
 
 test("dòng xác nhận còn mở theo tuổi", () => {

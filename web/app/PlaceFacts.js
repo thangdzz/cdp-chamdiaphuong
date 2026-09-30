@@ -33,8 +33,17 @@ export function placeFactRows({ type, consensus, subtype = null, filledFields = 
     .filter(Boolean);
 }
 
-export function PlaceFacts(props) {
-  const rows = placeFactRows(props);
+/** "Gửi xe: Trước cửa" — một dòng chữ thuần, cho dòng "đáng chú ý" ở đầu trang địa điểm. */
+export function placeFactText({ question, consensus }) {
+  return `${question.label}: ${formatValue(question, consensus)}`;
+}
+
+// `which`: "all" (mặc định) · "strong" (đã đủ đồng thuận) · "weak" (mới 1 người cho biết — trang
+// địa điểm gập phần này lại để khỏi rối).
+export function PlaceFacts({ which = "all", ...props }) {
+  const rows = placeFactRows(props).filter(
+    (r) => which === "all" || (which === "weak" ? r.consensus.weak : !r.consensus.weak)
+  );
   if (rows.length === 0) return null;
 
   return (

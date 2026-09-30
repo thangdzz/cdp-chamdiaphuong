@@ -3,7 +3,9 @@
 
 // Rút gọn địa chỉ về "số nhà + tên đường" cho thẻ gọn — bỏ phần phường/thành phố (đã có
 // mục "Khu vực" riêng). "Địa chỉ đầy đủ" ở trang chi tiết vẫn giữ nguyên chuỗi gốc.
-const ADDRESS_DROP_PREFIXES = ["phường", "tp", "thành phố", "tổ", "xã", "huyện", "thị trấn"];
+// "Tổ 15" KHÔNG bị cắt (30/9): với địa chỉ không có số nhà, tổ dân phố là phần cụ thể nhất — cắt
+// nó thì còn lại rỗng và cả chuỗi dài bị trả nguyên.
+const ADDRESS_DROP_PREFIXES = ["phường", "tp", "thành phố", "xã", "huyện", "thị trấn", "tỉnh"];
 
 export function formatShortAddress(address) {
   if (!address) return address;

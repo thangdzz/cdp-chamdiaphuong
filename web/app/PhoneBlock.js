@@ -26,7 +26,11 @@ function statusLine(status, confirmCount) {
   return { text: "Chưa ai xác nhận số này", tone: "muted" };
 }
 
-export function PhoneBlock({ place }) {
+// `part`: "all" (mặc định, như cũ) · "contact" (số + trạng thái + Gọi/Tìm số — cho mục Liên hệ) ·
+// "confirm" (chỉ Số đúng / Số sai — cho "Thông tin chưa đúng?", để mục Liên hệ không thành form).
+export function PhoneBlock({ place, part = "all" }) {
+  const showContact = part !== "confirm";
+  const showConfirm = part !== "contact";
   const [state, setState] = useState(null); // { status, confirmCount, myVote }
   const [justAwarded, setJustAwarded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -75,9 +79,24 @@ export function PhoneBlock({ place }) {
   // Chưa ai xác nhận hoặc đang có báo sai -> mời khách tự kiểm chứng bằng Google (NOTE-01 §6.3).
   const showGoogle = !state || state.status === "none" || state.status === "disputed";
 
+  if (!showContact) {
+    return (
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[13px] text-zinc-500">Số {place.phone} còn đúng không?</span>
+        <button type="button" disabled={busy} onClick={() => vote("correct")} className={btnClass}>
+          {state?.myVote === "correct" ? "✓ Bạn đã xác nhận đúng" : "Số đúng"}
+        </button>
+        <button type="button" disabled={busy} onClick={() => vote("incorrect")} className={btnClass}>
+          {state?.myVote === "incorrect" ? "✓ Bạn đã báo sai" : "Số sai"}
+        </button>
+        {justAwarded && <span className="text-[13px] text-zinc-500">+1 điểm</span>}
+      </div>
+    );
+  }
+
   return (
     <div>
-      <p className="mb-1.5 text-[13px] text-zinc-500">Liên hệ</p>
+      {part === "all" && <p className="mb-1.5 text-[13px] text-zinc-500">Liên hệ</p>}
 
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="text-base tracking-tight text-zinc-900">{place.phone}</span>
@@ -114,23 +133,27 @@ export function PhoneBlock({ place }) {
           </a>
         )}
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => vote("correct")}
-          className={`${btnClass} ${state?.myVote === "correct" ? "border-zinc-400 text-zinc-900" : ""}`}
-        >
-          {state?.myVote === "correct" ? "✓ Bạn đã xác nhận đúng" : "Số đúng"}
-        </button>
+        {showConfirm && (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => vote("correct")}
+              className={`${btnClass} ${state?.myVote === "correct" ? "border-zinc-400 text-zinc-900" : ""}`}
+            >
+              {state?.myVote === "correct" ? "✓ Bạn đã xác nhận đúng" : "Số đúng"}
+            </button>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => vote("incorrect")}
-          className={`${btnClass} ${state?.myVote === "incorrect" ? "border-zinc-400 text-zinc-900" : ""}`}
-        >
-          {state?.myVote === "incorrect" ? "✓ Bạn đã báo sai" : "Số sai"}
-        </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => vote("incorrect")}
+              className={`${btnClass} ${state?.myVote === "incorrect" ? "border-zinc-400 text-zinc-900" : ""}`}
+            >
+              {state?.myVote === "incorrect" ? "✓ Bạn đã báo sai" : "Số sai"}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

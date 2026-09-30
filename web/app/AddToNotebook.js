@@ -27,7 +27,9 @@ const MODE_LABEL = { notebook: "Lưu vào Sổ", route: "+ Lộ trình", both: "
 // này thì nút kia cũng phải hiện "đã lưu" — báo cho nhau qua một sự kiện trong trang.
 const SAVED_EVENT = "cdp-place-saved";
 
-export function AddToNotebook({ place, mode = "both", className = "" }) {
+// `buttonClassName` thay hẳn kiểu nút (vd. link chữ ở trang địa điểm); `children` vẽ thêm dưới
+// bảng chọn (vd. "Tạo lộ trình mới từ chỗ này").
+export function AddToNotebook({ place, mode = "both", className = "", label = null, buttonClassName = null, children = null }) {
   const showNotebooks = mode !== "route";
   const showRoutes = mode !== "notebook";
   const [open, setOpen] = useState(false);
@@ -181,9 +183,9 @@ export function AddToNotebook({ place, mode = "both", className = "" }) {
 
   return (
     <>
-      <button type="button" onClick={openMenu} disabled={busy} aria-expanded={open} className={`${buttonClass} ${className}`}>
-        <BookmarkIcon size={15} />
-        {MODE_LABEL[mode] ?? MODE_LABEL.both}
+      <button type="button" onClick={openMenu} disabled={busy} aria-expanded={open} className={buttonClassName ?? `${buttonClass} ${className}`}>
+        {!buttonClassName && <BookmarkIcon size={15} />}
+        {label ?? MODE_LABEL[mode] ?? MODE_LABEL.both}
       </button>
 
       {open && (
@@ -227,6 +229,7 @@ export function AddToNotebook({ place, mode = "both", className = "" }) {
             />
           </div>
           )}
+          {children && <div className="mt-3 border-t border-zinc-200 pt-3">{children}</div>}
         </div>
       )}
     </>

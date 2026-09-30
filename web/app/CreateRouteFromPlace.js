@@ -11,7 +11,7 @@ import { loadLocalContributor, saveLocalContributor } from "./ContributionPanel"
 // bấm từng chỗ một, hoặc gom sổ trước rồi mới chuyển thành lộ trình.
 //
 // Dùng chung PlacePicker với trang sửa lộ trình — không có bộ chọn riêng cho màn này (§3).
-export function CreateRouteFromPlace({ place }) {
+export function CreateRouteFromPlace({ place, label = "Tạo lộ trình từ đây", className = null }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -40,9 +40,9 @@ export function CreateRouteFromPlace({ place }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"
+        className={className ?? "cdp-pressable inline-flex min-h-11 w-fit cursor-pointer items-center rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-600"}
       >
-        Tạo lộ trình từ đây
+        {label}
       </button>
 
       {open && (

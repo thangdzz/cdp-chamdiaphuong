@@ -99,7 +99,9 @@ export function placeMapAction(place) {
   const directions = mapsDirectionsUrl(placeRouteTarget(place));
   if (directions) return { kind: "directions", href: directions, label: "Chỉ đường" };
   const search = mapsSearchUrl(place);
-  return search ? { kind: "search", href: search, label: "Tìm trên Google Maps" } : null;
+  // Chữ ngắn "Tìm trên Maps" (PO 30/9) để nút không xuống 2 dòng trên điện thoại; vẫn nói rõ là TÌM,
+  // không giả vờ là chỉ đường.
+  return search ? { kind: "search", href: search, label: "Tìm trên Maps" } : null;
 }
 
 /** Link CHỈ ĐƯỜNG tới một điểm đã xác minh. `null` khi chưa đủ dữ liệu — nơi gọi phải xử lý. */
