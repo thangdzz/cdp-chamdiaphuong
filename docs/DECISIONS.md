@@ -2822,3 +2822,15 @@ link gọi dùng nguyên chuỗi, iPhone ghép thành một số không tồn t�
 nhất tạo `tel:`. Trang địa điểm hiện từng số là một link gọi riêng (không thêm bước chọn vì số đã bày
 ra); nút "Gọi" dạng nút (PhoneBlock `all`/`contact`) mở "Chọn số để gọi" khi có nhiều số. Không tách ô
 SĐT trong dữ liệu — phiếu Số đúng/Số sai vẫn tính cho cả ô như cũ.
+
+---
+
+## 2026-09-30 (release) — vNext Core Discovery Flow lên production
+
+**Quyết định:** Product Owner test tay đạt (kể cả `two-wheeler` trên iPhone thật) → deploy commit
+`e3b38a4` thành `chamdiaphuongio-og2r8pgy7`. SCOPE-vNext đánh dấu RELEASED; không mở Scope mới, MAY
+chưa làm. Smoke test production 307/307. Quay lại được bằng cách promote `87p9xw2vr` trên Vercel.
+
+**Ghi nhận khi kiểm:** các bộ kiểm ở máy trước ngày release coi `logNotebookView` là lượt đọc nên đã
+cộng ~6 lượt xem thật vào sổ thử `bnwr7tvn` (chỉ bộ đếm lượt xem, không đổi nội dung sổ). Đã sửa bộ
+kiểm; từ nay chặn cả lượt này.

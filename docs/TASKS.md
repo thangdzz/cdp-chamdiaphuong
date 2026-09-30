@@ -57,13 +57,15 @@ trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi even
 - 👀 Product Owner thử link `two-wheeler` trên điện thoại thật ở Việt Nam (xem STATUS)
 - 👀 Product Owner chọn font có tiếng Việt (xem STATUS)
 
-**Release Check (30/9)** — **READY WITH KNOWN NON-BLOCKERS**, chưa deploy
+**✅ RELEASED 30/9** — commit `e3b38a4`, deployment `chamdiaphuongio-og2r8pgy7`, smoke test production 307/307
+
+**Release Check (30/9)** — **READY WITH KNOWN NON-BLOCKERS**
 - ✅ Scope: đủ MUST; MAY chưa làm · không migration · analytics chỉ 4 event của Scope
 - ✅ Kiểm tự động 310/310 (iPhone 13 + desktop): luồng lõi Home → Tìm → Place → Lưu → Xem Sổ, Quay lại,
   sửa Sổ/Lộ trình + Lưu thay đổi, ô 2 SĐT, thẻ tóm tắt desktop · lint sạch · `npm test` 70/70 · build đạt
-- 👀 **`two-wheeler` — BLOCKED BY OWNER TEST** (thử trên điện thoại thật trước khi deploy)
-- 👀 Product Owner làm checklist tay — [HANDOFF.md](HANDOFF.md) §5
-- ⬜ Deploy production — chỉ khi Product Owner duyệt
+- ✅ **`two-wheeler`** — Product Owner đã kiểm trên iPhone thật, hoạt động đúng
+- ✅ Product Owner test tay đạt
+- ✅ Deploy production 30/9 + smoke test mobile/desktop 307/307, không lỗi JS/runtime
 - Follow-up sau release (không chặn): font có tiếng Việt (Be Vietnam Pro / Inter) · dọn `PlaceExplorer.js`
 
 **MAY** — chỉ làm khi MUST xong, test sạch, không làm tăng scope

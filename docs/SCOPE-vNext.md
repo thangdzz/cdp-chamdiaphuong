@@ -1,6 +1,10 @@
 # vNext — Core Discovery Flow
 
-Status: **FROZEN** (Product Owner chốt 2026-09-29) · Build: **chưa bắt đầu**
+Status: **RELEASED** — 2026-09-30 · commit `e3b38a4` · deployment `chamdiaphuongio-og2r8pgy7`
+(alias chamdiaphuong.io.vn). Scope FROZEN từ 2026-09-29, không mở rộng. MAY **chưa làm**.
+
+> Release: Product Owner test tay đạt (kể cả `two-wheeler` trên iPhone thật) · Release Check
+> READY WITH KNOWN NON-BLOCKERS · smoke test production 307/307 (iPhone 13 + desktop).
 
 > Đọc cùng [PRODUCT.md](PRODUCT.md). Scope đã đóng băng: muốn thêm/bớt gì phải được Product
 > Owner duyệt lại. Ý tưởng phát sinh trong lúc làm → [INBOX.md](INBOX.md).
