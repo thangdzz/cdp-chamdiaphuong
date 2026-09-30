@@ -29,6 +29,7 @@ import { getPlaceTypeLabel, placeTypeAsksStatus } from "@/lib/placeTypes";
 import { formatDurationText } from "@/lib/durationFormat";
 import { PROVINCES } from "@/lib/provinces";
 import { PICKUP_SELECTION_TYPES, pickupModeLabel, pickupPointFullAddress, pickupSelectionLabel } from "@/lib/pickupPoints";
+import { BackButton } from "@/app/BackButton";
 
 // Chỉ chủ lộ trình vào được — getRouteForEdit tự kiểm tra ở server, trang này chỉ điều hướng
 // về trang xem khi không phải chủ, không tự chặn (cùng cách trang sửa Sổ làm).
@@ -210,9 +211,7 @@ export default function EditRoutePage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <Link href={`/lo-trinh/${slug}`} transitionTypes={["nav-back"]} className="text-sm text-zinc-400 underline">
-          ← Xem lộ trình
-        </Link>
+        <BackButton fallback={`/lo-trinh/${slug}`} />
 
         <input
           className="mt-3 w-full rounded-lg border border-zinc-300 px-3 py-2 text-base font-medium text-zinc-900"

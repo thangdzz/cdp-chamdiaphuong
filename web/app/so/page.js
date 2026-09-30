@@ -6,6 +6,7 @@ import { getMyNotebooks } from "@/app/notebookActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { PageTitle } from "@/app/AppShell";
 import { NotebookCardActions } from "@/app/NotebookCardActions";
+import { BackButton } from "@/app/BackButton";
 
 // Cần biết "tôi là ai" ngay từ đầu (anonId trong localStorage) nên làm Client Component,
 // giống CheckinButton/QuestionPrompt — Server Component không đọc được localStorage.
@@ -20,6 +21,7 @@ export default function MyNotebooksPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+        <BackButton fallback="/" />
         <div className="mb-6 flex items-baseline justify-between gap-2">
           <PageTitle pageKey="notebooks" fallback="Sổ của tôi" className="text-xl font-medium tracking-tight text-zinc-900" />
           <Link href="/lo-trinh" className="text-[13px] text-zinc-500 underline">

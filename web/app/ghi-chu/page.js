@@ -1,6 +1,7 @@
 import { getLivePlaces } from "@/lib/redis";
 import { PageTitle } from "@/app/AppShell";
 import { PersonalNotesList } from "@/app/PersonalNotesList";
+import { BackButton } from "@/app/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function PersonalNotesPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+        <BackButton fallback="/" />
         <PageTitle pageKey="notes" fallback="Ghi chú của tôi" className="mb-1 text-xl font-medium tracking-tight text-zinc-900" />
         <p className="mb-4 text-[13px] text-zinc-500">
           Chỉ mình bạn thấy — lưu trên máy này, đổi máy hoặc xoá dữ liệu duyệt web sẽ mất.

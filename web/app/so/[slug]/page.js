@@ -6,11 +6,11 @@ import { getAllLocationConsensus } from "@/lib/locationVotes";
 import { readNow } from "@/lib/events";
 import { NotebookViewTracker } from "@/app/NotebookViewTracker";
 import { NotebookOwnerActions } from "@/app/NotebookOwnerActions";
-import { OwnerBackLink } from "@/app/OwnerBackLink";
 import { NotebookPlaceCard } from "@/app/NotebookPlaceCard";
 import { PLACE_TYPES } from "@/lib/placeTypes";
 import { notebookCover, FALLBACK_COVER } from "@/lib/cover";
 import { MediaImage } from "@/app/MediaImage";
+import { BackButton } from "@/app/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -111,7 +111,7 @@ export default async function NotebookViewPage({ params }) {
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
         <NotebookViewTracker slug={slug} />
-        <OwnerBackLink kind="notebook" slug={slug} />
+        <BackButton fallback="/" />
 
         {/* NOTE-03 §6 + §13: cover dạng collage 3 ảnh đầu (chưa có trường cover riêng — đó là
             P1), rồi mới tới tên sổ và metadata "N địa điểm · Nhóm chính". */}

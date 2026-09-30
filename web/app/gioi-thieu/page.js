@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageTitle } from "@/app/AppShell";
 import { getAboutPageContent } from "@/lib/aboutPage";
+import { BackButton } from "@/app/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function AboutPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <BackButton fallback="/" />
         <header className="mt-2 border-b border-[#c8553d]/25 pb-7 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-end lg:gap-12 lg:pb-10">
           <div>
             <p className="inline-flex rounded-full bg-[#c8553d]/10 px-3 py-1 text-sm font-medium text-[#a83f2b]">{content.hero.label}</p>

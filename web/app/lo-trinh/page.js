@@ -6,6 +6,7 @@ import { getMyRoutes } from "@/app/routeActions";
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { RouteCardActions } from "@/app/RouteCardActions";
 import { PageTitle } from "@/app/AppShell";
+import { BackButton } from "@/app/BackButton";
 
 // Cần biết "tôi là ai" ngay từ đầu (anonId trong localStorage) nên làm Client Component,
 // giống trang Sổ của tôi — Server Component không đọc được localStorage.
@@ -20,6 +21,7 @@ export default function MyRoutesPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+        <BackButton fallback="/" />
         <div className="mb-1 flex items-baseline justify-between gap-2">
           <PageTitle pageKey="routes" fallback="Lộ trình của tôi" className="text-xl font-medium tracking-tight text-zinc-900" />
           <Link href="/so" className="text-[13px] text-zinc-500 underline">

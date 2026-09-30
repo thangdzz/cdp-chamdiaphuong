@@ -8,6 +8,7 @@ import { PLACE_TYPES } from "@/lib/placeTypes";
 import { placeCover, FALLBACK_COVER } from "@/lib/cover";
 import { PlaceDetail } from "@/app/PlaceDetail";
 import { getClosedPlace } from "@/lib/closedPlaces";
+import { BackButton } from "@/app/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,7 @@ export default async function PlacePage({ params }) {
     return (
       <div className="flex flex-1 justify-center">
         <main className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+          <BackButton fallback="/tim" />
           <PlaceDetail place={record.place} closed replacement={record.replacement} />
         </main>
       </div>
@@ -91,6 +93,8 @@ export default async function PlacePage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        {/* Mở thẳng link chia sẻ thì về danh sách tìm chỗ — trang cha của một địa điểm. */}
+        <BackButton fallback="/tim" />
         <PlaceDetail place={resolved} />
       </main>
     </div>

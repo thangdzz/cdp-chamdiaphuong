@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   EVENT_STATUS,
   eventStatus,
@@ -17,6 +16,7 @@ import { EventCard } from "./EventCard";
 import { GameEntryCard } from "@/app/_game/GameEntryCard";
 import { eventPhase, gameEventHref, publicEventConfig } from "@/lib/game/registry";
 import { getSharedGameTeaser, loadGameEventShared } from "@/lib/game/store";
+import { BackButton } from "@/app/BackButton";
 
 // Mùa game gắn với bài viết này. Bài lễ hội năm sau chỉ đổi slug, không đổi code game.
 const FESTIVAL_GAME_SLUG = "san-den-thanh-tuyen-2026"; // phải khớp `slug` trong lib/game/seasons/*.js
@@ -88,9 +88,7 @@ export default async function LeHoiThanhTuyenPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <Link href="/" transitionTypes={["nav-back"]} className="text-sm text-zinc-500">
-          ← Về trang chủ
-        </Link>
+        <BackButton fallback="/" />
 
         <div className="relative mt-3 h-48 w-full overflow-hidden rounded-xl sm:h-64">
           <Image

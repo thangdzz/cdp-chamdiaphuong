@@ -9,6 +9,7 @@ import { FALLBACK_COVER } from "@/lib/cover";
 import { StopBadge } from "@/app/StopBadge";
 import { MediaImage } from "@/app/MediaImage";
 import { SharedRouteSaveAction } from "@/app/SharedRouteSaveAction";
+import { BackButton } from "@/app/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,7 @@ export default async function SharedRoutePage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
+        <BackButton fallback="/" />
         {/* Người nhận link cần hiểu LỘ TRÌNH trước, nên các nút cá nhân hạ cấp thị giác —
             cùng cách trang địa điểm làm (NOTE-02 §9). */}
 

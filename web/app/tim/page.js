@@ -7,6 +7,7 @@ import { filterPlaces, sortByReliability } from "@/lib/placeFilter";
 import { toResultItem } from "@/lib/searchResults";
 import { Suspense } from "react";
 import { SearchResults } from "./SearchResults";
+import { BackButton } from "@/app/BackButton";
 
 // Trang kết quả tìm kiếm — vNext bước 2 (SCOPE-vNext "Search / Khám phá"). Tách khỏi trang chủ để
 // trang chủ không còn là một danh bạ dài. Đọc cùng nguồn dữ liệu như trang chủ cũ, nhưng chỉ gửi
@@ -43,6 +44,7 @@ export default async function SearchPage() {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-2xl px-4 py-6 sm:px-6">
+        <BackButton fallback="/" />
         <h1 className="mb-3 text-2xl font-medium tracking-tight text-zinc-900">Tìm chỗ</h1>
         {/* SearchResults đọc bộ lọc từ URL bằng useSearchParams — Next yêu cầu bọc Suspense. */}
         <Suspense>

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GameMap } from "./GameMap";
 import { GameSummary, SoundToggle } from "./GameProgress";
@@ -36,6 +35,7 @@ import { formatCountdownTo, formatDayMonth } from "@/lib/game/format";
 import { computeProgress, resolveCollection, resolveObjectStats } from "@/lib/game/progress";
 import { CONFIDENCE } from "@/lib/game/mapLayer";
 import { EVENT_PHASE, livePhaseAt } from "@/lib/game/registry";
+import { BackButton } from "@/app/BackButton";
 
 // Không có websocket (NOTE-04 §27): làm mới nhẹ khi tab đang mở + khi quay lại tab. 2 phút là
 // đủ cho mô hình diễu chậm, và giữ số lệnh Redis trong gói miễn phí.
@@ -339,9 +339,8 @@ export function GameExperience({ event, initialSnapshot, openReportOnLoad = fals
     <main className="mx-auto w-full max-w-6xl bg-[#faf6f0] px-4 pb-36 pt-4 sm:px-6 lg:bg-transparent lg:pb-12">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <Link href={event.postHref} transitionTypes={["nav-back"]} className="text-sm text-zinc-500">
-            ← {event.postTitle}
-          </Link>
+          {/* Mở thẳng link game thì về bài lễ hội — trang cha của game. */}
+          <BackButton fallback={event.postHref} className="mb-0" />
           <h1 className="mt-0.5 text-[22px] font-medium tracking-tight text-zinc-900 sm:text-2xl">{event.shortName}</h1>
           <p className="text-[13px] text-zinc-500">{event.copy.tagline}</p>
         </div>

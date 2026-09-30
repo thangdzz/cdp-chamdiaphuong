@@ -5,11 +5,11 @@ import { REQUIRE_VERIFIED_LOCATION, routeMapsUrl, stopRouteTarget, stopTextTarge
 import { isPickupService, pickupSelectionLabel, stopNeedsPickupSelection } from "@/lib/pickupPoints";
 import { formatStayDuration } from "@/lib/durationFormat";
 import { RouteOwnerActions } from "@/app/RouteOwnerActions";
-import { OwnerBackLink } from "@/app/OwnerBackLink";
 import { formatPriceCompact } from "@/lib/priceFormat";
 import { StopBadge } from "@/app/StopBadge";
 import { MediaImage } from "@/app/MediaImage";
 import { placeNavigationMedia } from "@/lib/media";
+import { BackButton } from "@/app/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +48,7 @@ export default async function RouteViewPage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <OwnerBackLink kind="route" slug={slug} />
+        <BackButton fallback="/lo-trinh" />
 
         <header className="mb-4">
           <h1 className="text-xl font-medium tracking-tight text-zinc-900">{route.title}</h1>

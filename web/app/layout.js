@@ -4,6 +4,7 @@ import { SITE_URL } from "@/lib/siteUrl";
 import { AppShell } from "@/app/AppShell";
 import { getNavigationConfig } from "@/lib/navigation";
 import { AnalyticsTracker } from "@/app/analytics";
+import { NavHistoryTracker } from "@/app/BackButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col bg-zinc-50">
         <AnalyticsTracker />
+        <NavHistoryTracker />
         <AppShell navigation={navigation}>{children}</AppShell>
       </body>
     </html>

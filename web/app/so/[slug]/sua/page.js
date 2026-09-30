@@ -2,7 +2,6 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   getNotebookForEdit,
   renameNotebook,
@@ -13,6 +12,7 @@ import {
 import { loadLocalContributor } from "@/app/ContributionPanel";
 import { getPlaceTypeLabel } from "@/lib/placeTypes";
 import { notebookShareUrl } from "@/lib/siteUrl";
+import { BackButton } from "@/app/BackButton";
 
 // Chỉ chủ sổ mới vào được (SPEC-chang-4.md §3.3) — getNotebookForEdit tự kiểm tra ownership
 // ở server, trang này chỉ điều hướng về trang xem khi không phải chủ sổ, không tự chặn.
@@ -132,9 +132,7 @@ export default function EditNotebookPage({ params }) {
   return (
     <div className="flex flex-1 justify-center">
       <main className="w-full max-w-xl px-4 py-6 sm:px-6">
-        <Link href={`/so/${slug}`} transitionTypes={["nav-back"]} className="text-sm text-zinc-400 underline">
-          ← Xem sổ
-        </Link>
+        <BackButton fallback={`/so/${slug}`} />
 
         <div className="mt-3 flex gap-2">
           <input
