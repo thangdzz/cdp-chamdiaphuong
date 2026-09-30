@@ -8,6 +8,7 @@
 
 ## 1. Task hiện tại
 
+**30/9 (khuya): trang địa điểm gom còn 2 vùng — CHƯA deploy.**
 **30/9 (tối): trang địa điểm bố cục mới + xác nhận hai bước (`app/VisitConfirm.js`) — CHƯA deploy.**
 **30/9 (sau): thêm nút Quay lại (`283b124`) + đóng góp theo ngữ cảnh (`76864df`) — CHƯA deploy.**
 **30/9: đã sửa theo owner test (4 commit `e2144c1` → `a071b7a`), chờ PO thử `two-wheeler` trên

@@ -10,6 +10,8 @@ Cập nhật: **2026-09-29**
 
 ## Đang ở đâu
 
+- **30/9 (khuya) — trang địa điểm gom còn 2 vùng** (Thông tin địa điểm + Cần biết), kiểm 177/177.
+  **Chưa deploy.**
 - **30/9 (tối) — trang địa điểm làm lại theo bố cục PO duyệt** (tóm tắt 6 thông tin + 2 nút,
   xác nhận hai bước, phần gập). Kiểm tự động 180/180. **Chưa deploy.**
 - **30/9 (sau) — thêm nút Quay lại dùng chung + đóng góp theo ngữ cảnh**; kiểm tự động 160/160.

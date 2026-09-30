@@ -7,6 +7,21 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-09-30 (khuya) — Trang địa điểm gom còn 2 vùng: Thông tin địa điểm + Cần biết
+
+PO/PM (vòng dọn cuối trước release): trang vẫn bị chia quá nhiều khối. Chốt:
+- **Thông tin địa điểm** (đầu trang / thẻ bám theo desktop): thêm địa chỉ đầy đủ, **SĐT dạng chữ bấm
+  gọi** (không thêm nút), Chia sẻ + "+ Thêm vào lộ trình" dạng link phụ dưới 2 nút chính. Bỏ thẻ
+  "Liên hệ" riêng và hàng Chia sẻ lơ lửng. Bỏ dòng "đáng chú ý" khỏi khối này — món đặc trưng/tuyến
+  xe về "Cần biết".
+- **Cần biết** gộp thông tin thực tế + món đặc trưng + tuyến xe + mẹo + ảnh menu, **một kiểu dòng**
+  (khách không cần biết dòng nào là trường hệ thống, dòng nào là mẹo). Phụ (thông tin 1 người cho
+  biết, mẹo thứ 2+, "+ Thêm mẹo") trong một "Xem thêm". Tối đa 1 câu hỏi bấm chọn.
+- **"Thông tin chưa đúng? Sửa giúp"** thành một dòng nhẹ cuối trang; bung ra mới thấy mọi lối sửa,
+  Số đúng/Số sai, ghim vị trí, khôi phục hồ sơ. **Nguồn** một dòng nhỏ cuối trang. Ảnh giữ nguyên.
+- **Đánh đổi:** nút "Tìm số trên Google" và dòng "N người đã xác nhận số này" không còn hiện (khối
+  chính chỉ giữ số bấm gọi; xác nhận số nằm trong "Sửa giúp").
+
 ## 2026-09-30 (tối) — Trang địa điểm làm lại để đọc lướt trong 5–10 giây
 
 PO/PM duyệt bố cục trước khi code. **Khối tóm tắt** (đầu trang mobile, thẻ bám theo cột phải
