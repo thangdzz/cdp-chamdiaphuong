@@ -13,7 +13,6 @@ import { CreateRouteFromPlace } from "./CreateRouteFromPlace";
 import { PlaceLocationVote } from "./PlaceLocationVote";
 import { ContributionPanel } from "./ContributionPanel";
 import { NoteInput } from "./NoteInput";
-import { QuestionPrompt } from "./QuestionPrompt";
 import { VisitConfirm } from "./VisitConfirm";
 import { PhotoGallery, formatDate, formatRelativeAge, staleMenuAgeMonths } from "./PlaceExplorer";
 import { PlaceStatusLine } from "./PlaceStatusLine";
@@ -30,7 +29,7 @@ import {
   findPhoneOnGoogleUrl,
   adminFilledFields,
 } from "@/lib/transport";
-import { PinIcon, PhoneIcon } from "./Icon";
+import { PinIcon } from "./Icon";
 import { track } from "./analytics";
 
 // Trang một địa điểm (NOTE-02) — bố cục Product Owner/PM chốt 30/9 (vòng dọn cuối trước release).
@@ -43,13 +42,13 @@ import { track } from "./analytics";
 // Còn lại chỉ là phần phụ: dải ảnh (giữ nguyên), một dòng "Thông tin chưa đúng? Sửa giúp" gập mọi
 // lối sửa, một dòng nguồn. Không có thẻ "Liên hệ" riêng, không hàng nút lơ lửng giữa các khối.
 //
-// Đóng góp nhẹ: hiện sẵn đúng "Bạn vừa ghé chỗ này?" (hai bước, VisitConfirm) và MỘT câu hỏi bấm chọn
-// (QuestionPrompt). Mọi component đóng góp là loại sẵn có, cùng hàng chờ duyệt.
+// "Cần biết" CHỈ chứa thứ khách đọc — không câu hỏi đóng góp nào (PO 30/9). Đóng góp nằm ngay dưới,
+// trong "Bạn biết gì thêm về chỗ này?" (NoteInput): chọn ngữ cảnh (Thời điểm, Gửi xe, Lối vào…) rồi
+// mới hỏi câu bấm chọn của ngữ cảnh đó ("Giờ nào thường đông?"). Cộng thêm "Bạn vừa ghé chỗ này?"
+// (hai bước, VisitConfirm). Mọi component đóng góp là loại sẵn có, cùng hàng chờ duyệt.
 
 const linkButtonClass =
   "cursor-pointer text-sm font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2";
-const disclosureSummaryClass =
-  "flex min-h-11 cursor-pointer list-none items-center gap-1 text-sm font-medium text-zinc-700 [&::-webkit-details-marker]:hidden";
 // Một dòng thông tin trong "Cần biết" — icon/nhãn + nội dung, cùng một kiểu cho mọi nguồn dữ liệu.
 function InfoRow({ icon, label, children }) {
   return (
@@ -68,21 +67,6 @@ function Section({ title, children }) {
       <h2 className="text-base font-medium tracking-tight text-zinc-900">{title}</h2>
       <div className="mt-3 flex flex-col gap-3">{children}</div>
     </section>
-  );
-}
-
-// Phần gập: mũi tên xoay khi mở. Dùng <details> sẵn có của trình duyệt — mở/đóng không cần JS.
-function Disclosure({ summary, children, className = "" }) {
-  return (
-    <details className={`group ${className}`}>
-      <summary className={disclosureSummaryClass}>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-zinc-400 transition-transform group-open:rotate-90">
-          <path d="M9 6l6 6-6 6" />
-        </svg>
-        {summary}
-      </summary>
-      <div className="mt-2 flex flex-col gap-3 pl-5">{children}</div>
-    </details>
   );
 }
 
@@ -109,14 +93,13 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   const [menuGalleryIndex, setMenuGalleryIndex] = useState(null);
   const [copyLabel, setCopyLabel] = useState("Chia sẻ");
   const [lastCheckinAt, setLastCheckinAt] = useState(place.lastCheckinAt);
-  const [tipOpen, setTipOpen] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   // "Chỗ quen gọi" (đỉnh dốc, cây đa) không mở cũng không đóng và không có giá — ẩn hết phần
   // trạng thái thay vì hỏi "vẫn mở chứ" vô nghĩa. Câu hỏi cho khách thì lib/questions.js đã tự cắt.
   const asksStatus = placeTypeAsksStatus(place.type);
   // NOTE-15 §13: chỗ tạm. Trang riêng VẪN mở được kể cả khi đã hết ngày (lộ trình cũ còn trỏ
   // tới đây), nên câu chữ phải nói rõ tình trạng thay vì để khách tưởng chỗ này còn.
   const validityLabel = placeValidityLabel(place);
-  const [activeNoteContext, setActiveNoteContext] = useState(null);
   const action = primaryAction(place);
   const ctaRowRef = useRef(null);
   const ctaOffscreen = useOffscreen(ctaRowRef);
@@ -241,8 +224,9 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   const sourceLine = [updated ? `Cập nhật ${updated}` : null, place.sourceCount ? `đối chiếu ${place.sourceCount} nguồn` : null]
     .filter(Boolean)
     .join(" · ");
+  const extraCount = weakFacts.length + Math.max(notes.length - 1, 0);
+  // Chỉ vẽ "Cần biết" khi CÓ thứ để đọc — khối này không còn chứa câu hỏi nên rỗng là bỏ hẳn.
   const hasNeedToKnow =
-    asksStatus ||
     strongFacts.length > 0 ||
     weakFacts.length > 0 ||
     notes.length > 0 ||
@@ -281,16 +265,12 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
               <span>{place.address}</span>
             </p>
           )}
-          {/* Số điện thoại là CHỮ bấm được để gọi, không thêm nút — xác nhận số đúng/sai nằm ở "Sửa giúp".
-              `id` cho nút "Liên hệ đặt xe" (Đi lại) cuộn tới. */}
+          {/* Số điện thoại là CHỮ bấm được để gọi + "số tham khảo" + link nhỏ Tìm số này trên Google /
+              Số đúng / Số sai ngay cạnh số (PO 30/9) — không thêm nút lớn. `id` cho nút "Liên hệ đặt xe". */}
           {place.phone && (
-            <p id={`lien-he-${place.id}`} className="flex items-center gap-1.5 text-zinc-800">
-              <PhoneIcon size={16} className="shrink-0 text-zinc-400" />
-              <a href={`tel:${place.phone}`} className="underline decoration-zinc-300 underline-offset-2">
-                {place.phone}
-              </a>
-              <span className="text-xs text-zinc-500">số tham khảo</span>
-            </p>
+            <div id={`lien-he-${place.id}`}>
+              <PhoneBlock place={place} part="inline" />
+            </div>
           )}
         </div>
 
@@ -343,6 +323,22 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             {transportDetailLine(place) && <InfoRow icon="🚐">{transportDetailLine(place)}</InfoRow>}
             {notes.length > 0 && <NoteLine note={notes[0]} />}
 
+            {/* Phần phụ bung NGAY trong danh sách (cùng kiểu dòng), không mở khối mới: thông tin mới 1
+                người cho biết (có ghi "(1 người cho biết)") + mẹo thứ 2 trở đi. */}
+            {showMore && (
+              <>
+                <PlaceFacts which="weak" {...factProps} />
+                {notes.slice(1).map((n) => (
+                  <NoteLine key={n.id} note={n} />
+                ))}
+              </>
+            )}
+            {extraCount > 0 && (
+              <button type="button" onClick={() => setShowMore((v) => !v)} aria-expanded={showMore} className={`${linkButtonClass} self-start`}>
+                {showMore ? "Thu gọn" : `Xem thêm ${extraCount} thông tin`}
+              </button>
+            )}
+            {/* Ảnh menu cuối khối — các dòng thông tin (kể cả phần vừa bung) đi liền nhau. */}
             {menuPhotos.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[13px] text-zinc-500">
@@ -377,24 +373,13 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
                 )}
               </div>
             )}
-
-            {/* MỘT câu hỏi bấm chọn — một chạm. Tạm ẩn khi khách đang thêm mẹo (NOTE-12). */}
-            <QuestionPrompt place={place} suspended={activeNoteContext !== null} />
-
-            {/* Phần phụ: thông tin mới 1 người cho biết + mẹo thứ 2 trở đi. Thêm mẹo chỉ khi khách mở. */}
-            {weakFacts.length + Math.max(notes.length - 1, 0) > 0 ? (
-              <Disclosure summary={`Xem thêm ${weakFacts.length + Math.max(notes.length - 1, 0)} thông tin`}>
-                <PlaceFacts which="weak" {...factProps} />
-                {notes.slice(1).map((n) => (
-                  <NoteLine key={n.id} note={n} />
-                ))}
-                <TipEntry open={tipOpen} onOpen={() => setTipOpen(true)} place={place} onActiveContext={setActiveNoteContext} />
-              </Disclosure>
-            ) : (
-              <TipEntry open={tipOpen} onOpen={() => setTipOpen(true)} place={place} onActiveContext={setActiveNoteContext} />
-            )}
           </Section>
         )}
+
+        {/* Đóng góp theo ngữ cảnh — tách khỏi "Cần biết" (chỉ để đọc). Chọn ngữ cảnh rồi mới hỏi. */}
+        <div className="px-1">
+          <NoteInput place={place} showPublishedNotes={false} />
+        </div>
 
         {/* Mọi việc SỬA: một dòng phụ nhẹ cuối trang, bấm mới bung (PO 30/9). */}
         <details className="group px-1">
@@ -402,14 +387,22 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
             Thông tin chưa đúng?
             <span className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2">Sửa giúp</span>
           </summary>
-          <div className="mt-2 flex flex-col gap-3 rounded-xl bg-white px-[18px] py-4 shadow-sm">
-            {asksStatus && <ContributionPanel place={place} entry="closed" triggerLabel="Chỗ này đã đóng cửa" />}
-            {asksStatus && <ContributionPanel place={place} entry="price" triggerLabel={compactPrice ? "Giá khác" : "Thêm giá"} />}
-            <ContributionPanel place={place} entry="contact" triggerLabel="Sửa địa chỉ / SĐT" />
-            <PhoneBlock place={place} part="confirm" />
-            {/* Vì sao nút bản đồ là "Chỉ đường" hay "Tìm trên Maps" + ghim vị trí (spec Consensus §16). */}
-            <PlaceLocationVote place={place} />
-            <ContributionPanel place={place} triggerLabel="Sửa thêm hoặc gửi ảnh" />
+          {/* Ba nhóm (PO 30/9). Số đúng / Số sai KHÔNG ở đây nữa — đã nằm ngay cạnh số điện thoại. */}
+          <div className="mt-2 flex flex-col gap-5 rounded-xl bg-white px-[18px] py-4 shadow-sm">
+            <FixGroup title="Thông tin cơ bản">
+              {asksStatus && <ContributionPanel place={place} entry="price" triggerLabel={compactPrice ? "Giá khác" : "Thêm giá"} />}
+              <ContributionPanel place={place} entry="contact" triggerLabel="Sửa địa chỉ / SĐT" />
+              {/* Ghim lại vị trí + vì sao nút bản đồ là "Chỉ đường" hay "Tìm trên Maps" (spec Consensus §16). */}
+              <PlaceLocationVote place={place} />
+            </FixGroup>
+            {asksStatus && (
+              <FixGroup title="Tình trạng địa điểm">
+                <ContributionPanel place={place} entry="closed" triggerLabel="Chỗ này đã đóng cửa" />
+              </FixGroup>
+            )}
+            <FixGroup title="Khác">
+              <ContributionPanel place={place} triggerLabel="Sửa thêm hoặc gửi ảnh" />
+            </FixGroup>
           </div>
         </details>
 
@@ -441,6 +434,16 @@ export function PlaceDetail({ place, closed = false, replacement = null }) {
   );
 }
 
+// Một nhóm trong "Sửa giúp": tiêu đề nhỏ + các lối sửa.
+function FixGroup({ title, children }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-[13px] font-medium text-zinc-500">{title}</p>
+      {children}
+    </div>
+  );
+}
+
 // Mẹo cộng đồng hiện CÙNG kiểu dòng với thông tin thực tế — khách không cần phân biệt nguồn.
 function NoteLine({ note }) {
   return (
@@ -450,12 +453,3 @@ function NoteLine({ note }) {
   );
 }
 
-// "+ Thêm mẹo": các nút ngữ cảnh của NoteInput chỉ hiện khi khách chủ động bấm.
-function TipEntry({ open, onOpen, place, onActiveContext }) {
-  if (open) return <NoteInput place={place} showPublishedNotes={false} onActiveContext={onActiveContext} />;
-  return (
-    <button type="button" onClick={onOpen} className={`${linkButtonClass} self-start`}>
-      + Thêm mẹo
-    </button>
-  );
-}

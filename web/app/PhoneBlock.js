@@ -26,8 +26,9 @@ function statusLine(status, confirmCount) {
   return { text: "Chưa ai xác nhận số này", tone: "muted" };
 }
 
-// `part`: "all" (mặc định, như cũ) · "contact" (số + trạng thái + Gọi/Tìm số — cho mục Liên hệ) ·
-// "confirm" (chỉ Số đúng / Số sai — cho "Thông tin chưa đúng?", để mục Liên hệ không thành form).
+// `part`: "all" (mặc định, như cũ) · "contact" (số + trạng thái + Gọi/Tìm số) ·
+// "confirm" (chỉ Số đúng / Số sai) · "inline" (trang địa điểm, PO 30/9: số bấm gọi + "số tham
+// khảo" + trạng thái + link nhỏ Tìm số này trên Google / Số đúng / Số sai — không thêm nút lớn nào).
 export function PhoneBlock({ place, part = "all" }) {
   const showContact = part !== "confirm";
   const showConfirm = part !== "contact";
@@ -75,9 +76,44 @@ export function PhoneBlock({ place, part = "all" }) {
     }
   }
 
+
   const line = statusLine(state?.status, state?.confirmCount ?? 0);
   // Chưa ai xác nhận hoặc đang có báo sai -> mời khách tự kiểm chứng bằng Google (NOTE-01 §6.3).
   const showGoogle = !state || state.status === "none" || state.status === "disputed";
+
+  if (part === "inline") {
+    const smallLink =
+      "cursor-pointer text-[13px] text-zinc-600 underline decoration-zinc-300 underline-offset-2 disabled:cursor-default disabled:opacity-50";
+    return (
+      <div className="flex items-start gap-1.5">
+        <PhoneIcon size={16} className="mt-1 shrink-0 text-zinc-400" />
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-2">
+            <a href={`tel:${place.phone}`} className="text-zinc-800 underline decoration-zinc-300 underline-offset-2">
+              {place.phone}
+            </a>
+            <span className="text-[13px] text-zinc-500">
+              số tham khảo · {line.text.charAt(0).toLowerCase() + line.text.slice(1)}
+              {justAwarded && " · +1 điểm"}
+            </span>
+          </p>
+          <p className="mt-0.5 flex flex-wrap items-center gap-x-3">
+            {showGoogle && (
+              <a href={findPhoneOnGoogleUrl(place)} target="_blank" rel="noopener noreferrer" className={smallLink}>
+                Tìm số này trên Google
+              </a>
+            )}
+            <button type="button" disabled={busy} onClick={() => vote("correct")} className={smallLink}>
+              {state?.myVote === "correct" ? "✓ Bạn đã xác nhận đúng" : "Số đúng"}
+            </button>
+            <button type="button" disabled={busy} onClick={() => vote("incorrect")} className={smallLink}>
+              {state?.myVote === "incorrect" ? "✓ Bạn đã báo sai" : "Số sai"}
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!showContact) {
     return (
