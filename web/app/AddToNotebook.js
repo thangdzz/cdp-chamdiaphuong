@@ -165,11 +165,17 @@ export function AddToNotebook({ place, mode = "both", className = "", label = nu
     const isRoute = added.kind === "lo-trinh";
     const title = added.title ?? (isRoute ? routes : notebooks)?.find((item) => item.slug === added.slug)?.title;
     return (
-      <p className={`cdp-fade-in w-full text-[13px] text-zinc-500 ${className}`}>
-        ✓ Đã lưu vào {isRoute ? "lộ trình" : "sổ"}
-        {title ? <> <b className="font-medium text-zinc-700">{title}</b></> : null} (lưu trên máy này, không cần đăng nhập) ·{" "}
-        <Link href={`/${added.kind}/${added.slug}`} className="font-medium text-zinc-700 underline">
-          {isRoute ? "Xem lộ trình" : "Xem sổ"}
+      <p className={`cdp-fade-in w-full text-[13px] text-zinc-600 ${className}`}>
+        {/* Tên sổ/lộ trình và link "Xem sổ" dùng màu nhấn của CDP (owner test 30/9) để thông báo không bị
+            chìm; phần còn lại giữ chữ nhỏ, không thành banner. */}
+        <span className="font-medium text-[#c8553d]">✓</span> Đã lưu vào {isRoute ? "lộ trình" : "sổ"}
+        {title ? <> <b className="font-semibold text-[#c8553d]">{title}</b></> : null} (lưu trên máy này, không cần đăng nhập).
+        <br />
+        <Link
+          href={`/${added.kind}/${added.slug}`}
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-[#c8553d] underline decoration-[#c8553d]/40 underline-offset-4 hover:decoration-[#c8553d]"
+        >
+          {isRoute ? "Xem lộ trình" : "Xem sổ"} <span aria-hidden="true">→</span>
         </Link>
       </p>
     );

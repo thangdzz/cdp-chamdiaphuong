@@ -51,6 +51,7 @@ trên Home thành thẻ nhỏ khi không còn active · analytics chỉ ghi even
 - ✅ **Đóng góp theo ngữ cảnh** thay khối "Đóng góp thông tin" (`76864df`)
 - ✅ **Trang địa điểm đọc lướt 5–10 giây** + xác nhận hai bước (PO duyệt bố cục trước khi code)
 - ✅ **Trang địa điểm gom còn 2 vùng** (vòng dọn cuối PO/PM 30/9)
+- ✅ **Thẻ trong Sổ đi cùng thứ tự tóm tắt trang chi tiết** + thông báo "Đã lưu vào sổ" nổi hơn (màu CDP cho tên sổ và "Xem sổ")
 - 👀 Product Owner thử link `two-wheeler` trên điện thoại thật ở Việt Nam (xem STATUS)
 - 👀 Product Owner chọn font có tiếng Việt (xem STATUS)
 

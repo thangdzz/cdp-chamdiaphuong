@@ -4,12 +4,15 @@
 > (ghi đè phần cũ, không cộng dồn thành nhật ký). Nhật ký các phiên trước:
 > [archive/logs/STATUS-log-2026-07-15-den-09-22.md](archive/logs/STATUS-log-2026-07-15-den-09-22.md).
 
-Cập nhật: **2026-09-29**
+Cập nhật: **2026-09-30**
 
 ---
 
 ## Đang ở đâu
 
+- **30/9 (sau compact) — thẻ Sổ khớp tóm tắt trang chi tiết** (tên → loại · khu → trạng thái →
+  giá → địa chỉ 📍 → 1 dòng nổi bật → Xem chi tiết + Maps) và thông báo "Đã lưu" dùng màu CDP.
+  Kiểm 221/221. **Chưa deploy.**
 - **30/9 (khuya, sau) — chỉnh tiếp**: SĐT có số tham khảo + Tìm số trên Google + Số đúng/sai cạnh
   số; "Cần biết" chỉ để đọc; "Sửa giúp" 3 nhóm. Kiểm 209/209. **Chưa deploy.**
 - **30/9 (khuya) — trang địa điểm gom còn 2 vùng** (Thông tin địa điểm + Cần biết), kiểm 177/177.

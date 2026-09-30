@@ -2789,3 +2789,17 @@ không tự mở rộng phạm vi. Tắt menu chỉ ẩn điểm vào, không xo
 ép ba cột. Trang chi tiết dùng hai cột độc lập (media/nội dung và thông tin/liên hệ/thao tác)
 để không tạo khoảng trắng theo hàng; mobile dùng `display: contents` + `order` giữ nguyên thứ
 tự NOTE-02. `/gioi-thieu` chỉ thêm accent cam ở nhãn, đường viền và số bước, không redesign.
+
+---
+
+## 2026-09-30 (sau) — Thẻ Sổ đi cùng thứ tự với tóm tắt trang chi tiết
+
+**Quyết định (owner test):** Thẻ chỗ trong `/so/{slug}` xếp đúng thứ tự phần đầu trang địa điểm:
+tên → loại · khu vực → nhãn chỗ tạm (nếu có) → trạng thái + lần xác nhận (chỉ loại có hỏi trạng
+thái, giống trang chi tiết — Đi lại không có) → giá → địa chỉ đầy đủ có icon ghim (tối đa 2 dòng)
+→ 1 dòng nổi bật (🍜 món đặc trưng, 🚐 tuyến xe, hoặc 💡 mẹo đầu tiên) → Xem chi tiết + Chỉ
+đường/Tìm trên Maps. Không thêm SĐT, ảnh gallery hay phần sửa giúp vào thẻ — thẻ để nhận ra và
+quyết định nhanh, chi tiết vẫn ở trang địa điểm.
+
+**Thông báo "Đã lưu vào sổ":** giữ câu cũ, tên sổ và link "Xem sổ →" dùng màu nhấn CDP
+(`#c8553d`, màu logo), link xuống dòng riêng, cao 44px để dễ bấm. Không đổi thành banner.
