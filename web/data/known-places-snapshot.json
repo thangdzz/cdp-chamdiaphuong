@@ -280,6 +280,11 @@
     "address": "85 Xã Tắc, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Cơm Rang Cơm Tấm Hoài Linh",
+    "type": "an",
+    "address": "484 Đ. 17 Tháng 8"
+  },
+  {
     "name": "Cuống's House",
     "type": "ngu",
     "address": "Tổ 1, phường Mỹ Lâm, TP Tuyên Quang"
@@ -448,6 +453,11 @@
     "name": "Hankuk Gogi BBQ",
     "type": "an",
     "address": "186 Lý Nam Đế, TP Tuyên Quang"
+  },
+  {
+    "name": "HANTA STUDIO",
+    "type": "choi",
+    "address": "354 đường 17/8, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Hẻm Quán",
