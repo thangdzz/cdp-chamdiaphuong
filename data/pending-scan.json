@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "name": "Saturday - Trà Chanh Phố",
+    "category_primary": "an",
+    "address_text": "Số 02 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0332625625",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "HANTA STUDIO",
+    "category_primary": "choi",
+    "address_text": "354 đường 17/8, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0327823666",
+    "opening_hours_text": "8:00 - 20:00",
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Cường Tâm - Cho thuê xe tự lái",
+    "category_primary": "dilai",
+    "address_text": "36 tổ 6, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0869125125",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Tùng Lâm - Cho thuê xe tự lái",
+    "category_primary": "dilai",
+    "address_text": "546 đường Trường Chinh, phường Ỷ La, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0978123888",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
