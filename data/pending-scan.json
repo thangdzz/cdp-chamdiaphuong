@@ -1,1 +1,59 @@
-[]
+[
+  {
+    "name": "Mây Garden Coffee",
+    "category_primary": "an",
+    "address_text": "259 Lý Nam Đế, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "081 464 0133",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Saturday - Trà Chanh Phố",
+    "category_primary": "an",
+    "address_text": "02 Hà Huy Tập, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0332 625 625",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null,
+    "signature_dishes": ["trà chanh táo xanh bạc hà", "trà quất mật ong nha đam"]
+  },
+  {
+    "name": "Dũng Hiền - Cho thuê xe máy",
+    "category_primary": "dilai",
+    "address_text": "58 Nguyễn Lương Bằng, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "100.000đ - 160.000đ/ngày",
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Unlimited Fitness",
+    "category_primary": "choi",
+    "address_text": "4 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0904 304 799",
+    "opening_hours_text": "05:00–20:30 hằng ngày",
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
