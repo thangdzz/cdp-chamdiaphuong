@@ -320,6 +320,11 @@
     "address": "Số nhà 120, đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Dũng Hiền - Cho thuê xe máy",
+    "type": "dilai",
+    "address": "58 Nguyễn Lương Bằng, TP Tuyên Quang"
+  },
+  {
     "name": "Đài tưởng niệm Tuyên Quang",
     "type": "choi",
     "address": null
@@ -740,6 +745,11 @@
     "address": "đường Lê Đại Hành, phường An Tường, TP Tuyên Quang"
   },
   {
+    "name": "Mây Garden Coffee",
+    "type": "an",
+    "address": "259 Lý Nam Đế, TP Tuyên Quang"
+  },
+  {
     "name": "Min 22 Billiard Club",
     "type": "choi",
     "address": "599 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -948,6 +958,11 @@
     "name": "Nhà hàng Thành Tín",
     "type": "an",
     "address": "Khu ẩm thực mới Xuân Hoà, Tổ 2, Phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà Hàng Thịt Chó Lẩu Chó Tuấn Béo",
+    "type": "an",
+    "address": "143 Đ. Trần Phú"
   },
   {
     "name": "Nhà hàng Thủy Vịt",
@@ -1418,6 +1433,11 @@
     "name": "Trung tâm Thể Thao FMC Thành Tuyên",
     "type": "choi",
     "address": "Km 5, đường Tuyên Quang - Hà Nội, xã Lưỡng Vượng, TP Tuyên Quang"
+  },
+  {
+    "name": "Unlimited Fitness",
+    "type": "choi",
+    "address": "4 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
   },
   {
     "name": "Vking Coffee - Tea",
