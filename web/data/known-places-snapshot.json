@@ -180,6 +180,11 @@
     "address": "19 Đinh Tiên Hoàng"
   },
   {
+    "name": "Cẩm Điền Quán - Phở Chua Ngọt",
+    "type": "an",
+    "address": "Đinh Tiên Hoàng, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "CGV Cinemas Vincom Plaza Tuyên Quang",
     "type": "choi",
     "address": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -223,6 +228,11 @@
     "name": "Chùa An Vinh (An Vinh Thiền Tự)",
     "type": "choi",
     "address": "Tổ 7, phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
+    "name": "Chùa Hang (Chùa Hương Nghiêm)",
+    "type": "choi",
+    "address": "Thôn Phúc Lộc, phường An Tường, TP Tuyên Quang"
   },
   {
     "name": "Chùa Phú Lâm",
@@ -1113,6 +1123,11 @@
     "name": "Nhà xe Hồng Thịnh",
     "type": "dilai",
     "address": "62 Phạm Văn Đồng, Tổ 1, phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhím 9X",
+    "type": "an",
+    "address": "Đinh Tiên Hoàng, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Nướng Than Hoa Tuyên Quang",
