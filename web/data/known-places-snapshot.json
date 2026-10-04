@@ -295,6 +295,11 @@
     "address": "484 Đ. 17 Tháng 8"
   },
   {
+    "name": "Cu Chố - Phở Gà & Bún Cá",
+    "type": "an",
+    "address": "Góc đường Nguyễn Văn Linh - Hà Huy Tập (gần Hồ Thương Binh), phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Cuống's House",
     "type": "ngu",
     "address": "Tổ 1, phường Mỹ Lâm, TP Tuyên Quang"
@@ -333,6 +338,11 @@
     "name": "Dũng Hiền - Cho thuê xe máy",
     "type": "dilai",
     "address": "58 Nguyễn Lương Bằng, TP Tuyên Quang"
+  },
+  {
+    "name": "Dũng Thủy",
+    "type": "an",
+    "address": "9 Lý Thánh Tông, TP Tuyên Quang"
   },
   {
     "name": "Đài tưởng niệm Tuyên Quang",
@@ -563,6 +573,11 @@
     "name": "Karaoke NEW89",
     "type": "choi",
     "address": "Tổ 2, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Karaoke No.91",
+    "type": "choi",
+    "address": "91 đường Chiến Thắng Sông Lô, TP Tuyên Quang"
   },
   {
     "name": "Karaoke No.92",
