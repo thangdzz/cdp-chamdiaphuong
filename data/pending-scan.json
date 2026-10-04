@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "name": "Cu Chố - Phở Gà & Bún Cá",
+    "category_primary": "an",
+    "address_text": "Góc đường Nguyễn Văn Linh - Hà Huy Tập (gần Hồ Thương Binh), phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": "Hồ Thương Binh",
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null,
+    "signature_dishes": ["phở gà", "bún cá"]
+  },
+  {
+    "name": "Dũng Thủy",
+    "category_primary": "an",
+    "address_text": "9 Lý Thánh Tông, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": "từ 100.000đ",
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null,
+    "signature_dishes": ["dê tươi"]
+  },
+  {
+    "name": "Karaoke No.91",
+    "category_primary": "choi",
+    "address_text": "91 đường Chiến Thắng Sông Lô, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0862343797",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
