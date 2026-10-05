@@ -1150,6 +1150,11 @@
     "address": "289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang"
   },
   {
+    "name": "Oscar Cafe",
+    "type": "an",
+    "address": "318 đường 17 Tháng 8, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Ốc Biển Xanh",
     "type": "an",
     "address": "Số 8, đường Nguyễn Trãi, TP Tuyên Quang"
@@ -1223,6 +1228,11 @@
     "name": "Piccolo",
     "type": "an",
     "address": "Ngã 5 chợ Tam Cờ, TP Tuyên Quang"
+  },
+  {
+    "name": "Pizza Here",
+    "type": "an",
+    "address": "102 Bình Thuận, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Quán Ẩm Thực Sài Gòn",
