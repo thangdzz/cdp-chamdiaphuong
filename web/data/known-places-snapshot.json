@@ -480,6 +480,11 @@
     "address": "186 Lý Nam Đế, TP Tuyên Quang"
   },
   {
+    "name": "Hanos 75",
+    "type": "an",
+    "address": "75 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "HANTA STUDIO",
     "type": "choi",
     "address": "354 đường 17/8, phường Phan Thiết, TP Tuyên Quang"
@@ -815,6 +820,11 @@
     "address": "78 Lê Lợi, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "My Coffee",
+    "type": "an",
+    "address": "182 đường 17 Tháng 8, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Na Tuệ An Homestay",
     "type": "ngu",
     "address": "81 Võ Văn Kiệt, TP Tuyên Quang"
@@ -823,6 +833,11 @@
     "name": "Nam Kinh Quán - Trùm Chè Hà Tuyên",
     "type": "an",
     "address": null
+  },
+  {
+    "name": "Nam Nga - Món Ngon Thành Tuyên",
+    "type": "an",
+    "address": "Tổ 25 Nam Cao, phường Phan Thiết, TP Tuyên Quang"
   },
   {
     "name": "Natcha Thái - Tuyên Quang",
@@ -1475,9 +1490,19 @@
     "address": "Km 5, đường Tuyên Quang - Hà Nội, xã Lưỡng Vượng, TP Tuyên Quang"
   },
   {
+    "name": "Tuấn Anh Hotel",
+    "type": "ngu",
+    "address": "Khu du lịch suối khoáng Mỹ Lâm, phường Mỹ Lâm, TP Tuyên Quang"
+  },
+  {
     "name": "Unlimited Fitness",
     "type": "choi",
     "address": "4 đường Bình Thuận, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Vinpearl Onsen Resort Tuyên Quang",
+    "type": "ngu",
+    "address": "Tổ Mỹ Lâm 4, phường Mỹ Lâm, TP Tuyên Quang"
   },
   {
     "name": "Vking Coffee - Tea",
