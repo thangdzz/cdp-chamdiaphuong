@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "name": "Nhà hàng Chang's",
+    "category_primary": "an",
+    "address_text": "Đường Trần Hưng Đạo, Tổ 2, phường Minh Xuân, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0372071993",
+    "opening_hours_text": "08:00 - 22:30",
+    "price_range_text": "50.000đ - 1.000.000đ",
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Nhà nghỉ Thành Trung",
+    "category_primary": "ngu",
+    "address_text": "292 Phạm Văn Đồng, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0944378926",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Royal Plaza Center",
+    "category_primary": "choi",
+    "address_text": "Đường Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0981282819",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Karaoke, cafe sân vườn, nhà hàng, tiệc cưới, bể bơi, khu vui chơi trẻ em",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Phố đi bộ Tuyên Quang",
+    "category_primary": "choi",
+    "address_text": null,
+    "near_landmark": "Ven hồ Tân Quang, TP Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": "Buổi tối, chủ yếu cuối tuần và ngày lễ",
+    "price_range_text": null,
+    "map_note": "Không gian đi bộ, ăn uống, giải trí ven hồ Tân Quang",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Taxi Hồng Thuận",
+    "category_primary": "dilai",
+    "address_text": null,
+    "near_landmark": null,
+    "phone": "02073866866",
+    "opening_hours_text": null,
+    "price_range_text": "Khoảng 13.000đ - 17.000đ/km",
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
