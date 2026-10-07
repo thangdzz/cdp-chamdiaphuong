@@ -905,6 +905,11 @@
     "address": "Tổ 10, Phường Minh Xuân, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng Chang's",
+    "type": "an",
+    "address": "Đường Trần Hưng Đạo, Tổ 2, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Cường Sâm 2",
     "type": "an",
     "address": "Tổ 14, phường Tân Hà, TP Tuyên Quang"
@@ -1200,6 +1205,11 @@
     "address": "252 Lý Nam Đế, TP Tuyên Quang"
   },
   {
+    "name": "Phố đi bộ Tuyên Quang",
+    "type": "choi",
+    "address": null
+  },
+  {
     "name": "Phở 10",
     "type": "an",
     "address": "10 Tân Trào, Phường Tân Quang, TP Tuyên Quang"
@@ -1328,6 +1338,11 @@
     "name": "Royal Palace Hotel / Royal Tuyên Quang Hotel",
     "type": "ngu",
     "address": "176A Bình Thuận, TP Tuyên Quang"
+  },
+  {
+    "name": "Royal Plaza Center",
+    "type": "choi",
+    "address": "Đường Lý Thái Tổ, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Royal Restaurant",
