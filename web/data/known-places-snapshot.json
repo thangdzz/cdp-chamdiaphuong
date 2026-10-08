@@ -570,6 +570,11 @@
     "address": "158 Quang Trung, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Jollibee - Vincom Plaza Tuyên Quang",
+    "type": "an",
+    "address": "Tầng L303, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "K Billiards",
     "type": "choi",
     "address": "Ngã tư khu đô thị Việt Mỹ, phường Phan Thiết, TP Tuyên Quang"
@@ -1508,6 +1513,11 @@
     "name": "Tuấn Anh Hotel",
     "type": "ngu",
     "address": "Khu du lịch suối khoáng Mỹ Lâm, phường Mỹ Lâm, TP Tuyên Quang"
+  },
+  {
+    "name": "Tùng Tinh Game",
+    "type": "choi",
+    "address": "Ngõ 29 đường Lê Duẩn, tổ 12, phường Tân Hà, TP Tuyên Quang"
   },
   {
     "name": "Unlimited Fitness",
