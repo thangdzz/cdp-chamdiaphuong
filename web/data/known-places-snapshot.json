@@ -520,6 +520,11 @@
     "address": "Số 79 Phạm Văn Đồng, phường Hưng Thành, TP Tuyên Quang"
   },
   {
+    "name": "Hogi Chicken - Korean Food Tuyên Quang",
+    "type": "an",
+    "address": "Khu đô thị Việt Mỹ, đường Lê Lợi 4, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Home Coffee",
     "type": "an",
     "address": "Ngõ 280 Đường Tân Trào, Tổ 7, TP. Tuyên Quang, Tuyên Quang"
@@ -548,6 +553,11 @@
     "name": "Homestay Nguyễn Văn Siểng",
     "type": "ngu",
     "address": "Thôn Vôi Thủy, xã Đội Cấn (nay thuộc phường Bình Thuận), TP Tuyên Quang"
+  },
+  {
+    "name": "Hotel Thu Trang",
+    "type": "ngu",
+    "address": "Số 11, Ngõ 63, đường Phạm Hùng, phường An Tường, TP Tuyên Quang"
   },
   {
     "name": "Hồ Tân Hà",
