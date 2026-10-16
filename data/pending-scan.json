@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "name": "Xó Bếp Cà Phê",
+    "category_primary": "an",
+    "address_text": "Số 2 đường Mạc Đĩnh Chi, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0986625552",
+    "opening_hours_text": "07:00 - 23:55",
+    "price_range_text": null,
+    "map_note": "Thông tin ghi nhận từ trang Sapo và Facebook quán; chưa xác minh được link Google Maps hoặc phường chính xác (có nguồn ghi phường Tân Quang, có nguồn ghi phường Minh Xuân).",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
