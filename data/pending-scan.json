@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "name": "Nhà xe Vũ Hán Group",
+    "category_primary": "dilai",
+    "address_text": "95 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": "Bến xe Tuyên Quang",
+    "phone": null,
+    "opening_hours_text": "05:00 - 23:00",
+    "price_range_text": null,
+    "map_note": "Văn phòng/phòng vé xe khách tuyến Hà Nội - Tuyên Quang - Hà Giang, đặt tại Bến xe Tuyên Quang. Thông tin số điện thoại giữa các nguồn không khớp nhau nên chưa ghi.",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Nhà xe Bảo Yến",
+    "category_primary": "dilai",
+    "address_text": "95 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang",
+    "near_landmark": "Bến xe Tuyên Quang",
+    "phone": "0974096333",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Văn phòng/phòng vé xe khách, đặt tại Bến xe Tuyên Quang.",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
