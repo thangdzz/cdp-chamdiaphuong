@@ -90,14 +90,29 @@
     "address": null
   },
   {
+    "name": "Bánh cuốn Nguyệt Bích An",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Bánh cuốn rạp Tháng Tám",
     "type": "an",
     "address": "đường 17 Tháng 8, TP Tuyên Quang"
   },
   {
+    "name": "Bánh cuốn Xuân Liên",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Bánh mì Hoàng Tuấn",
     "type": "an",
     "address": "137-139, Tổ 5, phường Minh Xuân, TP Tuyên Quang"
+  },
+  {
+    "name": "Bánh Mì Pate Xíu",
+    "type": "an",
+    "address": "102 Lương Sơn Tuyết, Tổ 13, TP Tuyên Quang"
   },
   {
     "name": "Bảo tàng tỉnh Tuyên Quang",
@@ -203,6 +218,11 @@
     "name": "Cháo Ấu Tẩu",
     "type": "an",
     "address": "375 Đường 17/8, Phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
+    "name": "Cháo lòng Khánh Phương",
+    "type": "an",
+    "address": null
   },
   {
     "name": "Chè Huế và bánh xèo Huế",
@@ -763,6 +783,11 @@
     "name": "LH Passion Billiards Club",
     "type": "choi",
     "address": "168 Lê Lợi 3, TP Tuyên Quang"
+  },
+  {
+    "name": "Lòng lợn Tuấn Việt",
+    "type": "an",
+    "address": null
   },
   {
     "name": "Lotteria Vincom Plaza Tuyên Quang",
