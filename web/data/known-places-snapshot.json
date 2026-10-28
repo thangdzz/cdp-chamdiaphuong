@@ -625,6 +625,11 @@
     "address": "Số 11, đường Đinh Tiên Hoàng, phường Tân Quang, TP Tuyên Quang"
   },
   {
+    "name": "Karaoke Tình Cờ",
+    "type": "choi",
+    "address": "Đường Tuệ Tĩnh, TP Tuyên Quang"
+  },
+  {
     "name": "Karaoke X3 Tuyên Quang",
     "type": "choi",
     "address": "208 Lê Đại Hành, Tổ 7, phường Hưng Thành, TP Tuyên Quang"
@@ -1025,6 +1030,11 @@
     "address": "Số 112 Điện Biên Phủ, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng Phở Việt Tuyên Quang",
+    "type": "an",
+    "address": "Số 4 đường Mạc Đĩnh Chi, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
     "name": "Nhà hàng Quán lá",
     "type": "an",
     "address": "Xóm Lâm Nghiệp, phường Mỹ Lâm, TP Tuyên Quang"
@@ -1393,6 +1403,11 @@
     "name": "Royal Restaurant",
     "type": "an",
     "address": "Đường Lý Thái Tổ, Phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Sáo Quán - Bún Trộn, Miến Trộn & Bún Nem",
+    "type": "an",
+    "address": "52 Tổ 18, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Sáu Được - Cháo Dinh Dưỡng",
