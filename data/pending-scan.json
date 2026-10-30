@@ -1,1 +1,59 @@
-[]
+[
+  {
+    "name": "Dookki Vincom Plaza Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Nhà hàng buffet lẩu & topokki Hàn Quốc, trong TTTM Vincom Plaza",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null,
+    "signature_dishes": ["topokki", "lẩu Hàn Quốc buffet"]
+  },
+  {
+    "name": "Trung Nguyên Legend Café Vincom Plaza Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Chuỗi cafe Trung Nguyên Legend, trong TTTM Vincom Plaza",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Photo Razzle Dazzle Vincom Plaza Tuyên Quang",
+    "category_primary": "choi",
+    "address_text": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": "10:00–22:00 (T2–T6), 09:30–22:00 (T7–CN)",
+    "price_range_text": null,
+    "map_note": "Điểm chụp ảnh photobooth, trong TTTM Vincom Plaza",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Game World Vincom Plaza Tuyên Quang",
+    "category_primary": "choi",
+    "address_text": "Tầng L3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Khu vui chơi trò chơi điện tử, trong TTTM Vincom Plaza",
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
