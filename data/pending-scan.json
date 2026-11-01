@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "name": "Dookki Vincom Plaza Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "TTTM Vincom Plaza Tuyên Quang, 260 đường Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["tokbokki"]
+  }
+]
