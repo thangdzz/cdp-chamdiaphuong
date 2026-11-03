@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "name": "ISuShi BBQ",
+    "category_primary": "an",
+    "address_text": "149 Trần Phú, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": "0964006226",
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null,
+    "signature_dishes": ["sushi"]
+  }
+]
