@@ -835,6 +835,11 @@
     "address": null
   },
   {
+    "name": "Lotte Cinema Tuyên Quang",
+    "type": "choi",
+    "address": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 đường Quang Trung, tổ 35, phường Phan Thiết, TP Tuyên Quang"
+  },
+  {
     "name": "Lotteria Vincom Plaza Tuyên Quang",
     "type": "an",
     "address": "Tầng 3, TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang"
@@ -1035,6 +1040,11 @@
     "address": "Số 87 Nguyễn Văn Cừ, TP Tuyên Quang"
   },
   {
+    "name": "Nhà hàng Hải Chuyên",
+    "type": "an",
+    "address": null
+  },
+  {
     "name": "Nhà Hàng Hoa Viên",
     "type": "an",
     "address": "Tổ 17, phường Tân Hà, TP Tuyên Quang"
@@ -1113,6 +1123,16 @@
     "name": "Nhà hàng Tràng An",
     "type": "an",
     "address": "Số 6, Tổ 4, Phường Hưng Thành, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà hàng Tùng Bách Quán",
+    "type": "an",
+    "address": "Thôn 17, phường Mỹ Lâm, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà hàng Tùng Lan",
+    "type": "an",
+    "address": "Tổ 1, phường Tân Quang, TP Tuyên Quang"
   },
   {
     "name": "Nhà hàng Ven Hồ",
@@ -1238,6 +1258,11 @@
     "name": "Nhà nghỉ Trường Giang",
     "type": "ngu",
     "address": "76 Chiến Thắng Sông Lô, phường Tân Quang, TP Tuyên Quang"
+  },
+  {
+    "name": "Nhà nghỉ Tùng Linh",
+    "type": "ngu",
+    "address": null
   },
   {
     "name": "Nhà vườn Thủy Viên 2",
