@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "name": "Hải sản Lanh Phi",
+    "category_primary": "an",
+    "address_text": "104 Phạm Văn Đồng, xã An Tường, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "business_status": null,
+    "google_maps_url": null,
+    "lat": null,
+    "lng": null
+  }
+]
