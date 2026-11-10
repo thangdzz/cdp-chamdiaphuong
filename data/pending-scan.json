@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "name": "Dookki Vincom Plaza Tuyên Quang",
+    "category_primary": "an",
+    "address_text": "TTTM Vincom Plaza Tuyên Quang, 260 Quang Trung, phường Phan Thiết, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": null,
+    "signature_dishes": ["tokbokki"]
+  },
+  {
+    "name": "Nhà nghỉ Thanh Trung 292",
+    "category_primary": "ngu",
+    "address_text": "292 Phạm Văn Đồng, phường Hưng Thành, TP Tuyên Quang",
+    "near_landmark": null,
+    "phone": null,
+    "opening_hours_text": null,
+    "price_range_text": null,
+    "map_note": "Địa chỉ theo Hotels.com/Trip.com; một nguồn khác (Priceline) ghi nhầm sang Phú Thọ nên cần xác minh lại khi duyệt."
+  }
+]
