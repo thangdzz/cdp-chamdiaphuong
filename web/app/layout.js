@@ -27,6 +27,15 @@ export const metadata = {
     "Tìm nhanh chỗ ăn, chỗ ngủ đáng tin ở TP Tuyên Quang, đặc biệt dịp Trung Thu.",
 };
 
+// viewport-fit=cover: trang được vẽ tới mép màn hình iPhone (dưới vạch Home, cạnh tai thỏ khi xoay ngang) để
+// env(safe-area-inset-*) có giá trị thật. Thanh đáy và khung trang tự đệm theo các giá trị này (PM Q3 PLAN A2).
+// width/initialScale giữ mặc định của Next.js; không chặn phóng to.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default async function RootLayout({ children }) {
   const navigation = await getNavigationConfig();
 

@@ -21,29 +21,39 @@ function isActive(item, pathname) {
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-// Chiều cao thật của hàng header (không tính Menu thả xuống), ghi vào biến CSS dùng chung để hàng bám
-// dính bên dưới (ô tìm ở /tim) bám đúng mép header kể cả khi tên xuống dòng hay khách phóng to chữ.
-function useHeaderHeightVar(barRef) {
+// Đo chiều cao thật của một phần tử khung và ghi vào biến CSS trên <html>. Dùng cho:
+//   --cdp-header-h      hàng header (không tính Menu thả xuống) → hàng bám dính bên dưới (ô tìm ở /tim) bám đúng
+//                       mép header kể cả khi tên xuống dòng hay khách phóng to chữ;
+//   --cdp-bottom-nav-h  thanh đáy (gồm vùng an toàn iOS) → khoảng trống cuối trang để thanh không che nội dung.
+// Phần tử ẩn (cao 0, ví dụ desktop) → bỏ biến, nơi dùng tự rơi về giá trị dự phòng.
+const measureBox = (el) => el.getBoundingClientRect().height;
+
+export function useHeightVar(ref, varName, measure = measureBox) {
   useEffect(() => {
-    const bar = barRef.current;
-    if (!bar || typeof ResizeObserver === "undefined") return undefined;
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
     const root = document.documentElement;
     const update = () => {
-      const header = bar.parentElement;
-      const border = header ? parseFloat(getComputedStyle(header).borderBottomWidth) || 0 : 0;
-      const height = bar.getBoundingClientRect().height;
-      // Desktop: header ẩn (cao 0) → bỏ biến, các hàng bám dính dùng giá trị lg riêng.
-      if (height > 0) root.style.setProperty("--cdp-header-h", `${Math.round((height + border) * 100) / 100}px`);
-      else root.style.removeProperty("--cdp-header-h");
+      const height = measure(el);
+      if (height > 0) root.style.setProperty(varName, `${Math.round(height * 100) / 100}px`);
+      else root.style.removeProperty(varName);
     };
     const observer = new ResizeObserver(update);
-    observer.observe(bar);
+    observer.observe(el);
     update();
     return () => {
       observer.disconnect();
-      root.style.removeProperty("--cdp-header-h");
+      root.style.removeProperty(varName);
     };
-  }, [barRef]);
+  }, [ref, varName, measure]);
+}
+
+// Hàng header + viền dưới của <header> (viền nằm dưới Menu thả xuống nên không đo cả <header>).
+function measureHeaderBar(bar) {
+  const header = bar.parentElement;
+  const border = header ? parseFloat(getComputedStyle(header).borderBottomWidth) || 0 : 0;
+  const height = bar.getBoundingClientRect().height;
+  return height > 0 ? height + border : 0;
 }
 
 // NOTE-10 §5: mobile không dùng sidebar fixed. Header gọn và menu này đọc đúng cùng config
@@ -59,7 +69,7 @@ function useHeaderHeightVar(barRef) {
 export function SiteHeader({ navigation, pathname, open, onOpenChange }) {
   const visibleItems = navigation.filter((item) => item.enabled);
   const barRef = useRef(null);
-  useHeaderHeightVar(barRef);
+  useHeightVar(barRef, "--cdp-header-h", measureHeaderBar);
 
   return (
     <header style={{ viewTransitionName: "cdp-site-header" }} className="sticky top-0 z-40 border-b border-line bg-page/95 backdrop-blur lg:hidden">

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { createContext, useContext, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { BrandName, SiteHeader } from "@/app/SiteHeader";
+import { BottomNav } from "@/app/BottomNav";
+import { showsBottomNav, splitNavigation } from "@/lib/shellRoutes";
 import { SiteFooter } from "@/app/SiteFooter";
 import { NavigationIcon } from "@/app/NavigationIcon";
 import { PageTransition } from "@/app/PageTransition";
@@ -151,6 +153,8 @@ export function AppShell({ navigation, children }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const aboutLabel = navigation.find((item) => item.key === "about")?.navLabel;
+  const { core } = splitNavigation(navigation);
+  const bottomNav = showsBottomNav(pathname);
 
   if (pathname.startsWith("/admin")) {
     return (
@@ -165,10 +169,17 @@ export function AppShell({ navigation, children }) {
 
   return (
     <NavigationContext.Provider value={navigation}>
-      {/* `cdp-site`: phạm vi token màu của trang khách (globals.css). Khung /admin ở trên không có lớp này. */}
-      <div className="cdp-site flex min-h-full flex-1">
+      {/* `cdp-site`: phạm vi token màu của trang khách (globals.css). Khung /admin ở trên không có lớp này.
+          Đệm 2 bên theo vùng an toàn: layout.js bật viewport-fit=cover, khi xoay ngang iPhone nội dung không lấn
+          vào tai thỏ (dọc thì bằng 0). */}
+      <div className="cdp-site flex min-h-full flex-1 pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         <DesktopSidebar navigation={navigation} pathname={pathname} />
-        <div className="flex min-w-0 flex-1 flex-col transition-[padding] duration-200 lg:pl-[var(--cdp-sidebar-width,248px)]">
+        {/* Khoảng trống đáy = chiều cao thật của thanh đáy (kể cả vùng an toàn), chỉ ở trang có thanh; desktop
+            không có thanh nên biến bị gỡ và khoảng trống về 0. */}
+        <div
+          className="flex min-w-0 flex-1 flex-col transition-[padding] duration-200 lg:pl-[var(--cdp-sidebar-width,248px)]"
+          style={bottomNav ? { paddingBottom: "var(--cdp-bottom-nav-h, 0px)" } : undefined}
+        >
           <SiteHeader
             navigation={navigation}
             pathname={pathname}
@@ -181,6 +192,7 @@ export function AppShell({ navigation, children }) {
           <SiteFooter aboutLabel={aboutLabel} />
         </div>
       </div>
+      {bottomNav && <BottomNav items={core} pathname={pathname} />}
       <SidebarWidthSync />
     </NavigationContext.Provider>
   );

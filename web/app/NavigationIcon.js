@@ -1,5 +1,5 @@
-// Icon của từng mục menu, dùng chung cho sidebar desktop và menu mobile để hai nơi luôn khớp.
-// Mục chưa có icon riêng dùng la bàn của "Khám phá".
+// Icon của từng mục điều hướng, dùng chung cho thanh đáy, Menu mobile và sidebar desktop để các nơi luôn khớp.
+// Mục chưa có icon riêng dùng la bàn.
 export function NavigationIcon({ itemKey, size = 20 }) {
   const common = {
     viewBox: "0 0 24 24",
@@ -13,6 +13,31 @@ export function NavigationIcon({ itemKey, size = 20 }) {
     "aria-hidden": true,
   };
 
+  if (itemKey === "explore") {
+    return (
+      <svg {...common}>
+        <path d="M4 10.5 12 4l8 6.5" />
+        <path d="M6 9v10.5h12V9M10 19.5v-5h4v5" />
+      </svg>
+    );
+  }
+  if (itemKey === "search") {
+    return (
+      <svg {...common}>
+        <circle cx="11" cy="11" r="6.5" />
+        <path d="m16 16 4 4" />
+      </svg>
+    );
+  }
+  if (itemKey === "festival") {
+    return (
+      <svg {...common}>
+        <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
+        <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+        <path d="m12 12.6.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2-1.45-1.4 2-.3z" />
+      </svg>
+    );
+  }
   if (itemKey === "notes") {
     return (
       <svg {...common}>

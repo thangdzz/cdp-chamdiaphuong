@@ -13,26 +13,28 @@ export const NAVIGATION_LIMITS = {
 // NOTE-10 §6: key và route là cấu hình hệ thống, không phải nội dung. Admin chỉ được sửa
 // chữ hiển thị, trạng thái và thứ tự; dữ liệu Redis không bao giờ được quyền đổi href.
 export const NAVIGATION_DEFINITIONS = [
+  // 4 mục lõi (thanh đáy mobile + nhóm trên của sidebar), thứ tự cố định theo DESIGN §6. Nhãn ngắn để vừa ô
+  // 80px của thanh đáy ở 320px (PM Q1 PLAN A2, 12/11). Tiêu đề trang (pageTitle) giữ như cũ.
   {
     key: "explore",
     href: "/",
-    navLabel: "Khám phá",
+    navLabel: "Trang chủ",
     pageTitle: "Khám phá Tuyên Quang",
     enabled: true,
     order: 1,
   },
   {
-    key: "notes",
-    href: "/ghi-chu",
-    navLabel: "Ghi chú của tôi",
-    pageTitle: "Ghi chú của tôi",
+    key: "search",
+    href: "/tim",
+    navLabel: "Tìm chỗ",
+    pageTitle: "Tìm chỗ",
     enabled: true,
     order: 2,
   },
   {
     key: "notebooks",
     href: "/so",
-    navLabel: "Sổ của tôi",
+    navLabel: "Sổ",
     pageTitle: "Sổ của tôi",
     enabled: true,
     order: 3,
@@ -40,10 +42,19 @@ export const NAVIGATION_DEFINITIONS = [
   {
     key: "routes",
     href: "/lo-trinh",
-    navLabel: "Lộ trình của tôi",
+    navLabel: "Lộ trình",
     pageTitle: "Lộ trình của tôi",
     enabled: true,
     order: 4,
+  },
+  // Mục phụ: nằm trong Menu (mobile) và nhóm dưới của sidebar. Ô "thứ tự" của Admin chỉ xếp nhóm này.
+  {
+    key: "notes",
+    href: "/ghi-chu",
+    navLabel: "Ghi chú của tôi",
+    pageTitle: "Ghi chú của tôi",
+    enabled: true,
+    order: 5,
   },
   {
     key: "about",
@@ -51,11 +62,13 @@ export const NAVIGATION_DEFINITIONS = [
     navLabel: "CDP là gì?",
     pageTitle: "Chạm Địa Phương là gì?",
     enabled: true,
-    order: 5,
+    order: 6,
   },
 ];
 // Lưu ý khi thêm key: normalizeNavigation() bắt đúng số mục, nên bản Admin đã lưu với số mục cũ
-// sẽ bị bỏ và rơi về mặc định. Lúc thêm "routes" (2026-09-14) production chưa lưu bản nào.
+// sẽ bị bỏ và rơi về mặc định. Lúc thêm "routes" (2026-09-14) và "search" (2026-11-12, A2) production chưa
+// lưu bản nào (12/11 đã quét toàn bộ khóa bằng token chỉ đọc: không có khóa site_config:navigation nào).
+// Nhóm lõi/phụ và quy tắc hiện thanh đáy: lib/shellRoutes.js (dùng được ở client).
 
 export function navigationKey() {
   const namespace = process.env.CDP_SITE_CONTENT_NAMESPACE?.trim();
