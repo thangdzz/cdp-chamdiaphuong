@@ -10,9 +10,41 @@
   color-scheme: light;
 }
 
+/* Token màu theo vai trò — chế độ Cơ bản (DESIGN.md v2.0 §2, kế hoạch SPEC-A1-mau-va-font.md).
+   Màn nào chưa tới bước làm lại (A2–A9) vẫn dùng màu cũ; mỗi màn đổi sang token ở bước của nó.
+   `/admin` và lớp game không dùng token (ngoại lệ DESIGN §2). */
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #efeee9;
+  --line: #e3e1da;
+  --line-strong: #7f8882; /* viền ô nhập / ô tìm / chip lọc — điều chỉnh sau FREEZE, PM duyệt 12/11 (Q2) */
+  --ink: #183b32;
+  --ink-2: #4f5b55;
+  --action: #b04a33;
+  --action-hover: #963e2a;
+  --ok: #2f6b4f;
+  --warn: #8a5a10;
+  --focus: var(--action);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-page: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --radius-card: 12px;
+  --radius-control: 10px;
+  --shadow-card: 0 1px 2px rgb(24 59 50 / 0.06);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -21,6 +53,27 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Trang cho khách (khung `cdp-site` trong AppShell.js): nền kem + chữ mực. `/admin` có khung riêng, không có
+   lớp này nên giữ nền trắng như cũ. Quy tắc `body:has()` để khi vuốt quá đầu/cuối trang (iOS) cũng cùng màu nền. */
+body:has(.cdp-site) {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Nằm trong lớp `base` để lớp Tailwind của từng màn (focus:…) vẫn ghi đè được khi màn đó cần kiểu riêng. */
+@layer base {
+  .cdp-site {
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  /* Viền focus khi dùng bàn phím (không hiện khi chạm): 2px màu hành động, cách 2px — 5:1 trên nền kem. */
+  .cdp-site :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
 }
 
 /* Safari trên iPhone TỰ PHÓNG TO cả trang khi bấm vào một ô nhập có cỡ chữ dưới 16px, và

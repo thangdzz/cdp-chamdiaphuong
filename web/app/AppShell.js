@@ -158,7 +158,8 @@ export function AppShell({ navigation, children }) {
 
   return (
     <NavigationContext.Provider value={navigation}>
-      <div className="flex min-h-full flex-1">
+      {/* `cdp-site`: phạm vi token màu của trang khách (globals.css). Khung /admin ở trên không có lớp này. */}
+      <div className="cdp-site flex min-h-full flex-1">
         <DesktopSidebar navigation={navigation} pathname={pathname} />
         <div className="flex min-w-0 flex-1 flex-col transition-[padding] duration-200 lg:pl-[var(--cdp-sidebar-width,248px)]">
           <SiteHeader
