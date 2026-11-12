@@ -15,8 +15,8 @@ kiểm lại gần đây — để người dùng **lưu vào Sổ**, **xếp th
 **Người địa phương là nền móng dữ liệu**; khách đến địa phương dùng nền dữ liệu đó.
 
 **Nguồn chuẩn cao nhất: [docs/PRODUCT.md](docs/PRODUCT.md).** Phạm vi đang build:
-[docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) (FROZEN). Tài liệu hay quyết định cũ nói khác PRODUCT
-thì PRODUCT thắng.
+[docs/SCOPE-UXUI-ban-do-gap.md](docs/SCOPE-UXUI-ban-do-gap.md) (FROZEN 2026-11-12). Tài liệu hay quyết
+định cũ nói khác PRODUCT thì PRODUCT thắng. Quy tắc Sổ/tài khoản/đồng bộ đã chốt: DECISIONS 2026-11-12.
 
 - **Không có tài khoản đăng nhập.** Người dùng được định danh bằng mã ẩn danh trong
   localStorage, hồ sơ tạo im lặng lúc họ thực sự đóng góp lần đầu.
@@ -37,10 +37,10 @@ vNext — Core Discovery Flow *Home → Search → Place → Lưu vào Sổ*.
 | File | Khi nào cần |
 |---|---|
 | [docs/HANDOFF.md](docs/HANDOFF.md) | **Đọc đầu tiên** — đang làm gì, dở ở đâu, làm gì tiếp |
-| [docs/PRODUCT.md](docs/PRODUCT.md) · [docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) | **Trước khi làm bất cứ tính năng nào** — sản phẩm làm gì, cho ai; scope đang build (MUST / MAY / NOT NOW) |
+| [docs/PRODUCT.md](docs/PRODUCT.md) · [docs/SCOPE-UXUI-ban-do-gap.md](docs/SCOPE-UXUI-ban-do-gap.md) | **Trước khi làm bất cứ tính năng nào** — sản phẩm làm gì, cho ai; scope đang build (đợt A / B + checklist) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **Trước khi code** — dữ liệu nằm đâu, file nào làm gì, chỗ nào dễ vỡ |
 | [web/AGENTS.md](web/AGENTS.md) | **Trước khi code Next.js** — bản Next.js này khác dữ liệu huấn luyện |
-| [docs/DESIGN.md](docs/DESIGN.md) | **Trước khi dựng UI** (tên cũ `SPEC-giao-dien.md`) |
+| [docs/DESIGN.md](docs/DESIGN.md) | **Trước khi dựng UI** — v2.0 hai chế độ, hiệu lực 12/11/2026 (bản v1 trong `docs/archive/2026-11-uxui-freeze/`) |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Trước khi đổi hướng thứ gì — vì sao đã chọn cách hiện tại |
 | [docs/TASKS.md](docs/TASKS.md) · [docs/STATUS.md](docs/STATUS.md) | Việc đang active · trạng thái hiện tại (ngắn) |
 | [docs/BACKLOG.md](docs/BACKLOG.md) · [docs/INBOX.md](docs/INBOX.md) | Việc chờ phase sau · ý tưởng chưa review. **Không tự làm** khi chưa được duyệt |

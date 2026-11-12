@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Hình minh họa nhóm Ngủ">
+  <defs>
+    <linearGradient id="fn" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#183B32" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#183B32" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" fill="#EDE6D3"/>
+  <path d="M-10 34 C40 22 80 44 130 30 S210 16 250 28 M-10 50 C40 38 90 60 140 46 S220 32 250 44" stroke="#D8CBB0" stroke-width="1.4" fill="none"/>
+  <path d="M186 22 A16 16 0 1 0 204 44 A13 13 0 1 1 186 22Z" fill="#E9C3AE"/>
+  <circle cx="40" cy="22" r="1.8" fill="#183B32"/><circle cx="66" cy="36" r="1.4" fill="#183B32"/><circle cx="150" cy="18" r="1.6" fill="#183B32"/><circle cx="222" cy="64" r="1.4" fill="#183B32"/>
+  <path d="M0 108 L52 78 L100 96 L160 70 L240 100 V160 H0Z" fill="#83A58D"/>
+  <path d="M0 130 L240 122 V160 H0Z" fill="#183B32"/>
+  <path d="M70 100 L120 62 L170 100Z" fill="#BD704E"/>
+  <path d="M62 102 L120 58 L178 102" stroke="#8E4A2E" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="80" y="100" width="80" height="34" fill="#F8F5ED"/>
+  <path d="M80 112 H160 M80 122 H160" stroke="#D8CBB0" stroke-width="1"/>
+  <rect x="92" y="106" width="16" height="12" fill="#E9C3AE"/><rect x="132" y="106" width="16" height="12" fill="#E9C3AE"/>
+  <rect x="112" y="112" width="16" height="22" fill="#183B32"/>
+  <path d="M86 134 V148 M154 134 V148 M100 134 V148 M140 134 V148" stroke="#8E4A2E" stroke-width="3"/>
+  <rect x="0" y="0" width="80" height="160" fill="url(#fn)"/>
+  <rect x="160" y="0" width="80" height="160" fill="url(#fn)"/>
+  <path d="M80 0 V160 M160 0 V160" stroke="#FFFFFF" stroke-opacity=".7" stroke-width="1.2"/>
+  <path d="M81.2 0 V160 M161.2 0 V160" stroke="#D8CBB0" stroke-width="1"/>
+</svg>

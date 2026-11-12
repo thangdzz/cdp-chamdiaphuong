@@ -1,47 +1,60 @@
 # HANDOFF — Bàn giao trạng thái
 
-> Cập nhật: **2026-09-30**. Kênh bàn giao duy nhất giữa Claude Code và Codex — quy tắc ở
+> Cập nhật: **2026-11-12**. Kênh bàn giao duy nhất giữa Claude Code và Codex — quy tắc ở
 > [/AGENTS.md](../AGENTS.md) §7. Giữ file này **ngắn**: chỉ trạng thái hiện tại, ghi đè bản cũ.
 > Bản bàn giao cũ (tới 17/9): [archive/logs/HANDOFF-2026-09-17.md](archive/logs/HANDOFF-2026-09-17.md).
 
 ---
 
+## 0. Quy tắc phải đọc trước (không hỏi lại PM)
+
+**Sổ / tài khoản / đồng bộ** — [DECISIONS.md](DECISIONS.md) mục 2026-11-12. Tóm tắt: chưa có tài khoản; Sổ và
+Lộ trình lưu trên server nhưng **gắn với thiết bị qua mã ẩn danh**, **không tự đồng bộ**; mã khôi phục 6 số là
+**khôi phục thủ công** (cơ chế: [ARCHITECTURE.md](ARCHITECTURE.md) “Truy cập Sổ/Lộ trình từ thiết bị khác”);
+Ghi chú riêng chỉ trên thiết bị. Câu chữ chuẩn: “Sổ của bạn gắn với thiết bị này. Chưa có đồng bộ tự động giữa
+các thiết bị.”
+
 ## 1. Task hiện tại
 
-**vNext — Core Discovery Flow ĐÃ RELEASE (2026-09-30).** Không có task đang mở. Chưa mở Scope mới,
-chưa làm MAY — chờ Product Owner chọn việc tiếp theo.
+**vNext UX/UI — Bản đồ gấp + Cơ bản: FREEZE tài liệu xong (12/11), chờ PM xác nhận FREEZE record rồi mới BUILD A.**
+Chưa sửa code sản phẩm, chưa build, chưa release.
+
+- Bản ghi FREEZE: [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
+- Scope FROZEN: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (đợt A = Cơ bản mới; đợt B = Bản đồ gấp + công
+  tắc + nhóm quay lại; checklist nghiệm thu A/B ở §4–§5).
+- **[DESIGN.md](DESIGN.md) v2.0 có hiệu lực từ 12/11.** Bản v1 ở `archive/2026-11-uxui-freeze/`.
+- Mockup 9 bảng (tham khảo; DESIGN.md thắng khi khác): https://claude.ai/artifact/DH3MS2vJQAxwH4niPBFzEo
+- Bộ minh họa đã duyệt hướng: `docs/design/minh-hoa/*.svg` — chỉ chép vào `web/public/minh-hoa/` ở BUILD A.
 
 ## 2. Đã làm tới đâu
 
-- Production: **`chamdiaphuongio-og2r8pgy7`** (30/9) = commit `e3b38a4`, alias chamdiaphuong.io.vn.
-  Bản trước để quay lại nếu cần: `chamdiaphuongio-87p9xw2vr` (hotfix `de8e1bc`).
-- Product Owner test tay đạt (kể cả `two-wheeler` trên iPhone thật). Smoke test production 307/307.
-- [SCOPE-vNext.md](SCOPE-vNext.md) đã đánh dấu RELEASED.
+- Production vẫn là vNext Core Discovery: **`chamdiaphuongio-og2r8pgy7`** (30/9) = commit `e3b38a4`.
+- 11–12/11: SCOPE → DESIGN v1 → PM review v2 → DESIGN v2 → **PM FINAL duyệt** → FREEZE tài liệu.
+- Kiểm kê chỉ đọc: 16/342 chỗ có ảnh thật; số liệu nền 37 phiên / 42 ngày.
 
-## 3. File quan trọng vừa thêm
+## 3. File quan trọng vừa thêm (chỉ tài liệu)
 
-`lib/phone.js` + `app/CallPhone.js` (mọi `tel:` đi qua đây) · `app/SaveChanges.js` (thanh Lưu
-thay đổi) · `app/VisitConfirm.js` · `app/BackButton.js` · `lib/placeRank.js` · `app/tim/`.
+`docs/FREEZE-UXUI-ban-do-gap-2026-11-12.md` · `docs/SCOPE-UXUI-ban-do-gap.md` · `docs/DESIGN.md` (v2.0) ·
+`docs/KIEM-KE-anh-so-lieu-nen-2026-11-11.md` · `docs/design/minh-hoa/` · 4 file PM review / kế hoạch trong `docs/`.
 
 ## 4. Lỗi / chỗ đang dở
 
 | Mức | Việc |
 |---|---|
-| 🟢 | Font Geist thiếu bộ chữ tiếng Việt — UX follow-up (Be Vietnam Pro / Inter), không chặn |
-| 🟢 | `CallButton` (nút "Gọi" + "Chọn số để gọi") chỉ còn dùng trong `PlaceExplorer.js` không dùng — chưa trang nào hiện; trang địa điểm hiện từng số là link gọi riêng |
-| 🟢 | `PlaceExplorer.js` (+ `PersonalNote.js`) không còn trang nào dùng — dọn sau release |
-| 🟢 | Lint của dự án tắt `no-undef` — biến chưa khai báo không bị bắt (đã quét tay 30/9: sạch). BACKLOG §8 |
+| 🟡 | `PlaceDetail.js` còn dùng `PhotoGallery`, `formatDate`, `formatRelativeAge`, `staleMenuAgeMonths` từ `PlaceExplorer.js` → tách ra trước khi dọn (ghi chú cũ “không trang nào dùng” là sai) |
+| 🔴 | **[Khôi phục-1]** lần lưu đầu không cho khách thấy mã 6 số · **[Khôi phục-2]** nhập mã ghi đè hồ sơ máy đã có Sổ. BACKLOG §3, PM xếp ưu tiên sớm. Không thêm lối vào khôi phục mới trước khi sửa |
+| 🟡 | Đề xuất 2 sửa nhỏ PRODUCT.md chờ chủ dự án duyệt (FREEZE record §4); không chặn BUILD A |
+| 🟢 | Font Geist thiếu bộ chữ tiếng Việt — sẽ thay ở đợt A |
+| 🟢 | Lint của dự án tắt `no-undef` (BACKLOG §8) |
 | 🟡 | DELETE CANDIDATE chờ review: `docs/CDP_P1-P8_PostDong_LoTrinh_Prompt.md` · `data/dia-diem-mau-giai-doan-1.md` · `web/README.md` |
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ Product Owner chọn việc tiếp theo. Không tự mở Scope mới / MAY.
-2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1` (thiếu `--scope` là "Not authorized").
-   **Chỉ deploy khi được yêu cầu.** Sau deploy kiểm production chỉ đọc.
+1. Chờ PM xác nhận FREEZE record → đồng bộ `origin/main` → trình kế hoạch bước A1 (token + font) → BUILD A theo
+   SCOPE §6. Không build trước khi PM xác nhận.
+2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.**
 
-**Bẫy cho người sau:** test giao diện bản đồ phải chạy `next build` + `next start` (`next dev`
-MapLibre đứng "Đang tải bản đồ…"). Kiểm bằng trình duyệt ở máy dùng chung Redis thật: chặn
-`/api/track` và mọi Server Action ghi (đọc `.next/server/server-reference-manifest.json` để biết
-action nào là ghi — trên production mã action khác bản build ở máy: lấy bảng mã từ file JS công
-khai của trang, chuỗi `createServerReference)("<id>",…,"<tên>"`). `logNotebookView` là lượt GHI
-(đếm lượt xem sổ), không phải đọc.
+**Bẫy cho người sau:** test giao diện bản đồ phải chạy `next build` + `next start` (`next dev` MapLibre đứng
+“Đang tải bản đồ…”). Kiểm bằng trình duyệt ở máy dùng chung Redis thật: chặn `/api/track` và mọi Server Action
+ghi. `logNotebookView` là lượt GHI. Đọc dữ liệu thật để kiểm kê: dùng `KV_REST_API_READ_ONLY_TOKEN` (lệnh
+`PFCOUNT` bị khóa chỉ-đọc từ chối).

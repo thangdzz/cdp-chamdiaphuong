@@ -51,6 +51,16 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
   (không hiện ở link chia sẻ) hay công khai (phải qua duyệt). Nguồn: DECISIONS 2026-09-12.
 - **Giới hạn `MAX_WAYPOINTS`** — phải thử trên iPhone thật mới biết số. Nguồn: DECISIONS 2026-09-22.
 - **Phát hiện lộ trình đã sao chép** để khỏi tạo trùng. Nguồn: `22-NOTE-13` P1 #11.
+- **Tài khoản + đồng bộ Sổ/Lộ trình đa thiết bị** — chỉ làm khi có scope riêng được duyệt; tài khoản không bắt
+  buộc. Quy tắc: DECISIONS 2026-11-12.
+- ⚠️ **[Khôi phục-1] Lần lưu đầu không cho khách thấy mã khôi phục 6 số.** Hồ sơ được tạo ngầm khi lưu Sổ / tạo
+  Lộ trình lần đầu, mã chỉ nằm trong máy; khách không biết để dùng lại. Rủi ro: mất khả năng truy cập Sổ khi đổi
+  máy / xóa dữ liệu trình duyệt. **PM yêu cầu xếp ưu tiên sửa sớm** (PM final 12/11 §2.3). Nguồn: ARCHITECTURE
+  “Truy cập Sổ/Lộ trình từ thiết bị khác”.
+- ⚠️ **[Khôi phục-2] Nhập mã trên máy đã có Sổ sẽ ghi đè hồ sơ của máy đó** → các Sổ/Lộ trình tạo trên máy đó
+  không còn hiện (vẫn nằm trên server). Không tự gộp. **PM yêu cầu xếp ưu tiên sửa sớm.** Trước khi mở bất kỳ lối
+  vào khôi phục mới: có cách lấy/lưu mã rõ ràng, cảnh báo trước khi thay hồ sơ, xác nhận của khách, test trường hợp
+  máy đích đã có Sổ. Không gọi mã 6 số là đồng bộ. Nguồn: như trên.
 
 ## 4. Đi lại
 
@@ -67,6 +77,8 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
 - **Ảnh thu nhỏ (thumbnail) thật** · thống kê dùng ảnh · **dọn ảnh mồ côi** (phải có chỉ mục
   tham chiếu + chạy thử trước khi xoá) · UX chú thích/vai trò ảnh · ảnh nhận diện cho điểm dừng
   lộ trình. Nguồn: `20-NOTE-11` P1.
+- **Thu thập thêm ảnh thật** (việc nội dung, không chặn release giao diện) — 11/11 chỉ 16/342 chỗ có ảnh,
+  Đi lại 0/23. Nguồn: PM review DESIGN v2 12/11 §2.1, [KIEM-KE…](KIEM-KE-anh-so-lieu-nen-2026-11-11.md).
 
 ## 7. Admin
 

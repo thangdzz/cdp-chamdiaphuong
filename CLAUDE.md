@@ -7,8 +7,8 @@ nền móng dữ liệu**; khách đến địa phương dùng nền dữ liệu
 **Sổ**, ghép thành **Lộ trình**, và chia sẻ — chức năng cơ bản không bắt buộc đăng nhập.
 
 **Nguồn chuẩn cao nhất: [docs/PRODUCT.md](docs/PRODUCT.md).** Phạm vi đang build:
-[docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) (FROZEN). Tài liệu nào nói khác PRODUCT thì PRODUCT
-thắng. File này chỉ nói **cách làm việc**.
+[docs/SCOPE-UXUI-ban-do-gap.md](docs/SCOPE-UXUI-ban-do-gap.md) (FROZEN 2026-11-12; scope cũ
+[SCOPE-vNext.md](docs/SCOPE-vNext.md) đã RELEASED). Tài liệu nào nói khác PRODUCT thì PRODUCT thắng. File này chỉ nói **cách làm việc**.
 
 ## Người chủ dự án
 Anh là solo creator, **không rành kỹ thuật (non-tech)**. Mọi giải thích phải bằng tiếng Việt
@@ -45,6 +45,9 @@ Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub �
    động) luôn phải qua duyệt, không tự động xoá. (Đổi hướng 2026-07-17, xem lý do ở
    [docs/DECISIONS.md](docs/DECISIONS.md) — nguyên tắc trước đó là "luôn phải duyệt".)
 7. Nếu yêu cầu còn mơ hồ, hỏi lại **1 câu một**, không hỏi dồn nhiều câu cùng lúc.
+8. **Sổ / tài khoản / đồng bộ là quy tắc đã chốt** (DECISIONS 2026-11-12): chưa có tài khoản, Sổ/Lộ trình gắn
+   với thiết bị (mã ẩn danh), không tự đồng bộ; mã khôi phục 6 số = khôi phục thủ công. Đọc mục đó trước khi suy
+   luận chuyện lưu/đồng bộ. **Không hỏi lại**, trừ khi code mâu thuẫn thật.
 
 ## Ngôn ngữ
 - Giao tiếp, giải thích, comment cấp cao: tiếng Việt.
@@ -54,7 +57,9 @@ Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub �
 ## Tài liệu liên quan
 - [docs/PRODUCT.md](docs/PRODUCT.md) — **nguồn chuẩn cao nhất**: vì sao CDP tồn tại, phục vụ ai,
   làm gì, không làm gì, nguyên tắc chọn feature
-- [docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) — phạm vi đang build (FROZEN): MUST / MAY / NOT NOW
+- [docs/SCOPE-UXUI-ban-do-gap.md](docs/SCOPE-UXUI-ban-do-gap.md) — phạm vi đang build (FROZEN 12/11): đợt A /
+  đợt B + checklist nghiệm thu. Bản ghi FREEZE: [docs/FREEZE-UXUI-ban-do-gap-2026-11-12.md](docs/FREEZE-UXUI-ban-do-gap-2026-11-12.md)
+- [docs/SCOPE-vNext.md](docs/SCOPE-vNext.md) — scope trước (Core Discovery), đã RELEASED 30/9
 - [docs/TASKS.md](docs/TASKS.md) — việc đang thực sự active
 - [docs/BACKLOG.md](docs/BACKLOG.md) — đã review, có giá trị, chờ phase phù hợp. **Không tự làm**
 - [docs/INBOX.md](docs/INBOX.md) — ý tưởng chưa review / thuộc NOT NOW. **Không tự làm**

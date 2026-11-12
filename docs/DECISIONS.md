@@ -7,6 +7,76 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (cuối) — PM FINAL: DESIGN duyệt, FREEZE tài liệu UX/UI
+
+Nguồn: [PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md).
+Bản ghi: [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
+- Chốt 5 điểm mở: (1) **thanh đáy 4 mục** Trang chủ · Tìm chỗ · Sổ · Lộ trình, màn chi tiết dùng thanh hành động
+  thay thế; (2) công tắc Giao diện trong Menu / cuối sidebar + **gợi ý 1 lần, không chặn** ở đợt B; (3) **không mở
+  lối vào “Dùng trên máy khác?”**, giữ đường khôi phục cũ, 2 lỗi khôi phục vào BACKLOG ưu tiên sớm; (4) trang chủ
+  Bản đồ gấp cho người quay lại bỏ địa hình lớn; (5) **tiêu đề trang chủ Admin tối đa 60 ký tự** có bộ đếm (đợt A,
+  sửa nhỏ, không cắt tiêu đề cũ).
+- **DESIGN.md v2.0 có hiệu lực từ 12/11/2026**; v1 vào `archive/2026-11-uxui-freeze/`. SCOPE-UXUI **FROZEN v1.0**.
+- Bộ 5 SVG minh họa (`docs/design/minh-hoa/`) là tài sản đã duyệt hướng; chỉ vào `web/public/` ở BUILD A.
+- Duyệt hướng ≠ nghiệm thu: hiệu năng, SVG hiển thị cuối, chuyển động thật, luồng khôi phục kiểm ở BUILD/TEST.
+
+## 2026-11-12 — QUY TẮC SẢN PHẨM: Sổ / tài khoản / đồng bộ (cố định, xuyên session)
+
+Nguồn: [PM-REVIEW-DESIGN-CDP-Ban-do-gap-2026-11-12-v2.md](PM-REVIEW-DESIGN-CDP-Ban-do-gap-2026-11-12-v2.md) §2.2.
+**Đã chốt, không hỏi lại PM.** Chỉ nêu lại khi code có mâu thuẫn thực tế.
+
+- **Không có tài khoản** (hiện tại): Sổ và Lộ trình gắn với thiết bị / mã ẩn danh hiện tại; **không tự
+  đồng bộ sang thiết bị khác**.
+- **Khi có tài khoản và cơ chế đồng bộ được triển khai** (chưa nằm trong scope nào): người dùng có đồng bộ
+  Sổ/Lộ trình giữa các thiết bị. **Tài khoản không bắt buộc** với người chỉ tra cứu, lưu và dùng trên thiết bị
+  hiện tại.
+- Phân biệt **nơi lưu** với **truy cập từ thiết bị khác**: Sổ/Lộ trình lưu trên Redis (server) nhưng chỉ truy
+  cập được qua mã ẩn danh trên thiết bị; như vậy **không phải** đồng bộ. Ghi chú riêng lưu trên thiết bị.
+- **Mã khôi phục 6 số** (đã xác minh trong code 12/11) là **khôi phục thủ công**, không phải đồng bộ tự động.
+  Cơ chế ghi ở [ARCHITECTURE.md](ARCHITECTURE.md) mục “Truy cập Sổ/Lộ trình từ thiết bị khác”. Không xóa chức
+  năng này khi làm lại UI.
+- Câu chữ chuẩn cho Sổ: **“Sổ của bạn gắn với thiết bị này. Chưa có đồng bộ tự động giữa các thiết bị.”**
+  Không vẽ nút “Đăng nhập để đồng bộ” khi chưa có cơ chế đó. Không mở scope tài khoản.
+- **Đề xuất bổ sung PRODUCT.md, chờ chủ dự án duyệt** (PRODUCT do Product Owner duyệt nên em chưa sửa). Thêm
+  vào ghi chú diễn giải đầu file: *“Sổ và Lộ trình gắn với thiết bị (mã ẩn danh), chưa có đồng bộ tự động; mã
+  khôi phục 6 số là khôi phục thủ công. Khi có tài khoản + đồng bộ thì người dùng mới có Sổ/Lộ trình trên nhiều
+  thiết bị; tài khoản không bắt buộc cho việc tra cứu và lưu trên một thiết bị.”*
+
+## 2026-11-12 — PM review DESIGN v2: duyệt hướng có điều kiện
+
+Chi tiết: [PM-REVIEW-DESIGN-CDP-Ban-do-gap-2026-11-12-v2.md](PM-REVIEW-DESIGN-CDP-Ban-do-gap-2026-11-12-v2.md).
+- **Ảnh mặc định = hình minh họa bản đồ giấy theo nhóm** (Ăn, Chơi, Ngủ, Đi lại + dự phòng), cùng bộ hình gốc
+  cho 2 chế độ, không mô phỏng nơi thật. Chi tiết ghi “Hình minh họa · Chưa có ảnh thực tế”. Ảnh thẻ tìm kiếm P0.
+  Thu thập thêm ảnh thật → BACKLOG nội dung riêng.
+- Nút ngẫu nhiên thống nhất tên **“Chọn ngẫu nhiên”**. Chỉ loại chỗ đã gỡ / hết hạn; **không** loại theo “nghi
+  đóng cửa”.
+- **Bỏ autofocus** ô tìm trang chủ trên mobile. Khẩu hiệu trên H1. Màu nút `#B04A33`, logo `#C8553D`.
+- Cho phép sửa có giới hạn đoạn ghi analytics để gắn `theme=basic|atlas`.
+- Chuyển động chỉ nghiệm thu sau BUILD.
+
+## 2026-11-11 (sau) — PM review SCOPE UX/UI: duyệt có điều kiện
+
+Chi tiết: [PM-REVIEW-SCOPE-UXUI-Ban-do-gap-11-11-2026.md](PM-REVIEW-SCOPE-UXUI-Ban-do-gap-11-11-2026.md).
+- **Hai đợt:** A = giao diện Cơ bản mới (không có nút chọn); B = Bản đồ gấp + nút chuyển + Sổ/Lộ trình gần đây +
+  chọn ngẫu nhiên. Mỗi đợt có test và rollback riêng. Bản đồ gấp vẫn là mặc định cuối cùng (khi đạt hiệu năng).
+- **P0 thêm:** ảnh thật trên thẻ tìm kiếm (không chèn ảnh AI), Hoàn tác sau khi lưu.
+- **Logo giữ `#C8553D`**, một màu hành động; xanh rừng chỉ cho chữ/nền đậm. Tiêu đề trang chủ Admin sửa được,
+  mặc định “Hôm nay bạn muốn ghé đâu?”.
+- **Đo theo theme** bằng thuộc tính `theme`, không nhân đôi tên sự kiện. Lộ trình gần đây = sửa trong 14 ngày.
+- Trình tự đúng: SCOPE → **DESIGN → FREEZE** → BUILD. Hai giao diện có bố cục/chất liệu/chuyển động riêng, chỉ dùng
+  chung dữ liệu và logic.
+
+## 2026-11-11 — Duyệt kế hoạch UX/UI "Bản đồ gấp sống" + chế độ Cơ bản
+
+PM duyệt (PRODUCT APPROVED) kế hoạch
+[CDP-ke-hoach-UXUI-Ban-do-gap-song-vNext.md](CDP-ke-hoach-UXUI-Ban-do-gap-song-vNext.md): một app,
+một bộ dữ liệu và logic, hai giao diện đổi được bất cứ lúc nào. Trang chủ có tiêu đề "Hôm nay bạn muốn
+ghé đâu?", khẩu hiệu "Gom chỗ hay. Chia sẻ dễ dàng.". Bảng màu mới (xanh rừng + cam đất) **thay quy tắc
+"một màu nhấn"** của DESIGN.md; DESIGN.md sẽ được viết lại ở bước DESIGN. Scope nháp:
+[SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md), **chưa FREEZE**.
+*(Đã chỉnh ở các mục sau: logo giữ `#C8553D`, **một** màu hành động `#B04A33`, xanh rừng/cam đất chỉ là chữ, nền,
+trang trí. Scope FROZEN 12/11.)*
+
 ## 2026-09-30 (khuya) — Trang địa điểm gom còn 2 vùng: Thông tin địa điểm + Cần biết
 
 PO/PM (vòng dọn cuối trước release): trang vẫn bị chia quá nhiều khối. Chốt:

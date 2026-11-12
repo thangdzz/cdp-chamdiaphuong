@@ -1,348 +1,164 @@
-# DESIGN — Quy ước giao diện CDP (gốc: "SPEC — Rà soát giao diện")
+# DESIGN — Quy ước giao diện CDP · v2.0 (Bản đồ gấp + Cơ bản)
 
-> Đổi tên từ `SPEC-giao-dien.md` ngày 2026-09-29 (DECISIONS 2026-09-29). Đọc trước khi dựng UI.
-> Lượt rà soát 7 mục bên dưới đã code xong 08/2026; các nguyên tắc (bỏ bớt chứ không thêm, font,
-> màu, khoảng cách) vẫn là chuẩn giao diện hiện tại. Mục tiêu sản phẩm: [PRODUCT.md](PRODUCT.md).
+**Phiên bản 2.0 · hiệu lực 2026-11-12 (FREEZE).** Đọc trước khi dựng bất kỳ UI nào.
 
-> Không phải một chặng mới. Đây là **một lượt rà soát tổng thể** sau 6 chặng, làm trước khi
-> tới Chặng 7. Code làm bên Antigravity, trình kế hoạch trước.
+> Duyệt: [PM-FINAL-REVIEW-DESIGN…](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md). Phạm vi: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md).
+> Mockup 9 bảng (tham khảo hình, **file này thắng** khi khác nhau): https://claude.ai/artifact/DH3MS2vJQAxwH4niPBFzEo
+> Bản cũ v1 (tới 11/11/2026): [archive/2026-11-uxui-freeze/DESIGN-v1-truoc-2026-11-12.md](archive/2026-11-uxui-freeze/DESIGN-v1-truoc-2026-11-12.md).
+> **Comment trong code ghi “DESIGN.md §…” viết trước 12/11/2026 là trỏ tới bản v1 đó.**
 >
-> **Phạm vi đóng khung ở 7 mục dưới đây. Hết là dừng.** "Tối ưu giao diện" không có điểm
-> dừng tự nhiên — dễ ăn hết một tháng nếu không khoanh.
-
-**Mục tiêu:** sang, hiện đại, đơn giản, nhìn lâu không chán. Cụ thể là bỏ bớt chứ không thêm
-vào — không thêm màu, không thêm hiệu ứng, không thêm thông tin.
+> Ghi chú áp dụng: đợt A chỉ phát hành chế độ **Cơ bản**; mọi thứ ghi “Bản đồ gấp” thuộc đợt B.
 
 ---
 
-## 1. ⚠️ Lỗi phải sửa đầu tiên: web đang chạy bằng Arial
+## 1. Ý tưởng
 
-`app/layout.js` nạp font **Geist** và khai báo biến `--font-geist-sans` đàng hoàng. Nhưng
-`app/globals.css` có:
+**Bản đồ gấp sống:** một tờ bản đồ giấy địa phương mở ra trên tay: 3 tấm gấp, lớp địa hình chồng nhau, đường đồng
+mức, góc lật, ảnh dán băng dính, Sổ có bìa như bản đồ gấp. Cử chỉ: **MỞ**, **GẤP**, **NỐI**.
 
-```css
-body { font-family: Arial, Helvetica, sans-serif; }
-```
+**Cơ bản:** cùng nội dung, thứ tự, hành động. Nền phẳng, thẻ trắng, ít chuyển động. Dùng chung bộ minh họa.
 
-Dòng này **đè mất** font đã nạp. Toàn bộ web đang hiển thị bằng Arial.
+Hai chế độ dùng chung dữ liệu, route, handler; khác nhau ở **bố cục, chất liệu, chuyển động** của lớp trình bày.
+Component có trạng thái (ô tìm, bộ lọc, form, luồng Lưu/Hoàn tác, Chọn ngẫu nhiên) chỉ có **một** bản.
 
-Đã ghi trong [STATUS.md](STATUS.md) từ **2026-07-20** ("font Geist đã khai báo nhưng bị 1
-dòng CSS cũ đè mất, chưa sửa") và vẫn chưa sửa.
+## 2. Token màu
 
-**Sửa:** đổi thành `font-family: var(--font-geist-sans), system-ui, sans-serif;`
+| Token | Cơ bản | Bản đồ gấp | Dùng cho |
+|---|---|---|---|
+| `--bg` | `#F6F5F1` | `#F8F5ED` | Nền trang |
+| `--surface` | `#FFFFFF` | `#FFFDF7` | Thẻ, sheet |
+| `--surface-2` | `#EFEEE9` | `#F0EADB` | Nền phụ |
+| `--line` | `#E3E1DA` | `#E2D9C6` | Viền |
+| `--ink` | `#183B32` | `#183B32` | Chữ chính, nền đậm |
+| `--ink-2` | `#4F5B55` | `#56625C` | Chữ phụ |
+| `--action` | `#B04A33` | `#B04A33` | **Màu hành động duy nhất** (nút chính, link) |
+| `--action-hover` | `#963E2A` | `#963E2A` | Đang nhấn |
+| `--ok` / `--warn` | `#2F6B4F` / `#8A5A10` | như vậy | Còn mở / chưa chắc chắn |
+| `--sage` `--earth` `--fold` | không dùng | `#83A58D` `#BD704E` `#D8CBB0` | **Chỉ trang trí** |
 
-Đây là thay đổi **một dòng có tác động lớn nhất** trong cả spec này. Arial là tín hiệu "rẻ
-tiền" mạnh nhất mà một trang web có thể phát ra.
+- Logo giữ `#C8553D`; không dùng làm nền nút (chữ trắng chỉ đạt 4,4:1). Không có màu CTA thứ hai.
+- Tương phản tính toán: nút 5,4:1 · đang nhấn 7,0:1 · focus ring 4,9:1 · chữ phụ trên kem 5,8:1 · chưa chắc
+  chắn 5,4:1. **Đo lại trên máy thật ở TEST.**
+- Chỉ giao diện sáng (`color-scheme: light`).
+- **Ngoại lệ giữ màu cố định** (không đổi sang token): logo · màu trạng thái và báo lỗi · màu trong hình minh họa
+  · lớp game `_game` · `/admin`.
 
----
+## 3. Chữ
 
-## 2. Thang chữ — vấn đề lớn nhất về bố cục
+- **Be Vietnam Pro** (bộ `vietnamese`) cho toàn bộ nội dung cả 2 chế độ. **Literata** chỉ cho tiêu đề lớn ở Bản đồ
+  gấp (H1, tên chỗ, tên Sổ/Lộ trình). Nạp đúng các độ đậm dùng tới; kiểm dấu tiếng Việt + tốc độ ở TEST.
+- H1 26 / 30px · tên chỗ 24 / 27px · nội dung 15px · phụ 13–13,5px · **tối thiểu 13px** · ô nhập 16px trên màn cảm ứng.
 
-Đếm thực tế trong `app/*.js`: **`text-sm` 71 lần · `text-xs` 52 lần** — tức 123/135 chỗ chữ
-đều nhỏ như nhau. `text-base` chỉ 5 lần, `text-lg` 4 lần.
+## 4. Hình khối và chiều sâu
 
-Hệ quả: không có thứ bậc, mắt không biết nhìn đâu trước, mọi thứ chen nhau.
-
-**Thang mới — chỉ 5 bậc, dùng đúng 5 bậc này, không thêm:**
-
-| Vai trò | Lớp | Ghi chú |
+| | Cơ bản | Bản đồ gấp |
 |---|---|---|
-| Số nổi bật (giá) | `text-2xl font-medium tracking-tight` | To nhất trên thẻ |
-| Tên địa điểm | `text-lg font-medium tracking-tight leading-snug` | |
-| Nội dung chính | `text-sm` (14px) | Thông tin bấm chọn, mẹo |
-| Phụ / metadata | `text-[13px] text-zinc-500` | Loại · khu vực · nguồn |
-| Nhãn nhỏ nhất | `text-xs text-zinc-400` | Chỉ dùng cho chú thích thật sự phụ |
+| Bo góc thẻ / nút | 12px / 10px | 6px / 8px |
+| Bóng | 1px rất nhẹ | 2 mức: bóng giấy, bóng sâu |
+| Nền | Phẳng | 3 tấm gấp dọc (mỗi tấm tối dần về phải, vệt sáng ở nếp) |
+| Thẻ | Phẳng | Góc gập 18px |
+
+Yếu tố riêng của Bản đồ gấp: **tờ bản đồ** (khối giấy nổi + góc dưới phải lật) ở đầu trang chủ và chi tiết ·
+**lớp địa hình** 3 lớp đồi SVG chồng, có đường đồng mức + nhãn “Minh họa”, cao 128px · **ảnh dán** (viền giấy 5px,
+2 băng dính, nghiêng −1,2°) · **bìa Sổ** (gáy xanh rừng 12px, đường đồng mức, nhãn giấy, xấp giấy) · **dải giấy**
+Lộ trình. Không dùng tranh làm bản đồ thật; không đặt điểm địa điểm lên tranh. Không 3D. Không tăng độ nặng chỉ
+để thêm chiều sâu.
+
+## 5. Ảnh và bộ minh họa
+
+**Thứ tự chọn ảnh đại diện:** ảnh thường của đúng chỗ (ưu tiên ảnh đánh dấu bìa) → không có / lỗi tải → minh họa
+theo nhóm. **Ảnh menu không bao giờ làm ảnh đại diện.** Không tạo ảnh giả cho địa điểm thật.
+
+**Bộ minh họa (tài sản đã duyệt hướng, chưa vào production trước BUILD A):** nguồn `docs/design/minh-hoa/`, khi
+BUILD chép sang `web/public/minh-hoa/` (giữ tên file).
+
+| File | Nhóm (`type`) | Nội dung | Alt | Cỡ file |
+|---|---|---|---|---|
+| `an.svg` | Ăn (`an`) | Mái che chợ, bát nóng, đũa | “Hình minh họa nhóm Ăn, chưa có ảnh thực tế” | 2,2 KB |
+| `choi.svg` | Chơi (`choi`) | Đồi, hồ, cánh diều | “Hình minh họa nhóm Chơi, chưa có ảnh thực tế” | 2,1 KB |
+| `ngu.svg` | Ngủ (`ngu`) | Mái nhà, cửa sổ sáng, trăng | “Hình minh họa nhóm Ngủ, chưa có ảnh thực tế” | 2,0 KB |
+| `dilai.svg` | Đi lại (`dilai`) | Đường uốn, xe khách, biển chỉ không chữ | “Hình minh họa nhóm Đi lại, chưa có ảnh thực tế” | 2,1 KB |
+| `khac.svg` | Chỗ quen gọi (`moc`), nhóm lạ, dự phòng | La bàn trên giấy gấp | “Hình minh họa, chưa có ảnh thực tế” | 1,5 KB |
+
+- SVG vẽ tay, khung 3:2 (240×160), không chữ, không bảng hiệu, không công trình/địa danh thật; chỉ dùng màu dự án.
+  Cả bộ ≈ 10 KB (nén ≈ 3,7 KB). Không cần WebP/AVIF.
+- **Cỡ trình bày (khung cố định, cắt giữa):** thẻ Tìm chỗ 72×72 · ảnh nhỏ Sổ 48–56px · ảnh nhỏ điểm Lộ trình 44px ·
+  Chi tiết rộng đủ × cao 150px (ảnh thật 200px).
+- Cơ bản: hình phẳng, bo 10px. Bản đồ gấp: viền giấy, băng dính, nghiêng.
+- **Nhãn:** Chi tiết: “Hình minh họa · Chưa có ảnh thực tế” (thẻ nhỏ góc dưới trái ảnh) + link “Gửi ảnh thật của chỗ
+  này” nếu luồng gửi ảnh đang có. Tìm chỗ: dấu ✎ 20px ở góc ảnh + một dòng chú giải đầu danh sách “✎ = hình minh
+  họa, chưa có ảnh thực tế”. Ảnh thật lỗi tải: “Ảnh chưa tải được · đang hiện minh họa”, không thử tải lại liên tục.
+- Phải kiểm 5 file ở các cỡ thật, trạng thái lỗi ảnh, alt và nhãn trước nghiệm thu BUILD A.
+
+## 6. Điều hướng
+
+- **Mobile:** header (logo + tên + Menu) + **thanh đáy 4 mục cố định thứ tự:** Trang chủ · Tìm chỗ · Sổ · Lộ trình.
+  Nhãn lấy từ cấu hình điều hướng Admin như hiện nay. Mục đang mở: chữ đậm + gạch chân màu hành động. Chạm ≥ 44px.
+  Tính vùng an toàn (iOS, trình duyệt trong Zalo/Facebook). 320px: mỗi mục 80px.
+- **Màn chi tiết** (chỗ, Sổ, Lộ trình): **thanh hành động thay thanh đáy** + “← Quay lại” trong header. Không chồng 2 thanh.
+- **Bàn phím bật:** ẩn thanh đáy / thanh hành động; không che ô nhập hay kết quả.
+- **Menu:** Ghi chú của tôi · Góp một chỗ mới · Giới thiệu & chính sách dữ liệu · Lễ hội (lưu trữ) · (đợt B) khối
+  **Giao diện**: 2 nút “Bản đồ gấp / Cơ bản” + câu “Đổi ngay trên trang đang xem. Sổ, Ghi chú, Lộ trình và chữ đang
+  gõ giữ nguyên. Máy này nhớ lựa chọn.”
+- **Desktop (≥ 1024px):** sidebar hiện có; 4 mục lõi trên cùng; khối Giao diện cuối sidebar (đợt B). Không có thanh đáy.
+- **Gợi ý 1 lần (đợt B):** chú thích nhỏ gắn biểu tượng Menu (hoặc khi mở Menu lần đầu) chỉ chỗ đổi giao diện.
+  Không chặn thao tác, bỏ qua được, tối đa 1 lần mỗi thiết bị, không hiện lại, không ép đổi.
+
+## 7. Bố cục 5 màn
+
+**Trang chủ:** khẩu hiệu “Gom chỗ hay. Chia sẻ dễ dàng.” → H1 (Admin sửa, tối đa 60 ký tự, mặc định “Hôm nay bạn
+muốn ghé đâu?”) → câu dẫn → ô tìm (**không autofocus**) → 4 nhóm Ăn · Chơi · Ngủ · Đi lại (kèm số chỗ) → [người mới]
+“Bắt đầu Sổ đầu tiên” / [đợt B, có dữ liệu] Sổ gần đây (≤ 2) + Lộ trình gần đây (14 ngày, không có thì ẩn) → nội dung
+theo mùa chỉ khi còn hiệu lực. Bản đồ gấp: phần đầu nằm trên tờ bản đồ; **người mới** có lớp địa hình ở mép dưới tờ
+(sau ô tìm + 4 nhóm); **người quay lại** bỏ lớp địa hình, giữ nền giấy + góc gập. Tiêu đề dài 2 dòng vẫn giữ ô tìm +
+4 nhóm trong vùng đầu ở 320/360/390px.
+
+**Tìm chỗ:** ô tìm → chip nhóm → chip Khu vực / Giá → “N chỗ · đang xem 1–20” → chú giải ✎ → thẻ ~92px (ảnh 72px ·
+tên · nhóm · khu hoặc “chưa rõ khu vực” · giá hoặc “Chưa có giá” · “chưa xác nhận” khi đúng · nút Chỉ đường 44px) →
+“Xem thêm 20 chỗ”. Bấm tên/ảnh → Chi tiết. Không có “lưu nhanh”.
+
+**Chi tiết:** ảnh/minh họa + nhãn → “Gửi ảnh” → tên · nhóm · khu · độ tin cậy → giá / địa chỉ / SĐT → **Lưu vào Sổ +
+Chỉ đường** (≈ 460px từ đỉnh trên 390×844) → Chia sẻ · Thêm vào Lộ trình · Ghi chú riêng → Cần biết → “Bạn biết gì
+thêm” → Sửa giúp · Nguồn. Thanh hành động bám đáy. Vị trí chưa xác nhận: nút “Tìm trên Maps”. Chỗ quen gọi: không
+khối giá. Bản đồ gấp: thông tin trên tờ bản đồ có nếp ngang trước hàng nút. Giữ 2 vùng “Thông tin” + “Cần biết”.
+
+**Sổ:** tiêu đề → “Sổ của bạn gắn với thiết bị này. Chưa có đồng bộ tự động giữa các thiết bị.” → danh sách (tên, số
+chỗ, sửa lần cuối, ảnh nhỏ) → Mở / Chia sẻ (+ “Chọn ngẫu nhiên” ở đợt B). **Không** đặt lối vào “Dùng trên máy khác?”;
+khôi phục bằng mã 6 số giữ đường vào hiện có. Bản đồ gấp: bìa bản đồ gấp; Sổ trống không có xấp giấy, không có nút.
+
+**Lộ trình:** danh sách (tên, số điểm, phương tiện, sửa lần cuối) + “Tạo Lộ trình / Tạo từ một Sổ” → chi tiết: điểm
+đánh số, giờ dự kiến, nút ↑ ↓ (44px, có thông báo cho trình đọc màn hình), “+ Thêm điểm”, cảnh báo vị trí đoán →
+thanh “Mở trên Google Maps / Chia sẻ”. Bản đồ gấp: điểm dán trên dải giấy dọc kèm ảnh/minh họa 44px; dải giấy chỉ là
+**thứ tự**, không phải đường đi.
+
+## 8. Thành phần chung
+
+Nút chính (một mỗi vùng) · nút viền · nút ↑ ↓ · chip lọc · thẻ kết quả · thẻ/bìa Sổ · thẻ Lộ trình · sheet chọn Sổ
+(chỉ 1 Sổ thì bỏ qua) · sheet **Chọn ngẫu nhiên** (“N chỗ hợp lệ, mỗi chỗ cơ hội như nhau”, lý do chỗ bị loại, Xem chi
+tiết / Chỉ đường / Chọn lại; Bản đồ gấp có lời phụ “như rút một thẻ”) · toast có Hoàn tác (6 giây, `role=status`) ·
+thông báo lỗi (`role=alert`, có Thử lại) · thông báo mất mạng (nền xanh rừng, không hứa tự gửi lại) · khung xương
+đang tải (giữ kích thước, không nhảy bố cục).
+
+## 9. Chuyển động
+
+| Tên | Bản đồ gấp | Cơ bản | Giảm chuyển động |
+|---|---|---|---|
+| Chạm | ≤ 100ms, `scale(0.97)` | như vậy | như vậy |
+| **MỞ** thẻ → chi tiết | Nâng → trải 120ms → trang 320ms (View Transitions) | Trượt 28px 260ms | Mở ngay |
+| **GẤP** lưu → Sổ | “Đang lưu…” ngay → **sau khi server OK** gập góc 240ms → toast | Đổi nút + toast 200ms | Như Cơ bản |
+| **NỐI** thêm điểm | Dải giấy kéo dài + đóng dấu số 300ms | Dòng mới mờ vào 200ms | Không hiệu ứng |
+| Đổi giao diện | Tức thì | — | — |
+
+Chỉ `transform` / `opacity`, 180–420ms; không chạy khi gõ/chọn; trình duyệt không hỗ trợ → mở bình thường.
+**Nghiệm thu sau BUILD trên máy thật**; hiệu ứng chưa ổn thì sửa ở TEST, không đưa hiệu ứng nặng lên production.
+Ngoại lệ game giữ như bản v1 (lớp `cdp-game-`, chỉ trong trang game).
+
+## 10. Trạng thái bắt buộc (cả 2 chế độ)
 
-**Quy tắc:** trên một thẻ chỉ được có **một thứ to nhất**. Hiện tại tên và giá đang cùng cỡ
-— phải chênh nhau rõ.
+Rỗng (chưa có Sổ / Sổ trống / Lộ trình trống / không kết quả) · đang tải · lỗi máy chủ · mất mạng · thiếu ảnh · ảnh
+lỗi · thiếu giá · chưa xác nhận · vị trí chưa xác nhận · chưa rõ khu vực · Sổ không còn chỗ hợp lệ khi chọn ngẫu nhiên.
 
-`font-weight` chỉ dùng **2 mức**: `font-normal` và `font-medium`. Không dùng `font-bold`,
-`font-semibold` — chữ đậm quá làm giao diện nặng nề.
+## 11. Giữ từ v1
 
----
-
-## 3. Bỏ viền, dùng khoảng trắng
-
-Đếm thực tế: **`border-zinc-300` 25 lần · `border-zinc-200` 14 lần**, nhưng `shadow-sm` chỉ
-**4 lần**.
-
-Hộp lồng trong hộp là thứ khiến giao diện trông như tờ khai chứ không như sản phẩm.
-
-**Quy tắc mới:**
-
-- Thẻ địa điểm: **không viền**, dùng `bg-white shadow-sm rounded-xl`
-- Các khối bên trong thẻ: **không viền, không nền riêng** — ngăn cách bằng khoảng cách
-- Chỉ dùng đường kẻ khi thật sự cần tách nhóm: `border-t border-zinc-100` (mảnh, nhạt), tối
-  đa **2 đường** trong một thẻ bung
-- Ô nhập liệu vẫn giữ viền (người dùng cần thấy chỗ gõ)
-
-**Khoảng cách — nhân đôi so với hiện tại:**
-
-| Chỗ | Hiện tại | Đổi thành |
-|---|---|---|
-| Giữa các nhóm trong thẻ | `gap-2` (8px) | `gap-5` (20px) |
-| Giữa các dòng cùng nhóm | `gap-1` (4px) | `gap-3` (12px) |
-| Đệm trong thẻ | `p-3`/`p-4` | `px-[18px] py-5` |
-| Giữa các thẻ | — | `gap-3` (12px) |
-
-Cảm giác "sang" phần lớn đến từ khoảng trống. Nếu thấy hơi rộng quá thì thường là **đang
-đúng**.
-
----
-
-## 4. Màu — một màu nhấn duy nhất
-
-Hiện có xanh lá, hổ phách, đỏ, đen (`bg-zinc-900` 15 lần), và cam CDP `#c8553d` cùng lúc.
-
-**Quy tắc mới:**
-
-| Màu | Chỉ dùng cho |
-|---|---|
-| **Cam CDP `#c8553d`** | Logo, nút chính, liên kết. **Không dùng cho nhãn trạng thái** |
-| **Xanh lá** | Đúng một việc: "Còn mở · xác nhận N ngày trước" |
-| **Xám** | Tất cả những thứ còn lại |
-
-Bỏ nhãn hổ phách và đỏ khỏi thẻ. Thông tin "độ tin cậy 65%", "có thể đã cũ" chuyển thành chữ
-xám nhạt, không tô nền.
-
-**Nút:** một nút chính (nền cam hoặc `bg-zinc-900`), các nút còn lại thu về **biểu tượng
-không viền**. Hiện đang có 4 nút chữ ngang hàng nhau nên không biết cái nào chính.
-
----
-
-## 5. Bo góc — một bán kính
-
-Hiện dùng lẫn 4 kiểu: `rounded-full` 39 · `rounded-lg` 15 · `rounded-xl` 5 · `rounded-2xl` 5.
-
-**Quy tắc mới:** `rounded-xl` (12px) cho thẻ · `rounded-lg` (8px) cho nút và ô nhập ·
-`rounded-full` **chỉ** cho ảnh đại diện và huy hiệu. Bỏ `rounded-2xl`.
-
----
-
-## 6. Thứ tự các khối trong thẻ bung
-
-Sau 6 chặng, phần bung đang chứa ~10 khối do 6 lần code khác nhau đẻ ra, chưa ai xếp lại.
-
-**Thứ tự mới — theo mức độ khách cần:**
-
-1. **Ghi chú riêng của bạn** (nếu có) — thứ của riêng họ, để trên cùng
-2. **Giá** + **dòng "Còn mở"**
-3. **Thông tin bấm chọn** (gửi xe · lối vào · giờ đông · thanh toán…)
-4. **Mẹo công khai** (tối đa 3)
-5. **Ảnh** (nếu có)
-6. **Địa chỉ đầy đủ · nguồn · cập nhật lần cuối** — thu vào một dòng nhỏ, xám nhạt
-7. **Hàng nút:** một nút chính "Chỉ đường" + biểu tượng cho các việc còn lại
-
-**Câu hỏi bấm chọn** (khối hỏi khách) đặt **cuối cùng**, sau hàng nút — nó là việc đóng góp,
-không phải việc tra cứu.
-
-**Khối nào không có dữ liệu thì ẩn hẳn**, không hiện "chưa có thông tin". Web 25–100 chỗ mà
-mỗi thẻ có 4 dòng "chưa có" thì trông chết chóc.
-
----
-
-## 6b. Thẻ đang gấp — 5 chỗ sửa cụ thể
-
-> Thêm 2026-08-20 sau khi xem bản đã code. Mục 1–6 nói về hệ thống nền tảng; mục này nói
-> đúng thẻ ở trạng thái gấp (thứ khách thấy đầu tiên và nhiều nhất).
-
-**1. Rút gọn giá.** Đang hiện `150.000 – 300.000 đ/người` — chiếm trọn một dòng và cạnh
-tranh chú ý với tên địa điểm.
-
-Đổi thành `150–300k` ở `text-2xl`, kèm `đ/người` ở `text-xs text-zinc-400` ngay bên cạnh
-(cùng dòng, căn đáy). Quy tắc rút gọn: từ 1.000 trở lên dùng `k`, từ 1.000.000 dùng `tr`
-(ví dụ `900k – 2,5tr`). Dùng lại `lib/priceFormat.js`, thêm một hàm rút gọn — **không sửa
-`priceText` đang lưu**, chỉ đổi cách hiển thị.
-
-**2. Bỏ pill loại ở góc phải.** Nhãn `Ăn` xám góc trên bên phải là thừa — loại đã nằm ở dòng
-phụ ngay dưới tên. Hai chỗ nói cùng một điều.
-
-**3. ~~Dòng phụ dùng loại · khu vực, không dùng địa chỉ.~~ Đã hoàn tác (2026-08-20).**
-
-Đã thử đổi dòng phụ thành `Ẩm thực · Bình Than` (loại · khu vực), nhưng anh xem bản đã code
-thì muốn **giữ nguyên như cũ** — dòng phụ vẫn là địa chỉ rút gọn (`formatShortAddress`, vd
-`289 Lý Nam Đế`). Giữ nguyên mục 2 (bỏ pill loại) vì đó là quyết định riêng, không phụ thuộc
-mục 3.
-
-**4. Nút "Xem thêm" phải lùi hẳn về sau.** Đang có viền đen đậm, trông ngang sức với nút
-"Chỉ đường". Thẻ chỉ được có **một nút trông như nút**.
-
-Đổi thành chữ `text-sm text-zinc-500` + mũi tên chevron, **không viền, không nền**.
-
-**5. Nút "Chỉ đường" thu gọn.** Giữ màu cam CDP nhưng giảm đệm còn `px-4 py-2.5`,
-`rounded-lg`, `text-sm`. Mảng cam đang hơi lớn so với lượng thông tin trên thẻ.
-
-**Lưu ý về thẻ thiếu dữ liệu:** phần lớn địa điểm hiện chưa có thông tin bấm chọn nào, nên
-thẻ trông trống là **đúng thiết kế** ([§6](#6-thứ-tự-các-khối-trong-thẻ-bung): khối không có
-dữ liệu thì ẩn hẳn). Đừng thêm chữ "chưa có thông tin" để lấp chỗ trống.
-
----
-
-## 6c. Thẻ đã bung — 6 chỗ sửa (phản hồi thật trên điện thoại 2026-08-21)
-
-**1. ⚠️ Khối thông tin cuối thẻ: mỗi thứ một dòng, có icon, và BỎ HẲN dòng không có dữ liệu**
-
-Đang hiện gộp thành một đoạn chữ chạy tràn:
-
-> *289 Lý Nam Đế, Phường Phan Thiết, TP Tuyên Quang · Phan Thiết · Chưa rõ ngày cập nhật ·
-> Chưa đánh giá độ tin cậy · Đối chiếu chưa rõ nguồn*
-
-Hai vấn đề. Thứ nhất, gộp bằng dấu `·` nên xuống dòng loạn, không đọc được.
-
-Thứ hai — **vi phạm chính [§6](#6-thứ-tự-các-khối-trong-thẻ-bung) của spec này**:
-`app/PlaceExplorer.js` **dòng 138 và 140** đang đẩy chuỗi dự phòng `"Chưa rõ ngày cập nhật"`
-và `"Chưa đánh giá độ tin cậy"` vào mảng. §6 đã ghi rõ *"khối nào không có dữ liệu thì ẩn
-hẳn, không hiện chưa có thông tin"*. Ba chữ "Chưa..." liền nhau làm web trông như hỏng.
-
-**Sửa:** mỗi thứ một dòng riêng, icon ở đầu dòng, **thiếu dữ liệu thì bỏ hẳn dòng đó**:
-
-| Icon | Dòng | Khi nào ẩn |
-|---|---|---|
-| Ghim | Địa chỉ đầy đủ | Luôn hiện |
-| Đồng hồ | Cập nhật 3 ngày trước | Ẩn khi chưa rõ |
-| Tích | Độ tin cậy 65% | Ẩn khi chưa đánh giá |
-| Tài liệu | Nguồn: cổng thông tin tỉnh | Ẩn khi chưa rõ |
-
-Thẻ chưa có gì thì chỉ còn đúng một dòng địa chỉ — **đúng thiết kế, đừng lấp chỗ trống**.
-
-**2. Bỏ lặp địa chỉ.** "289 Lý Nam Đế" đang hiện ở dòng phụ dưới tên, rồi lại hiện đầy đủ ở
-khối dưới. Dòng phụ giữ bản rút gọn, khối dưới giữ bản đầy đủ — nhưng nếu hai bản giống hệt
-nhau thì **ẩn dòng ở khối dưới**.
-
-**3. ⚠️ Con trỏ chuột chưa đổi.** `cursor-pointer` xuất hiện **0 lần** trong
-`app/PlaceExplorer.js`. Mọi thứ bấm được — "Tôi vừa đến, vẫn mở", "+ Thêm vào sổ", "Bổ sung
-thông tin", các nút bấm chọn, "Không rõ", "Thu gọn" — đều phải có `cursor-pointer`.
-
-Ưu tiên dùng thẻ `<button>` thật thay vì `<div>` có `onClick`: vừa tự có con trỏ đúng, vừa
-bấm được bằng bàn phím, vừa đúng cho trình đọc màn hình.
-
-**4. Ba mục hành động đang trông như danh sách chữ, không như nút**
-
-Hiện xếp dọc ba dòng, mỗi dòng một emoji + chữ — trông như menu văn bản, không rõ bấm được,
-và tốn nhiều chiều cao trên điện thoại.
-
-**Sửa:** gom thành **một hàng ngang** ngay dưới nút "Chỉ đường", dạng nút viền nhạt:
-
-```
-[ Chỉ đường ]        [ Vẫn mở ]  [ + Vào sổ ]  [ Bổ sung ]     Thu gọn ⌃
-```
-
-Vùng bấm mỗi nút cao tối thiểu **44px**. Chữ ngắn lại cho vừa màn hình hẹp.
-
-**5. Bỏ emoji, dùng icon SVG.** Đang dùng emoji làm biểu tượng (ghim, sổ, bút chì…). Emoji
-mỗi máy hiển thị một kiểu, kích thước lệch nhau, và trông rẻ tiền cạnh chữ Geist. Thay bằng
-bộ icon nét mảnh đồng bộ, cùng độ dày nét, cùng cỡ.
-
-**6. "Đã góp ý trước đây? Khôi phục" phải nhỏ hơn hẳn.** Đang đứng ngang hàng với "Bổ sung
-thông tin" — hai thứ khác cấp độ mà trông ngang nhau. Đây là chức năng hiếm dùng: đưa xuống
-dòng riêng, `text-xs text-zinc-400`, hoặc giấu vào trong luồng góp ý.
-
-**7. Nút cuộn lên/xuống đang đè lên nội dung.** Hai nút mũi tên góc phải che mất chữ trên
-điện thoại. Đẩy ra sát mép hơn, thu nhỏ, và làm mờ hẳn khi trang đứng yên.
-
----
-
-## 7. Chuyển động
-
-Hiện chỉ có **một** hiệu ứng: `cdp-highlight-flash` — **1,1 giây × 2 lần = 2,2 giây** nhấp
-nháy. Dài gấp khoảng bảy lần mức nên dùng.
-
-**Nguyên tắc: 150–300ms, `ease-out`, và người dùng gần như không nhận ra nó đang diễn ra.**
-Hiệu ứng tốt là hiệu ứng chỉ thấy thiếu khi bỏ đi.
-
-**Chỉ có đúng bốn chỗ chuyển động** (chỗ thứ 4 thêm 2026-09-14, xem DECISIONS):
-
-| Chỗ | Thời gian | Kiểu |
-|---|---|---|
-| Thẻ bung ra / thu lại | 250ms `ease-out` | Trượt xuống + hiện dần |
-| Nút bấm | 100ms | `scale(0.97)` lúc nhấn |
-| Nội dung mới xuất hiện | 200ms | Mờ dần vào |
-| Chuyển sang trang khác | 260ms `ease-out` | Trang mới trượt 28px + hiện dần (từ phải khi đi tới, từ trái với link "←"); header/sidebar đứng yên; nút Back trình duyệt không chạy |
-
-**Sửa `cdp-highlight-flash`:** rút còn **1 lần, 600ms**, và chỉ đổi nền — bỏ `box-shadow`
-nhấp nháy.
-
-**Bắt buộc thêm:**
-
-```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-```
-
-Ngoài ba chỗ trên: **không có gì nhấp nháy, không có gì nảy, không có gì tự chạy.**
-
-**Ngoại lệ duy nhất — game layer (trang game, `/san-den-thanh-tuyen-2026`; thêm 2026-09-14, NOTE-04 §10–§11):** trong trang
-game được có bottom sheet trượt 300ms (vuốt xuống để đóng, bật về 260ms nếu chưa qua ngưỡng), icon vừa mở
-(0.7 → 1.08 → 1 + phát sáng), vòng sáng nét đứt khi đạt combo/milestone, emoji lắc ở câu đùa pre-game (NOTE-05), marker mới nảy + pulse 2 lần, màn "Đã Chạm!" (icon bật,
-glow, 8 hạt, 600–1200ms), thẻ bộ sưu tập xám → màu, số đếm chạy, và âm thanh ngắn. Chỉ chạy sau
-hành động của người chơi, chỉ transform/opacity, tắt theo `prefers-reduced-motion`. Không mang
-các hiệu ứng này ra trang thường. Class có tiền tố `cdp-game-` trong `globals.css`.
-
-**Ngoại lệ thẻ game nổi trang chủ (thêm 2026-09-15, chuyển từ bài lễ hội sang trang chủ 2026-09-16,
-NOTE-08 §1):** `HomeGameDock` trượt vào từ mép phải 250ms ease-out (`cdp-home-dock-in`, cùng nhịp "thẻ bung
-ra") và có một vầng sáng thở chậm (5 giây, chỉ opacity, `cdp-game-banner-halo`), tắt hẳn theo
-`prefers-reduced-motion`. Chỉ vậy — không nảy, không hạt, không số chạy trên trang thường.
-
----
-
-## 8. Điện thoại
-
-Gần như 100% khách lễ hội dùng điện thoại. Kiểm tra trên **máy thật**, không phải chế độ giả
-lập của trình duyệt:
-
-- Mọi thứ bấm được phải cao tối thiểu **44px**
-- Bàn phím bật lên **không được che ô đang gõ**
-- Thẻ bung ra thì tự cuộn để thấy được phần vừa mở
-- Chữ nhỏ nhất không dưới **13px** (hiện `text-xs` = 12px đang dùng 52 lần — rà lại, chỗ nào
-  là nội dung thật thì nâng lên 13px)
-- Ảnh phải có `width`/`height` để trang không nhảy khi ảnh tải xong
-
----
-
-## 9. Trạng thái rỗng
-
-Chỗ chưa có dữ liệu gì — hiện chưa ai thiết kế. Cần:
-
-- **Thẻ chưa có thông tin bấm chọn nào:** không hiện khối đó, chỉ hiện câu hỏi mời đóng góp
-- **Lọc ra 0 kết quả:** một dòng gọn "Không có chỗ nào khớp" + nút xoá bộ lọc
-- **`/ghi-chu` chưa có ghi chú nào:** một câu mời, không phải bảng trống
-- **`/so` chưa có sổ nào:** một câu mời
-
----
-
-## 10. Xong thì bấm thử được gì
-
-1. Mở web → chữ **không còn là Arial** (kiểm tra bằng công cụ kiểm tra phần tử)
-2. Nhìn một thẻ → biết ngay đâu là tên, đâu là giá, không phải đọc dò
-3. Đếm số viền trong một thẻ bung → **tối đa 2 đường kẻ**
-4. Đếm số màu trên một thẻ → **tối đa 2** (cam hoặc xanh lá, cộng xám)
-5. Bung thẻ → mượt, khoảng 250ms, không giật
-6. Nhảy tới một chỗ từ `/ghi-chu` → nhấp nháy **1 lần**, nhanh
-7. Bật "giảm chuyển động" trong máy → mọi hiệu ứng tắt
-8. Mở trên điện thoại thật → gõ ghi chú, bàn phím không che ô
-9. Lọc ra 0 kết quả → có trạng thái rỗng tử tế
-10. Một chỗ chưa có dữ liệu gì → thẻ vẫn gọn gàng, không đầy chữ "chưa có"
-
----
-
-## 11. Ngoài phạm vi
-
-- Chế độ tối (đã cố ý bỏ — xem `globals.css`)
-- Đổi logo, đổi tên thương hiệu
-- Vẽ minh hoạ, biểu tượng riêng
-- Đổi bố cục trang chủ (chỉ sửa thẻ và hệ thống nền tảng)
-- Thêm bất kỳ thông tin mới nào lên thẻ
-- Bản đồ
-
----
-
-## 12. Nguyên tắc để nhớ
-
-> Mỗi lần định thêm gì vào thẻ, hỏi trước: **bỏ được cái gì đi?**
->
-> Sáu chặng vừa qua mỗi chặng thêm một khối. Lượt rà này là để lùi lại và bỏ bớt — không
-> phải để thêm.
+Chạm ≥ 44px · chữ ≥ 13px · ô nhập 16px trên cảm ứng · ảnh có khung cố định · một nút chính mỗi vùng · nhãn trạng thái
+không tô nền · Chi tiết 2 vùng · ngoại lệ chuyển động của game.

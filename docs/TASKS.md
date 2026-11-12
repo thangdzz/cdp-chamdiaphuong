@@ -1,6 +1,6 @@
 # TASKS — Việc đang thực sự active
 
-> Chỉ giữ việc **đang làm hoặc sắp làm ngay** trong phạm vi [SCOPE-vNext.md](SCOPE-vNext.md).
+> Chỉ giữ việc **đang làm hoặc sắp làm ngay** trong phạm vi [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (FROZEN 12/11).
 > Việc có giá trị nhưng chưa tới lượt → [BACKLOG.md](BACKLOG.md). Ý tưởng chưa review →
 > [INBOX.md](INBOX.md). Tình trạng chung → [STATUS.md](STATUS.md).
 >
@@ -14,6 +14,16 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 ---
 
 ## 🚧 Đang làm
+
+- ✅ **vNext UX/UI: SCOPE** (11/11): PM duyệt có điều kiện; đã sửa [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (đợt A/B).
+- ✅ **Kiểm kê ảnh + số liệu nền (chỉ đọc)** (11/11): [KIEM-KE-anh-so-lieu-nen-2026-11-11.md](KIEM-KE-anh-so-lieu-nen-2026-11-11.md).
+- ✅ **DESIGN v1 3 màn** (11/11) → PM review v2 (12/11): duyệt hướng có điều kiện.
+- ✅ **Quy tắc Sổ/tài khoản/đồng bộ** ghi vào DECISIONS, ARCHITECTURE, HANDOFF, STATUS, CLAUDE.md (12/11).
+  Câu bổ sung PRODUCT.md: chờ chủ dự án duyệt.
+- ✅ **DESIGN v2** (12/11): PM FINAL duyệt.
+- 👀 **FREEZE tài liệu** (12/11): SCOPE FROZEN v1.0, DESIGN.md v2.0, bản ghi
+  [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md). Chờ PM xác nhận.
+- ⬜ **BUILD A** theo [SCOPE](SCOPE-UXUI-ban-do-gap.md) §6, bắt đầu bằng kế hoạch bước A1 (token + font). Chưa bắt đầu.
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy

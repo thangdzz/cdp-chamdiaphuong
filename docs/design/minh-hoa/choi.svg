@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Hình minh họa nhóm Chơi">
+  <defs>
+    <linearGradient id="fc" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#183B32" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#183B32" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" fill="#F8F5ED"/>
+  <path d="M-10 30 C30 18 60 40 100 28 S180 12 250 26" stroke="#CFDACB" stroke-width="1.4" fill="none"/>
+  <path d="M0 92 L38 60 L70 78 L112 40 L150 70 L186 50 L240 82 V160 H0Z" fill="#CFDACB"/>
+  <path d="M112 40 L126 52 L118 50 L112 56 L104 50 L98 52Z" fill="#F8F5ED"/>
+  <path d="M0 112 L44 90 L92 104 L140 84 L196 102 L240 92 V160 H0Z" fill="#83A58D"/>
+  <path d="M30 104 C40 99 50 109 60 104 M150 96 C160 91 170 101 180 96" stroke="#CFDACB" stroke-width="1.4" fill="none"/>
+  <ellipse cx="120" cy="134" rx="70" ry="14" fill="#E3EBE1"/>
+  <path d="M70 132 H96 M132 138 H164 M108 128 H124" stroke="#83A58D" stroke-width="2" stroke-linecap="round"/>
+  <path d="M0 150 L50 140 L240 148 V160 H0Z" fill="#183B32"/>
+  <path d="M206 118 L214 96 L222 118Z M218 122 L227 98 L236 122Z" fill="#183B32"/>
+  <path d="M212 118 V126 M226 122 V130" stroke="#183B32" stroke-width="2"/>
+  <path d="M176 18 L192 34 L176 52 L160 34Z" fill="#BD704E"/>
+  <path d="M176 18 V52 M160 34 H192" stroke="#F8F5ED" stroke-width="1.5"/>
+  <path d="M176 52 C170 66 184 74 176 88 C168 100 150 104 140 120" stroke="#183B32" stroke-width="1.4" fill="none" stroke-dasharray="3 3"/>
+  <path d="M176 60 l-6 4 6 2 M176 72 l6 4 -6 2" stroke="#BD704E" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <rect x="0" y="0" width="80" height="160" fill="url(#fc)"/>
+  <rect x="160" y="0" width="80" height="160" fill="url(#fc)"/>
+  <path d="M80 0 V160 M160 0 V160" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="1.2"/>
+  <path d="M81.2 0 V160 M161.2 0 V160" stroke="#D8CBB0" stroke-width="1"/>
+</svg>

@@ -5,7 +5,7 @@
 >
 > Cập nhật khi đổi hạ tầng, thêm/bớt key Redis, hoặc thêm module lớn.
 > Sản phẩm làm gì, cho ai: [PRODUCT.md](PRODUCT.md) (nguồn chuẩn cao nhất) · việc đang làm:
-> [SCOPE-vNext.md](SCOPE-vNext.md), [TASKS.md](TASKS.md) · lý do các lựa chọn: [DECISIONS.md](DECISIONS.md).
+> [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (FROZEN 12/11), [TASKS.md](TASKS.md) · lý do các lựa chọn: [DECISIONS.md](DECISIONS.md).
 >
 > Chỗ nào dưới đây dẫn "NOTE-xx", "SPEC-chang-N", "CDP_P1-P8" là tài liệu đã archive — tìm
 > theo tên trong [archive/](archive/README.md).
@@ -149,6 +149,21 @@ công khai / Tạo báo đóng cửa cho chỗ đang công khai). Khớp hồ s�
 **Mọi đường công khai khác** (duyệt hàng chờ, duyệt "Chờ duyệt", duyệt đề xuất) cũng chạy
 `matchPlaceAgainstClosedPlaces` — khớp thì `lib/ingestion/closedHold.js` tạo `closed_place_match` trong hàng
 chờ thay vì công khai. Thêm đường công khai mới thì phải gọi guard này.
+
+### Truy cập Sổ/Lộ trình từ thiết bị khác (xác minh trong code 2026-11-12)
+
+Quy tắc sản phẩm: [DECISIONS.md](DECISIONS.md) mục 2026-11-12 “Sổ / tài khoản / đồng bộ”. Cơ chế thật:
+
+- Sổ (`notebook:{slug}`) và Lộ trình lưu trên Redis, có `ownerAnonId`. Thiết bị biết mình là ai nhờ hồ sơ trong
+  localStorage `cdp_contributor` (`anonId`, `nickname`, `recoveryCode`). **Không có tài khoản, không có đồng bộ.**
+- Lần lưu đầu tiên tự tạo hồ sơ (`ensureProfile` → `newProfile`), lưu vào máy **nhưng không hiện mã khôi phục
+  cho khách** trong luồng Sổ (`AddToNotebook.js`, `NotebookOwnerActions.js`, `CreateRouteFromPlace.js`).
+- **Khôi phục thủ công:** `recoverContributorProfile(code)` (`app/contributionActions.js`) tìm `anonId` theo mã
+  6 số rồi `saveLocalContributor` **ghi đè** hồ sơ trên máy hiện tại. Từ đó máy này thấy Sổ/Lộ trình của hồ sơ
+  cũ. Lối vào hiện nằm trong `ContributionPanel` (trang địa điểm → “Sửa giúp”).
+- ⚠️ Hệ quả của việc ghi đè: Sổ/Lộ trình đã tạo trên máy hiện tại bằng mã ẩn danh cũ của nó **không còn hiện**
+  (vẫn nằm trên server nhưng máy không còn biết mã đó). Hành vi có sẵn, chưa sửa (BACKLOG §3).
+- Ghi chú riêng (`cdp_personal_notes`) chỉ ở localStorage, không đi theo mã khôi phục.
 
 ### Ghi nhận hoạt động ẩn danh (`lib/analytics/store.js` — hằng số `ANALYTICS_KEYS`, NOTE-08)
 
