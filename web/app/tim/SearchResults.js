@@ -75,9 +75,10 @@ export function SearchResults({ items, now }) {
 
   return (
     <div>
-      {/* SiteHeader cao cố định 57px trên mobile — hàng tìm + tab bám ngay dưới khi cuộn, giống
-          trang chủ cũ. Lọc khu vực/giá đi theo nội dung để không che quá nhiều màn hình. */}
-      <div className="sticky top-[57px] z-10 -mx-4 flex flex-col gap-2 border-b border-zinc-200 bg-zinc-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:mx-0 lg:rounded-b-xl lg:border-x lg:px-4">
+      {/* Hàng tìm + tab bám ngay dưới header mobile khi cuộn. `--cdp-header-h` = chiều cao header đo thật
+          (SiteHeader), vì header cao lên khi tên xuống dòng hay khách phóng chữ; 65px chỉ là giá trị lúc
+          trang vừa tải. Lọc khu vực/giá đi theo nội dung để không che quá nhiều màn hình. */}
+      <div className="sticky top-[var(--cdp-header-h,65px)] z-10 -mx-4 flex flex-col gap-2 border-b border-zinc-200 bg-zinc-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:mx-0 lg:rounded-b-xl lg:border-x lg:px-4">
         <form role="search" onSubmit={submitSearch} className="flex gap-2">
           <div className="relative min-w-0 flex-1">
             <svg

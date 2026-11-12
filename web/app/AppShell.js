@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createContext, useContext, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { SiteHeader } from "@/app/SiteHeader";
+import { BrandName, SiteHeader } from "@/app/SiteHeader";
 import { SiteFooter } from "@/app/SiteFooter";
 import { NavigationIcon } from "@/app/NavigationIcon";
 import { PageTransition } from "@/app/PageTransition";
@@ -58,26 +58,33 @@ function DesktopSidebar({ navigation, pathname }) {
       }`}
       aria-label="Điều hướng chính"
     >
-      <div className={`flex h-[72px] items-center border-b border-zinc-100 ${collapsed ? "justify-center px-2" : "justify-between pl-4 pr-2"}`}>
-        <Link href="/" className="inline-flex min-w-0 items-center gap-2">
+      <div className={`flex min-h-[72px] flex-wrap items-center border-b border-zinc-100 py-2 ${collapsed ? "justify-center px-2" : "pl-4 pr-2"}`}>
+        {/* A2-0 / Q5: mở rộng thì tên hiện nguyên văn, không cắt (thiếu chỗ thì xuống dòng theo từ). Thu gọn
+            (khách tự chọn) chỉ còn logo, nên liên kết mang tên đầy đủ cho trình đọc màn hình + chú thích. */}
+        <Link
+          href="/"
+          aria-label={collapsed ? "Chạm Địa Phương — Trang chủ" : undefined}
+          title={collapsed ? "Chạm Địa Phương" : undefined}
+          className={`flex items-center gap-2 ${collapsed ? "" : "flex-[1_1_0%]"}`}
+        >
           {/* public/cdp-logo.png tỉ lệ 280×121. Cao 24px (rộng ~56px) để "Chạm Địa Phương"
-              không bị cắt trong sidebar 248px; thu gọn còn 20px để lọt khung 72px. */}
+              vừa một dòng trong sidebar 248px; thu gọn còn 20px để lọt khung 72px. */}
           <Image
             src="/cdp-logo.png"
-            alt="CDP"
+            alt=""
             width={280}
             height={121}
             priority
-            className={`shrink-0 w-auto ${collapsed ? "h-5" : "h-6"}`}
+            className={`max-w-none shrink-0 w-auto ${collapsed ? "h-5" : "h-6"}`}
           />
-          {!collapsed && <span className="truncate text-sm font-semibold text-zinc-900">Chạm Địa Phương</span>}
+          {!collapsed && <BrandName className="text-sm font-semibold leading-tight text-zinc-900" />}
         </Link>
         {!collapsed && (
           <button
             type="button"
             onClick={() => setSidebarCollapsed(true)}
             aria-label="Thu gọn thanh điều hướng"
-            className="cdp-pressable flex h-10 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+            className="cdp-pressable ml-auto flex h-10 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
           >
             <span aria-hidden="true">‹</span>
           </button>
