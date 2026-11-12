@@ -17,8 +17,12 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: FREEZE tài liệu xong, chờ PM xác nhận rồi BUILD A.** Chưa sửa code, chưa build.
-- Bản ghi FREEZE (tài liệu khóa, rủi ro, thứ tự BUILD): [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
+**vNext UX/UI — Bản đồ gấp + Cơ bản: PM đã xác nhận FREEZE → kế hoạch A1 (màu + font) chờ PM duyệt.** Chưa sửa
+code, chưa build.
+- **Kế hoạch A1:** [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md). Có 3 câu hỏi chờ PM: Q1 font admin, Q2 viền ô
+  nhập, Q3 tag mốc production.
+- Bản ghi FREEZE (tài liệu khóa, rủi ro, thứ tự BUILD, xác minh Git §9): [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
+- CLI Vercel trên máy **hết phiên đăng nhập**. Cần `vercel login` trước khi RELEASE.
 - Scope FROZEN v1.0 + checklist A/B: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md).
 - [DESIGN.md](DESIGN.md) **v2.0 hiệu lực 12/11** (v1 trong `archive/2026-11-uxui-freeze/`).
 - Mockup 9 bảng (tham khảo): https://claude.ai/artifact/DH3MS2vJQAxwH4niPBFzEo.
@@ -57,5 +61,5 @@ Commit `e3b38a4` · deployment `chamdiaphuongio-og2r8pgy7` · https://chamdiaphu
 
 ## Bước tiếp theo hợp lý nhất
 
-1. PM xác nhận [FREEZE record](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
-2. Đồng bộ `origin/main`, trình kế hoạch bước A1 (token + font) → BUILD A theo SCOPE §6.
+1. PM duyệt [kế hoạch A1](SPEC-A1-mau-va-font.md) và trả lời Q1–Q3.
+2. Đồng bộ `origin/main` → code A1a (token) + A1b (font) → báo cáo A1 cho PM nghiệm thu → A2.

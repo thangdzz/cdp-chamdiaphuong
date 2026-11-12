@@ -7,6 +7,16 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (sau FREEZE) — PM xác nhận FREEZE → chỉ cho lập kế hoạch A1
+
+Nguồn: [PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md](PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md).
+- **FREEZE RECORD ACCEPTED.** Chỉ được lập kế hoạch A1 (màu + font). Code A1 chỉ sau khi PM duyệt kế hoạch.
+- Giữ thứ tự A1→A9; đợt A không có công tắc, Chọn ngẫu nhiên, Sổ/Lộ trình gần đây, hoạt ảnh giấy.
+- Không thêm lối vào hay thay luồng khôi phục trong BUILD A. Khi chạm Sổ phải kiểm để không làm xấu hơn hiện trạng.
+- PRODUCT.md: PM đồng ý hướng 2 sửa (nhãn đề xuất đổi thành “Phạm vi hiện hành”), **vẫn chờ chủ dự án duyệt**.
+- Đã xác minh lịch sử Git và ghi vào FREEZE record §9. Kế hoạch: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md)
+  (A1 chỉ đặt nền token + font; màu từng màn đổi ở bước của màn đó).
+
 ## 2026-11-12 (cuối) — PM FINAL: DESIGN duyệt, FREEZE tài liệu UX/UI
 
 Nguồn: [PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md).

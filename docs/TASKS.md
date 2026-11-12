@@ -7,7 +7,7 @@
 > Danh sách cũ (DONE chi tiết từ 07/2026, TODO trước lễ hội, việc game):
 > [archive/logs/TASKS-2026-09-22.md](archive/logs/TASKS-2026-09-22.md).
 
-Cập nhật: **2026-09-30**
+Cập nhật: **2026-11-12**
 
 Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check · ✅ xong
 
@@ -21,9 +21,10 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **Quy tắc Sổ/tài khoản/đồng bộ** ghi vào DECISIONS, ARCHITECTURE, HANDOFF, STATUS, CLAUDE.md (12/11).
   Câu bổ sung PRODUCT.md: chờ chủ dự án duyệt.
 - ✅ **DESIGN v2** (12/11): PM FINAL duyệt.
-- 👀 **FREEZE tài liệu** (12/11): SCOPE FROZEN v1.0, DESIGN.md v2.0, bản ghi
-  [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md). Chờ PM xác nhận.
-- ⬜ **BUILD A** theo [SCOPE](SCOPE-UXUI-ban-do-gap.md) §6, bắt đầu bằng kế hoạch bước A1 (token + font). Chưa bắt đầu.
+- ✅ **FREEZE tài liệu** (12/11): SCOPE FROZEN v1.0, DESIGN.md v2.0, bản ghi
+  [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md). PM xác nhận; đã ghi xác minh Git (§9).
+- 👀 **Kế hoạch A1 — màu + font** (12/11): [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md). Chờ PM duyệt + Q1–Q3.
+- ⬜ **BUILD A1** (A1a token, A1b font) — chỉ sau khi PM duyệt kế hoạch. Sau đó A2–A9 theo SCOPE §6.
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy

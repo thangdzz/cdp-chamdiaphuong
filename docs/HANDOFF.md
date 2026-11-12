@@ -16,10 +16,11 @@ các thiết bị.”
 
 ## 1. Task hiện tại
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: FREEZE tài liệu xong (12/11), chờ PM xác nhận FREEZE record rồi mới BUILD A.**
-Chưa sửa code sản phẩm, chưa build, chưa release.
+**vNext UX/UI — Bản đồ gấp + Cơ bản: PM xác nhận FREEZE (12/11) → kế hoạch A1 (màu + font) chờ PM duyệt.**
+Chưa sửa code sản phẩm, chưa build, chưa release. **Không code A1 trước khi PM duyệt kế hoạch.**
 
-- Bản ghi FREEZE: [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
+- Kế hoạch A1: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md) (3 file code, 2 commit; Q1–Q3 chờ PM).
+- Bản ghi FREEZE: [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md) (§9 xác minh Git).
 - Scope FROZEN: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (đợt A = Cơ bản mới; đợt B = Bản đồ gấp + công
   tắc + nhóm quay lại; checklist nghiệm thu A/B ở §4–§5).
 - **[DESIGN.md](DESIGN.md) v2.0 có hiệu lực từ 12/11.** Bản v1 ở `archive/2026-11-uxui-freeze/`.
@@ -50,9 +51,10 @@ Chưa sửa code sản phẩm, chưa build, chưa release.
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ PM xác nhận FREEZE record → đồng bộ `origin/main` → trình kế hoạch bước A1 (token + font) → BUILD A theo
-   SCOPE §6. Không build trước khi PM xác nhận.
-2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.**
+1. Chờ PM duyệt kế hoạch A1 + trả lời Q1–Q3 → đồng bộ `origin/main` → A1a, A1b → báo cáo A1 → A2. Không code trước
+   khi PM duyệt.
+2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.** CLI Vercel trên máy
+   đã hết phiên đăng nhập (12/11) → chủ dự án cần chạy `vercel login` trước RELEASE.
 
 **Bẫy cho người sau:** test giao diện bản đồ phải chạy `next build` + `next start` (`next dev` MapLibre đứng
 “Đang tải bản đồ…”). Kiểm bằng trình duyệt ở máy dùng chung Redis thật: chặn `/api/track` và mọi Server Action

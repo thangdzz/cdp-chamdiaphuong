@@ -3,11 +3,13 @@
 | | |
 |---|---|
 | Ngày FREEZE | **2026-11-12** |
-| Trạng thái | **FREEZE tài liệu hoàn tất — chờ PM xác nhận trước BUILD A.** Chưa BUILD, chưa TEST, chưa RELEASE |
-| Commit gốc trước FREEZE | `fa6c5f6` (`origin/main`, đã đồng bộ 50 commit quét dữ liệu tự động) |
-| Commit FREEZE | **`3d5a419`** — `Freeze vNext UX/UI design and scope documents` |
-| Production lúc FREEZE | `chamdiaphuongio-og2r8pgy7` (30/9) = vNext Core Discovery `e3b38a4`. **Không đổi** |
-| Quyết định PM | [PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md) |
+| Trạng thái | **FREEZE ACCEPTED (PM 12/11) → A1 PLANNING.** Chưa BUILD, chưa TEST, chưa RELEASE |
+| Mốc gốc của công việc | `ff450ed` (30/9) — `main` trên máy lúc bắt đầu, ngay sau bản phát hành `e3b38a4` (chỉ thêm tài liệu) |
+| Commit cha trực tiếp của FREEZE | `fa6c5f6` — `origin/main` lúc 12/11, commit routine ngày 10/11. Từ `ff450ed` lên `fa6c5f6` là 50 commit routine, kéo về bằng fast-forward (xem §9) |
+| Commit FREEZE | **`3d5a419`** — `Freeze vNext UX/UI design and scope documents` (nội dung khóa) |
+| Commit ghi mã | `1406f98` — `Record the freeze commit hash` (chỉ điền mã `3d5a419` vào bản ghi này) |
+| Production lúc FREEZE | `chamdiaphuongio-og2r8pgy7` (30/9) = vNext Core Discovery `e3b38a4`. **Không đổi** (căn cứ ở §9) |
+| Quyết định PM | [PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md) · xác nhận FREEZE: [PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md](PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md) |
 
 ## 1. Tài liệu đã khóa
 
@@ -45,13 +47,15 @@ TEST B → RELEASE B. Mỗi bước một commit; trình kế hoạch ngắn tr�
 ## 4. Đề xuất sửa PRODUCT.md — chờ chủ dự án duyệt (chưa sửa)
 
 1. Dòng 8, thay `Phạm vi đang build: [SCOPE-vNext.md](SCOPE-vNext.md).` bằng
-   `Phạm vi đang build: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (FROZEN 2026-11-12).`
+   `Phạm vi hiện hành: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (FROZEN 2026-11-12).`
+   (nhãn “Phạm vi hiện hành” theo gợi ý PM 12/11)
 2. Thêm vào cuối khối “Ghi chú diễn giải” (sau dòng 12):
    > **Lưu và đồng bộ (2026-11-12):** Sổ và Lộ trình gắn với thiết bị qua mã ẩn danh, chưa có đồng bộ tự động; mã
    > khôi phục 6 số là khôi phục thủ công. Khi có tài khoản và cơ chế đồng bộ thì người dùng mới có Sổ/Lộ trình trên
    > nhiều thiết bị; tài khoản không bắt buộc cho việc tra cứu và lưu trên một thiết bị.
 
-Không duyệt hai sửa này cũng **không chặn BUILD A**: DECISIONS + CLAUDE.md đã mang đủ quy tắc.
+Không duyệt hai sửa này cũng **không chặn BUILD A**: DECISIONS + CLAUDE.md đã mang đủ quy tắc. PM đồng ý hướng
+nội dung (12/11), vẫn **chờ chủ dự án duyệt**; chưa sửa PRODUCT.md.
 
 ## 5. Rủi ro còn lại
 
@@ -77,10 +81,35 @@ nguyên.
 
 ## 7. Điều kiện bắt đầu BUILD A
 
-1. PM xác nhận bản ghi này.
-2. Đồng bộ `origin/main` (routine quét commit hằng ngày).
-3. Trình kế hoạch bước A1 (token + font) cho chủ dự án duyệt, rồi mới code.
+1. ✅ PM xác nhận bản ghi này (12/11).
+2. Đồng bộ `origin/main` (routine quét commit hằng ngày) — làm lại ngay trước khi code.
+3. 🚧 Kế hoạch bước A1 (token + font): [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md) — chờ PM duyệt, rồi mới code.
 
 ## 8. Mã commit FREEZE
 
-`3d5a419` — “Freeze vNext UX/UI design and scope documents” (chỉ tài liệu, trên `main`, gốc `fa6c5f6`).
+`3d5a419` — “Freeze vNext UX/UI design and scope documents” (chỉ tài liệu, trên `main`, cha trực tiếp `fa6c5f6`).
+Sau đó `1406f98` chỉ điền mã này vào bản ghi. Các lần cập nhật bản ghi về sau (như §9) **không đổi nội dung đã khóa**;
+tra bằng `git log --oneline -- docs/FREEZE-UXUI-ban-do-gap-2026-11-12.md`.
+
+## 9. Xác minh lịch sử Git (12/11, sau khi PM xác nhận)
+
+Kiểm bằng `git log`, `git reflog`, `git show --stat`; không sửa lịch sử.
+
+| Commit | Cha | Thời điểm | Tác giả | Thay đổi |
+|---|---|---|---|---|
+| `ff450ed` | `e3b38a4` | 30/9 15:48 | thangdz | Ghi chú đã phát hành vNext (5 file trong `docs/`). `main` trên máy dừng ở đây tới 12/11 |
+| 50 commit `ff450ed..fa6c5f6` | — | 01/10 → 10/11 | 25 `thangdzz` (“scan: …”) + 25 `cdp-ingest-bot` (“chore: …”) | Routine quét. Tổng thay đổi chỉ là `web/data/known-places-snapshot.json` (+266 / −1); `data/pending-scan.json` thêm rồi xóa, cộng lại bằng 0 |
+| `fa6c5f6` | `aaf0fed` | 10/11 08:01 UTC | `cdp-ingest-bot` | Commit routine cuối cùng trước FREEZE |
+| *(đồng bộ)* | — | 12/11 10:02 | — | `git pull --ff-only origin main`: `ff450ed` → `fa6c5f6`, fast-forward, **không có commit gộp** |
+| **`3d5a419`** | `fa6c5f6` | 12/11 10:08:41 | thangdz | FREEZE: 24 file, **chỉ** `docs/`, `CLAUDE.md`, `AGENTS.md` (gồm 5 SVG ở `docs/design/minh-hoa/`) |
+| `1406f98` | `3d5a419` | 12/11 10:08:51 | thangdz | 1 file: bản ghi này, điền mã commit (2 dòng) |
+
+- **Không chạm code hoặc dữ liệu địa điểm:** cả `3d5a419` và `1406f98` không có file nào ngoài `docs/`, `CLAUDE.md`,
+  `AGENTS.md`. Đúng như báo cáo.
+- **Code web hiện tại = code production:** `git diff e3b38a4 1406f98 -- web/` chỉ có `known-places-snapshot.json`.
+  File này do routine dùng để tránh quét trùng (`web/scripts/export-known-places.mjs`), trang web không đọc nó.
+- **Production không đổi:** không có lệnh deploy nào trong phiên 11–12/11; Vercel không nối git nên push không làm
+  đổi production (AGENTS.md §7). **Chưa kiểm trực tiếp được trên Vercel:** `npx vercel ls` báo phiên đăng nhập CLI
+  đã hết hạn. Cần đăng nhập lại (`vercel login`) trước bước RELEASE A, và nên dùng nó để kiểm lại mục này.
+- Trên GitHub còn nhánh `origin/cdp-scheduled-write-test-2026-11-10` (1 file thử của routine, 10/11). Nhánh này
+  không liên quan FREEZE; để nguyên.
