@@ -171,7 +171,7 @@ export function AppShell({ navigation, children }) {
       <NavigationContext.Provider value={navigation}>
         <div className="flex min-h-full flex-1 flex-col">
           {children}
-          <SiteFooter aboutLabel={aboutLabel} />
+          <SiteFooter aboutLabel={aboutLabel} variant="admin" />
         </div>
       </NavigationContext.Provider>
     );
