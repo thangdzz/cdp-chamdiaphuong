@@ -10,6 +10,7 @@ import { placeMapAction } from "./mapsUrl.js";
 import { transportSummary } from "./transport.js";
 import { formatPriceCompact } from "./priceFormat.js";
 import { formatShortAddress } from "./placeDisplay.js";
+import { placePhoto } from "./placeImage.js";
 
 export const RESULTS_PAGE_SIZE = 20;
 
@@ -77,5 +78,8 @@ export function toResultItem(place) {
     lastUpdatedAt: place.lastUpdatedAt ?? null, // cho "Thông tin có thể đã thay đổi" 
     mapHref: mapAction?.href ?? null,
     mapLabel: mapAction?.label ?? null,
+    // Ảnh đại diện cho thẻ (A3): chỉ url + kích thước, null khi chưa có ảnh phù hợp (thẻ tự dùng minh họa theo
+    // `type`). Không bao giờ là ảnh menu. Chưa màn nào hiển thị — thẻ có ảnh ở A5, sau cổng quyền ảnh (Q4 A3).
+    photo: placePhoto(place),
   };
 }
