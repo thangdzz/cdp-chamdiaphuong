@@ -53,12 +53,12 @@ function DesktopSidebar({ navigation, pathname }) {
   return (
     <aside
       style={{ viewTransitionName: "cdp-site-sidebar" }}
-      className={`fixed inset-y-0 left-0 z-30 hidden border-r border-zinc-200 bg-white transition-[width] duration-200 lg:flex lg:flex-col ${
+      className={`fixed inset-y-0 left-0 z-30 hidden border-r border-line bg-surface transition-[width] duration-200 lg:flex lg:flex-col ${
         collapsed ? "w-[72px]" : "w-[248px]"
       }`}
       aria-label="Điều hướng chính"
     >
-      <div className={`flex min-h-[72px] flex-wrap items-center border-b border-zinc-100 py-2 ${collapsed ? "justify-center px-2" : "pl-4 pr-2"}`}>
+      <div className={`flex min-h-[72px] flex-wrap items-center border-b border-line py-2 ${collapsed ? "justify-center px-2" : "pl-4 pr-2"}`}>
         {/* A2-0 / Q5: mở rộng thì tên hiện nguyên văn, không cắt (thiếu chỗ thì xuống dòng theo từ). Thu gọn
             (khách tự chọn) chỉ còn logo, nên liên kết mang tên đầy đủ cho trình đọc màn hình + chú thích. */}
         <Link
@@ -77,14 +77,14 @@ function DesktopSidebar({ navigation, pathname }) {
             priority
             className={`max-w-none shrink-0 w-auto ${collapsed ? "h-5" : "h-6"}`}
           />
-          {!collapsed && <BrandName className="text-sm font-semibold leading-tight text-zinc-900" />}
+          {!collapsed && <BrandName className="text-sm font-semibold leading-tight text-ink" />}
         </Link>
         {!collapsed && (
           <button
             type="button"
             onClick={() => setSidebarCollapsed(true)}
             aria-label="Thu gọn thanh điều hướng"
-            className="cdp-pressable ml-auto flex h-10 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+            className="cdp-pressable ml-auto flex h-10 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-ink-2 hover:bg-surface-2"
           >
             <span aria-hidden="true">‹</span>
           </button>
@@ -92,12 +92,12 @@ function DesktopSidebar({ navigation, pathname }) {
       </div>
 
       {collapsed && (
-        <div className="border-b border-zinc-100 p-3">
+        <div className="border-b border-line p-3">
           <button
             type="button"
             onClick={() => setSidebarCollapsed(false)}
             aria-label="Mở rộng thanh điều hướng"
-            className="cdp-pressable flex h-11 w-full cursor-pointer items-center justify-center rounded-xl text-zinc-500 hover:bg-zinc-100"
+            className="cdp-pressable flex h-11 w-full cursor-pointer items-center justify-center rounded-xl text-ink-2 hover:bg-surface-2"
           >
             <span aria-hidden="true">›</span>
           </button>
@@ -117,8 +117,8 @@ function DesktopSidebar({ navigation, pathname }) {
                   collapsed ? "justify-center px-2" : "gap-3 px-3"
                 } ${
                   active
-                    ? "bg-[#c8553d]/10 font-medium text-[#a83f2b]"
-                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                    ? "bg-action/10 font-medium text-action-hover"
+                    : "text-ink-2 hover:bg-surface-2 hover:text-ink"
                 }`}
               >
                 <span className="shrink-0"><NavigationIcon itemKey={item.key} /></span>
@@ -127,7 +127,7 @@ function DesktopSidebar({ navigation, pathname }) {
               {collapsed && (
                 <span
                   role="tooltip"
-                  className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+                  className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md bg-ink px-2.5 py-1.5 text-xs text-surface opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
                 >
                   {item.navLabel}
                 </span>
