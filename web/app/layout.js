@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/siteUrl";
 import { AppShell } from "@/app/AppShell";
@@ -6,14 +6,15 @@ import { getNavigationConfig } from "@/lib/navigation";
 import { AnalyticsTracker } from "@/app/analytics";
 import { NavHistoryTracker } from "@/app/BackButton";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// Be Vietnam Pro cho toàn site, kể cả /admin (DESIGN.md v2.0 §3, PM duyệt Q1 12/11). Font này không có bản
+// "variable" trên Google Fonts nên phải nêu đúng 4 độ đậm đang dùng. Next.js tải font lúc build và phục vụ cùng
+// web — trình duyệt khách không gọi Google Fonts. Font dự phòng tự chỉnh cỡ (adjustFontFallback mặc định) để
+// chữ không nhảy khi font tải xong.
+const beVietnamPro = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam-pro",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata = {
@@ -32,7 +33,7 @@ export default async function RootLayout({ children }) {
   return (
     <html
       lang="vi"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${beVietnamPro.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-50">
         <AnalyticsTracker />

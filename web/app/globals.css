@@ -45,14 +45,15 @@
   --radius-card: 12px;
   --radius-control: 10px;
   --shadow-card: 0 1px 2px rgb(24 59 50 / 0.06);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Chuỗi dự phòng đều có đủ dấu tiếng Việt. Không còn tải font mono riêng (không màn nào dùng `font-mono`). */
+  --font-sans: var(--font-be-vietnam-pro), system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-be-vietnam-pro), system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* Trang cho khách (khung `cdp-site` trong AppShell.js): nền kem + chữ mực. `/admin` có khung riêng, không có
