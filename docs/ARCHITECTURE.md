@@ -532,6 +532,8 @@ web/
 │   │                              BrandName); đo chiều cao header → biến CSS `--cdp-header-h`
 │   │                              (hàng bám dính /tim dùng). Desktop ẩn để dùng sidebar AppShell
 │   ├── BottomNav.js                Thanh đáy mobile 4 mục; ẩn khi bàn phím bật; `--cdp-bottom-nav-h`
+│   ├── PlaceThumb.js               Ảnh nhỏ / ảnh đầu trang của chỗ: ảnh thật → minh họa theo nhóm; ảnh lỗi →
+│   │                              minh họa 1 lần (nhớ cặp chỗ+url); khung cố định; ✎ / nhãn DESIGN §5 (A3)
 │   ├── SiteFooter.js               Footer toàn site: link giới thiệu + cách cập nhật dữ liệu
 │   ├── PlaceExplorer.js           ⚠️ Từ vNext KHÔNG còn trang nào render danh sách này (trang chủ
 │   │                              cũ). Vẫn giữ vì PlaceDetail/NotebookPlaceCard import
@@ -660,6 +662,8 @@ web/
 │   ├── redis.js             (29)  Kết nối Redis + đọc/ghi places:live, places:pending
 │   ├── aboutPage.js                Default NOTE-08 + schema/giới hạn + đọc/ghi content Giới thiệu
 │   ├── navigation.js              Definition route cố định + kiểm tra/đọc/ghi menu và pageTitle
+│   ├── placeImage.js              Ảnh hiển thị của chỗ: placePhoto() (url+kích thước, không bao giờ ảnh menu —
+│   │                              quy tắc ở media.js placeCoverMedia), placeIllustration(type), câu chữ nhãn
 │   ├── shellRoutes.js             Hàm thuần của khung: trang nào có thanh đáy, mục nào đang mở,
 │   │                              nhóm lõi/phụ (client dùng được; test ở tests/shellRoutes.test.js)
 │   ├── postEvents.js              Đọc/ghi `post_events:{slug}`; kiểm tra khuôn và tự rơi về

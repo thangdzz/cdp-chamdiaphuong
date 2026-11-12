@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Trạng thái | **ĐÃ DUYỆT (kèm điều kiện) 12/11** — [PM-DUYET-PLAN-A3-CDP-2026-11-12.md](PM-DUYET-PLAN-A3-CDP-2026-11-12.md). Q1–Q4 chọn **A**, chốt ở §13. Đang BUILD. Không deploy |
+| Trạng thái | **ĐÃ DUYỆT (kèm điều kiện) 12/11** — [PM-DUYET-PLAN-A3-CDP-2026-11-12.md](PM-DUYET-PLAN-A3-CDP-2026-11-12.md). Q1–Q4 chọn **A**, chốt ở §13. **ĐÃ BUILD 12/11 — chờ nghiệm thu** ([REPORT-A3](REPORT-A3-anh-minh-hoa-2026-11-12.md)). Không deploy |
 | Ngày | 2026-11-12 |
 | Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §5 · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §1 (dòng 5, 6, 14), §2 (Minh họa, Server), §4 (Ảnh), §6 bước 3 · [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md) §4 · [KIEM-KE-anh-so-lieu-nen-2026-11-11.md](KIEM-KE-anh-so-lieu-nen-2026-11-11.md) |
 | Gốc code | `main` @ `691fd55` (sau A2) |
