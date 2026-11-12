@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Trạng thái | **ĐÃ DUYỆT (kèm điều chỉnh) 12/11** — [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md). Q1–Q3 chốt ở §10 |
+| Trạng thái | **ĐÃ BUILD 12/11 — chờ nghiệm thu** ([REPORT-A1](REPORT-A1-mau-va-font-2026-11-12.md)). **ĐÃ DUYỆT (kèm điều chỉnh) 12/11** — [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md). Q1–Q3 chốt ở §10 |
 | Ngày | 2026-11-12 |
 | Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §2–§4 · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §2, §6 (bước 1) · [PM xác nhận FREEZE](PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md) §4 |
 | Gốc code | `main` = code production `e3b38a4` (khác duy nhất `web/data/known-places-snapshot.json`, file của routine) |

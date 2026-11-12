@@ -17,10 +17,14 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: PM đã xác nhận FREEZE → kế hoạch A1 (màu + font) chờ PM duyệt.** Chưa sửa
-code, chưa build.
-- **Kế hoạch A1:** [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md). Có 3 câu hỏi chờ PM: Q1 font admin, Q2 viền ô
-  nhập, Q3 tag mốc production.
+**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A1 (màu + font) xong, đã push, chờ PM nghiệm thu.** **Chưa deploy.**
+Chưa làm A2.
+- **Báo cáo A1:** [REPORT-A1-mau-va-font-2026-11-12.md](REPORT-A1-mau-va-font-2026-11-12.md). Commit `2ee6f00` (token)
+  + `7ca6816` (font); ảnh trước/sau https://claude.ai/artifact/WW4nd64x7VzKz8RoXzV3MR.
+- `main` giờ có giao diện dở (font + nền mới, màu từng màn còn cũ): **không deploy `main`** tới RELEASE A. Sửa gấp
+  production → nhánh từ tag `prod-2026-09-30` (= `e3b38a4`).
+- Còn lại cho bước sau: tên header bị “…” ở 320px (A2); vệt dấu dưới ô `line-clamp` (A5–A7).
+- Kế hoạch + quyết định Q1–Q3: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md).
 - Bản ghi FREEZE (tài liệu khóa, rủi ro, thứ tự BUILD, xác minh Git §9): [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
 - CLI Vercel trên máy **hết phiên đăng nhập**. Cần `vercel login` trước khi RELEASE.
 - Scope FROZEN v1.0 + checklist A/B: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md).
@@ -61,5 +65,5 @@ Commit `e3b38a4` · deployment `chamdiaphuongio-og2r8pgy7` · https://chamdiaphu
 
 ## Bước tiếp theo hợp lý nhất
 
-1. PM duyệt [kế hoạch A1](SPEC-A1-mau-va-font.md) và trả lời Q1–Q3.
-2. Đồng bộ `origin/main` → code A1a (token) + A1b (font) → báo cáo A1 cho PM nghiệm thu → A2.
+1. PM nghiệm thu [A1](REPORT-A1-mau-va-font-2026-11-12.md).
+2. Trình kế hoạch ngắn A2 (khung + thanh đáy + Menu) → PM duyệt → code A2.

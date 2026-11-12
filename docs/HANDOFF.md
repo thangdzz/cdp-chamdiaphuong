@@ -19,7 +19,12 @@ các thiết bị.”
 **vNext UX/UI — Bản đồ gấp + Cơ bản: PM xác nhận FREEZE (12/11) → kế hoạch A1 (màu + font) chờ PM duyệt.**
 Chưa sửa code sản phẩm, chưa build, chưa release. **Không code A1 trước khi PM duyệt kế hoạch.**
 
-- Kế hoạch A1: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md) (3 file code, 2 commit; Q1–Q3 chờ PM).
+- **Cập nhật cuối 12/11: BUILD A1 xong** (`2ee6f00` token, `7ca6816` font), chờ PM nghiệm thu:
+  [REPORT-A1-mau-va-font-2026-11-12.md](REPORT-A1-mau-va-font-2026-11-12.md). **Chưa deploy; không deploy `main`**
+  (giao diện dở) tới RELEASE A. Sửa gấp production → nhánh từ tag `prod-2026-09-30`.
+- Kế hoạch A1 + Q1–Q3: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md).
+- Kiểm thử trên máy: chạy `next start` với `KV_REST_API_TOKEN` = token chỉ đọc, token Blob/cron rỗng, khóa phiên
+  admin riêng để thử; chặn mọi POST trong trình duyệt.
 - Bản ghi FREEZE: [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md) (§9 xác minh Git).
 - Scope FROZEN: [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) (đợt A = Cơ bản mới; đợt B = Bản đồ gấp + công
   tắc + nhóm quay lại; checklist nghiệm thu A/B ở §4–§5).
@@ -51,7 +56,7 @@ Chưa sửa code sản phẩm, chưa build, chưa release. **Không code A1 trư
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ PM duyệt kế hoạch A1 + trả lời Q1–Q3 → đồng bộ `origin/main` → A1a, A1b → báo cáo A1 → A2. Không code trước
+1. Chờ PM nghiệm thu A1 → trình kế hoạch A2 → PM duyệt → code A2. Không code A2 trước
    khi PM duyệt.
 2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.** CLI Vercel trên máy
    đã hết phiên đăng nhập (12/11) → chủ dự án cần chạy `vercel login` trước RELEASE.
