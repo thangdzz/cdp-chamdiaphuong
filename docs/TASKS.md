@@ -27,10 +27,33 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **BUILD A1** (12/11): A1a `2ee6f00` token + `cdp-site`, A1b `7ca6816` Be Vietnam Pro. Tag `prod-2026-09-30`.
   [REPORT-A1](REPORT-A1-mau-va-font-2026-11-12.md). **PM nghiệm thu có điều kiện** (sửa tên bị cắt ở A2). Chưa deploy.
 - ✅ **PLAN A2** (12/11): PM duyệt, Q1–Q5 chọn A ([SPEC-A2](SPEC-A2-khung-dieu-huong.md) §14).
-- 👀 **BUILD A2** (12/11): A2-0 `6285ed5` (tên đủ + `/tim`), A2-a `4e546e8` (màu khung), A2-b `6e43aa6` (thanh đáy),
-  A2-c `7f56897` (Menu + sidebar), `ed6e927` (footer Admin). [REPORT-A2](REPORT-A2-khung-dieu-huong-2026-11-12.md).
-  Chưa deploy. Chờ PM nghiệm thu. Kiểm máy thật → TEST A.
-- ⬜ **A3** minh họa + hàm chọn ảnh + dữ liệu ảnh thẻ — trình kế hoạch sau khi A2 được nghiệm thu.
+- ✅ **BUILD A2** (12/11) — **PM ACCEPTED**: A2-0 `6285ed5`, A2-a `4e546e8`, A2-b `6e43aa6`, A2-c `7f56897`, `ed6e927`.
+  [REPORT-A2](REPORT-A2-khung-dieu-huong-2026-11-12.md) · [nghiệm thu](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Chưa deploy.
+- 👀 **PLAN A3** minh họa + chọn ảnh + dữ liệu ảnh thẻ: [SPEC-A3-anh-minh-hoa.md](SPEC-A3-anh-minh-hoa.md). Chờ PM duyệt.
+  Chưa code.
+
+### Việc mang theo từng bước đợt A (PM nghiệm thu A1/A2 — không bỏ sót trước RELEASE A)
+
+| Bước | Việc phải làm ở bước đó | Nguồn |
+|---|---|---|
+| Mọi bước | Tên “Chạm Địa Phương” luôn đủ, không “…”; không thêm lại `truncate` ở header/sidebar | Chủ dự án 12/11 |
+| A4–A9 | Đổi màu cũ (`zinc-400` chữ nhạt — 73 chỗ, nút `#c8553d`) sang token **trong file của màn đó**, đo tương phản | PM A1/A2 |
+| A5 Tìm chỗ | Vệt dấu dòng ẩn dưới ô `line-clamp` (thẻ, địa chỉ 2 dòng) | PM A1 |
+| A6 Chi tiết | Vệt dấu dưới ô cắt 2 dòng · thanh “Lưu vào Sổ + Chỉ đường” đệm tai thỏ khi xoay ngang (`env(safe-area-inset-*)`) | PM A1/A2 |
+| A7 Sổ | Vệt dấu dưới ô cắt 2 dòng | PM A1 |
+| A8 Lộ trình | Bộ chọn địa điểm + form đề xuất (lớp cố định toàn màn) đệm tai thỏ khi xoay ngang | PM A2 |
+| A9 Màn phụ | Footer phía khách chữ ≥ 13px (đang 12px) | PM A2 |
+| Màn có thanh hành động (A6–A8) | Thêm đường dẫn vào `lib/shellRoutes.js` để chỉ một thanh đáy | PM Q2 A2 |
+
+### Mang theo TEST A (cộng thêm checklist SCOPE §4)
+
+- [ ] iPhone Safari + Android Chrome thật, trình duyệt Zalo/Facebook: vùng an toàn (vạch Home), bàn phím ẩn/hiện thanh
+  đáy, thanh địa chỉ co giãn, màn thấp, xoay ngang (tai thỏ) — A2 mới kiểm giả lập.
+- [ ] Tên “Chạm Địa Phương” đủ trên máy thật ở cỡ chữ lớn của hệ điều hành.
+- [ ] Rà Admin sau đổi font: hàng tab xuống dòng, tên bị “…” trong danh sách có cản thao tác không.
+- [ ] Lỗi tải trước WebKit (“access control checks”) có tái hiện không; nếu có, đánh giá trước release.
+- [ ] Tương phản đo trên máy thật cho mọi màn đã đổi token.
+- [ ] Đối chiếu deployment Vercel thật + `vercel login` trước RELEASE A.
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy

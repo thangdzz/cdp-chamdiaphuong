@@ -17,8 +17,11 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A2 (khung + thanh đáy + Menu) xong, đã push, chờ PM nghiệm thu.**
-**Chưa deploy, chưa release. Chưa làm A3.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A2 ACCEPTED (12/11) → PLAN A3 chờ PM duyệt.** **Chưa deploy, chưa release.**
+**Chưa code A3.**
+- **Kế hoạch A3** (minh họa + chọn ảnh thật/minh họa + dữ liệu ảnh thẻ tìm): [SPEC-A3-anh-minh-hoa.md](SPEC-A3-anh-minh-hoa.md).
+- Nghiệm thu A2: [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Việc còn lại đã xếp theo bước
+  A4–A9 + TEST A trong [TASKS.md](TASKS.md).
 - **Báo cáo A2:** [REPORT-A2-khung-dieu-huong-2026-11-12.md](REPORT-A2-khung-dieu-huong-2026-11-12.md). Commit `6285ed5`
   (A2-0 tên đủ + `/tim`), `4e546e8` (màu khung), `6e43aa6` (thanh đáy), `7f56897` (Menu + sidebar), `ed6e927` (footer
   Admin). Ảnh trước/sau: https://claude.ai/artifact/KFGeAHdFkFcKYkcmyi33by.
@@ -74,5 +77,5 @@ Commit `e3b38a4` · deployment `chamdiaphuongio-og2r8pgy7` · https://chamdiaphu
 
 ## Bước tiếp theo hợp lý nhất
 
-1. PM nghiệm thu [A2](REPORT-A2-khung-dieu-huong-2026-11-12.md).
-2. Trình kế hoạch A3 (minh họa + hàm chọn ảnh + dữ liệu ảnh thẻ) → PM duyệt → code A3.
+1. PM duyệt [PLAN A3](SPEC-A3-anh-minh-hoa.md) + chốt câu hỏi.
+2. Code A3 theo thứ tự commit trong SPEC → REPORT A3.

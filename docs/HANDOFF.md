@@ -16,9 +16,9 @@ các thiết bị.”
 
 ## 1. Task hiện tại
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A2 xong (12/11), chờ PM nghiệm thu.** Báo cáo
-[REPORT-A2-khung-dieu-huong-2026-11-12.md](REPORT-A2-khung-dieu-huong-2026-11-12.md). **Chưa làm A3; không code A3 trước khi
-PM duyệt kế hoạch.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A2 ACCEPTED (12/11) → PLAN A3 chờ PM duyệt**
+([SPEC-A3-anh-minh-hoa.md](SPEC-A3-anh-minh-hoa.md)). **Không code A3 trước khi PM duyệt.** Việc còn lại theo từng bước
+A4–A9 + TEST A: bảng trong [TASKS.md](TASKS.md).
 - Khung mới: `BottomNav.js` (thanh đáy), `lib/shellRoutes.js` (trang nào có thanh đáy — thêm thanh hành động ở A6–A8 thì
   sửa ở đây), biến CSS `--cdp-header-h` / `--cdp-bottom-nav-h`. Cấu hình điều hướng có 6 mục (thêm `search`).
 
@@ -61,7 +61,7 @@ PM duyệt kế hoạch.**
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ PM nghiệm thu A2 → trình kế hoạch A3 → PM duyệt → code A3. Không code A3 trước khi PM duyệt.
+1. Chờ PM duyệt PLAN A3 → code A3 → REPORT A3. Không code A3 trước khi PM duyệt.
 2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.** CLI Vercel trên máy
    đã hết phiên đăng nhập (12/11) → chủ dự án cần chạy `vercel login` trước RELEASE.
 

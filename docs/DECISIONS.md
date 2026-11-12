@@ -7,6 +7,19 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (sau A2) — A2 ACCEPTED → chỉ cho lập PLAN A3
+
+Nguồn: [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Dựa trên báo cáo + ảnh, PM chưa tự kiểm
+code, Vercel hay máy thật.
+- **A2 ACCEPTED** (A2-0, `/tim`, màu khung, thanh đáy, Menu, sidebar). Chưa BUILD A3, chưa DEPLOY/RELEASE.
+- **Duyệt biểu tượng:** Trang chủ = ngôi nhà, Tìm chỗ = kính lúp, Lễ hội = lịch. Không đổi lại.
+- **Việc còn lại xếp theo bước** (bảng theo dõi ở [TASKS.md](TASKS.md)): footer khách chữ 12px → **A9**; vệt dấu dưới ô
+  cắt 2 dòng → **A5–A7**; chữ xám nhạt / nút màu cũ → từng màn **A4–A9**; lớp cố định vướng tai thỏ khi xoay ngang →
+  **A6/A8** (“ít người xoay ngang” không phải lý do bỏ lỗi).
+- **TEST A bắt buộc trước RELEASE A:** iPhone/Android thật, Zalo/Facebook, bàn phím, thanh Safari, vùng an toàn; rà Admin
+  xuống dòng; lỗi tải trước WebKit nếu tái hiện. Có điều kiện thì thử máy thật sớm (không deploy production).
+- **Điều kiện lâu dài:** tên “Chạm Địa Phương” luôn hiện đầy đủ ở mọi bước UX/UI sau. Không deploy `main` trong đợt A.
+
 ## 2026-11-12 (A2) — PM duyệt PLAN A2, cho BUILD A2 có điều kiện · Q1–Q5 chọn A
 
 Nguồn: [PM-DUYET-PLAN-A2-CDP-2026-11-12.md](PM-DUYET-PLAN-A2-CDP-2026-11-12.md). Kế hoạch + điều kiện:
