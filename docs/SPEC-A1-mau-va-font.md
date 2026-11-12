@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Trạng thái | **KẾ HOẠCH — chờ PM duyệt.** Chưa sửa code, chưa build |
+| Trạng thái | **ĐÃ DUYỆT (kèm điều chỉnh) 12/11** — [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md). Q1–Q3 chốt ở §10 |
 | Ngày | 2026-11-12 |
 | Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §2–§4 · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §2, §6 (bước 1) · [PM xác nhận FREEZE](PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md) §4 |
 | Gốc code | `main` = code production `e3b38a4` (khác duy nhất `web/data/known-places-snapshot.json`, file của routine) |
@@ -53,6 +53,7 @@ Không làm trong A1:
 | `--surface` | `#FFFFFF` | `bg-surface` | Thẻ, sheet | — |
 | `--surface-2` | `#EFEEE9` | `bg-surface-2` | Nền phụ | — |
 | `--line` | `#E3E1DA` | `border-line` | Viền thẻ, đường chia | (trang trí) |
+| `--line-strong` | `#7F8882` | `border-line-strong` | Viền ô nhập, ô tìm, chip/bộ lọc khi viền là dấu hiệu nhận biết (Q2) | 3,65 trên thẻ · 3,35 trên nền · 3,15 trên nền phụ |
 | `--ink` | `#183B32` | `text-ink`, `bg-ink` | Chữ chính, nền đậm | 11,3 trên nền · 12,3 trên thẻ |
 | `--ink-2` | `#4F5B55` | `text-ink-2` | Chữ phụ | 6,5 trên nền · 7,1 trên thẻ · 6,1 trên nền phụ |
 | `--action` | `#B04A33` | `bg-action`, `text-action` | **Màu hành động duy nhất** | chữ trắng trên nút 5,4 · chữ link 5,0 trên nền / 5,4 trên thẻ |
@@ -104,7 +105,8 @@ Không làm trong A1:
 | nền trang (`body`, `bg-zinc-50` cấp trang) | Nền trang | `bg-page` (có sẵn từ A1) |
 | `bg-white` ở thẻ, sheet, thanh | Bề mặt | `bg-surface` |
 | `bg-zinc-50`, `bg-zinc-100` trong thẻ | Nền phụ | `bg-surface-2` |
-| `border-zinc-100/200/300`, `ring-zinc-200`, `decoration-zinc-300` | Viền | `border-line` (ô nhập: xem Q2) |
+| `border-zinc-100/200/300`, `ring-zinc-200`, `decoration-zinc-300` | Viền trang trí, đường chia | `border-line` |
+| viền ô nhập, ô tìm, chip/bộ lọc (thường `border-zinc-300`) | Viền nhận biết thành phần tương tác | `border-line-strong` (Q2) |
 | `text-zinc-900`, `text-zinc-800` | Chữ chính | `text-ink` |
 | `text-zinc-700/600/500` | Chữ phụ | `text-ink-2` |
 | `text-zinc-400/300` làm **chữ** | Chữ mờ (2,6:1) | `text-ink-2` (sửa luôn tương phản) |
@@ -197,7 +199,21 @@ sẵn trong dự án, script để ngoài repo). **Chặn mọi lượt ghi:** `
 | Trang game / lễ hội (trong khung khách) đổi nền kem + font mới | Thấp | Game đã kết thúc 27/9; màu riêng của game giữ nguyên; xem ảnh ở §7.2 |
 | `/admin` đổi font | Thấp | Q1. Chỉ font, không đổi màu / bố cục |
 
-## 10. Cần PM quyết định trước khi code
+## 10. Quyết định PM (12/11) — đã chốt
+
+- **Q1 — DUYỆT:** Be Vietnam Pro cho cả trang khách và `/admin` (400/500/600/700, latin + vietnamese). Admin chỉ đổi
+  font; màu, bố cục, chức năng, đăng nhập giữ nguyên. Không tải Geist / Geist Mono nữa.
+- **Q2 — DUYỆT VỚI MÀU ĐIỀU CHỈNH:** `--line-strong: #7F8882` (không phải `#858D88`, vì màu đó trên nền phụ chỉ
+  2,93:1). A1 chỉ khai báo; áp ở A2–A9. Ghi trong DESIGN §2 (điều chỉnh sau FREEZE) + DECISIONS.
+- **Q3 — DUYỆT:** annotated tag `prod-2026-09-30` → `e3b38a4`, không ghi đè tag cũ. Tag là mốc theo hồ sơ, **không
+  phải bằng chứng** Vercel đang chạy đúng SHA đó. Phải đối chiếu deployment thật trước hotfix/release. Hotfix trước
+  RELEASE A: tách nhánh từ mốc, kiểm thử riêng, deploy riêng, rồi đưa bản sửa về `main`. **Không bao giờ deploy
+  `main` đang có giao diện dở.**
+- Thêm điều kiện kiểm thử của PM (§3 file duyệt): ảnh trước/sau cả `/admin`; kiểm phần tử `outline-none` và vùng
+  `overflow-hidden`; không ghi dữ liệu thật khi test; chưa tuyên bố toàn site đạt tương phản sau A1. Nếu sửa lỗi font
+  bị cắt buộc phải đụng file thứ tư thì **dừng, báo PM**.
+
+### Câu hỏi đã trình (lưu lại)
 
 - **Q1 — Font cho `/admin`.** Khuyến nghị: **dùng Be Vietnam Pro cho cả `/admin`**. Font nạp ở gốc web, nên giữ
   Geist riêng cho admin thì phải nạp 2 bộ font. Geist cũng không có dấu tiếng Việt. Admin chỉ đổi font, màu và bố

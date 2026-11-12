@@ -7,6 +7,18 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (A1) — PM duyệt kế hoạch A1 + 3 quyết định (điều chỉnh nhỏ sau FREEZE)
+
+Nguồn: [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md). Kế hoạch:
+[SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md).
+- **Q1:** Be Vietnam Pro cho cả trang khách và `/admin` (400/500/600/700, latin + vietnamese). Bỏ Geist / Geist Mono.
+  Admin chỉ đổi font.
+- **Q2:** thêm token `--line-strong: #7F8882` cho viền ô nhập, ô tìm, chip/bộ lọc (≥ 3:1 trên mọi nền Cơ bản). Đây là
+  **điều chỉnh nhỏ sau FREEZE**, ghi trong DESIGN §2 (chú thích ¹). A1 chỉ khai báo; áp ở A2–A9.
+- **Q3:** annotated tag `prod-2026-09-30` → `e3b38a4` làm mốc sửa gấp. Tag ≠ bằng chứng Vercel chạy đúng SHA. Hotfix
+  trước RELEASE A tách nhánh từ mốc, deploy riêng, rồi đưa về `main`. Không deploy `main` đang dở.
+- Phạm vi code A1 khóa trong 3 file (`globals.css`, `AppShell.js`, `layout.js`); cần file thứ tư thì dừng, báo PM.
+
 ## 2026-11-12 (sau FREEZE) — PM xác nhận FREEZE → chỉ cho lập kế hoạch A1
 
 Nguồn: [PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md](PM-XAC-NHAN-FREEZE-UXUI-CDP-2026-11-12.md).

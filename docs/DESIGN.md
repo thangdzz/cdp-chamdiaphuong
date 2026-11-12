@@ -28,7 +28,8 @@ Component có trạng thái (ô tìm, bộ lọc, form, luồng Lưu/Hoàn tác,
 | `--bg` | `#F6F5F1` | `#F8F5ED` | Nền trang |
 | `--surface` | `#FFFFFF` | `#FFFDF7` | Thẻ, sheet |
 | `--surface-2` | `#EFEEE9` | `#F0EADB` | Nền phụ |
-| `--line` | `#E3E1DA` | `#E2D9C6` | Viền |
+| `--line` | `#E3E1DA` | `#E2D9C6` | Viền trang trí, đường chia |
+| `--line-strong` ¹ | `#7F8882` | (định ở đợt B) | Viền ô nhập, ô tìm, chip/bộ lọc khi viền là dấu hiệu nhận biết (≥ 3:1) |
 | `--ink` | `#183B32` | `#183B32` | Chữ chính, nền đậm |
 | `--ink-2` | `#4F5B55` | `#56625C` | Chữ phụ |
 | `--action` | `#B04A33` | `#B04A33` | **Màu hành động duy nhất** (nút chính, link) |
@@ -36,6 +37,9 @@ Component có trạng thái (ô tìm, bộ lọc, form, luồng Lưu/Hoàn tác,
 | `--ok` / `--warn` | `#2F6B4F` / `#8A5A10` | như vậy | Còn mở / chưa chắc chắn |
 | `--sage` `--earth` `--fold` | không dùng | `#83A58D` `#BD704E` `#D8CBB0` | **Chỉ trang trí** |
 
+- ¹ **Điều chỉnh nhỏ sau FREEZE (PM duyệt 12/11/2026, Q2 kế hoạch A1):** thêm `--line-strong`, vì `--line` chỉ
+  1,3:1, không đủ 3:1 cho viền ô nhập. Tương phản: 3,65 trên thẻ · 3,35 trên nền · 3,15 trên nền phụ. Không đổi
+  token nào khác. Nguồn: [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md).
 - Logo giữ `#C8553D`; không dùng làm nền nút (chữ trắng chỉ đạt 4,4:1). Không có màu CTA thứ hai.
 - Tương phản tính toán: nút 5,4:1 · đang nhấn 7,0:1 · focus ring 4,9:1 · chữ phụ trên kem 5,8:1 · chưa chắc
   chắn 5,4:1. **Đo lại trên máy thật ở TEST.**
@@ -45,7 +49,8 @@ Component có trạng thái (ô tìm, bộ lọc, form, luồng Lưu/Hoàn tác,
 
 ## 3. Chữ
 
-- **Be Vietnam Pro** (bộ `vietnamese`) cho toàn bộ nội dung cả 2 chế độ. **Literata** chỉ cho tiêu đề lớn ở Bản đồ
+- **Be Vietnam Pro** (bộ `latin` + `vietnamese`, độ đậm 400/500/600/700) cho toàn bộ nội dung cả 2 chế độ, **kể cả
+  `/admin`** (PM duyệt 12/11, Q1; admin chỉ đổi font, màu giữ nguyên). **Literata** chỉ cho tiêu đề lớn ở Bản đồ
   gấp (H1, tên chỗ, tên Sổ/Lộ trình). Nạp đúng các độ đậm dùng tới; kiểm dấu tiếng Việt + tốc độ ở TEST.
 - H1 26 / 30px · tên chỗ 24 / 27px · nội dung 15px · phụ 13–13,5px · **tối thiểu 13px** · ô nhập 16px trên màn cảm ứng.
 
