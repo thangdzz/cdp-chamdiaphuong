@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Hình minh họa dự phòng">
+  <defs>
+    <linearGradient id="fk" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#183B32" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#183B32" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" fill="#F8F5ED"/>
+  <path d="M-10 40 C30 28 60 50 100 38 S180 20 250 34 M-10 120 C40 108 80 132 130 118 S210 102 250 114" stroke="#CFDACB" stroke-width="1.4" fill="none"/>
+  <path d="M-10 60 C40 50 70 72 110 62 M130 98 C170 88 200 108 250 96" stroke="#CFDACB" stroke-width="1.4" fill="none"/>
+  <circle cx="120" cy="80" r="38" fill="none" stroke="#D8CBB0" stroke-width="1.5"/>
+  <circle cx="120" cy="80" r="28" fill="none" stroke="#D8CBB0" stroke-width="1" stroke-dasharray="2 4"/>
+  <path d="M120 40 L128 80 L120 120 L112 80Z" fill="#183B32"/>
+  <path d="M120 40 L128 80 L112 80Z" fill="#BD704E"/>
+  <path d="M80 80 L120 74 L160 80 L120 86Z" fill="#83A58D"/>
+  <circle cx="120" cy="80" r="4" fill="#F8F5ED" stroke="#183B32" stroke-width="2"/>
+  <rect x="0" y="0" width="80" height="160" fill="url(#fk)"/>
+  <rect x="160" y="0" width="80" height="160" fill="url(#fk)"/>
+  <path d="M80 0 V160 M160 0 V160" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="1.2"/>
+  <path d="M81.2 0 V160 M161.2 0 V160" stroke="#D8CBB0" stroke-width="1"/>
+</svg>
