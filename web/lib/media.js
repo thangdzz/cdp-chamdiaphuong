@@ -156,8 +156,11 @@ export function placeMenuMedia(place) {
   return placeMedia(place).filter((item) => mediaHasRole(item, "menu"));
 }
 
+// Ảnh đại diện của một địa điểm. Ảnh menu KHÔNG BAO GIỜ làm ảnh đại diện, kể cả khi là ảnh duy nhất
+// (DESIGN §5, PM Q1 PLAN A3 12/11): bìa hợp lệ → ảnh thường đầu tiên → null (nơi hiển thị dùng minh họa
+// theo nhóm, ảnh xem trước chia sẻ dùng ảnh mặc định). Ảnh menu vẫn hiện ở khối thực đơn qua placeMenuMedia().
 export function placeCoverMedia(place) {
-  const media = placeMedia(place);
+  const media = placeGeneralMedia(place);
   return media.find((item) => mediaHasRole(item, "cover")) ?? media[0] ?? null;
 }
 
