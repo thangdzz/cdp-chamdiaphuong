@@ -17,13 +17,18 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A1 (màu + font) xong, đã push, chờ PM nghiệm thu.** **Chưa deploy.**
-Chưa làm A2.
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A1 NGHIỆM THU CÓ ĐIỀU KIỆN (12/11) → PLAN A2 chờ PM duyệt.** **Chưa deploy.**
+Chưa code A2.
+- **Kế hoạch A2** (khung + thanh đáy + Menu, mở đầu bằng **A2-0**: tên “Chạm Địa Phương” luôn hiện đủ ở 320px):
+  [SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md). 5 câu hỏi Q1–Q5 chờ PM.
+- **Quy tắc chủ dự án:** tên thương hiệu không bao giờ bị “…”/rút gọn. Còn một trạng thái header bị cắt = A2 FAIL.
+- Nghiệm thu A1: [PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md](PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md).
 - **Báo cáo A1:** [REPORT-A1-mau-va-font-2026-11-12.md](REPORT-A1-mau-va-font-2026-11-12.md). Commit `2ee6f00` (token)
   + `7ca6816` (font); ảnh trước/sau https://claude.ai/artifact/WW4nd64x7VzKz8RoXzV3MR.
 - `main` giờ có giao diện dở (font + nền mới, màu từng màn còn cũ): **không deploy `main`** tới RELEASE A. Sửa gấp
   production → nhánh từ tag `prod-2026-09-30` (= `e3b38a4`).
-- Còn lại cho bước sau: tên header bị “…” ở 320px (A2); vệt dấu dưới ô `line-clamp` (A5–A7).
+- Còn lại cho bước sau: tên header bị “…” ở 320px (**A2-0, bắt buộc**); vệt dấu dưới ô `line-clamp` (A5–A7, phải sửa
+  trước production); hàng tìm bám dính `/tim` bị header che 8px (có từ trước, sửa kèm A2-0).
 - Kế hoạch + quyết định Q1–Q3: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md).
 - Bản ghi FREEZE (tài liệu khóa, rủi ro, thứ tự BUILD, xác minh Git §9): [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md).
 - CLI Vercel trên máy **hết phiên đăng nhập**. Cần `vercel login` trước khi RELEASE.
@@ -65,5 +70,5 @@ Commit `e3b38a4` · deployment `chamdiaphuongio-og2r8pgy7` · https://chamdiaphu
 
 ## Bước tiếp theo hợp lý nhất
 
-1. PM nghiệm thu [A1](REPORT-A1-mau-va-font-2026-11-12.md).
-2. Trình kế hoạch ngắn A2 (khung + thanh đáy + Menu) → PM duyệt → code A2.
+1. PM duyệt [PLAN A2](SPEC-A2-khung-dieu-huong.md) và chốt Q1–Q5.
+2. Code A2 theo 4 commit (A2-0 → A2-a → A2-b → A2-c) → REPORT A2 (kèm ảnh header 320px trước/sau).

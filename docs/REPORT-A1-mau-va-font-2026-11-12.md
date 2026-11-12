@@ -4,7 +4,7 @@
 |---|---|
 | Ngày | 2026-11-12 |
 | Kế hoạch / quyết định | [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md) · [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md) |
-| Trạng thái | **BUILD A1 xong, đã push. CHƯA DEPLOY.** Chưa sang A2 |
+| Trạng thái | **PM NGHIỆM THU CÓ ĐIỀU KIỆN (12/11)** — [quyết định](PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md): mục 3.1 thành A2-0 bắt buộc. CHƯA DEPLOY |
 | Ảnh trước / sau | https://claude.ai/artifact/WW4nd64x7VzKz8RoXzV3MR (riêng tư, chủ dự án chia sẻ cho PM) |
 
 ## 1. Commit

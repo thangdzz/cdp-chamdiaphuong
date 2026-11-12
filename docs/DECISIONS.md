@@ -7,6 +7,20 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (sau A1) — A1 nghiệm thu có điều kiện · tên “Chạm Địa Phương” không bao giờ bị rút gọn
+
+Nguồn: [PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md](PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md).
+- **A1: NGHIỆM THU CÓ ĐIỀU KIỆN** (phần kỹ thuật đạt), dựa trên báo cáo và ảnh, chưa phải kiểm định độc lập
+  repo/production. Điều kiện: lỗi cắt tên thương hiệu phải sửa trong A2, trước khi đóng A2 và trước RELEASE A.
+  Không kết luận toàn site đạt tương phản.
+- **Quyết định của chủ dự án (cố định):** tên “Chạm Địa Phương” luôn hiện **đủ, đúng dấu** ở mọi header khách, kể cả
+  320px. Cấm `ellipsis`/`truncate`/`line-clamp`, cấm thay bằng “CDP” hay tên rút gọn cho vừa. Thiếu chỗ thì chia lại
+  khoảng trống, rồi mới cho tên xuống 2 dòng. Chỉ một trạng thái còn “…” là A2 FAIL.
+- Việc này thành **A2-0**, làm đầu tiên trong A2. Kế hoạch: [SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md).
+- Vệt dấu dưới ô `line-clamp`: lỗi phải sửa ở bước có thành phần đó (A5–A7), không lên production nếu còn. Admin
+  xuống dòng khác: chấp nhận tạm, xem lại ở TEST A. Kiểm thử chặn ghi không thay kiểm thử ghi thật ở TEST A.
+- A2: **chỉ cho lập kế hoạch**. Chưa BUILD, chưa DEPLOY/RELEASE.
+
 ## 2026-11-12 (A1) — PM duyệt kế hoạch A1 + 3 quyết định (điều chỉnh nhỏ sau FREEZE)
 
 Nguồn: [PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md](PM-DUYET-PLAN-BUILD-A1-CDP-2026-11-12.md). Kế hoạch:

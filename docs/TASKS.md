@@ -24,9 +24,10 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **FREEZE tài liệu** (12/11): SCOPE FROZEN v1.0, DESIGN.md v2.0, bản ghi
   [FREEZE-UXUI-ban-do-gap-2026-11-12.md](FREEZE-UXUI-ban-do-gap-2026-11-12.md). PM xác nhận; đã ghi xác minh Git (§9).
 - ✅ **Kế hoạch A1 — màu + font** (12/11): [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md). PM duyệt kèm Q1–Q3.
-- 👀 **BUILD A1** (12/11): A1a `2ee6f00` token + `cdp-site`, A1b `7ca6816` Be Vietnam Pro. Tag `prod-2026-09-30`.
-  Báo cáo [REPORT-A1-mau-va-font-2026-11-12.md](REPORT-A1-mau-va-font-2026-11-12.md). Chưa deploy. Chờ PM nghiệm thu.
-- ⬜ **A2** khung + thanh đáy + Menu (gồm tên header bị “…” ở 320px) — trình kế hoạch sau khi A1 được nghiệm thu.
+- ✅ **BUILD A1** (12/11): A1a `2ee6f00` token + `cdp-site`, A1b `7ca6816` Be Vietnam Pro. Tag `prod-2026-09-30`.
+  [REPORT-A1](REPORT-A1-mau-va-font-2026-11-12.md). **PM nghiệm thu có điều kiện** (sửa tên bị cắt ở A2). Chưa deploy.
+- 👀 **PLAN A2** khung + thanh đáy + Menu, mở đầu bằng **A2-0** (tên “Chạm Địa Phương” đủ ở 320px):
+  [SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md). Chờ PM duyệt + Q1–Q5. Chưa code.
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy

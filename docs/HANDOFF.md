@@ -16,12 +16,13 @@ các thiết bị.”
 
 ## 1. Task hiện tại
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: PM xác nhận FREEZE (12/11) → kế hoạch A1 (màu + font) chờ PM duyệt.**
-Chưa sửa code sản phẩm, chưa build, chưa release. **Không code A1 trước khi PM duyệt kế hoạch.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A1 nghiệm thu có điều kiện (12/11) → PLAN A2 chờ PM duyệt.**
+**Không code A2 trước khi PM duyệt kế hoạch** [SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md) (Q1–Q5).
 
-- **Cập nhật cuối 12/11: BUILD A1 xong** (`2ee6f00` token, `7ca6816` font), chờ PM nghiệm thu:
-  [REPORT-A1-mau-va-font-2026-11-12.md](REPORT-A1-mau-va-font-2026-11-12.md). **Chưa deploy; không deploy `main`**
-  (giao diện dở) tới RELEASE A. Sửa gấp production → nhánh từ tag `prod-2026-09-30`.
+- **Quy tắc cố định của chủ dự án:** tên “Chạm Địa Phương” luôn hiện đủ ở mọi header khách, kể cả 320px. Cấm
+  `truncate`/`ellipsis`/`line-clamp`/“CDP” thay tên. Đây là **A2-0**, làm đầu tiên trong A2.
+- A1 (`2ee6f00` token, `7ca6816` font): [REPORT-A1-mau-va-font-2026-11-12.md](REPORT-A1-mau-va-font-2026-11-12.md).
+  **Chưa deploy; không deploy `main`** (giao diện dở) tới RELEASE A. Sửa gấp production → nhánh từ tag `prod-2026-09-30`.
 - Kế hoạch A1 + Q1–Q3: [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md).
 - Kiểm thử trên máy: chạy `next start` với `KV_REST_API_TOKEN` = token chỉ đọc, token Blob/cron rỗng, khóa phiên
   admin riêng để thử; chặn mọi POST trong trình duyệt.
@@ -50,14 +51,14 @@ Chưa sửa code sản phẩm, chưa build, chưa release. **Không code A1 trư
 | 🟡 | `PlaceDetail.js` còn dùng `PhotoGallery`, `formatDate`, `formatRelativeAge`, `staleMenuAgeMonths` từ `PlaceExplorer.js` → tách ra trước khi dọn (ghi chú cũ “không trang nào dùng” là sai) |
 | 🔴 | **[Khôi phục-1]** lần lưu đầu không cho khách thấy mã 6 số · **[Khôi phục-2]** nhập mã ghi đè hồ sơ máy đã có Sổ. BACKLOG §3, PM xếp ưu tiên sớm. Không thêm lối vào khôi phục mới trước khi sửa |
 | 🟡 | Đề xuất 2 sửa nhỏ PRODUCT.md chờ chủ dự án duyệt (FREEZE record §4); không chặn BUILD A |
-| 🟢 | Font Geist thiếu bộ chữ tiếng Việt — sẽ thay ở đợt A |
+| 🔴 | Tên header bị “Chạm Địa Phư…” ở 320px (từ A1) — **A2-0 bắt buộc** trước khi đóng A2 / RELEASE A |
+| 🟡 | Hàng tìm bám dính `/tim` dùng `top-[57px]` nhưng header cao 65px → bị che 8px (có trên production) — sửa kèm A2-0 |
 | 🟢 | Lint của dự án tắt `no-undef` (BACKLOG §8) |
 | 🟡 | DELETE CANDIDATE chờ review: `docs/CDP_P1-P8_PostDong_LoTrinh_Prompt.md` · `data/dia-diem-mau-giai-doan-1.md` · `web/README.md` |
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ PM nghiệm thu A1 → trình kế hoạch A2 → PM duyệt → code A2. Không code A2 trước
-   khi PM duyệt.
+1. Chờ PM duyệt PLAN A2 + Q1–Q5 → code A2 (A2-0 trước) → REPORT A2. Không code A2 trước khi PM duyệt.
 2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.** CLI Vercel trên máy
    đã hết phiên đăng nhập (12/11) → chủ dự án cần chạy `vercel login` trước RELEASE.
 
