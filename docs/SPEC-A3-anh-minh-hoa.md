@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Trạng thái | **KẾ HOẠCH — chờ PM duyệt.** Chưa sửa code A3, chưa deploy |
+| Trạng thái | **ĐÃ DUYỆT (kèm điều kiện) 12/11** — [PM-DUYET-PLAN-A3-CDP-2026-11-12.md](PM-DUYET-PLAN-A3-CDP-2026-11-12.md). Q1–Q4 chọn **A**, chốt ở §13. Đang BUILD. Không deploy |
 | Ngày | 2026-11-12 |
 | Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §5 · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §1 (dòng 5, 6, 14), §2 (Minh họa, Server), §4 (Ảnh), §6 bước 3 · [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md) §4 · [KIEM-KE-anh-so-lieu-nen-2026-11-11.md](KIEM-KE-anh-so-lieu-nen-2026-11-11.md) |
 | Gốc code | `main` @ `691fd55` (sau A2) |
@@ -262,3 +262,20 @@ không công bố ảnh Sổ/Lộ trình của người dùng thật.
 - **[Fact]** Ảnh khách gửi đã qua Admin duyệt và đang công khai ở Chi tiết. Form gửi ảnh chưa có câu nói ảnh sẽ hiện công khai trên CDP. 25 ảnh “legacy” không ghi người tải.
 - **A (đề xuất):** A3 dùng như hiện nay, vì cùng mức công khai với trang Chi tiết. Ghi vào BACKLOG: thêm một câu vào form gửi ảnh, kiểu “Ảnh bạn gửi sẽ hiện công khai trên Chạm Địa Phương sau khi được duyệt”, làm khi dựng lại Chi tiết ở A6. Nếu PM cần, chủ dự án xác nhận 25 ảnh legacy là do CDP/Admin đưa lên.
 - **B:** chỉ hiện ảnh `source = admin` ở thẻ tìm cho tới khi có câu đồng ý. Thẻ tìm sẽ gần như toàn minh họa: 3 ảnh admin, legacy chưa rõ.
+
+## 13. Quyết định PM (12/11) — Q1–Q4 chọn A
+
+Nguồn: [PM-DUYET-PLAN-A3-CDP-2026-11-12.md](PM-DUYET-PLAN-A3-CDP-2026-11-12.md).
+
+| | Quyết định | Điều kiện kèm theo |
+|---|---|---|
+| Q1 | Sửa tận gốc `placeCoverMedia()`: không bao giờ chọn ảnh menu, kể cả khi là ảnh duy nhất | Thứ tự: bìa hợp lệ → ảnh thường đầu tiên → `null`. Kiểm 4 nơi (dải ảnh Chi tiết, thẻ Sổ, bìa ghép Sổ, ảnh xem trước chia sẻ); ảnh menu **vẫn hiện ở khối thực đơn**. Đối chiếu cũ/mới trên dữ liệu chỉ đọc; **nếu khác 1 chỗ → báo PM trước khi đi tiếp** |
+| Q2 | Làm `PlaceThumb` ngay A3 | **Đổi `photo.url` hoặc đổi địa điểm → đặt lại trạng thái lỗi.** Cùng một URL lỗi chỉ chuyển minh họa một lần. Không gắn vào màn nào trong A3; thử bằng trang tạm, xóa trước commit |
+| Q3 | Thẻ nhỏ: ảnh thật `alt=""` **khi tên nằm ngay cạnh, cùng liên kết**; minh họa giữ alt DESIGN | Ảnh là liên kết riêng hoặc mang thông tin không có ở chữ gần đó → alt mô tả chức năng/thông tin. Chi tiết: mô tả phù hợp, mặc định “Ảnh {tên địa điểm}” |
+| Q4 | Làm kỹ thuật với ảnh đang công khai; **cổng xác minh nguồn/quyền trước A5** | Đây không phải kết luận ảnh đã có quyền. Danh sách 25 ảnh legacy (ID ảnh, ID chỗ, nguồn đã biết, tình trạng, hướng xử lý) — không ghi định danh người tải. Ảnh chưa xác minh → minh họa ở bề mặt mới (A5–A8). A6: câu thông báo + xác nhận quyền trong form gửi ảnh ([BACKLOG](BACKLOG.md) §6) |
+
+**Điều kiện BUILD thêm:**
+- Đúng 4 commit A3-a → A3-d; file code/test chỉ trong danh sách §7. Cần file khác → dừng, báo PM.
+- Báo **số thực đo** tại lúc test (mốc 12/11: 344 chỗ, 16 có ảnh, 1 chỉ có menu); không sửa test để ép khớp số cũ.
+- Dung lượng `/tim` tăng > 5 KB sau nén → bỏ khóa `photo` khi `null`, ghi rõ.
+- Vai trò ảnh khác menu (lối vào, bãi đỗ, chỉ đường) giữ như SPEC; chỉ ghi nhận xét nếu gặp trường hợp gây hiểu nhầm.

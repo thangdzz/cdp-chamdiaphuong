@@ -7,6 +7,17 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (A3) — PM duyệt PLAN A3, cho BUILD A3 có điều kiện · Q1–Q4 chọn A
+
+Nguồn: [PM-DUYET-PLAN-A3-CDP-2026-11-12.md](PM-DUYET-PLAN-A3-CDP-2026-11-12.md). Chi tiết: [SPEC-A3](SPEC-A3-anh-minh-hoa.md) §13.
+- **Q1:** `placeCoverMedia()` không bao giờ chọn ảnh menu (bìa hợp lệ → ảnh thường đầu → `null` → minh họa). Ảnh menu
+  vẫn hiện ở khối thực đơn.
+- **Q2:** `PlaceThumb` dùng chung làm ngay A3; đổi URL/địa điểm thì đặt lại trạng thái lỗi; chưa gắn vào màn nào.
+- **Q3:** ảnh thật ở thẻ có tên ngay cạnh trong cùng liên kết → `alt=""`; minh họa giữ alt DESIGN; Chi tiết mặc định
+  “Ảnh {tên địa điểm}”.
+- **Q4:** quyền dùng ảnh **chưa được kết luận**. Cổng xác minh nguồn/quyền trước khi hiện ảnh ở bề mặt mới (A5–A8);
+  ảnh chưa xác minh dùng minh họa. 25 ảnh legacy vào danh sách kiểm. A6 thêm thông báo + xác nhận quyền vào form gửi ảnh.
+
 ## 2026-11-12 (sau A2) — A2 ACCEPTED → chỉ cho lập PLAN A3
 
 Nguồn: [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Dựa trên báo cáo + ảnh, PM chưa tự kiểm
