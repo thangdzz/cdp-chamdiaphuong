@@ -92,3 +92,10 @@ xác nhận (30/9 mới 18/283 chỗ có toạ độ). Nguồn: owner/PM update 
 - **Mở rộng dữ liệu ra vùng mới** (ngoài vùng Tuyên Quang đang quét). Đã chốt 29/9: vNext **không**
   mở rộng; "TP Tuyên Quang cũ" không còn là ranh giới sản phẩm cố định (DECISIONS "2026-09-29
   (sau)"). Khi nào mở vùng mới thì review lại ở đây. Nguồn: PRD §3, NOTE-01 P2.
+
+## 9. Đóng góp dữ liệu
+
+- **Luồng “Góp một chỗ mới” đứng riêng** (12/11). DESIGN §6 xếp mục này vào Menu, nhưng hiện chưa có luồng riêng: form
+  đề xuất chỉ dùng trong Lộ trình (`proposePlaceForRoute`) và khi báo chỗ đã đóng cửa (`submitReplacementProposal`).
+  Làm thì cần Server Action mới + hàng chờ duyệt. PM quyết định Q4 PLAN A2: **chưa đặt trong Menu ở A2**, không tạo
+  API mới; chờ PM xếp bước. Nguồn: [SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md) Q4.

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Trạng thái | **KẾ HOẠCH — chờ PM duyệt.** Chưa sửa code A2, chưa deploy |
+| Trạng thái | **ĐÃ DUYỆT (kèm điều kiện) 12/11** — [PM-DUYET-PLAN-A2-CDP-2026-11-12.md](PM-DUYET-PLAN-A2-CDP-2026-11-12.md). Q1–Q5 đều chọn **A**, chốt ở §14. Đang BUILD. Không deploy |
 | Ngày | 2026-11-12 |
 | Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §3, §6, §10–§11 · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §2, §4 (Điều hướng), §6 (bước 2) · [PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md](PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md) §2 |
 | Gốc code | `main` @ `20d91ed` (sau A1). Production vẫn là `e3b38a4` (tag `prod-2026-09-30`) |
@@ -328,3 +328,28 @@ Mỗi lần chạy, máy tự kiểm:
 
 - **A (đề xuất):** Giữ như cũ, thêm tên đầy đủ cho trình đọc màn hình và chú thích khi rê chuột.
 - **B:** Bỏ chế độ thu gọn.
+
+## 14. Quyết định PM (12/11) — cả 5 câu chọn A
+
+Nguồn: [PM-DUYET-PLAN-A2-CDP-2026-11-12.md](PM-DUYET-PLAN-A2-CDP-2026-11-12.md).
+
+| | Quyết định | Điều kiện kèm theo |
+|---|---|---|
+| Q1 | Thêm `search` → `/tim` vào cấu hình; nhãn mặc định Trang chủ · Tìm chỗ · Sổ · Lộ trình | Giữ key và đường dẫn cũ. **Kiểm lại production chưa lưu cấu hình ngay trước khi đổi mặc định.** Dòng mới ở `/admin/navigation` phải kiểm thử; không thiết kế lại Admin |
+| Q2 | Sổ chi tiết, Lộ trình chi tiết, Lộ trình chia sẻ **vẫn có thanh đáy** trong A2 | Tới A7/A8 có thanh hành động thì chỉ còn một thanh. Chi tiết chỗ và 2 trang sửa ẩn thanh đáy |
+| Q3 | Bật `viewport-fit=cover` + đệm vùng vạch Home | Không chỉ bật meta: dùng `env(safe-area-inset-*)`; kiểm khoảng trống nội dung, bàn phím, thanh trình duyệt, màn thấp. **iPhone thật là cổng trước RELEASE A**, không chặn BUILD A2 |
+| Q4 | Chưa đặt “Góp một chỗ mới” trong Menu | Đã ghi [INBOX](INBOX.md) §9. Không tạo API hay luồng mới |
+| Q5 | Sidebar thu gọn chỉ còn logo khi khách tự thu gọn | Mở rộng phải hiện nguyên văn “Chạm Địa Phương”. Logo khi thu gọn có tên truy cập được (`aria-label`/`title`) và dùng được bằng bàn phím |
+
+**Điều kiện thêm cho BUILD:**
+- **A2-0:** tên đủ ở 320px và khi phóng chữ 125/150/200%. Không thu nhỏ logo hay cỡ chữ để lách. Cần thì xuống 2 dòng
+  theo từ, header **cao theo nội dung**. `/tim`: **không thay 57 bằng 65** mà dùng chiều cao header đo thật (biến
+  dùng chung). Ảnh trước/sau ở 320/360/390, Chromium + WebKit, `/tim` khi cuộn. **A2-0 chưa đạt thì chưa làm thanh đáy.**
+- **Thanh đáy:** không dùng bề rộng cố định (chia đều, tính cả vùng an toàn ngang). Khoảng trống cuối trang không để
+  thanh che nội dung, nút, ô nhập hay phần tử đang focus. Mục đang mở phân biệt bằng chữ đậm + gạch chân, không chỉ
+  bằng màu.
+- **Bàn phím:** không đoán chỉ bằng ngưỡng `innerHeight`. Kiểm chuyển focus giữa các ô và quay lại từ trang khác. Dùng
+  `visualViewport` thì phải có đường dự phòng.
+- **Menu:** Ghi chú của tôi · Giới thiệu · Lễ hội (lưu trữ); các mục đang có không bị mất (4 mục lõi chuyển sang thanh
+  đáy). Esc, đóng khi đổi trang, trả focus hợp lý, **nền trang không cuộn ngoài ý muốn khi Menu mở**.
+- File: đúng §7, riêng `SearchResults.js` được phép trong A2-0. Cần file khác thì báo PM trước.

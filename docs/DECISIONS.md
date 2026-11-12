@@ -7,6 +7,19 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-12 (A2) — PM duyệt PLAN A2, cho BUILD A2 có điều kiện · Q1–Q5 chọn A
+
+Nguồn: [PM-DUYET-PLAN-A2-CDP-2026-11-12.md](PM-DUYET-PLAN-A2-CDP-2026-11-12.md). Kế hoạch + điều kiện:
+[SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md) §14.
+- **Q1:** thêm mục `search` → `/tim` vào cấu hình điều hướng; nhãn mặc định ngắn **Trang chủ · Tìm chỗ · Sổ · Lộ
+  trình**. Key/đường dẫn cũ giữ nguyên; kiểm lại production chưa lưu cấu hình trước khi đổi.
+- **Q2:** Sổ chi tiết, Lộ trình chi tiết, Lộ trình chia sẻ tạm có thanh đáy tới A7/A8. Luôn chỉ một thanh đáy.
+- **Q3:** bật `viewport-fit=cover` + đệm vùng an toàn. iPhone thật là cổng trước RELEASE A.
+- **Q4:** “Góp một chỗ mới” chưa vào Menu, chuyển [INBOX](INBOX.md) §9; không tạo API mới.
+- **Q5:** sidebar desktop thu gọn chỉ còn logo (do khách chọn); logo có tên truy cập được; mở rộng thì tên đủ.
+- A2-0 làm trước, commit riêng; `/tim` dùng chiều cao header đo thật, không thay bằng số cố định khác. A2-0 chưa đạt
+  thì chưa làm thanh đáy. Không deploy `main`; chưa làm A3.
+
 ## 2026-11-12 (sau A1) — A1 nghiệm thu có điều kiện · tên “Chạm Địa Phương” không bao giờ bị rút gọn
 
 Nguồn: [PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md](PM-NGHIEM-THU-A1-VA-YEU-CAU-A2-0-CDP-2026-11-12.md).
