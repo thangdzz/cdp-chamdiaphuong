@@ -35,3 +35,16 @@ export function splitNavigation(navigation) {
   const secondary = enabled.filter((item) => !CORE_NAVIGATION_KEYS.includes(item.key));
   return { core, secondary };
 }
+
+// Lễ hội (lưu trữ): liên kết cố định của Menu và sidebar (DESIGN §6), không nằm trong cấu hình Admin.
+export const FESTIVAL_ARCHIVE_LINK = {
+  key: "festival",
+  href: "/le-hoi-thanh-tuyen",
+  navLabel: "Lễ hội (lưu trữ)",
+};
+
+// Mục phụ hiện trong Menu mobile và nhóm dưới của sidebar: mục phụ của cấu hình (thứ tự Admin) + Lễ hội.
+// “Góp một chỗ mới” chưa có ở A2 (PM Q4 — INBOX §9).
+export function secondaryNavigation(navigation) {
+  return [...splitNavigation(navigation).secondary, FESTIVAL_ARCHIVE_LINK];
+}

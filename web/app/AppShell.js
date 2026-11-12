@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { createContext, useContext, useState, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { BrandName, SiteHeader } from "@/app/SiteHeader";
 import { BottomNav } from "@/app/BottomNav";
-import { showsBottomNav, splitNavigation } from "@/lib/shellRoutes";
+import { isNavItemActive, secondaryNavigation, showsBottomNav, splitNavigation } from "@/lib/shellRoutes";
 import { SiteFooter } from "@/app/SiteFooter";
 import { NavigationIcon } from "@/app/NavigationIcon";
 import { PageTransition } from "@/app/PageTransition";
@@ -39,18 +39,14 @@ function setSidebarCollapsed(value) {
   window.dispatchEvent(new Event("cdp-sidebar-change"));
 }
 
-function isActive(item, pathname) {
-  if (item.href === "/") return pathname === "/";
-  return pathname === item.href || pathname.startsWith(`${item.href}/`);
-}
-
 function DesktopSidebar({ navigation, pathname }) {
   const collapsed = useSyncExternalStore(
     subscribeToSidebar,
     sidebarSnapshot,
     serverSidebarSnapshot,
   );
-  const visibleItems = navigation.filter((item) => item.enabled);
+  const { core } = splitNavigation(navigation);
+  const secondary = secondaryNavigation(navigation);
 
   return (
     <aside
@@ -106,40 +102,51 @@ function DesktopSidebar({ navigation, pathname }) {
         </div>
       )}
 
+      {/* A2-c: 4 mục lõi (cùng thứ tự thanh đáy mobile) ở trên, đường kẻ, rồi mục phụ (Ghi chú, Giới thiệu, Lễ hội). */}
       <nav className="flex flex-1 flex-col gap-1 p-3">
-        {visibleItems.map((item) => {
-          const active = isActive(item, pathname);
-          return (
-            <div key={item.key} className="group relative">
-              <Link
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                aria-label={collapsed ? item.navLabel : undefined}
-                className={`cdp-pressable flex min-h-11 items-center rounded-xl transition-colors ${
-                  collapsed ? "justify-center px-2" : "gap-3 px-3"
-                } ${
-                  active
-                    ? "bg-action/10 font-medium text-action-hover"
-                    : "text-ink-2 hover:bg-surface-2 hover:text-ink"
-                }`}
-              >
-                <span className="shrink-0"><NavigationIcon itemKey={item.key} /></span>
-                {!collapsed && <span className="truncate text-sm">{item.navLabel}</span>}
-              </Link>
-              {collapsed && (
-                <span
-                  role="tooltip"
-                  className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md bg-ink px-2.5 py-1.5 text-xs text-surface opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-                >
-                  {item.navLabel}
-                </span>
-              )}
-            </div>
-          );
-        })}
+        {core.map((item) => (
+          <SidebarLink key={item.key} item={item} pathname={pathname} collapsed={collapsed} />
+        ))}
+        <hr className="my-2 border-line" />
+        {secondary.map((item) => (
+          <SidebarLink key={item.key} item={item} pathname={pathname} collapsed={collapsed} />
+        ))}
       </nav>
 
     </aside>
+  );
+}
+
+// Một mục của sidebar. Thu gọn: chỉ còn biểu tượng, tên đầy đủ ở aria-label + chú thích khi rê chuột/focus.
+// Mở rộng: nhãn xuống dòng nếu dài, không cắt “…”.
+function SidebarLink({ item, pathname, collapsed }) {
+  const active = isNavItemActive(item.href, pathname);
+  return (
+    <div className="group relative">
+      <Link
+        href={item.href}
+        aria-current={active ? "page" : undefined}
+        aria-label={collapsed ? item.navLabel : undefined}
+        className={`cdp-pressable flex min-h-11 items-center rounded-xl transition-colors ${
+          collapsed ? "justify-center px-2" : "gap-3 px-3"
+        } ${
+          active
+            ? "bg-action/10 font-medium text-action-hover"
+            : "text-ink-2 hover:bg-surface-2 hover:text-ink"
+        }`}
+      >
+        <span className="shrink-0"><NavigationIcon itemKey={item.key} /></span>
+        {!collapsed && <span className="min-w-0 break-words py-1 text-sm leading-tight">{item.navLabel}</span>}
+      </Link>
+      {collapsed && (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-md bg-ink px-2.5 py-1.5 text-xs text-surface opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          {item.navLabel}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -151,7 +158,10 @@ export function PageTitle({ pageKey, fallback, className = "" }) {
 
 export function AppShell({ navigation, children }) {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Menu mobile gắn với đường dẫn lúc mở: đổi trang (kể cả nút Back của trình duyệt) là Menu tự đóng.
+  const [menuOpenPath, setMenuOpenPath] = useState(null);
+  const mobileMenuOpen = menuOpenPath === pathname;
+  const setMobileMenuOpen = useCallback((value) => setMenuOpenPath(value ? pathname : null), [pathname]);
   const aboutLabel = navigation.find((item) => item.key === "about")?.navLabel;
   const { core } = splitNavigation(navigation);
   const bottomNav = showsBottomNav(pathname);

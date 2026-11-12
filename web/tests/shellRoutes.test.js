@@ -3,7 +3,14 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CORE_NAVIGATION_KEYS, isNavItemActive, showsBottomNav, splitNavigation } from "../lib/shellRoutes.js";
+import {
+  CORE_NAVIGATION_KEYS,
+  FESTIVAL_ARCHIVE_LINK,
+  isNavItemActive,
+  secondaryNavigation,
+  showsBottomNav,
+  splitNavigation,
+} from "../lib/shellRoutes.js";
 
 test("thanh đáy hiện ở trang cấp đầu, màn phụ, Sổ/Lộ trình chi tiết (Q2)", () => {
   for (const path of [
@@ -66,4 +73,16 @@ test("nhóm lõi theo thứ tự cố định, bỏ mục Admin tắt; nhóm ph�
   assert.deepEqual(secondary.map((item) => item.key), ["notes", "about"]);
   assert.deepEqual(CORE_NAVIGATION_KEYS, ["explore", "search", "notebooks", "routes"]);
   assert.deepEqual(splitNavigation(undefined), { core: [], secondary: [] });
+});
+
+test("Menu: mục phụ theo cấu hình + Lễ hội cuối cùng, không có mục lõi", () => {
+  const navigation = [
+    { key: "explore", enabled: true },
+    { key: "about", enabled: true },
+    { key: "notes", enabled: true },
+    { key: "search", enabled: true },
+  ];
+  assert.deepEqual(secondaryNavigation(navigation).map((item) => item.key), ["about", "notes", "festival"]);
+  assert.equal(FESTIVAL_ARCHIVE_LINK.href, "/le-hoi-thanh-tuyen");
+  assert.equal(isNavItemActive(FESTIVAL_ARCHIVE_LINK.href, "/le-hoi-thanh-tuyen"), true);
 });
