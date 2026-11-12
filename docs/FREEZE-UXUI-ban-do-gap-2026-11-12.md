@@ -5,7 +5,7 @@
 | Ngày FREEZE | **2026-11-12** |
 | Trạng thái | **FREEZE tài liệu hoàn tất — chờ PM xác nhận trước BUILD A.** Chưa BUILD, chưa TEST, chưa RELEASE |
 | Commit gốc trước FREEZE | `fa6c5f6` (`origin/main`, đã đồng bộ 50 commit quét dữ liệu tự động) |
-| Commit FREEZE | `Freeze vNext UX/UI design and scope documents` — mã commit ghi ở mục cuối |
+| Commit FREEZE | **`3d5a419`** — `Freeze vNext UX/UI design and scope documents` |
 | Production lúc FREEZE | `chamdiaphuongio-og2r8pgy7` (30/9) = vNext Core Discovery `e3b38a4`. **Không đổi** |
 | Quyết định PM | [PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md) |
 
@@ -83,4 +83,4 @@ nguyên.
 
 ## 8. Mã commit FREEZE
 
-(điền sau khi commit)
+`3d5a419` — “Freeze vNext UX/UI design and scope documents” (chỉ tài liệu, trên `main`, gốc `fa6c5f6`).
