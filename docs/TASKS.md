@@ -26,8 +26,11 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **Kế hoạch A1 — màu + font** (12/11): [SPEC-A1-mau-va-font.md](SPEC-A1-mau-va-font.md). PM duyệt kèm Q1–Q3.
 - ✅ **BUILD A1** (12/11): A1a `2ee6f00` token + `cdp-site`, A1b `7ca6816` Be Vietnam Pro. Tag `prod-2026-09-30`.
   [REPORT-A1](REPORT-A1-mau-va-font-2026-11-12.md). **PM nghiệm thu có điều kiện** (sửa tên bị cắt ở A2). Chưa deploy.
-- 👀 **PLAN A2** khung + thanh đáy + Menu, mở đầu bằng **A2-0** (tên “Chạm Địa Phương” đủ ở 320px):
-  [SPEC-A2-khung-dieu-huong.md](SPEC-A2-khung-dieu-huong.md). Chờ PM duyệt + Q1–Q5. Chưa code.
+- ✅ **PLAN A2** (12/11): PM duyệt, Q1–Q5 chọn A ([SPEC-A2](SPEC-A2-khung-dieu-huong.md) §14).
+- 👀 **BUILD A2** (12/11): A2-0 `6285ed5` (tên đủ + `/tim`), A2-a `4e546e8` (màu khung), A2-b `6e43aa6` (thanh đáy),
+  A2-c `7f56897` (Menu + sidebar), `ed6e927` (footer Admin). [REPORT-A2](REPORT-A2-khung-dieu-huong-2026-11-12.md).
+  Chưa deploy. Chờ PM nghiệm thu. Kiểm máy thật → TEST A.
+- ⬜ **A3** minh họa + hàm chọn ảnh + dữ liệu ảnh thẻ — trình kế hoạch sau khi A2 được nghiệm thu.
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy

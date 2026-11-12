@@ -80,9 +80,12 @@ text nên nội dung giống thẻ HTML không được thực thi. Khi test dù
 
 | Key | Chứa gì |
 |---|---|
-| `site_config:navigation` | Năm item (explore, notes, notebooks, routes, about) có `key`, `navLabel`, `pageTitle`, `enabled`, `order`; `href` lưu kèm để đọc/debug nhưng luôn bị code ghi đè bằng route cố định |
+| `site_config:navigation` | Sáu item (explore, search, notebooks, routes, notes, about — thêm `search` → `/tim` ở A2, 12/11) có `key`, `navLabel`, `pageTitle`, `enabled`, `order`; `href` lưu kèm để đọc/debug nhưng luôn bị code ghi đè bằng route cố định |
 
-`AppShell` desktop, menu mobile, footer và H1 của bốn trang chính đọc cùng object này. Key
+`AppShell` desktop, thanh đáy mobile, Menu mobile, footer và H1 của bốn trang chính đọc cùng object này. Nhóm lõi
+(explore · search · notebooks · routes) có thứ tự cố định ở thanh đáy và đầu sidebar; ô "thứ tự" của Admin chỉ xếp
+nhóm phụ (`lib/shellRoutes.js`). Production chưa lưu cấu hình nào (kiểm 12/11) — thêm key mới thì bản đã lưu với số
+mục cũ sẽ bị bỏ và rơi về mặc định. Key
 thiếu, Redis lỗi hoặc dữ liệu sai khuôn/thứ tự trùng thì dùng `NAVIGATION_DEFINITIONS` trong
 code. Admin tại `/admin/navigation` không có ô sửa key/route; Server Action cũng tự dựng lại
 bốn item từ definition và bỏ qua mọi key/href do request gửi. Test dùng chung biến namespace
@@ -523,9 +526,12 @@ web/
 │   │                              mobile 1 cột, tablet 2 cột, desktop tối đa 6xl
 │   ├── FirstVisitIntroCard.js      Card onboarding lần đầu; chỉ lưu trạng thái đóng ở
 │   │                              localStorage, không tạo hồ sơ hay ghi Redis
-│   ├── AppShell.js                 Shell public: sidebar desktop 248/72px, menu mobile,
-│   │                              active state và PageTitle dùng chung navigation config
-│   ├── SiteHeader.js               Header/menu mobile; desktop ẩn để dùng sidebar AppShell
+│   ├── AppShell.js                 Shell public: sidebar desktop 248/72px (nhóm lõi + phụ), gắn thanh
+│   │                              đáy + khoảng trống đáy, trạng thái Menu theo đường dẫn, PageTitle
+│   ├── SiteHeader.js               Header/Menu mobile; tên “Chạm Địa Phương” KHÔNG bao giờ “…” (A2-0,
+│   │                              BrandName); đo chiều cao header → biến CSS `--cdp-header-h`
+│   │                              (hàng bám dính /tim dùng). Desktop ẩn để dùng sidebar AppShell
+│   ├── BottomNav.js                Thanh đáy mobile 4 mục; ẩn khi bàn phím bật; `--cdp-bottom-nav-h`
 │   ├── SiteFooter.js               Footer toàn site: link giới thiệu + cách cập nhật dữ liệu
 │   ├── PlaceExplorer.js           ⚠️ Từ vNext KHÔNG còn trang nào render danh sách này (trang chủ
 │   │                              cũ). Vẫn giữ vì PlaceDetail/NotebookPlaceCard import
@@ -654,6 +660,8 @@ web/
 │   ├── redis.js             (29)  Kết nối Redis + đọc/ghi places:live, places:pending
 │   ├── aboutPage.js                Default NOTE-08 + schema/giới hạn + đọc/ghi content Giới thiệu
 │   ├── navigation.js              Definition route cố định + kiểm tra/đọc/ghi menu và pageTitle
+│   ├── shellRoutes.js             Hàm thuần của khung: trang nào có thanh đáy, mục nào đang mở,
+│   │                              nhóm lõi/phụ (client dùng được; test ở tests/shellRoutes.test.js)
 │   ├── postEvents.js              Đọc/ghi `post_events:{slug}`; kiểm tra khuôn và tự rơi về
 │   │                              lịch trong file nếu Redis trống/hỏng/tạm lỗi
 │   ├── postEventForm.js           Đọc + kiểm tra form lịch; gắn múi giờ Việt Nam `+07:00`
