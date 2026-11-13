@@ -17,16 +17,16 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: A3 ACCEPTED (13/11) → PLAN A4 chờ PM duyệt.** **Chưa deploy, chưa release.
-Chưa code A4.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A3 ACCEPTED → PLAN A4 duyệt có điều chỉnh (13/11) → BUILD A4 đang làm.**
+**Chưa deploy, chưa release, không rollback. Chưa làm A5.**
 - **Kế hoạch A4** (Trang chủ B + giới hạn tiêu đề Admin 60 ký tự): [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md).
 - **Quay lại bản trước / phát hành:** [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md) — rollback code không khôi
   phục dữ liệu; Hobby chỉ rollback về bản liền trước; CLI Vercel đang đăng xuất (13/11).
 - **Báo cáo A3:** [REPORT-A3-anh-minh-hoa-2026-11-12.md](REPORT-A3-anh-minh-hoa-2026-11-12.md). Commit `81ca254` (SVG),
   `2f8f425` (ảnh menu không còn làm ảnh đại diện — đúng 1/344 chỗ đổi), `5e7b5fe` (`photo` cho `/tim`, +0,97 KB nén),
   `29b413d` (`PlaceThumb`, chưa gắn màn nào). Ảnh: https://claude.ai/artifact/KaoM2j3fDJLntc64FMdCut.
-- **Quyền ảnh (PM 13/11):** ảnh chưa xác minh — kể cả ảnh Admin — **không hiện ở vị trí mới** A5–A8, dùng minh họa.
-  Hồ sơ nội bộ: [KIEM-KE-anh-legacy-2026-11-12.md](KIEM-KE-anh-legacy-2026-11-12.md).
+- **Ảnh (13/11):** **Chủ dự án xác nhận ngày 13/11/2026: ảnh hiện có do chính chủ dự án chụp/tải lên.** Ảnh hiện có **dùng được** ở vị trí mới A5–A8.
+  Hồ sơ kỹ thuật gốc giữ nguyên: [KIEM-KE-anh-legacy-2026-11-12.md](KIEM-KE-anh-legacy-2026-11-12.md).
 - Nghiệm thu A2: [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Việc còn lại đã xếp theo bước
   A4–A9 + TEST A trong [TASKS.md](TASKS.md).
 - **Báo cáo A2:** [REPORT-A2-khung-dieu-huong-2026-11-12.md](REPORT-A2-khung-dieu-huong-2026-11-12.md). Commit `6285ed5`

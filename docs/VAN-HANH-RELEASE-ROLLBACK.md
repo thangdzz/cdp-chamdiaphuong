@@ -2,7 +2,20 @@
 
 > Tài liệu vận hành bắt buộc cho **RELEASE A** và **RELEASE B** (đợt UX/UI Bản đồ gấp + Cơ bản) và mọi lần deploy
 > production sau này. Nguồn quyết định: [PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md) §2.
-> Cập nhật: **2026-11-13**.
+> Cập nhật: **2026-11-13** (lần 2, theo [PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md) §5).
+>
+> **Trạng thái tài liệu: DOCUMENTED, NOT YET VERIFIED ON ACCOUNT.** PM duyệt **khung quy trình**, **chưa** duyệt là
+> phương án đã diễn tập. Chưa có cách quay lại nào được thử trên tài khoản Vercel của CDP.
+
+## Mức xác minh của từng cách quay lại
+
+| Cách | Mức | Ghi chú |
+|---|---|---|
+| A. Instant Rollback về bản production **liền trước** | **Đã xác minh trên tài liệu Vercel**; **chưa thử trên tài khoản CDP** | Chỉ về đúng 30/9 nếu kiểm chứng không có deploy xen giữa |
+| B. Promote một bản production cũ hơn | **Dự phòng, chưa xác minh** | Không gọi là đường quay lại chắc chắn. **Không** chạy `vercel promote` trên production chỉ để thử quyền |
+| C. Deploy lại mã từ tag | **Dự phòng, cần diễn tập** | Không phải “luôn làm được”: còn phụ thuộc môi trường build, biến môi trường, tài khoản, cấu hình dự án, cron, dữ liệu, domain |
+
+**Chưa chốt được đường quay lại thực sự khả dụng thì KHÔNG RELEASE.**
 
 ## 0. Ba điều không bao giờ quên
 
@@ -34,7 +47,8 @@ Vercel đang chạy bản nào.
 
 Đã đọc tài liệu Vercel ngày 13/11/2026, trang cập nhật 2026:
 [Instant Rollback](https://vercel.com/docs/instant-rollback) · [CLI rollback](https://vercel.com/docs/cli/rollback) ·
-[CLI promote](https://vercel.com/docs/cli/promote).
+[CLI promote](https://vercel.com/docs/cli/promote) · [Promoting a deployment](https://vercel.com/docs/deployments/promoting-a-deployment) ·
+[Rollback production deployment](https://vercel.com/docs/deployments/rollback-production-deployment) (PM kiểm 13/11).
 
 | Điều | Nội dung |
 |---|---|
@@ -45,14 +59,17 @@ Vercel đang chạy bản nào.
 | Cơ sở dữ liệu, API ngoài | **Không** khôi phục. Vercel chỉ nhắc kiểm tra |
 | Cron | Vercel khôi phục định nghĩa cron của bản được quay về. Cài đặt “Disable Cron Jobs” giữ nguyên |
 | Chạy đồng thời | Mỗi dự án chỉ một lần rollback/promote tại một thời điểm |
-| `vercel promote <bản>` | Đưa một bản đã có lên production. Tài liệu **không ghi** giới hạn theo gói cho việc promote một bản production cũ. **[Giả định — phải thử trên Vercel thật trước RELEASE A]** |
+| `vercel promote <bản>` | Đưa một bản đã có lên production. Tài liệu có khác biệt theo loại deployment (bản preview, bản từng là production) và không ghi rõ giới hạn theo gói. **[Chưa xác minh với tài khoản/gói của CDP — chỉ là dự phòng]** |
 
 **Hệ quả cho CDP** (nếu đúng là gói Hobby):
 - **RELEASE A:** nếu không có deploy nào chen giữa (kể cả sửa gấp), bản liền trước của bản A **chính là bản 30/9**. Rollback một bước là về 30/9.
-- **RELEASE B:** bản liền trước là bản A. Muốn về thẳng 30/9 thì **không dùng rollback được**: dùng promote (nếu Hobby cho phép) hoặc deploy lại từ tag (§3, cách C).
+- **RELEASE B:** bản liền trước **thường** là bản A, **không mặc định** là 30/9. Xác minh trên Dashboard/CLI và hồ sơ release. Muốn về thẳng 30/9 thì không dùng rollback một bước được; chỉ còn hai cách **dự phòng chưa kiểm thử** (B, C) — phải diễn tập trước RELEASE B.
 - **Có sửa gấp production trước RELEASE A:** bản liền trước của A sẽ là bản sửa gấp. Ghi rõ vào hồ sơ release.
 
 ## 3. Ba cách quay lại (theo thứ tự ưu tiên khi có sự cố)
+
+> A là cách chính (đã xác minh trên tài liệu). B và C là **dự phòng chưa kiểm thử**: chỉ được ghi vào hồ sơ release
+> là “đường quay lại” sau khi đã diễn tập thành công ở phạm vi không chạm production.
 
 Mọi cách đều cần: `vercel login` trên máy; đúng dự án (`vercel project ls`, kiểm `web/.vercel/project.json`); **lệnh của chủ dự án**.
 
@@ -66,29 +83,46 @@ vercel rollback status
 ```
 Sau đó: domain đang **khóa** ở bản cũ. Bản sửa lỗi deploy xong phải `vercel promote <bản mới>` mới lên production.
 
-**B. Promote một bản production cũ hơn** (Pro; Hobby chưa xác minh):
+**B. Promote một bản production cũ hơn** — **DỰ PHÒNG, CHƯA XÁC MINH** (Pro theo tài liệu; Hobby chưa rõ):
 ```sh
 vercel promote <deployment-id-hoac-url-da-doi-chieu>
 vercel promote status
 ```
+- **Không** chạy lệnh này trên production chỉ để thử quyền. Thử quyền chỉ ở **dự án thử tách biệt**.
+- Chỉ dùng khi chủ dự án ra lệnh và ID deployment đã đối chiếu.
 
-**C. Deploy lại mã baseline từ tag** (luôn làm được, chậm hơn vì build lại):
+**C. Deploy lại mã baseline từ tag** — **DỰ PHÒNG, CẦN DIỄN TẬP** (chậm hơn vì build lại; không phải “luôn làm được”):
 ```sh
 git fetch --tags
-git worktree add ../cdp-khoi-phuc-2026-09-30 prod-2026-09-30   # thư mục riêng, KHÔNG đụng main
-cp web/.vercel/project.json ../cdp-khoi-phuc-2026-09-30/web/.vercel/project.json   # nối đúng dự án
-cd ../cdp-khoi-phuc-2026-09-30/web && npm ci && npm run build   # build + test thử trước
-vercel deploy --prod   # chỉ khi chủ dự án duyệt
+git rev-parse prod-2026-09-30^{commit}                          # phải ra e3b38a4…
+git worktree add ../cdp-khoi-phuc-2026-09-30 prod-2026-09-30    # thư mục riêng, KHÔNG đụng main
+cd ../cdp-khoi-phuc-2026-09-30/web
+vercel link                                                     # chọn ĐÚNG team + dự án; KHÔNG chép tay project.json
+cat .vercel/project.json                                        # đối chiếu projectId/orgId với web/.vercel của bản chính
+npm ci && npm run build                                         # build thử trên máy trước
+vercel deploy                                                   # bản PREVIEW để kiểm, chưa phải production
+vercel deploy --prod                                            # CHỈ khi chủ dự án ra lệnh
 ```
-Trước khi chạy cách C phải kiểm:
-- Bản này chạy với **biến môi trường và dữ liệu hiện tại**, nên phải xác nhận mã cũ đọc được dữ liệu mới (xem §5).
-- Xong việc thì xóa worktree: `git worktree remove`.
+Phải kiểm trước khi coi cách C là dùng được (ghi kết quả vào hồ sơ release):
+- **Môi trường build:** phiên bản Node/npm, lệnh build, thư mục gốc (Root Directory) của dự án Vercel khớp với mã 30/9.
+- **Biến môi trường:** bản này chạy với biến **hiện tại**; mã cũ có cần biến nào đã bị xóa/đổi tên không.
+- **Tài khoản, dự án, `.vercel`:** đúng team, đúng dự án; `vercel link` tạo `.vercel` mới trong worktree; kiểm ID trước mọi lệnh.
+- **Cron:** định nghĩa cron trong mã cũ có khác bản đang chạy không.
+- **Dữ liệu:** mã cũ đọc được Redis/Blob và cấu hình có sau release (§5).
+- **Domain:** sau deploy, domain trỏ đúng bản mới deploy.
+- Xong việc thì xóa worktree: `git worktree remove ../cdp-khoi-phuc-2026-09-30`.
+
+**Diễn tập** (trước RELEASE A cho A; trước RELEASE B cho B/C): chỉ ở **dự án Vercel thử tách biệt** hoặc bằng bước
+kiểm tra không thay đổi production (đọc `vercel list`, `vercel inspect`, Dashboard). Hành động trên production cần
+lệnh riêng của chủ dự án.
 
 **Cấm:**
 - `git reset --hard` + force-push `main`;
 - xóa hay viết lại commit A1–A3;
 - sửa tag `prod-2026-09-30`;
-- rollback hay deploy khi chưa đối chiếu ID deployment.
+- rollback hay deploy khi chưa đối chiếu ID deployment;
+- chạy `vercel promote`/`rollback` trên production để “thử quyền”;
+- chép tay `.vercel/project.json` sang thư mục khác thay cho `vercel link`.
 
 ## 4. Checklist trước RELEASE A
 
@@ -102,6 +136,8 @@ Trước khi chạy cách C phải kiểm:
 - [ ] **Ghi lại trạng thái dữ liệu trước release** (chỉ đọc): số địa điểm, số Sổ/Lộ trình, cấu hình điều hướng (`site_config:navigation`), danh sách khóa. Nếu chủ dự án duyệt thì xuất bản sao Redis. Biến môi trường: chỉ ghi tên, không ghi giá trị bí mật.
 - [ ] **Kiểm tương thích dữ liệu ↔ mã cũ** (§5).
 - [ ] Không có deploy nào chen giữa từ lúc kiểm tới lúc release. Nếu có, làm lại các bước trên.
+- [ ] Xác nhận **bản sao lưu dữ liệu** theo quyền chủ dự án (có/không, ở đâu, thời điểm).
+- [ ] **Chốt đường quay lại thực sự khả dụng** (đã thử hoặc đã xác minh trên Dashboard), ghi đường dẫn/ID bản phát hành đã xác minh. **Chưa chốt → không RELEASE.**
 - [ ] Ghi tất cả vào hồ sơ release (`docs/RELEASE-A-<ngày>.md`).
 
 ## 5. Tương thích dữ liệu khi quay về mã cũ (rà lại mỗi release)
@@ -124,6 +160,6 @@ Trước khi chạy cách C phải kiểm:
 ## 7. Checklist trước RELEASE B (cộng thêm §4)
 
 - [ ] Ghi **cả hai** mốc: deployment RELEASE A (đang chạy) và baseline 30/9.
-- [ ] Ghi rõ: rollback một bước về A; về thẳng 30/9 bằng promote (nếu gói cho phép, đã thử) hay deploy lại từ tag (cách C).
+- [ ] Ghi rõ: rollback một bước về A (kiểm bản liền trước thật sự là A); về thẳng 30/9 bằng B hay C — **chỉ cách nào đã diễn tập thành công** ở dự án thử mới được ghi là đường quay lại.
 - [ ] Kiểm tương thích dữ liệu của mã A **và** mã 30/9 với dữ liệu sau B (khóa giao diện mới trên thiết bị, `updatedAt` trong tóm tắt Sổ, sự kiện có `theme`…).
 - [ ] Công tắc “Cơ bản” **không** được ghi là phương án rollback.

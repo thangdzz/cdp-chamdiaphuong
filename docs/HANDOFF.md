@@ -22,8 +22,8 @@ rollback code không khôi phục dữ liệu; Hobby chỉ về bản liền tr�
 Việc còn lại theo từng bước A4–A9 + TEST A: bảng trong [TASKS.md](TASKS.md).
 - Ảnh: **một quy tắc** — `placeCoverMedia()` (không bao giờ ảnh menu) → `placePhoto()` / `placeIllustration()` trong
   `lib/placeImage.js`; hiển thị bằng `app/PlaceThumb.js` (A5–A8 dùng, không tự viết lại xử lý ảnh lỗi). Minh họa:
-  `web/public/minh-hoa/`. **Ảnh chưa xác minh quyền (kể cả ảnh Admin) không vào vị trí mới A5–A8** (BACKLOG §6,
-  KIEM-KE-anh-legacy).
+  `web/public/minh-hoa/`. **Ảnh hiện có dùng được ở A5–A8**: chủ dự án xác nhận 13/11 toàn bộ ảnh hiện có do
+  mình chụp/tải lên (DECISIONS 13/11). Ảnh đóng góp **về sau** mới cần xác nhận quyền (A6).
 - Khung mới: `BottomNav.js` (thanh đáy), `lib/shellRoutes.js` (trang nào có thanh đáy — thêm thanh hành động ở A6–A8 thì
   sửa ở đây), biến CSS `--cdp-header-h` / `--cdp-bottom-nav-h`. Cấu hình điều hướng có 6 mục (thêm `search`).
 

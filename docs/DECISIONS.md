@@ -7,12 +7,33 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-13 (sau) — PM duyệt PLAN A4 có điều chỉnh → BUILD A4 · ảnh hiện có thuộc chủ dự án · rollback chưa diễn tập
+
+Nguồn: [PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md).
+- **Ảnh (thay cổng quyền ảnh của mục dưới):** **Chủ dự án xác nhận ngày 13/11/2026: ảnh hiện có do chính chủ dự án chụp/tải lên.** Phạm vi: **toàn bộ ảnh
+  địa điểm đang có** trên CDP lúc 13/11 (lô kiểm 12/11: 25 legacy, 21 gửi qua form sau 14/9, 3 Admin). Bản ghi qua form
+  “Bổ sung ảnh” chỉ là dấu vết kỹ thuật của đường tải lên, không chứng minh người chụp là người khác. → A5–A8 **được dùng**
+  ảnh hiện có ở vị trí mới; **bỏ** cổng “chưa xác minh người tải” cho lô này. **Không** bao gồm: ảnh người khác đóng góp
+  về sau, ảnh mua/nguồn ngoài, ảnh chưa có trong lô hiện tại. Giữ nguyên hồ sơ kỹ thuật gốc
+  ([KIEM-KE-anh-legacy](KIEM-KE-anh-legacy-2026-11-12.md)); không sửa log cũ, không biến ID ẩn danh thành danh tính. A6
+  vẫn thêm câu công khai + xác nhận quyền **cho ảnh gửi mới**. A4 không sửa/xóa/thay ảnh trên Redis/Blob.
+- **Q1–Q4 = A.** Giữ câu dẫn hiện tại; bỏ “CDP giúp bạn”; người mới = thiết bị chưa có Sổ (đang tải/lỗi → ẩn thẻ); kiểm
+  320×568, 360×640, 390×664, 390×844, 1280×800 trên Chromium + WebKit.
+- **Tiêu chí vùng đầu chỉnh:** H1 mặc định → ưu tiên H1, ô tìm, 4 nhóm hiện sớm, báo tọa độ. H1 60 ký tự rộng nhất / tiêu
+  đề cũ > 60 **không** bắt buộc vừa 320×568 cùng 4 nhóm: được cuộn dọc, không cắt, không thu chữ, không giấu nhóm, không
+  bị thanh đáy che, không cuộn ngang. Phóng chữ 125–200%: ưu tiên đọc và bấm được.
+- **H1 mặc định “Hôm nay bạn muốn ghé đâu?” = 25 ký tự NFC** (kế hoạch ghi nhầm 24). Bộ đếm mặc định **25/60**, lấy từ code.
+- **Rollback:** PM duyệt **khung**, chưa duyệt là đã diễn tập → **DOCUMENTED, NOT YET VERIFIED ON ACCOUNT**. A = cách chính
+  (đã xác minh trên tài liệu Vercel); B promote = dự phòng chưa xác minh, không chạy trên production để thử quyền; C deploy
+  từ tag = dự phòng cần diễn tập (`vercel link`, không chép tay `project.json`). Chưa chốt đường quay lại khả dụng →
+  không RELEASE. A4 không chạm production.
+
 ## 2026-11-13 — A3 ACCEPTED (kỹ thuật) · quy tắc quay lại bản trước thiết kế → chỉ cho lập PLAN A4
 
 Nguồn: [PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md). Dựa trên báo cáo + ảnh,
 PM chưa tự kiểm Git remote hay Vercel.
 - **A3 ACCEPTED** (kỹ thuật). Chưa BUILD A4, chưa DEPLOY/RELEASE.
-- **Quyền ảnh (mang sang A5–A8):** ảnh chưa xác minh quyền — 25 legacy, 21 khách gửi sau 14/9, **kể cả 3 ảnh Admin tải**
+- ~~Quyền ảnh~~ **(đã thay bằng mục 13/11 sau ở trên: ảnh hiện có thuộc chủ dự án)** — bản gốc: ảnh chưa xác minh quyền — 25 legacy, 21 khách gửi sau 14/9, **kể cả 3 ảnh Admin tải**
   — **không hiện ở vị trí mới**; dùng SVG đúng nhóm. Admin duyệt ≠ bằng chứng quyền. Hồ sơ nội bộ, không công khai dữ
   liệu người gửi. A6: thông báo + xác nhận quyền **chỉ cho ảnh gửi mới** (không hồi tố); rà riêng ảnh cũ đang ở Chi tiết,
   có kế hoạch nếu tranh chấp. A6: khung minh họa giữ mặt hồ (Chơi) và bánh xe (Đi lại), không `object-cover` cắt nội dung

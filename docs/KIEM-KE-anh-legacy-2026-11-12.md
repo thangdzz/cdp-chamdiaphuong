@@ -1,5 +1,12 @@
 # Kiểm kê ảnh “legacy” chưa rõ quyền dùng — 12/11/2026 (hồ sơ nội bộ)
 
+> **Cập nhật 13/11/2026 —** **Chủ dự án xác nhận ngày 13/11/2026: ảnh hiện có do chính chủ dự án chụp/tải lên.**
+> Áp cho **toàn bộ ảnh địa điểm đang có** (25 ảnh legacy dưới đây, 21 ảnh gửi qua form sau 14/9, 3 ảnh Admin). Bản ghi
+> form “Bổ sung ảnh” là dấu vết kỹ thuật của đường tải lên, không chứng minh người chụp là người khác. Ảnh hiện có **được
+> dùng ở vị trí mới A5–A8**. Không áp cho ảnh người khác đóng góp về sau, ảnh mua/nguồn ngoài, ảnh chưa có trong lô này.
+> Nguồn: [PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md) §1.
+> **Bảng bên dưới giữ nguyên như ghi ngày 12/11** (hồ sơ kỹ thuật gốc; cột “Chưa xác minh” là trạng thái lúc đó).
+
 > PM Q4 PLAN A3: lập danh sách để **xác minh nguồn/quyền trước A5**. Danh sách **không kết luận** ảnh có quyền dùng hay
 > không. Đọc **chỉ đọc** bằng token Redis chỉ-đọc lúc 2026-11-12T16:25:39.732Z (`places:live` + hàng góp ý `user_suggestions`).
 > Không ghi định danh người gửi.

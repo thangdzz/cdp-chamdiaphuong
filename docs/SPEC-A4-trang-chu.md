@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| Trạng thái | **KẾ HOẠCH — chờ PM duyệt.** Chưa sửa code A4, chưa deploy |
+| Trạng thái | **PM DUYỆT CÓ ĐIỀU CHỈNH 13/11 → BUILD A4 được phép** ([PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md)). Q1–Q4 = A. Không deploy/release |
 | Ngày | 2026-11-13 |
-| Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §3, §7 (Trang chủ) · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §2 (Trang chủ, Admin), §4 (Trang chủ, Admin tiêu đề) · [PM-FINAL-REVIEW-DESIGN…](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md) §3.1 · mockup “Trang chủ B”, bảng 1 “Đợt A · Cơ bản · người mới” (tham khảo; DESIGN thắng khi khác) · [PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md) §3 |
+| Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §3, §7 (Trang chủ) · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §2 (Trang chủ, Admin), §4 (Trang chủ, Admin tiêu đề) · [PM-FINAL-REVIEW-DESIGN…](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md) §3.1 · mockup “Trang chủ B”, bảng 1 “Đợt A · Cơ bản · người mới” (tham khảo; DESIGN thắng khi khác) · [PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md) §3 · [PM-DUYET-PLAN-A4…](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md) §2–§4 |
 | Gốc code | `main` sau A3 (`daa4eb8`) |
 
 **“Trang chủ B”** là phương án bố cục Trang chủ đã duyệt (phương án B, H1 “Hôm nay bạn muốn ghé đâu?”). Đây **không**
@@ -88,7 +88,7 @@ Câu cuối khớp quy tắc cố định về Sổ/thiết bị (DECISIONS 2026
 **Ai là “người mới”** (**Q3**): thiết bị **chưa có Sổ nào**.
 - Không có mã ẩn danh trong máy (`cdp_contributor`) → người mới. **Không gọi mạng.**
 - Có mã → gọi hàm đọc **đang có** `getMyNotebooks(anonId)` (trang Sổ dùng hàm này). Không thêm API mới. Kết quả 0 Sổ → người mới. Có Sổ → ẩn thẻ.
-- Đang chờ hoặc lỗi mạng → **ẩn**. Không nói sai với người đã có Sổ.
+- Đang chờ hoặc lỗi mạng → **ẩn**. Không nói sai với người đã có Sổ. (PM chốt Q3 = A.)
 - Người đã có Sổ: đợt A **không** có khối thay thế (Sổ gần đây là đợt B). Họ dùng thanh đáy “Sổ”.
 
 **Chống nhảy bố cục:** thẻ hiện sau khi trang chạy JS và nằm cuối nội dung, chỉ đẩy footer. Em sẽ đo CLS.
@@ -102,14 +102,14 @@ Câu cuối khớp quy tắc cố định về Sổ/thiết bị (DECISIONS 2026
   - `validateHomeTitle(text)` → `{ ok, length, max, message }`.
 - **Form Admin:** chỉ ô “Tiêu đề trang” của mục Trang chủ (`explore`) đổi sang component nhỏ `HomeTitleField`:
   - **Bỏ `maxLength`**, để dán câu dài không bị cắt im lặng.
-  - Bộ đếm “24/60”. Vượt thì đổi màu cảnh báo + “Quá 7 ký tự — rút gọn để lưu được.” (`aria-live`).
+  - Bộ đếm “25/60” với tiêu đề mặc định (số đếm lấy từ code, test kiểm, không viết cứng). Vượt thì đổi màu cảnh báo + “Quá 7 ký tự — rút gọn để lưu được.” (`aria-live`).
   - Nút “Lưu menu & tên trang” **tạm khóa** cho tới khi hết vượt.
   - Chữ khách đã gõ **giữ nguyên**, không tự cắt.
   - Các ô khác giữ nguyên như hiện nay.
 - **Máy chủ kiểm lại** (phòng khi trình duyệt tắt JS): `saveNavigation` gọi `validateHomeTitle`. Quá 60 thì **không lưu** và quay lại với thông báo riêng: “Tiêu đề trang chủ đang có N ký tự, tối đa 60. Cấu hình cũ chưa bị thay đổi.”
   - Ở đường này (đã tắt JS) chữ vừa gõ không giữ được; ghi rõ trong báo cáo.
   - Tiêu đề lưu dạng NFC.
-- **Mặc định mới:** `explore.pageTitle` = “Hôm nay bạn muốn ghé đâu?” (24 ký tự). Nhãn menu “Trang chủ” không đổi.
+- **Mặc định mới:** `explore.pageTitle` = “Hôm nay bạn muốn ghé đâu?” (**25 ký tự** Unicode NFC — PM sửa 13/11; bản kế hoạch ghi nhầm 24). Nhãn menu “Trang chủ” không đổi.
 - **Tiêu đề cũ dài hơn 60** (dữ liệu đã lưu trước đây; production hiện không có):
   - Lúc **đọc** vẫn chấp nhận tới 120 như cũ. Trang chủ hiện **đủ**, xuống dòng, không cắt, không lỗi trang.
   - Form Admin hiện bộ đếm đỏ, buộc rút gọn mới lưu được.
@@ -158,11 +158,13 @@ Xong cả ba thì gửi **REPORT A4**. Chưa làm A5.
 
 Riêng lượt đọc `getMyNotebooks` (chỉ đọc) được cho qua để thử thẻ người mới; token chỉ đọc vẫn chặn mọi lệnh ghi phía máy chủ.
 
-**Trang chủ** (Chromium + WebKit; 320×568, 360×640, 390×664 là vùng nhìn Safari còn lại, 390×844, 1280×800):
+**Trang chủ** (Chromium + WebKit; 320×568, 360×640, 390×664 là vùng nhìn Safari còn lại, 390×844, 1280×800 — PM chốt Q4):
 - Đúng thứ tự 7 phần. Ô tìm không tự focus. Bấm Tab vào ô tìm có viền focus.
-- **Vùng đầu (Q4):** với H1 mặc định, H1 60 ký tự và H1 2–3 dòng, **ô tìm + đủ 4 nhóm nằm trọn trên thanh đáy** ở 320×568, 360×640, 390×664.
-  - Cách thử: thay chữ H1 ngay trong trình duyệt bằng chuỗi 60 ký tự tiếng Việt rộng nhất (nhiều chữ hoa có dấu), đo vị trí.
-  - Thử thêm tiêu đề cũ 120 ký tự: hiện đủ, không cắt, không cuộn ngang. Chỉ ghi nhận vị trí ô tìm.
+- **Vùng đầu (Q4, tiêu chí PM chỉnh 13/11):**
+  - **H1 mặc định:** ưu tiên H1, ô tìm và 4 nhóm hiện sớm trong màn đầu, nhất là 320×568. Báo cáo **tọa độ** từng phần và phần nào nằm trên thanh đáy.
+  - **H1 60 ký tự rộng nhất và tiêu đề cũ 120 ký tự:** **không** bắt buộc nằm trọn trong 320×568; chấp nhận cuộn dọc tự nhiên. Điều kiện bắt buộc: không cắt H1, không thu chữ nhỏ hơn quy định, không giấu nhóm, không bị thanh đáy che, không cuộn ngang. Chỉ ghi nhận tọa độ.
+  - Cách thử: thay chữ H1 ngay trong trình duyệt bằng chuỗi dài (nhiều chữ hoa có dấu), đo vị trí.
+  - Thu phóng chữ 125/150/200%: ưu tiên đọc được và bấm được, không ép vào một màn.
 - Tên “Chạm Địa Phương” vẫn đủ (bộ kiểm A2-0).
 - 0 cuộn ngang. 4 ô nhóm vùng chạm ≥ 44px. Tương phản các cặp màu mới đo bằng số.
 - Theo mùa: lễ hội đã hết → không có thẻ (kiểm trên trang thật). Trường hợp còn hiệu lực kiểm bằng test thuần:
@@ -194,7 +196,7 @@ Riêng lượt đọc `getMyNotebooks` (chỉ đọc) được cho qua để th�
 ## 7. Điều kiện nghiệm thu A4
 
 - [ ] Trang chủ đúng thứ tự DESIGN §7. H1 mặc định “Hôm nay bạn muốn ghé đâu?”. Ô tìm không tự focus.
-- [ ] H1 60 ký tự: ô tìm + 4 nhóm nằm trong vùng đầu ở 320/360/390 (theo kích cỡ chốt ở Q4). Tiêu đề cũ dài hơn 60 hiện an toàn, không cắt, không cuộn ngang.
+- [ ] H1 mặc định 25/60: H1, ô tìm, 4 nhóm hiện sớm ở màn đầu; báo tọa độ ở 320×568 và 390×664. H1 60 ký tự / tiêu đề cũ > 60: được cuộn dọc, không cắt, không giấu nhóm, không bị thanh đáy che, không cuộn ngang (PM chỉnh Q4).
 - [ ] Thẻ người mới hiện/ẩn đúng 4 trường hợp; câu chữ đúng quy tắc Sổ/thiết bị.
 - [ ] Theo mùa chỉ hiện khi còn hiệu lực.
 - [ ] Admin: bộ đếm; chặn lưu khi quá 60; thông báo rõ; không cắt im lặng; phần Admin khác không đổi; máy chủ kiểm lại.
@@ -220,7 +222,7 @@ Riêng lượt đọc `getMyNotebooks` (chỉ đọc) được cho qua để th�
   - Mặc định H1 quay về “Khám phá Tuyên Quang” chỉ khi chưa có bản lưu nào.
 - Sửa gấp production: nhánh/worktree từ tag `prod-2026-09-30`. **Không deploy `main`.**
 
-## 10. Câu hỏi cần PM chốt
+## 10. Câu hỏi đã chốt (PM 13/11: Q1 = A, Q2 = A, Q3 = A, Q4 = A có chỉnh tiêu chí — xem §6)
 
 **Q1 — Câu dẫn dưới H1.**
 - **A (đề xuất):** giữ câu đang dùng “Ăn · Chơi · Ngủ · Đi lại — tất cả trong một cuốn sổ địa phương.” Câu này đúng với mọi khách và khớp 4 nhóm ngay bên dưới.

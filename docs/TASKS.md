@@ -33,8 +33,8 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **BUILD A3** (12/11) — **PM ACCEPTED 13/11**: `81ca254` · `2f8f425` · `5e7b5fe` · `29b413d`.
   [REPORT-A3](REPORT-A3-anh-minh-hoa-2026-11-12.md) · [nghiệm thu + rollback](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md).
 - ✅ **Quy trình phát hành + rollback** (13/11): [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md).
-- 👀 **PLAN A4** Trang chủ B + giới hạn tiêu đề Admin 60 ký tự: [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md). Chờ PM duyệt.
-  Chưa code.
+- ✅ **PLAN A4** (13/11): PM duyệt có điều chỉnh, Q1–Q4 = A ([duyệt](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md)).
+- 🚧 **BUILD A4** Trang chủ B + giới hạn tiêu đề Admin 60 ký tự: [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md). A4-a → A4-b → A4-c.
 
 ### Việc mang theo từng bước đợt A (PM nghiệm thu A1/A2 — không bỏ sót trước RELEASE A)
 
@@ -42,10 +42,10 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 |---|---|---|
 | Mọi bước | Tên “Chạm Địa Phương” luôn đủ, không “…”; không thêm lại `truncate` ở header/sidebar | Chủ dự án 12/11 |
 | A4–A9 | Đổi màu cũ (`zinc-400` chữ nhạt — 73 chỗ, nút `#c8553d`) sang token **trong file của màn đó**, đo tương phản | PM A1/A2 |
-| A5 Tìm chỗ | Vệt dấu dòng ẩn dưới ô `line-clamp` (thẻ, địa chỉ 2 dòng) · **cổng quyền ảnh**: chỉ hiện ảnh thật **đã xác minh quyền** (kể cả ảnh Admin cũng phải xác minh), còn lại SVG đúng nhóm · dấu ✎ + chú giải | PM A1, A3 |
-| A6 Chi tiết | **Khung minh họa không cắt nội dung chính** (Chơi giữ mặt hồ, Đi lại giữ bánh xe; không `object-cover` ở khung siêu rộng) · Vệt dấu dưới ô cắt 2 dòng · thanh “Lưu vào Sổ + Chỉ đường” đệm tai thỏ khi xoay ngang · nhãn minh họa / ảnh lỗi · **form gửi ảnh: thông báo công khai + xác nhận quyền, chỉ cho ảnh gửi mới** (không hồi tố) · **rà ảnh cũ đang hiện ở Chi tiết + kế hoạch nếu có tranh chấp** · ảnh chưa xác minh không vào vị trí mới | PM A1/A2/A3 |
-| A7 Sổ | Vệt dấu dưới ô cắt 2 dòng · cổng quyền ảnh cho ảnh nhỏ trong Sổ | PM A1, Q4 A3 |
-| A8 Lộ trình | Bộ chọn địa điểm + form đề xuất (lớp cố định toàn màn) đệm tai thỏ khi xoay ngang · cổng quyền ảnh cho ảnh điểm dừng | PM A2, Q4 A3 |
+| A5 Tìm chỗ | Vệt dấu dòng ẩn dưới ô `line-clamp` (thẻ, địa chỉ 2 dòng) · ảnh thật: **dùng ảnh hiện có** (chủ dự án xác nhận 13/11 là ảnh của mình), chỗ chưa có ảnh → SVG đúng nhóm · dấu ✎ + chú giải | PM A1, A3, PM duyệt A4 §1 |
+| A6 Chi tiết | **Khung minh họa không cắt nội dung chính** (Chơi giữ mặt hồ, Đi lại giữ bánh xe; không `object-cover` ở khung siêu rộng) · Vệt dấu dưới ô cắt 2 dòng · thanh “Lưu vào Sổ + Chỉ đường” đệm tai thỏ khi xoay ngang · nhãn minh họa / ảnh lỗi · **form gửi ảnh: thông báo công khai + xác nhận quyền, chỉ cho ảnh gửi mới** (không hồi tố) · ảnh hiện có dùng được (chủ dự án xác nhận 13/11); xác nhận quyền chỉ áp cho ảnh gửi mới | PM A1/A2/A3, PM duyệt A4 §1 |
+| A7 Sổ | Vệt dấu dưới ô cắt 2 dòng · ảnh nhỏ trong Sổ dùng ảnh hiện có / minh họa qua `PlaceThumb` | PM A1, PM duyệt A4 §1 |
+| A8 Lộ trình | Bộ chọn địa điểm + form đề xuất (lớp cố định toàn màn) đệm tai thỏ khi xoay ngang · ảnh điểm dừng dùng ảnh hiện có / minh họa qua `PlaceThumb` | PM A2, PM duyệt A4 §1 |
 | A9 Màn phụ | Footer phía khách chữ ≥ 13px (đang 12px) | PM A2 |
 | Màn có thanh hành động (A6–A8) | Thêm đường dẫn vào `lib/shellRoutes.js` để chỉ một thanh đáy | PM Q2 A2 |
 
