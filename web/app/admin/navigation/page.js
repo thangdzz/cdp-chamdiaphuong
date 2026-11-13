@@ -3,7 +3,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { getNavigationConfig, NAVIGATION_LIMITS } from "@/lib/navigation";
+import { HOME_TITLE_KEY, homeTitleServerError } from "@/lib/homeTitle";
 import { saveNavigation } from "./actions";
+import { HomeTitleField } from "./HomeTitleField";
 import { AdminNav } from "../AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +19,11 @@ export default async function NavigationAdminPage({ searchParams }) {
   if (!verifySessionToken(token)) redirect("/admin");
 
   const [navigation, params] = await Promise.all([getNavigationConfig(), searchParams]);
+  const homeTitleLength = Number.parseInt(params?.length, 10);
   const errorMessage =
-    params?.error === "invalid"
+    params?.error === "home_title" && Number.isInteger(homeTitleLength) && homeTitleLength > 0
+      ? homeTitleServerError(homeTitleLength)
+      : params?.error === "invalid"
       ? "Có nhãn hoặc tiêu đề không hợp lệ, hoặc thứ tự đang bị trùng. Cấu hình cũ chưa bị thay đổi."
       : params?.error === "save"
         ? "Chưa lưu được do lỗi kết nối dữ liệu. Cấu hình cũ vẫn được giữ nguyên."
@@ -66,7 +71,12 @@ export default async function NavigationAdminPage({ searchParams }) {
                 <p><span className="font-medium text-zinc-700">Đường dẫn:</span> {item.href}</p>
               </div>
 
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)_110px_130px] lg:items-end">
+              {/* Mục Trang chủ có thêm dòng bộ đếm dưới ô tiêu đề (A4) nên căn theo mép trên thay vì mép dưới. */}
+              <div
+                className={`grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)_110px_130px] ${
+                  item.key === HOME_TITLE_KEY ? "lg:items-start" : "lg:items-end"
+                }`}
+              >
                 <label className="block text-sm font-medium text-zinc-700">
                   Tên trong menu
                   <input
@@ -77,16 +87,24 @@ export default async function NavigationAdminPage({ searchParams }) {
                     className={inputClass}
                   />
                 </label>
-                <label className="block text-sm font-medium text-zinc-700">
-                  Tiêu đề trang
-                  <input
+                {item.key === HOME_TITLE_KEY ? (
+                  <HomeTitleField
                     name={`pageTitle_${item.key}`}
                     defaultValue={item.pageTitle}
-                    maxLength={NAVIGATION_LIMITS.pageTitle}
-                    required
-                    className={inputClass}
+                    inputClassName={inputClass}
                   />
-                </label>
+                ) : (
+                  <label className="block text-sm font-medium text-zinc-700">
+                    Tiêu đề trang
+                    <input
+                      name={`pageTitle_${item.key}`}
+                      defaultValue={item.pageTitle}
+                      maxLength={NAVIGATION_LIMITS.pageTitle}
+                      required
+                      className={inputClass}
+                    />
+                  </label>
+                )}
                 <label className="block text-sm font-medium text-zinc-700">
                   Thứ tự
                   <select name={`order_${item.key}`} defaultValue={item.order} className={inputClass}>
@@ -95,7 +113,11 @@ export default async function NavigationAdminPage({ searchParams }) {
                     ))}
                   </select>
                 </label>
-                <label className="flex min-h-11 items-center gap-2 rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-700">
+                <label
+                  className={`flex min-h-11 items-center gap-2 rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-700 ${
+                    item.key === HOME_TITLE_KEY ? "lg:mt-[18px]" : ""
+                  }`}
+                >
                   <input
                     type="checkbox"
                     name={`enabled_${item.key}`}
@@ -112,7 +134,8 @@ export default async function NavigationAdminPage({ searchParams }) {
         <div className="sticky bottom-0 mt-6 border-t border-zinc-200 bg-zinc-50/95 py-4 backdrop-blur">
           <button
             type="submit"
-            className="cdp-pressable min-h-11 rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white"
+            data-navigation-save
+            className="cdp-pressable min-h-11 rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
             Lưu menu &amp; tên trang
           </button>

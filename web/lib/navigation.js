@@ -2,9 +2,12 @@ import "server-only";
 
 import { redis } from "./redis.js";
 import { createSharedRead } from "./sharedRead.js";
+import { HOME_TITLE_DEFAULT, HOME_TITLE_KEY, normalizeHomeTitle, validateHomeTitle } from "./homeTitle.js";
 
 const NAVIGATION_KEY = "site_config:navigation";
 
+// Giới hạn khi ĐỌC bản đã lưu. Riêng tiêu đề Trang chủ, khi LƯU còn 60 ký tự (lib/homeTitle.js, A4); đọc vẫn nhận tới
+// 120 để bản lưu cũ dài hơn (nếu có) vẫn hiện đủ, không làm hỏng trang và không tự sửa dữ liệu.
 export const NAVIGATION_LIMITS = {
   navLabel: 48,
   pageTitle: 120,
@@ -14,12 +17,12 @@ export const NAVIGATION_LIMITS = {
 // chữ hiển thị, trạng thái và thứ tự; dữ liệu Redis không bao giờ được quyền đổi href.
 export const NAVIGATION_DEFINITIONS = [
   // 4 mục lõi (thanh đáy mobile + nhóm trên của sidebar), thứ tự cố định theo DESIGN §6. Nhãn ngắn để vừa ô
-  // 80px của thanh đáy ở 320px (PM Q1 PLAN A2, 12/11). Tiêu đề trang (pageTitle) giữ như cũ.
+  // 80px của thanh đáy ở 320px (PM Q1 PLAN A2, 12/11). H1 Trang chủ đổi theo DESIGN §7 ở A4 (13/11).
   {
-    key: "explore",
+    key: HOME_TITLE_KEY,
     href: "/",
     navLabel: "Trang chủ",
-    pageTitle: "Khám phá Tuyên Quang",
+    pageTitle: HOME_TITLE_DEFAULT,
     enabled: true,
     order: 1,
   },
@@ -132,16 +135,28 @@ function formText(formData, name) {
 }
 
 export function navigationFromFormData(formData) {
-  const candidate = NAVIGATION_DEFINITIONS.map((definition) => ({
-    key: definition.key,
-    // Không đọc href từ FormData: route luôn lấy lại từ NAVIGATION_DEFINITIONS.
-    navLabel: formText(formData, `navLabel_${definition.key}`),
-    pageTitle: formText(formData, `pageTitle_${definition.key}`),
-    enabled: formData.get(`enabled_${definition.key}`) === "on",
-    order: Number(formText(formData, `order_${definition.key}`)),
-  }));
+  const candidate = NAVIGATION_DEFINITIONS.map((definition) => {
+    const pageTitle = formText(formData, `pageTitle_${definition.key}`);
+    return {
+      key: definition.key,
+      // Không đọc href từ FormData: route luôn lấy lại từ NAVIGATION_DEFINITIONS.
+      navLabel: formText(formData, `navLabel_${definition.key}`),
+      // Tiêu đề Trang chủ lưu dạng NFC (A4) để đếm và hiển thị nhất quán.
+      pageTitle: definition.key === HOME_TITLE_KEY ? normalizeHomeTitle(pageTitle) : pageTitle,
+      enabled: formData.get(`enabled_${definition.key}`) === "on",
+      order: Number(formText(formData, `order_${definition.key}`)),
+    };
+  });
 
-  return normalizeNavigation(candidate);
+  const navigation = normalizeNavigation(candidate);
+  if (navigation && !homeTitleSavable(navigation)) return null;
+  return navigation;
+}
+
+// Giới hạn 60 chỉ chặn lúc LƯU (A4). Bản đã lưu trước đó dài hơn vẫn đọc được qua normalizeNavigation.
+function homeTitleSavable(navigation) {
+  const home = navigation.find((item) => item.key === HOME_TITLE_KEY);
+  return validateHomeTitle(home?.pageTitle).ok;
 }
 
 // Menu nằm trong Root Layout nên MỌI lượt mở trang của cả web đều đọc nó. Đo ngày 16/9 (bắn 10.000
@@ -162,7 +177,7 @@ export async function getNavigationConfig() {
 
 export async function setNavigationConfig(value) {
   const normalized = normalizeNavigation(value);
-  if (!normalized) throw new Error("Cấu hình menu không hợp lệ.");
+  if (!normalized || !homeTitleSavable(normalized)) throw new Error("Cấu hình menu không hợp lệ.");
   await redis.set(navigationKey(), normalized);
   readShared.forget(navigationKey());
   return normalized;
