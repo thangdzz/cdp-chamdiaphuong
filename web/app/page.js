@@ -9,6 +9,7 @@ import { FESTIVAL_EVENTS, POST_META } from "@/lib/postEvents/le-hoi-thanh-tuyen-
 import { getPostEvents } from "@/lib/postEvents";
 import { PageTitle } from "./AppShell";
 import { HomeSearchForm, HomeCategoryLink } from "./HomeLinks";
+import { HomeFirstNotebook } from "./HomeFirstNotebook";
 import { LegacyHashRedirect } from "./LegacyHashRedirect";
 import { HomeGameEntry } from "./_game/HomeGameEntry";
 
@@ -75,6 +76,9 @@ export default async function Home() {
             />
           ))}
         </nav>
+
+        {/* Người mới (thiết bị chưa có Sổ): 3 bước Tìm → Lưu → Lộ trình. Tự ẩn với người đã có Sổ. */}
+        <HomeFirstNotebook />
 
         {festivalActive && (
           <section aria-label="Theo mùa" className="mt-8">
