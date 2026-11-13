@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Trạng thái | **PM DUYỆT CÓ ĐIỀU CHỈNH 13/11 → BUILD A4 được phép** ([PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md)). Q1–Q4 = A. Không deploy/release |
+| Trạng thái | **ĐÃ BUILD 13/11 — chờ PM nghiệm thu** ([REPORT-A4](REPORT-A4-trang-chu-2026-11-13.md)). PM duyệt có điều chỉnh 13/11 → BUILD A4 được phép ([PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md)). Q1–Q4 = A. Không deploy/release |
 | Ngày | 2026-11-13 |
 | Nguồn chuẩn | [DESIGN.md](DESIGN.md) v2.0 §3, §7 (Trang chủ) · [SCOPE-UXUI-ban-do-gap.md](SCOPE-UXUI-ban-do-gap.md) §2 (Trang chủ, Admin), §4 (Trang chủ, Admin tiêu đề) · [PM-FINAL-REVIEW-DESIGN…](PM-FINAL-REVIEW-DESIGN-CDP-BAN-DO-GAP-2026-11-12.md) §3.1 · mockup “Trang chủ B”, bảng 1 “Đợt A · Cơ bản · người mới” (tham khảo; DESIGN thắng khi khác) · [PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md) §3 · [PM-DUYET-PLAN-A4…](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md) §2–§4 |
 | Gốc code | `main` sau A3 (`daa4eb8`) |
@@ -92,6 +92,7 @@ Câu cuối khớp quy tắc cố định về Sổ/thiết bị (DECISIONS 2026
 - Người đã có Sổ: đợt A **không** có khối thay thế (Sổ gần đây là đợt B). Họ dùng thanh đáy “Sổ”.
 
 **Chống nhảy bố cục:** thẻ hiện sau khi trang chạy JS và nằm cuối nội dung, chỉ đẩy footer. Em sẽ đo CLS.
+- **Khi BUILD (13/11):** đo ra 0,067 ở 320×568 cho người mới, nên đổi sang **máy chủ giữ sẵn chỗ vô hình** (đang tải vẫn ẩn, đúng Q3) → người mới 0; người đã có Sổ 0,067 (khung bị gỡ). Chi tiết REPORT A4 §5.
 - Mục tiêu ≤ 0,1, kỳ vọng 0 ở màn đầu.
 - Nếu vượt: đổi sang hiện sẵn từ máy chủ (vì 95% khách là người mới) và ẩn với người đã có Sổ. Em sẽ báo PM trước khi đổi.
 

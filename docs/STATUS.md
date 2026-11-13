@@ -5,7 +5,7 @@
 > [archive/logs/STATUS-log-2026-07-15-den-09-22.md](archive/logs/STATUS-log-2026-07-15-den-09-22.md).
 > Chi tiết từng lượt sửa: [TASKS.md](TASKS.md) · lý do: [DECISIONS.md](DECISIONS.md) (29/9–30/9).
 
-Cập nhật: **2026-11-12**
+Cập nhật: **2026-11-13**
 
 ---
 
@@ -17,9 +17,14 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: A3 ACCEPTED → PLAN A4 duyệt có điều chỉnh (13/11) → BUILD A4 đang làm.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A4 xong (13/11) → chờ PM nghiệm thu.**
 **Chưa deploy, chưa release, không rollback. Chưa làm A5.**
-- **Kế hoạch A4** (Trang chủ B + giới hạn tiêu đề Admin 60 ký tự): [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md).
+- **Báo cáo A4:** [REPORT-A4-trang-chu-2026-11-13.md](REPORT-A4-trang-chu-2026-11-13.md). Commit `69992c8` (Admin 60 ký tự,
+  H1 mặc định 25/60), `7ef5a7a` (Trang chủ B), `15f0afa` (thẻ “Bắt đầu Sổ đầu tiên”). Ảnh:
+  https://claude.ai/artifact/15jnW8veCXVEFpR4f7JWe3. Chỉ `/` và `/admin/navigation` đổi; 14 trang khác 0%.
+- **Chờ PM quyết:** footer trượt khi khung đo thanh đáy (`AppShell.js`, có từ A2, CLS 0,007 trên trang ngắn); cách giữ chỗ
+  thẻ người mới (người mới CLS 0, người đã có Sổ 0,067 ở 320×568).
+- **Rollback:** tài liệu ở mức **DOCUMENTED, NOT YET VERIFIED ON ACCOUNT**; chưa chốt đường quay lại thật thì không RELEASE.
 - **Quay lại bản trước / phát hành:** [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md) — rollback code không khôi
   phục dữ liệu; Hobby chỉ rollback về bản liền trước; CLI Vercel đang đăng xuất (13/11).
 - **Báo cáo A3:** [REPORT-A3-anh-minh-hoa-2026-11-12.md](REPORT-A3-anh-minh-hoa-2026-11-12.md). Commit `81ca254` (SVG),

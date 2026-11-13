@@ -7,7 +7,7 @@
 > Danh sách cũ (DONE chi tiết từ 07/2026, TODO trước lễ hội, việc game):
 > [archive/logs/TASKS-2026-09-22.md](archive/logs/TASKS-2026-09-22.md).
 
-Cập nhật: **2026-11-12**
+Cập nhật: **2026-11-13**
 
 Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check · ✅ xong
 
@@ -34,7 +34,9 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
   [REPORT-A3](REPORT-A3-anh-minh-hoa-2026-11-12.md) · [nghiệm thu + rollback](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md).
 - ✅ **Quy trình phát hành + rollback** (13/11): [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md).
 - ✅ **PLAN A4** (13/11): PM duyệt có điều chỉnh, Q1–Q4 = A ([duyệt](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md)).
-- 🚧 **BUILD A4** Trang chủ B + giới hạn tiêu đề Admin 60 ký tự: [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md). A4-a → A4-b → A4-c.
+- 👀 **BUILD A4** (13/11) — chờ PM nghiệm thu: A4-a `69992c8` (Admin 60 ký tự, H1 mặc định 25/60) · A4-b `7ef5a7a`
+  (Trang chủ B) · A4-c `15f0afa` (thẻ “Bắt đầu Sổ đầu tiên”). [REPORT-A4](REPORT-A4-trang-chu-2026-11-13.md). Chưa deploy.
+  Chưa làm A5.
 
 ### Việc mang theo từng bước đợt A (PM nghiệm thu A1/A2 — không bỏ sót trước RELEASE A)
 
@@ -48,6 +50,7 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 | A8 Lộ trình | Bộ chọn địa điểm + form đề xuất (lớp cố định toàn màn) đệm tai thỏ khi xoay ngang · ảnh điểm dừng dùng ảnh hiện có / minh họa qua `PlaceThumb` | PM A2, PM duyệt A4 §1 |
 | A9 Màn phụ | Footer phía khách chữ ≥ 13px (đang 12px) | PM A2 |
 | Màn có thanh hành động (A6–A8) | Thêm đường dẫn vào `lib/shellRoutes.js` để chỉ một thanh đáy | PM Q2 A2 |
+| Khung trang (A2, `AppShell.js`) — **chờ PM xếp bước** | Trang ngắn: footer trượt lên ~52px khi khung đo xong thanh đáy (`transition-[padding]` + đệm bắt đầu từ 0) → CLS 0,007 ở 390×844 trên `/`, `/so`, `/lo-trinh`, `/ghi-chu`. Đề xuất: bỏ hiệu ứng đệm trên mobile hoặc đặt đệm mặc định = chiều cao thanh đáy. Ngoài danh sách file A4 nên chưa sửa | REPORT A4 |
 
 ### Mang theo TEST A (cộng thêm checklist SCOPE §4)
 

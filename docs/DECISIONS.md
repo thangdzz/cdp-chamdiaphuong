@@ -7,6 +7,15 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-13 (BUILD A4) — quyết định trong lúc làm, chờ PM nghiệm thu
+
+Nguồn: [REPORT-A4-trang-chu-2026-11-13.md](REPORT-A4-trang-chu-2026-11-13.md).
+- **Thẻ người mới giữ chỗ vô hình từ máy chủ** thay vì chèn sau khi trang chạy JS: người mới CLS 0 (thay vì 0,067 ở
+  320×568); người đã có Sổ chịu 0,067 khi khung bị gỡ. Đang tải vẫn ẩn (Q3). Lý do: phần lớn khách là người mới.
+- **Đếm tiêu đề Trang chủ giống hệt lúc lưu** (bỏ ký tự điều khiển trước rồi gộp khoảng trắng như `cleanText`), để con số
+  Admin thấy luôn khớp chuỗi được lưu.
+- **Không sửa `AppShell.js`** dù thấy footer trượt (CLS 0,007 trên trang ngắn, có từ A2): ngoài danh sách file A4, chờ PM xếp.
+
 ## 2026-11-13 (sau) — PM duyệt PLAN A4 có điều chỉnh → BUILD A4 · ảnh hiện có thuộc chủ dự án · rollback chưa diễn tập
 
 Nguồn: [PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md](PM-DUYET-PLAN-A4-VA-ROLLBACK-CDP-2026-11-13.md).

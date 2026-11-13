@@ -17,7 +17,9 @@ các thiết bị.”
 ## 1. Task hiện tại
 
 **vNext UX/UI — Bản đồ gấp + Cơ bản: A3 ACCEPTED (13/11) → PLAN A4 chờ PM duyệt** ([SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md)).
-**Không code A4 trước khi PM duyệt.** Phát hành / rollback: **[VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md)** —
+**A4 đã BUILD (13/11), chờ PM nghiệm thu** ([REPORT-A4](REPORT-A4-trang-chu-2026-11-13.md)); **chưa làm A5.**
+Tiêu đề Trang chủ: `lib/homeTitle.js` (một nguồn đếm NFC, tối đa 60 khi lưu, đọc vẫn 120). Thẻ người mới:
+`app/HomeFirstNotebook.js` (giữ chỗ vô hình từ máy chủ; ẩn khi có Sổ/lỗi). Phát hành / rollback: **[VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md)** —
 rollback code không khôi phục dữ liệu; Hobby chỉ về bản liền trước; tag `prod-2026-09-30` không bao giờ sửa.
 Việc còn lại theo từng bước A4–A9 + TEST A: bảng trong [TASKS.md](TASKS.md).
 - Ảnh: **một quy tắc** — `placeCoverMedia()` (không bao giờ ảnh menu) → `placePhoto()` / `placeIllustration()` trong
