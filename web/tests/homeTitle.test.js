@@ -1,4 +1,5 @@
-// A4: tiêu đề Trang chủ tối đa 60 ký tự, đếm theo ký tự NFC (SPEC-A4 §3.3, PM duyệt A4 §2: mặc định 25/60).
+// A4: tiêu đề Trang chủ tối đa 60 ký tự, đếm theo ký tự NFC (SPEC-A4 §3.3, PM duyệt A4 §2: mặc định 25/60),
+// và điều kiện hiện nội dung theo mùa của Trang chủ (A4-b).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -10,6 +11,8 @@ import {
   normalizeHomeTitle,
   validateHomeTitle,
 } from "../lib/homeTitle.js";
+import { groupEvents } from "../lib/events.js";
+import { FESTIVAL_EVENTS } from "../lib/postEvents/le-hoi-thanh-tuyen-2026.js";
 
 test("tiêu đề mặc định đếm 25/60 (NFC), không phải 24", () => {
   assert.equal(HOME_TITLE_DEFAULT, "Hôm nay bạn muốn ghé đâu?");
@@ -75,4 +78,16 @@ test("câu báo lỗi máy chủ nêu số ký tự và nói cấu hình cũ ch�
     homeTitleServerError(73),
     "Tiêu đề trang chủ đang có 73 ký tự, tối đa 60. Cấu hình cũ chưa bị thay đổi."
   );
+});
+
+// A4-b: Trang chủ chỉ hiện nội dung theo mùa khi còn hiệu lực (DESIGN §7). page.js hiện card khi
+// groupEvents(...).next có giá trị — test đúng điều kiện đó với lịch lễ hội thật và thời điểm giả lập.
+
+const seasonActive = (iso) => Boolean(groupEvents(FESTIVAL_EVENTS, Date.parse(iso)).next);
+
+test("theo mùa: trước và trong lễ hội → hiện; sau lễ hội → ẩn", () => {
+  assert.equal(seasonActive("2026-09-10T09:00:00+07:00"), true); // trước 20/9: còn mốc sắp tới
+  assert.equal(seasonActive("2026-09-20T20:00:00+07:00"), true); // đang diễn ra
+  assert.equal(seasonActive("2026-09-28T09:00:00+07:00"), false); // sau 27/9: hết mốc
+  assert.equal(seasonActive("2026-11-13T09:00:00+07:00"), false); // hôm nay (13/11)
 });
