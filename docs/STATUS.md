@@ -17,13 +17,16 @@ bộ; mã khôi phục 6 số = khôi phục thủ công; Ghi chú chỉ trên t
 
 ## Đang làm (12/11)
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A3 (ảnh + minh họa) xong, đã push, chờ PM nghiệm thu.** **Chưa deploy,
-chưa release. Chưa làm A4.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A3 ACCEPTED (13/11) → PLAN A4 chờ PM duyệt.** **Chưa deploy, chưa release.
+Chưa code A4.**
+- **Kế hoạch A4** (Trang chủ B + giới hạn tiêu đề Admin 60 ký tự): [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md).
+- **Quay lại bản trước / phát hành:** [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md) — rollback code không khôi
+  phục dữ liệu; Hobby chỉ rollback về bản liền trước; CLI Vercel đang đăng xuất (13/11).
 - **Báo cáo A3:** [REPORT-A3-anh-minh-hoa-2026-11-12.md](REPORT-A3-anh-minh-hoa-2026-11-12.md). Commit `81ca254` (SVG),
   `2f8f425` (ảnh menu không còn làm ảnh đại diện — đúng 1/344 chỗ đổi), `5e7b5fe` (`photo` cho `/tim`, +0,97 KB nén),
   `29b413d` (`PlaceThumb`, chưa gắn màn nào). Ảnh: https://claude.ai/artifact/KaoM2j3fDJLntc64FMdCut.
-- **Quyền ảnh chưa kết luận:** 25 ảnh legacy (11/16 ảnh đại diện) truy được nguồn là khách gửi + Admin duyệt, nhưng chưa
-  có căn cứ quyền — [KIEM-KE-anh-legacy-2026-11-12.md](KIEM-KE-anh-legacy-2026-11-12.md). **PM chốt tiêu chí trước A5.**
+- **Quyền ảnh (PM 13/11):** ảnh chưa xác minh — kể cả ảnh Admin — **không hiện ở vị trí mới** A5–A8, dùng minh họa.
+  Hồ sơ nội bộ: [KIEM-KE-anh-legacy-2026-11-12.md](KIEM-KE-anh-legacy-2026-11-12.md).
 - Nghiệm thu A2: [PM-NGHIEM-THU-A2-CDP-2026-11-12.md](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Việc còn lại đã xếp theo bước
   A4–A9 + TEST A trong [TASKS.md](TASKS.md).
 - **Báo cáo A2:** [REPORT-A2-khung-dieu-huong-2026-11-12.md](REPORT-A2-khung-dieu-huong-2026-11-12.md). Commit `6285ed5`
@@ -81,5 +84,5 @@ Commit `e3b38a4` · deployment `chamdiaphuongio-og2r8pgy7` · https://chamdiaphu
 
 ## Bước tiếp theo hợp lý nhất
 
-1. PM nghiệm thu [A3](REPORT-A3-anh-minh-hoa-2026-11-12.md) + chốt tiêu chí xác minh quyền ảnh (trước A5).
-2. Trình kế hoạch A4 (Trang chủ + giới hạn tiêu đề Admin) → PM duyệt → code A4.
+1. PM duyệt [PLAN A4](SPEC-A4-trang-chu.md) + chốt câu hỏi.
+2. Code A4 theo thứ tự commit trong SPEC → REPORT A4.

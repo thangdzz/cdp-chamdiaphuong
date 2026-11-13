@@ -30,9 +30,11 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - ✅ **BUILD A2** (12/11) — **PM ACCEPTED**: A2-0 `6285ed5`, A2-a `4e546e8`, A2-b `6e43aa6`, A2-c `7f56897`, `ed6e927`.
   [REPORT-A2](REPORT-A2-khung-dieu-huong-2026-11-12.md) · [nghiệm thu](PM-NGHIEM-THU-A2-CDP-2026-11-12.md). Chưa deploy.
 - ✅ **PLAN A3** (12/11): PM duyệt, Q1–Q4 chọn A ([SPEC-A3](SPEC-A3-anh-minh-hoa.md) §13).
-- 👀 **BUILD A3** (12/11): A3-a `81ca254` SVG · A3-b `2f8f425` chọn ảnh + sửa ảnh menu · A3-c `5e7b5fe` `photo` cho `/tim`
-  · A3-d `29b413d` `PlaceThumb`. [REPORT-A3](REPORT-A3-anh-minh-hoa-2026-11-12.md). Chưa deploy. Chờ PM nghiệm thu.
-- ⬜ **A4** Trang chủ + giới hạn tiêu đề Admin — trình kế hoạch sau khi A3 được nghiệm thu.
+- ✅ **BUILD A3** (12/11) — **PM ACCEPTED 13/11**: `81ca254` · `2f8f425` · `5e7b5fe` · `29b413d`.
+  [REPORT-A3](REPORT-A3-anh-minh-hoa-2026-11-12.md) · [nghiệm thu + rollback](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md).
+- ✅ **Quy trình phát hành + rollback** (13/11): [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md).
+- 👀 **PLAN A4** Trang chủ B + giới hạn tiêu đề Admin 60 ký tự: [SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md). Chờ PM duyệt.
+  Chưa code.
 
 ### Việc mang theo từng bước đợt A (PM nghiệm thu A1/A2 — không bỏ sót trước RELEASE A)
 
@@ -40,8 +42,8 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 |---|---|---|
 | Mọi bước | Tên “Chạm Địa Phương” luôn đủ, không “…”; không thêm lại `truncate` ở header/sidebar | Chủ dự án 12/11 |
 | A4–A9 | Đổi màu cũ (`zinc-400` chữ nhạt — 73 chỗ, nút `#c8553d`) sang token **trong file của màn đó**, đo tương phản | PM A1/A2 |
-| A5 Tìm chỗ | Vệt dấu dòng ẩn dưới ô `line-clamp` (thẻ, địa chỉ 2 dòng) · **cổng quyền ảnh**: chỉ hiện ảnh thật đã xác minh nguồn/quyền, còn lại minh họa · dấu ✎ + chú giải | PM A1, Q4 A3 |
-| A6 Chi tiết | Minh họa ở khung rộng × 150px bị cắt (Đi lại mất bánh xe, Chơi mất mặt hồ) — chọn vị trí cắt / khung 3:2 · Vệt dấu dưới ô cắt 2 dòng · thanh “Lưu vào Sổ + Chỉ đường” đệm tai thỏ khi xoay ngang (`env(safe-area-inset-*)`) · nhãn minh họa / ảnh lỗi · **form gửi ảnh: thông báo công khai + xác nhận quyền** (BACKLOG §6) | PM A1/A2, Q4 A3 |
+| A5 Tìm chỗ | Vệt dấu dòng ẩn dưới ô `line-clamp` (thẻ, địa chỉ 2 dòng) · **cổng quyền ảnh**: chỉ hiện ảnh thật **đã xác minh quyền** (kể cả ảnh Admin cũng phải xác minh), còn lại SVG đúng nhóm · dấu ✎ + chú giải | PM A1, A3 |
+| A6 Chi tiết | **Khung minh họa không cắt nội dung chính** (Chơi giữ mặt hồ, Đi lại giữ bánh xe; không `object-cover` ở khung siêu rộng) · Vệt dấu dưới ô cắt 2 dòng · thanh “Lưu vào Sổ + Chỉ đường” đệm tai thỏ khi xoay ngang · nhãn minh họa / ảnh lỗi · **form gửi ảnh: thông báo công khai + xác nhận quyền, chỉ cho ảnh gửi mới** (không hồi tố) · **rà ảnh cũ đang hiện ở Chi tiết + kế hoạch nếu có tranh chấp** · ảnh chưa xác minh không vào vị trí mới | PM A1/A2/A3 |
 | A7 Sổ | Vệt dấu dưới ô cắt 2 dòng · cổng quyền ảnh cho ảnh nhỏ trong Sổ | PM A1, Q4 A3 |
 | A8 Lộ trình | Bộ chọn địa điểm + form đề xuất (lớp cố định toàn màn) đệm tai thỏ khi xoay ngang · cổng quyền ảnh cho ảnh điểm dừng | PM A2, Q4 A3 |
 | A9 Màn phụ | Footer phía khách chữ ≥ 13px (đang 12px) | PM A2 |
@@ -56,6 +58,15 @@ Quy ước: ⬜ chưa làm · 🚧 đang làm · 👀 chờ Product Owner check 
 - [ ] Lỗi tải trước WebKit (“access control checks”) có tái hiện không; nếu có, đánh giá trước release.
 - [ ] Tương phản đo trên máy thật cho mọi màn đã đổi token.
 - [ ] Đối chiếu deployment Vercel thật + `vercel login` trước RELEASE A.
+
+### RELEASE A / RELEASE B — cổng bắt buộc
+
+Checklist đầy đủ: [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md) §4 (A), §7 (B), §6 (sau rollback).
+- [ ] `vercel login`; ghi gói, dự án, **deployment đang chạy** (ID/URL + commit thật), domain.
+- [ ] Đường quay về 30/9 đã xác định và **đã thử** (rollback một bước / promote / deploy lại từ tag `prod-2026-09-30`).
+- [ ] Ghi trạng thái dữ liệu trước release; kiểm mã cũ đọc được dữ liệu mới. **Rollback code không khôi phục dữ liệu.**
+- [ ] Hạn mức tối ưu ảnh Vercel đủ dùng.
+- [ ] Không deploy nào chen giữa từ lúc kiểm tới lúc release.
 
 - ✅ **Dọn tài liệu theo PRODUCT mới** (29/9) — đã duyệt, push `1191e43`. DECISIONS 2026-09-29.
 - ✅ **Hotfix 29/9** — game hết 27/9, bỏ nhãn "còn chỗ", README 4 nhóm, vùng dữ liệu. Deploy

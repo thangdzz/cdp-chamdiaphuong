@@ -7,6 +7,25 @@
 > dưới trái với PRODUCT thì PRODUCT thắng — xem mục 2026-09-29 để biết cái nào còn, cái nào hết
 > hiệu lực.
 
+## 2026-11-13 — A3 ACCEPTED (kỹ thuật) · quy tắc quay lại bản trước thiết kế → chỉ cho lập PLAN A4
+
+Nguồn: [PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md](PM-NGHIEM-THU-A3-VA-ROLLBACK-CDP-2026-11-13.md). Dựa trên báo cáo + ảnh,
+PM chưa tự kiểm Git remote hay Vercel.
+- **A3 ACCEPTED** (kỹ thuật). Chưa BUILD A4, chưa DEPLOY/RELEASE.
+- **Quyền ảnh (mang sang A5–A8):** ảnh chưa xác minh quyền — 25 legacy, 21 khách gửi sau 14/9, **kể cả 3 ảnh Admin tải**
+  — **không hiện ở vị trí mới**; dùng SVG đúng nhóm. Admin duyệt ≠ bằng chứng quyền. Hồ sơ nội bộ, không công khai dữ
+  liệu người gửi. A6: thông báo + xác nhận quyền **chỉ cho ảnh gửi mới** (không hồi tố); rà riêng ảnh cũ đang ở Chi tiết,
+  có kế hoạch nếu tranh chấp. A6: khung minh họa giữ mặt hồ (Chơi) và bánh xe (Đi lại), không `object-cover` cắt nội dung
+  chính trong khung siêu rộng. Kiểm hạn mức tối ưu ảnh Vercel trước RELEASE A.
+- **Rollback (bắt buộc cho RELEASE A/B):** quy trình + checklist ở [VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md).
+  Hai loại: (A) quay lại **deployment** trên Vercel; (B) quay về **mã** từ tag `prod-2026-09-30` bằng worktree riêng, deploy
+  khi chủ dự án duyệt. **Rollback code không khôi phục Redis, Blob, biến môi trường, domain hay dữ liệu đã phát sinh.**
+  Tag `prod-2026-09-30` → `e3b38a4` giữ nguyên, không sửa/ghi đè. Cấm `reset --hard` + force-push `main`. Không tự rollback/
+  deploy khi chưa có lệnh chủ dự án. Công tắc giao diện đợt B ≠ rollback.
+- **Kiểm chứng 13/11:** tài liệu Vercel: Hobby chỉ rollback về bản production **liền trước**; sau rollback tắt tự gán domain
+  (gỡ bằng `promote`); rollback không đổi biến môi trường. `promote` bản cũ trên Hobby **chưa xác minh**. CLI trên máy đang
+  **đăng xuất** → xác minh deployment thật là cổng trước RELEASE A.
+
 ## 2026-11-12 (A3) — PM duyệt PLAN A3, cho BUILD A3 có điều kiện · Q1–Q4 chọn A
 
 Nguồn: [PM-DUYET-PLAN-A3-CDP-2026-11-12.md](PM-DUYET-PLAN-A3-CDP-2026-11-12.md). Chi tiết: [SPEC-A3](SPEC-A3-anh-minh-hoa.md) §13.

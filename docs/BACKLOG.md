@@ -77,7 +77,8 @@ Trích lần đầu 2026-09-29 khi dọn tài liệu (xem DECISIONS 2026-09-29).
 - **Ảnh thu nhỏ (thumbnail) thật** · thống kê dùng ảnh · **dọn ảnh mồ côi** (phải có chỉ mục
   tham chiếu + chạy thử trước khi xoá) · UX chú thích/vai trò ảnh · ảnh nhận diện cho điểm dừng
   lộ trình. Nguồn: `20-NOTE-11` P1.
-- **Xác minh nguồn/quyền dùng ảnh** (PM Q4 PLAN A3, 12/11) — 25 ảnh “legacy” không ghi người tải; danh sách nội bộ
+- **Xác minh nguồn/quyền dùng ảnh** (PM Q4 PLAN A3, 12/11; siết 13/11: áp cho **mọi** ảnh, kể cả 21 ảnh khách sau 14/9 và
+  3 ảnh Admin) — 25 ảnh “legacy” không ghi người tải; danh sách nội bộ
   [KIEM-KE-anh-legacy-2026-11-12.md](KIEM-KE-anh-legacy-2026-11-12.md). Ảnh chưa xác minh → **minh họa ở bề mặt mới** (A5–A8).
   Đã Admin duyệt / đã nằm trên Blob **không** phải bằng chứng quyền. Không xác minh được thì giữ “chưa xác minh”.
 - **Câu thông báo + xác nhận trong form gửi ảnh** (làm ở **A6**): “Ảnh bạn gửi có thể hiển thị công khai trên Chạm Địa

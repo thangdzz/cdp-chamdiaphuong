@@ -69,6 +69,8 @@ Bàn giao giữa Claude Code và Codex đi qua `docs/HANDOFF.md` trên GitHub �
 - [docs/ROUTINE.md](docs/ROUTINE.md) — lịch quét dữ liệu hằng ngày: nằm ở đâu, làm gì, bản
   sao lưu nội dung lệnh, cách dựng lại nếu mất. **Cập nhật mỗi khi sửa nội dung routine.**
 - [docs/STATUS.md](docs/STATUS.md) — tình trạng hiện tại, cập nhật mỗi phiên
+- [docs/VAN-HANH-RELEASE-ROLLBACK.md](docs/VAN-HANH-RELEASE-ROLLBACK.md) — **đọc trước mọi deploy/release/rollback**:
+  rollback code không khôi phục dữ liệu; không tự deploy/rollback; tag `prod-2026-09-30` không bao giờ sửa
 - [docs/DECISIONS.md](docs/DECISIONS.md) — nhật ký các quyết định quan trọng
 - [docs/HANDOFF.md](docs/HANDOFF.md) — bàn giao Claude Code ↔ Codex
 - `docs/SPEC-*.md` — spec chi tiết, viết ngay trước khi code một mảng

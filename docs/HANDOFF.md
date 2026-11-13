@@ -16,12 +16,14 @@ các thiết bị.”
 
 ## 1. Task hiện tại
 
-**vNext UX/UI — Bản đồ gấp + Cơ bản: BUILD A3 xong (12/11), chờ PM nghiệm thu**
-([REPORT-A3-anh-minh-hoa-2026-11-12.md](REPORT-A3-anh-minh-hoa-2026-11-12.md)). **Không code A4 trước khi PM duyệt kế hoạch.**
+**vNext UX/UI — Bản đồ gấp + Cơ bản: A3 ACCEPTED (13/11) → PLAN A4 chờ PM duyệt** ([SPEC-A4-trang-chu.md](SPEC-A4-trang-chu.md)).
+**Không code A4 trước khi PM duyệt.** Phát hành / rollback: **[VAN-HANH-RELEASE-ROLLBACK.md](VAN-HANH-RELEASE-ROLLBACK.md)** —
+rollback code không khôi phục dữ liệu; Hobby chỉ về bản liền trước; tag `prod-2026-09-30` không bao giờ sửa.
 Việc còn lại theo từng bước A4–A9 + TEST A: bảng trong [TASKS.md](TASKS.md).
 - Ảnh: **một quy tắc** — `placeCoverMedia()` (không bao giờ ảnh menu) → `placePhoto()` / `placeIllustration()` trong
   `lib/placeImage.js`; hiển thị bằng `app/PlaceThumb.js` (A5–A8 dùng, không tự viết lại xử lý ảnh lỗi). Minh họa:
-  `web/public/minh-hoa/`. **Cổng quyền ảnh trước A5** (BACKLOG §6, KIEM-KE-anh-legacy).
+  `web/public/minh-hoa/`. **Ảnh chưa xác minh quyền (kể cả ảnh Admin) không vào vị trí mới A5–A8** (BACKLOG §6,
+  KIEM-KE-anh-legacy).
 - Khung mới: `BottomNav.js` (thanh đáy), `lib/shellRoutes.js` (trang nào có thanh đáy — thêm thanh hành động ở A6–A8 thì
   sửa ở đây), biến CSS `--cdp-header-h` / `--cdp-bottom-nav-h`. Cấu hình điều hướng có 6 mục (thêm `search`).
 
@@ -64,7 +66,7 @@ Việc còn lại theo từng bước A4–A9 + TEST A: bảng trong [TASKS.md](
 
 ## 5. Bước tiếp theo nên làm
 
-1. Chờ PM nghiệm thu A3 → trình kế hoạch A4 → PM duyệt → code A4. Không code A4 trước khi PM duyệt.
+1. Chờ PM duyệt PLAN A4 → code A4 → REPORT A4. Không code A4 trước khi PM duyệt.
 2. Deploy lần sau: `npx vercel --prod --yes --scope thangdz1`. **Chỉ deploy khi được yêu cầu.** CLI Vercel trên máy
    đã hết phiên đăng nhập (12/11) → chủ dự án cần chạy `vercel login` trước RELEASE.
 
